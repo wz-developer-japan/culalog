@@ -6,6 +6,7 @@
 // 新旧の日付が本当に違うか・判断の言い回しが無いか）。合わないものは外し、外した数も画面に出す。
 // 採用するかは本人が決める。
 
+import { maskKnownNumbers } from "./numbers";
 import type { Candidate } from "./butler";
 import { formatYmd, parseDate, ruleDeadlines } from "./deadlines";
 import type { Deadline, DocumentRecord, Household } from "./types";
@@ -178,7 +179,7 @@ export function buildConnectInput(
       period: doc.periodLabel ?? "",
       memberIds: doc.memberIds,
       olderVersionOf,
-      fields: doc.fields.map((f) => ({ label: f.label, value: maskNumbers(f.label, f.value), location: f.source?.location ?? "" })),
+      fields: doc.fields.map((f) => ({ label: f.label, value: maskKnownNumbers(doc, maskNumbers(f.label, f.value)), location: f.source?.location ?? "" })),
       deadlines: doc.deadlines.map((d) => ({
         id: d.id,
         kind: d.kind,
