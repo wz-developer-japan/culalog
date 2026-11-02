@@ -1,10 +1,10 @@
 {
-  "at": "2026-11-02 15:52 UTC",
+  "at": "2026-11-02 15:59 UTC",
   "model": "claude-opus-5-5",
   "claude": false,
   "overall": {
-    "hit": 1086,
-    "total": 1086
+    "hit": 1180,
+    "total": 1180
   },
   "perfect": 85,
   "byKey": {
@@ -39,7 +39,13 @@
       "docs": 85
     },
     "deadlineExtra": {
-      "label": "余計な予定を作らない",
+      "label": "正解に無い日付を締切にしない",
+      "hit": 85,
+      "total": 85,
+      "docs": 85
+    },
+    "ifIgnored": {
+      "label": "放置すると？（推測で書かない）",
       "hit": 85,
       "total": 85,
       "docs": 85
@@ -69,7 +75,7 @@
       "docs": 68
     },
     "deadlineDate": {
-      "label": "予定の名前と日付",
+      "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
       "hit": 114,
       "total": 114,
       "docs": 49
@@ -79,6 +85,12 @@
       "hit": 114,
       "total": 114,
       "docs": 49
+    },
+    "bundle": {
+      "label": "束ねる印",
+      "hit": 9,
+      "total": 9,
+      "docs": 8
     },
     "onlyInLink": {
       "label": "リンク先にしか無いことを推測しない",
@@ -136,7 +148,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -212,7 +230,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -224,7 +242,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -300,7 +324,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -312,7 +336,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -388,7 +418,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 3,
           "total": 3
         },
@@ -400,7 +430,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -476,7 +512,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 10,
           "total": 10
         },
@@ -488,7 +524,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -564,7 +606,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -576,7 +618,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -652,7 +700,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 4,
           "total": 4
         },
@@ -664,7 +712,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -734,7 +788,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -746,7 +800,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -822,7 +882,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 3,
           "total": 3
         },
@@ -834,7 +894,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -910,7 +976,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 5,
           "total": 5
         },
@@ -922,7 +988,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -998,7 +1070,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1074,7 +1152,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -1086,7 +1164,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1162,7 +1246,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -1174,7 +1258,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1250,7 +1340,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1326,7 +1422,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -1338,7 +1434,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1414,7 +1516,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -1426,7 +1528,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1496,7 +1604,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1560,7 +1674,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -1572,7 +1686,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1642,7 +1762,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -1654,7 +1774,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1730,7 +1856,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -1741,8 +1867,20 @@
           "total": 2
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 2,
+          "total": 2
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1806,7 +1944,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -1817,8 +1955,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1894,7 +2044,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 3,
           "total": 3
         },
@@ -1906,7 +2056,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -1982,7 +2138,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2052,7 +2214,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2122,7 +2290,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -2134,7 +2302,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2210,7 +2384,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 3,
           "total": 3
         },
@@ -2222,7 +2396,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2298,7 +2478,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -2310,7 +2490,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2392,7 +2578,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -2404,7 +2590,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2480,7 +2672,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 6,
           "total": 6
         },
@@ -2492,7 +2684,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2568,7 +2766,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -2580,7 +2778,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2656,7 +2860,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2732,7 +2942,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2802,7 +3018,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -2814,7 +3030,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2890,7 +3112,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -2902,7 +3124,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -2984,7 +3212,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 3,
           "total": 3
         },
@@ -2996,7 +3224,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3072,7 +3306,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3148,7 +3388,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -3160,7 +3400,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3236,7 +3482,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -3248,7 +3494,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3324,7 +3576,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3400,7 +3658,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -3412,7 +3670,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3488,7 +3752,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3564,7 +3834,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3640,7 +3916,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3716,7 +3998,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3792,7 +4080,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3868,7 +4162,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 4,
           "total": 4
         },
@@ -3880,7 +4174,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -3956,7 +4256,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4026,7 +4332,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 4,
           "total": 4
         },
@@ -4038,7 +4344,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4114,7 +4426,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -4126,7 +4438,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4202,7 +4520,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4278,7 +4602,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4354,7 +4684,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4430,7 +4766,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -4442,7 +4778,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4518,7 +4860,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -4530,7 +4872,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4600,7 +4948,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 3,
           "total": 3
         },
@@ -4612,7 +4960,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4688,7 +5042,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -4700,7 +5054,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4776,7 +5136,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 6,
           "total": 6
         },
@@ -4788,7 +5148,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4858,7 +5224,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -4934,7 +5306,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 4,
           "total": 4
         },
@@ -4946,7 +5318,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5022,7 +5400,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5092,7 +5476,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5174,7 +5564,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -5185,8 +5575,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5262,7 +5664,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -5273,8 +5675,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5350,7 +5764,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 4,
           "total": 4
         },
@@ -5362,7 +5776,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5426,7 +5846,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5496,7 +5922,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 2,
           "total": 2
         },
@@ -5508,7 +5934,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5584,7 +6016,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -5595,8 +6027,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5678,7 +6122,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -5689,8 +6133,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5772,7 +6228,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5854,7 +6316,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -5866,7 +6328,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -5942,7 +6410,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -5953,8 +6421,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6030,7 +6510,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -6041,8 +6521,20 @@
           "total": 1
         },
         {
+          "key": "bundle",
+          "label": "束ねる印",
+          "hit": 1,
+          "total": 1
+        },
+        {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6118,7 +6610,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6200,7 +6698,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6282,7 +6786,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6364,7 +6874,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6434,7 +6950,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6510,7 +7032,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6580,7 +7108,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6650,7 +7184,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6726,7 +7266,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6808,7 +7354,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6884,7 +7436,7 @@
         },
         {
           "key": "deadlineDate",
-          "label": "予定の名前と日付",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
           "hit": 1,
           "total": 1
         },
@@ -6896,7 +7448,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -6966,7 +7524,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },
@@ -7030,7 +7594,13 @@
         },
         {
           "key": "deadlineExtra",
-          "label": "余計な予定を作らない",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
           "hit": 1,
           "total": 1
         },

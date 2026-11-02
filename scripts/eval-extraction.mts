@@ -165,29 +165,42 @@ function compare(reading: Extraction, truth: Extraction): Item[] {
   add("household", "家全体かどうか", reading.who.household === truth.who.household);
   add("notForFamily", "この家の書類ではない", (reading.notForFamily?.is ?? false) === (truth.notForFamily?.is ?? false));
   if (truth.period.from || truth.period.until) add("period", "期間（いつの分か）", reading.period.from === truth.period.from && reading.period.until === truth.period.until);
-  // 予定: 正解の予定ごとに、名前が近くて日付が同じものがあるか
+  // 予定: 正解の予定ごとに、同じ日付のものがあるか（名前の語も重なれば1点、日付だけなら半分。2号の採点の決め方と同じ）
+  const sameDay = (x: { date: string; endDate?: string }, t: { date: string; endDate?: string }) => x.date === t.date || (!!t.endDate && x.endDate === t.endDate) || (!!x.endDate && x.endDate === t.date);
   if (truth.deadlines.length) {
     let hits = 0;
     let kinds = 0;
     let awareness = 0;
     let awarenessTotal = 0;
+    let bundled = 0;
+    let bundledTotal = 0;
     for (const t of truth.deadlines) {
-      const r = reading.deadlines.find((x) => similar(x.label, t.label) && x.date === t.date && (x.endDate || "") === (t.endDate || ""));
-      if (r) hits++;
-      if (r && r.kind === t.kind) kinds++;
+      const byName = reading.deadlines.find((x) => sameDay(x, t) && similar(x.label, t.label));
+      const r = byName ?? reading.deadlines.find((x) => sameDay(x, t));
+      hits += byName ? 1 : r ? 0.5 : 0;
+      if (reading.deadlines.some((x) => sameDay(x, t) && x.kind === t.kind)) kinds++;
       if (t.actionNeeded === false) {
         awarenessTotal++;
         if (r && r.actionNeeded === false) awareness++;
       }
+      if (t.bundleKey) {
+        bundledTotal++;
+        if (r?.bundleKey) bundled++;
+      }
     }
-    add("deadlineDate", "予定の名前と日付", hits, truth.deadlines.length);
+    add("deadlineDate", "予定の日付（名前も合えば1点・日付だけなら半分）", hits, truth.deadlines.length);
     add("deadlineKind", "予定の種類", kinds, truth.deadlines.length);
     if (awarenessTotal) add("awareness", "知っておくだけ", awareness, awarenessTotal);
-    // 正解に無い予定を作っていないか（多すぎる分を減点）
-    add("deadlineExtra", "余計な予定を作らない", reading.deadlines.length <= truth.deadlines.length + 1);
-  } else {
-    add("deadlineExtra", "余計な予定を作らない", reading.deadlines.length === 0);
+    if (bundledTotal) add("bundle", "束ねる印", bundled, bundledTotal);
   }
+  // 正解に無い日付を締切にしていないか（広告・リンク先・対象外の罠）
+  const extra = reading.deadlines.filter((x) => x.date && x.actionNeeded !== false && !truth.deadlines.some((t) => sameDay(x, t))).length;
+  add("deadlineExtra", "正解に無い日付を締切にしない", extra === 0);
+  // 放置すると？: 正解に無ければ推測で書かない。あれば text と quote の両方
+  const ti = truth.summary?.ifIgnored?.text ?? "";
+  const ri = reading.summary?.ifIgnored ?? { text: "", quote: "" };
+  const tq = truth.summary?.ifIgnored?.quote ?? "";
+  add("ifIgnored", "放置すると？（推測で書かない）", ti ? !!ri.text && (!tq || !!ri.quote) : !ri.text);
   // 問い合わせ先の電話番号
   const phones = truth.contacts.map((c) => c.phone).filter(Boolean);
   if (phones.length) add("phone", "問い合わせ先の電話番号", phones.filter((p) => reading.contacts.some((c) => norm(c.phone) === norm(p))).length, phones.length);
@@ -241,6 +254,16 @@ async function worker() {
 }
 await Promise.all(Array.from({ length: useClaude ? concurrency : 1 }, worker));
 results.sort((a, b) => a.id.localeCompare(b.id));
+// 読み取りの結果を { "<見本の id>": Extraction } の形でもまとめて置く（別の採点スクリプトでも同じ表が出せるように。photo- の頭は外す）
+if (useClaude) {
+  const map: Record<string, unknown> = {};
+  for (const r of results) {
+    if (!existsSync(join(rawDir, `${r.id}.json`))) continue;
+    const saved = JSON.parse(readFileSync(join(rawDir, `${r.id}.json`), "utf8"));
+    if (saved.reading) map[r.id.replace(/^photo-/, "")] = saved.reading;
+  }
+  writeFileSync(join(rawDir, "readings.json"), JSON.stringify(map, null, 2));
+}
 
 // ---------- 集計 ----------
 const byKey = new Map<string, { label: string; hit: number; total: number; docs: number }>();
@@ -315,7 +338,9 @@ lines.push("");
 lines.push("## 数え方");
 lines.push("");
 lines.push("- 正解は、デモ素材の正解 JSON をアプリの形（Extraction）にしたもの（src/data/photoSamples.json の provisionalDraft）。見本はすべて架空で、期間中に新しく作ったもの");
-lines.push("- 予定は「名前が近くて日付（終わりの日も）が同じ」で1点。種類（提出・満了・受付期間…）は別に1点。「知っておくだけ」は正解でそうなっている予定だけ数える");
+lines.push("- 予定は正解の1件ごとに、同じ日付で名前の語も重なれば1点、日付だけなら半分。種類（提出・満了・受付期間…）は別に1点。「知っておくだけ」「束ねる印」は正解でそうなっている予定だけ数える。正解に無い日付を締切にしたら落とす（広告・リンク先・対象外の罠）");
+lines.push("- 「放置すると？」は、正解に無ければ読み取りも空（推測で書かない）、あれば text と quote の両方があること");
+lines.push("- 読み取りの生の結果は scripts/out/eval/ に 1件ずつと、{ id: Extraction } の map（readings.json）で置く（デモ素材側の採点 demo/score.mjs でも同じ表が出せる）");
 lines.push("- 「読めなかった所を推測で埋めない」は、正解で読めなかった所がある書類（写真が切れている・別紙が無い・曜日が合わない）は読み取りでも空でないこと、無い書類では空であること");
 lines.push("- 「判断の言い回しが無い」は、要約・項目・予定の名前に「補償されます」「解約したほうが」「受診すべき」などが混ざっていないこと");
 lines.push("- 日付の規則が合っているか・読めるかの判断は人が見る。このスクリプトは数えるだけ（判断はしない）");
