@@ -1,14 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { QuestionCard } from "@/components/QuestionCard";
 import { createDemoHousehold } from "@/data/demoHousehold";
-import { buildHome } from "@/lib/deadlines";
+import {
+  answerQuestion,
+  type BriefingItem,
+  buildCandidates,
+  type Candidate,
+  openQuestions,
+  provisionalBriefing,
+  safetyNet,
+  toggleDone,
+} from "@/lib/butler";
+import type { Household } from "@/lib/types";
 import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 export default function Home() {
-  const { household, loaded, save, clear } = useHousehold();
+  const { household, loaded, save } = useHousehold();
 
   if (!loaded) return <main />;
 
@@ -31,61 +42,109 @@ export default function Home() {
   }
 
   const today = new Date();
-  const { soon, missing } = buildHome(household, today);
-  const todayClasses = household.timetable.filter((t) => t.weekday === today.getDay());
-  const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name ?? "";
-  const pending = household.documents.filter((d) => !d.confirmedAt);
+  const h = household as Household;
+  const candidates = buildCandidates(h, today);
+  // 11/4 から: Claude が選んだひとこと（書類を確定したとき・1日1回だけ作る）。それまではコードで並べた仮のもの
+  const briefing = provisionalBriefing(candidates);
+  const net = safetyNet(candidates, briefing);
+  const questions = openQuestions(h);
+  const pending = h.documents.filter((d) => !d.confirmedAt);
+  const todayClasses = h.timetable.filter((t) => t.weekday === today.getDay());
+  const nameOf = (id: string) => h.members.find((m) => m.id === id)?.name ?? "";
+  const sampleFor = (candidateId: string) =>
+    candidateId.startsWith("missing:")
+      ? h.demoSamples?.find((x) => x.expectedId === candidateId.slice("missing:".length))
+      : undefined;
+
+  const done = (id: string) => save(toggleDone(h, id));
+
+  const Source = ({ item }: { item: Pick<BriefingItem, "documentId" | "documentTitle" | "location"> }) =>
+    item.documentId ? (
+      <div className="meta">
+        原本: <Link href={`/documents/${item.documentId}`}>{item.documentTitle}</Link>
+        {item.location && `・${item.location}`}
+      </div>
+    ) : null;
+
+  const Actions = ({ id, isEvent }: { id: string; isEvent?: boolean }) => {
+    const sample = sampleFor(id);
+    if (sample) {
+      return (
+        <Link className="button secondary small" href={`/scan?sample=${sample.id}`}>
+          届いた想定で、見本を読み取ってみる
+        </Link>
+      );
+    }
+    if (id.startsWith("missing:") || isEvent) return null;
+    return (
+      <button className="link-button" onClick={() => done(id)}>
+        済んだ
+      </button>
+    );
+  };
 
   return (
     <main>
       <h1>今日のこと</h1>
       <p className="lead">
         {today.getMonth() + 1}月{today.getDate()}日（{WEEKDAYS[today.getDay()]}）
-        {household.isDemo && "・架空の家族で試しています"}
+        {h.isDemo && "・架空の家族で試しています"}
+        {todayClasses.map((t) => (
+          <span key={t.memberId} className="block">
+            {nameOf(t.memberId)}: {t.periods}限まで・下校はだいたい {t.dismissal}
+          </span>
+        ))}
       </p>
 
-      <h2>今日</h2>
-      {todayClasses.length === 0 ? (
-        <div className="card meta">今日は授業の登録がありません。</div>
-      ) : (
-        todayClasses.map((t) => (
-          <div className="card" key={t.memberId}>
-            {nameOf(t.memberId)}: {t.periods}限まで・下校はだいたい {t.dismissal}
-          </div>
-        ))
-      )}
-
-      <h2>来ていないもの</h2>
-      {missing.length === 0 ? (
-        <div className="card meta">ありません。</div>
-      ) : (
-        missing.map((e) => (
-          <div className="card warn" key={e.id}>
-            {e.label}がまだ登録されていません
-            {e.hint && <div className="meta">{e.hint}</div>}
-            {e.sample && (
-              <Link className="button secondary small" href={`/scan?expected=${e.id}`}>
-                届いた想定で、見本を読み取ってみる
-              </Link>
-            )}
-          </div>
-        ))
-      )}
-
-      <h2>そろそろ動くこと</h2>
-      {soon.length === 0 ? (
-        <div className="card meta">ありません。</div>
-      ) : (
-        soon.map(({ deadline, document, daysLeft }) => (
-          <Link className="card row-link" key={deadline.id} href={`/documents/${document.id}`}>
-            {daysLeft >= 0 ? `${deadline.label}まで あと${daysLeft}日` : `${deadline.label}（受付中）`}
-            <div className="meta">
-              {document.title}
-              {deadline.source && `（${deadline.source.location}）`}
+      <h2>執事のひとこと</h2>
+      <div className="card briefing">
+        {briefing.items.length === 0 ? (
+          <div>今は急いで動くことはありません。</div>
+        ) : (
+          briefing.items.map((item) => (
+            <div className="briefing-item" key={item.candidateId}>
+              <div className="briefing-text">{item.text}</div>
+              {item.detail && <div>{item.detail}</div>}
+              {item.why && <div className="meta">{item.why}</div>}
+              <Source item={item} />
+              <Actions id={item.candidateId} isEvent={item.isEvent} />
             </div>
-            {deadline.leadReason && <div className="meta">{deadline.leadReason}</div>}
-          </Link>
-        ))
+          ))
+        )}
+        {briefing.source === "provisional" && (
+          <div className="meta provisional">
+            仮のひとこと: 執事（Claude）の準備中のため、期日の近い順に並べています。
+          </div>
+        )}
+      </div>
+
+      {net.length > 0 && (
+        <>
+          <h2>期日が近いもの（念のため）</h2>
+          {net.map((c: Candidate) => (
+            <div className="card warn" key={c.id}>
+              {c.title}
+              {c.detail && <div>{c.detail}</div>}
+              {c.why && <div className="meta">{c.why}</div>}
+              <Source item={c} />
+              <Actions id={c.id} isEvent={c.isEvent} />
+            </div>
+          ))}
+        </>
+      )}
+
+      {questions.length > 0 && (
+        <>
+          <h2>執事から聞きたいこと</h2>
+          {questions.map((q) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              document={h.documents.find((d) => d.id === q.documentId)}
+              onAnswer={(values) => save(answerQuestion(h, q.id, values))}
+            />
+          ))}
+        </>
       )}
 
       {pending.length > 0 && (
@@ -100,36 +159,24 @@ export default function Home() {
         </>
       )}
 
-      <h2>登録した書類</h2>
-      {household.documents.length === 0 ? (
-        <div className="card meta">まだありません。</div>
-      ) : (
-        household.documents.map((d) => (
-          <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
-            {d.title}
-            {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
-          </Link>
-        ))
-      )}
-
       <div className="spacer" />
       <Link className="button" href="/scan" style={{ textAlign: "center", textDecoration: "none" }}>
-        写真・PDF から登録する
+        執事に書類を渡す
       </Link>
-      <Link className="button secondary" href="/add" style={{ textAlign: "center", textDecoration: "none" }}>
-        手入力で登録する
-      </Link>
-      <Link className="button secondary" href="/rules" style={{ textAlign: "center", textDecoration: "none" }}>
-        わが家のきまり
-      </Link>
-      <button
-        className="button secondary"
-        onClick={() => {
-          if (confirm("この端末に保存したデータをすべて消しますか？")) clear();
-        }}
-      >
-        この端末のデータをすべて消す
-      </button>
+      <div className="nav-links">
+        <Link className="button secondary" href="/schedule">
+          すべての予定
+        </Link>
+        <Link className="button secondary" href="/documents">
+          書類の一覧
+        </Link>
+        <Link className="button secondary" href="/add">
+          手入力で登録
+        </Link>
+        <Link className="button secondary" href="/rules">
+          わが家のきまり
+        </Link>
+      </div>
     </main>
   );
 }

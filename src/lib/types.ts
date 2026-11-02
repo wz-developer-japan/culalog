@@ -2,6 +2,8 @@
 // 方針: 書類から取り出した値には必ず「原本のどこに書いてあったか」を付け、
 // 本人が確認したものだけを「確定」として扱う。アプリは判断（補償される・解約してよい等）を持たない。
 
+import type { Extraction } from "./extraction";
+
 export type Relation = "self" | "spouse" | "child" | "parent" | "sibling" | "other";
 
 export interface FamilyMember {
@@ -39,15 +41,17 @@ export interface Contact {
 }
 
 /**
+ * 予定・やること（共通の形: いつ・誰の・何を・どこで・何が必要・原本のどこ）。
  * 期限の種類。
  * - expiry:        満了日・更新日（保険、賃貸、車検、免許）
  * - window:        受付期間（この期間しか手続きできない）
  * - notice:        解約・変更の申し出の締切（「○日前までに」）
  * - cancel_window: 解約できる時期が限られている（更新月だけ等）
  * - after_event:   出来事のあとに来る期限（事故の連絡、請求期限）。普段は出さない
- * - event:         期限ではない予定（行事・休み）。自分以外の予定を含む
+ * - event:         期限ではない予定（行事・休み・健診）。自分以外の予定を含む
+ * - due:           提出・申し込み・支払いの締切（問診票の提出、参加の申し込み）
  */
-export type DeadlineKind = "expiry" | "window" | "notice" | "cancel_window" | "after_event" | "event";
+export type DeadlineKind = "expiry" | "window" | "notice" | "cancel_window" | "after_event" | "event" | "due";
 
 export interface Deadline {
   id: string;
@@ -57,6 +61,12 @@ export interface Deadline {
   date: string;
   /** window / cancel_window の終了日 YYYY-MM-DD */
   endDate?: string;
+  /** 時刻（例: 「8:40」「13:00〜13:30」） */
+  time?: string;
+  /** どこで */
+  place?: string;
+  /** 何が必要か（持ち物・書類・お金） */
+  needs?: string[];
   /** 何日前から動き始めるか（準備にかかる時間・自分の申請の締切などから決める） */
   leadDays: number;
   /** 動き始める理由（例: 「有給の申請は1週間前まで」） */
@@ -98,13 +108,35 @@ export interface ExpectedDocument {
   /** どの予定から期待しているか */
   relatedDeadlineId?: string;
   hint?: string;
-  /** デモ用: まだ届いていない書類の架空の見本（読み取りを試すため） */
-  sample?: {
-    title: string;
-    text: string;
-    /** 読み取り機能の準備中に使う、この見本の仮の読み取り結果（Claude は使っていない） */
-    provisionalDraft?: import("./extraction").Extraction;
-  };
+}
+
+/** デモ用: 読み取りを試すための架空の書類の見本 */
+export interface DemoSample {
+  id: string;
+  title: string;
+  text: string;
+  /** 「来るはずの書類」に当たる見本なら、その ID */
+  expectedId?: string;
+  /** 読み取り機能の準備中に使う、この見本の仮の読み取り結果（Claude は使っていない） */
+  provisionalDraft: Extraction;
+}
+
+/**
+ * 執事から本人への質問。推測できないことだけを、選択肢で聞く。
+ * - members: 誰の書類か。答えは書類の「誰の」に入る
+ * - other:   それ以外（例: 何班か）。答えは書類の項目に「本人の答え」として入る
+ */
+export interface ButlerQuestion {
+  id: string;
+  documentId: string;
+  about: "members" | "other";
+  text: string;
+  /** なぜ聞くのか（例: 対象が生まれ月で書かれていて、誕生日が登録されていない） */
+  reason?: string;
+  options: { label: string; value: string }[];
+  multiple: boolean;
+  answer?: string[];
+  answeredAt?: string;
 }
 
 export type DocumentCategory =
@@ -117,6 +149,9 @@ export type DocumentCategory =
   | "care"
   | "license"
   | "subscription"
+  | "work"
+  | "community"
+  | "medical"
   | "other";
 
 export type DocumentOrigin = "manual" | "photo" | "pdf" | "conversation" | "demo";
@@ -125,6 +160,8 @@ export interface DocumentRecord {
   id: string;
   title: string;
   category: DocumentCategory;
+  /** 書類の種類の名前（Claude が自由に付ける。例: 「歯科健診のお知らせ」） */
+  docType?: string;
   /** 誰の書類か */
   memberIds: string[];
   origin: DocumentOrigin;
@@ -168,5 +205,11 @@ export interface Household {
   timetable: SchoolDaySchedule[];
   /** わが家のきまり（古い保存データには無いことがある） */
   rules?: HouseRule[];
+  /** 執事から本人への質問 */
+  questions?: ButlerQuestion[];
+  /** デモ用の見本の書類 */
+  demoSamples?: DemoSample[];
+  /** 本人が「済んだ」にした予定・やること（ID → 日時）。きまりから作った締切も含む。済んだものは知らせない */
+  done?: Record<string, string>;
   isDemo: boolean;
 }

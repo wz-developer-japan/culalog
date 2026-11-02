@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toYmd } from "@/lib/deadlines";
 import { type Extraction, extractionToDocument } from "@/lib/extraction";
+import { RELATION_LABELS } from "@/lib/labels";
 import type { DocumentOrigin, Household } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
 
@@ -77,7 +78,7 @@ function renderSampleImage(text: string): string {
   ctx.font = font; // 大きさを変えると設定が消えるので、もう一度入れる
   ctx.textBaseline = "top";
   lines.forEach((line, i) => {
-    const isTitle = line.trim() === "運動会のご案内";
+    const isTitle = /ご案内$/.test(line.trim()) && line.trim().length <= 24;
     const x = isTitle ? (width - ctx.measureText(line).width) / 2 : margin;
     ctx.fillText(line, x, margin + i * lineHeight);
   });
@@ -90,11 +91,11 @@ function ScanPage() {
   const router = useRouter();
   const params = useSearchParams();
   const { household, loaded, save } = useHousehold();
-  const expected = household?.expected.find((e) => e.id === params.get("expected"));
-  const sample = expected?.sample;
+  const [sampleId, setSampleId] = useState<string | null>(params.get("sample"));
+  const sample = household?.demoSamples?.find((x) => x.id === sampleId);
+  const expected = household?.expected.find((e) => e.id === sample?.expectedId);
 
   const [picked, setPicked] = useState<Picked | null>(null);
-  const [memberIds, setMemberIds] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [unavailable, setUnavailable] = useState(false);
@@ -103,23 +104,21 @@ function ScanPage() {
     if (loaded && !household) router.replace("/");
   }, [loaded, household, router]);
 
-  // 見本があれば、最初からそれを選んだ状態にする
+  // 見本を選んだら、それを紙に印刷したような画像にして選んだ状態にする
   useEffect(() => {
-    if (sample && !picked) {
+    if (sample) {
       setPicked({ mediaType: "image/png", dataUrl: renderSampleImage(sample.text), origin: "photo", name: sample.title });
+      setError("");
+      setUnavailable(false);
     }
-  }, [sample, picked]);
+  }, [sample]);
 
   if (!loaded || !household) return <main />;
-
-  const relatedMembers = household.documents
-    .flatMap((d) => d.deadlines)
-    .find((d) => d.id === expected?.relatedDeadlineId)?.memberIds;
-  const selectedMembers = memberIds ?? relatedMembers ?? ["m-self"];
 
   async function pick(file: File | undefined) {
     setError("");
     setUnavailable(false);
+    setSampleId(null);
     if (!file) return;
     try {
       if (file.type === "application/pdf") {
@@ -140,23 +139,38 @@ function ScanPage() {
 
   async function saveDraft(extraction: Extraction, draftSource: "claude" | "provisional") {
     const current = household as Household;
-    const doc = extractionToDocument(extraction, {
+    const { document, questions } = extractionToDocument(extraction, {
       id: newId("doc"),
       origin: picked!.origin,
       draftSource,
-      memberIds: selectedMembers,
+      members: current.members,
       expectedId: expected?.id,
       originalText: sample?.text,
       originalFile: { mediaType: picked!.mediaType, dataUrl: picked!.dataUrl },
       newId,
     });
-    await save({ ...current, documents: [...current.documents, doc] });
-    router.push(`/documents/${doc.id}`);
+    await save({
+      ...current,
+      documents: [...current.documents, document],
+      questions: [...(current.questions ?? []), ...questions],
+    });
+    router.push(`/documents/${document.id}`);
   }
 
   async function read() {
     if (!picked) return;
-    const body = JSON.stringify({ mediaType: picked.mediaType, data: base64Of(picked.dataUrl), today: toYmd(new Date()) });
+    const family = household!.members.map((m) => ({
+      id: m.id,
+      name: m.name,
+      relation: RELATION_LABELS[m.relation],
+      note: m.note ?? "",
+    }));
+    const body = JSON.stringify({
+      mediaType: picked.mediaType,
+      data: base64Of(picked.dataUrl),
+      today: toYmd(new Date()),
+      family,
+    });
     if (body.length > MAX_SEND_BYTES) {
       setError("ファイルが大きすぎます。写真を撮り直すか、手入力で登録してください。");
       return;
@@ -179,25 +193,46 @@ function ScanPage() {
     }
   }
 
+  const samples = household.demoSamples ?? [];
+
   return (
     <main>
       <p className="meta">
         <Link href="/">← ホーム</Link>
       </p>
-      <h1>写真・PDF から登録</h1>
+      <h1>執事に書類を渡す</h1>
       <p className="lead">
-        書類を読み取って下書きを作ります。下書きは、原本と見比べて確定するまでお知らせに使いません。
+        写真か PDF を渡すと、執事が中身を読んで、何の書類か・誰の書類かを考えて下書きを作ります。分からないところは執事から聞きます。
       </p>
 
-      {sample ? (
+      <label className="label">
+        写真を撮る・ファイルを選ぶ
+        <input className="input" type="file" accept="image/*,application/pdf" onChange={(e) => pick(e.target.files?.[0])} />
+      </label>
+
+      {samples.length > 0 && (
+        <>
+          <div className="label">架空の書類の見本で試す</div>
+          <div className="chips">
+            {samples.map((x) => (
+              <button
+                key={x.id}
+                className={`chip${x.id === sampleId ? " selected" : ""}`}
+                onClick={() => setSampleId(x.id)}
+              >
+                {x.title}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {sample && (
         <div className="card warn">
-          {expected!.label}の見本（架空）です。実際に届いたプリントを撮った、という想定で読み取りを試せます。
+          {expected
+            ? `${expected.label}の見本（架空）です。実際に届いたプリントを撮った、という想定で試せます。`
+            : "架空の書類の見本です。実際に届いた書類を撮った、という想定で試せます。"}
         </div>
-      ) : (
-        <label className="label">
-          写真を撮る・ファイルを選ぶ
-          <input className="input" type="file" accept="image/*,application/pdf" onChange={(e) => pick(e.target.files?.[0])} />
-        </label>
       )}
 
       {picked && (
@@ -211,35 +246,19 @@ function ScanPage() {
         </div>
       )}
 
-      <div className="label">誰の書類？</div>
-      <div className="chips">
-        {household.members.map((m) => (
-          <label key={m.id} className="chip">
-            <input
-              type="checkbox"
-              checked={selectedMembers.includes(m.id)}
-              onChange={(e) =>
-                setMemberIds(e.target.checked ? [...selectedMembers, m.id] : selectedMembers.filter((id) => id !== m.id))
-              }
-            />
-            {m.name}
-          </label>
-        ))}
-      </div>
-
       <p className="note">
-        読み取りのときだけ、この書類の画像・PDF を読み取りのために送ります（Claude API）。読み取った内容はサーバーに残さず、この端末の中にだけ保存します。
+        読み取るときだけ、この書類の画像・PDF と家族の呼び名・続柄・メモ（誰の書類かを考えるため）を Claude API に送ります。このアプリのサーバーには残さず、読み取った内容はこの端末の中にだけ保存します。
       </p>
 
       {error && <p className="error">{error}</p>}
 
-      {unavailable && sample?.provisionalDraft && (
+      {unavailable && sample && (
         <div className="card">
           <p style={{ marginTop: 0 }}>
-            読み取り機能の準備ができるまで、この見本だけは用意しておいた<strong>仮の結果</strong>で、確定までの流れを試せます。
+            読み取り機能の準備ができるまで、見本だけは用意しておいた<strong>仮の結果</strong>で、確定までの流れを試せます。
             仮の結果は Claude の読み取りではありません。
           </p>
-          <button className="button secondary" onClick={() => saveDraft(sample.provisionalDraft!, "provisional")}>
+          <button className="button secondary" onClick={() => saveDraft(sample.provisionalDraft, "provisional")}>
             仮の結果で流れを試す
           </button>
         </div>
@@ -247,7 +266,7 @@ function ScanPage() {
 
       <div className="spacer" />
       <button className="button" disabled={!picked || busy} onClick={read}>
-        {busy ? "読み取り中…（数十秒かかることがあります）" : "読み取って下書きを作る"}
+        {busy ? "読み取り中…（数十秒かかることがあります）" : "執事に読んでもらう"}
       </button>
       <Link className="button secondary" href="/add" style={{ textAlign: "center", textDecoration: "none" }}>
         手入力で登録する

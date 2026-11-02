@@ -7,6 +7,8 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { QuestionCard } from "@/components/QuestionCard";
+import { answerQuestion, openQuestions } from "@/lib/butler";
 import { formatYmd, ruleDeadlines } from "@/lib/deadlines";
 import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { DocumentRecord } from "@/lib/types";
@@ -41,6 +43,7 @@ export default function DocumentDetail() {
   }
 
   const rules = household.rules ?? [];
+  const questions = openQuestions(household).filter((q) => q.documentId === doc.id);
   const expected = household.expected.find((e) => e.id === doc.expectedId);
 
   /** 予定に「わが家のきまり」を当てはめる／外す（締切は毎回きまりから計算する） */
@@ -78,7 +81,7 @@ export default function DocumentDetail() {
       </p>
       <h1>{doc.title}</h1>
       <p className="lead">
-        {CATEGORY_LABELS[doc.category]}
+        {doc.docType ?? CATEGORY_LABELS[doc.category]}
         {doc.memberIds.length > 0 && `・${doc.memberIds.map(nameOf).join("、")}`}
         {confirmed ? "・確定済み" : "・確認待ち"}
       </p>
@@ -88,6 +91,20 @@ export default function DocumentDetail() {
           原本と見比べて、合っている項目に印を付けてください。すべて付けると確定できます。
           確定するまで、この書類の期限ではお知らせしません。
         </div>
+      )}
+
+      {questions.length > 0 && (
+        <>
+          <h2>執事から聞きたいこと</h2>
+          {questions.map((q) => (
+            <QuestionCard
+              key={q.id}
+              question={q}
+              showDocument={false}
+              onAnswer={(values) => save(answerQuestion(household, q.id, values))}
+            />
+          ))}
+        </>
       )}
 
       {confirmed && expected && (
@@ -148,6 +165,9 @@ export default function DocumentDetail() {
           <div className="card" key={d.id}>
             {d.label}: {formatYmd(d.date)}
             {d.endDate && ` 〜 ${formatYmd(d.endDate)}`}
+            {d.time && `・${d.time}`}
+            {d.place && <div>場所: {d.place}</div>}
+            {d.needs?.length ? <div>必要なもの: {d.needs.join("、")}</div> : null}
             <div className="meta">
               {DEADLINE_KIND_LABELS[d.kind]}・{d.leadDays}日前からお知らせ
               {d.source && `・原本: ${d.source.location}`}

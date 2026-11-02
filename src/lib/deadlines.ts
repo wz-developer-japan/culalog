@@ -99,28 +99,46 @@ export interface ActionItem {
 export interface HomeSections {
   /** 動き始める日を過ぎ、対象日がまだ来ていないもの（近い順） */
   soon: ActionItem[];
+  /** 締切を過ぎて、まだ「済んだ」になっていないもの（予定・行事は除く） */
+  overdue: ActionItem[];
   /** 届いているはずなのに登録されていない書類 */
   missing: ExpectedDocument[];
 }
 
-export function buildHome(household: Household, today: Date): HomeSections {
-  const soon: ActionItem[] = [];
+/** 過ぎた締切を、何日前まで出し続けるか */
+const OVERDUE_DAYS = 14;
+
+/** 予定・やることを1つずつ並べる（確定した書類だけ・きまりから作った締切を含む・同じ日の元の予定は除く） */
+export function allItems(household: Household, today: Date): ActionItem[] {
+  const items: ActionItem[] = [];
   const rules = household.rules ?? [];
   const superseded = supersededDeadlineIds(household);
   for (const document of household.documents) {
     if (!document.confirmedAt) continue; // 確定していない書類の期限では知らせない
     for (const deadline of expandDeadlines(document, rules)) {
-      if (deadline.kind === "after_event") continue; // 何か起きたときの画面で出す
       if (superseded.has(deadline.id.split("--")[0])) continue; // きまりから作った締切も一緒に
-      const target = parseDate(deadline.endDate ?? deadline.date);
       const startDate = addDays(parseDate(deadline.date), -deadline.leadDays);
-      const daysLeft = daysBetween(today, parseDate(deadline.date));
-      if (startOfDay(today) >= startDate && startOfDay(today) <= target) {
-        soon.push({ deadline, document, startDate, daysLeft });
-      }
+      items.push({ deadline, document, startDate, daysLeft: daysBetween(today, parseDate(deadline.date)) });
     }
   }
-  soon.sort((a, b) => a.daysLeft - b.daysLeft);
+  return items.sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+export function buildHome(household: Household, today: Date): HomeSections {
+  const done = household.done ?? {};
+  const soon: ActionItem[] = [];
+  const overdue: ActionItem[] = [];
+  for (const item of allItems(household, today)) {
+    const { deadline, startDate, daysLeft } = item;
+    if (deadline.kind === "after_event") continue; // 何か起きたときに出す
+    if (done[deadline.id]) continue;
+    const target = parseDate(deadline.endDate ?? deadline.date);
+    if (startOfDay(today) >= startDate && startOfDay(today) <= target) {
+      soon.push(item);
+    } else if (deadline.kind !== "event" && startOfDay(today) > target && daysBetween(target, today) <= OVERDUE_DAYS) {
+      overdue.push(item);
+    }
+  }
 
   // 届いた書類を登録して「確定」したら、来ていないものから外す
   const received = new Set(
@@ -130,5 +148,5 @@ export function buildHome(household: Household, today: Date): HomeSections {
     (e) => !e.receivedDocumentId && !received.has(e.id) && startOfDay(today) >= parseDate(e.expectedBy),
   );
 
-  return { soon, missing };
+  return { soon, overdue, missing };
 }

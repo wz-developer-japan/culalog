@@ -1,9 +1,17 @@
 // 書類の読み取り結果の形（サーバーとブラウザで共通）。
-// Claude には「原本に書いてあること」と「原本のどこか」だけを、決まった形で返させる。
+// Claude には「原本に書いてあること」と「原本のどこか」を、共通の形
+// （いつ・誰の・何を・どこで・何が必要・原本のどこ）で返させる。
 // 判断（補償される・解約してよい・受診すべき等）を書く欄はそもそも用意しない。
 
 import { DEFAULT_LEAD_DAYS } from "./labels";
-import type { DeadlineKind, DocumentCategory, DocumentOrigin, DocumentRecord } from "./types";
+import type {
+  ButlerQuestion,
+  DeadlineKind,
+  DocumentCategory,
+  DocumentOrigin,
+  DocumentRecord,
+  FamilyMember,
+} from "./types";
 
 export interface ExtractedField {
   label: string;
@@ -19,6 +27,12 @@ export interface ExtractedDeadline {
   date: string;
   /** 期間の終わり YYYY-MM-DD（無ければ空） */
   endDate: string;
+  /** 時刻（無ければ空） */
+  time: string;
+  /** どこで（無ければ空） */
+  place: string;
+  /** 何が必要か */
+  needs: string[];
   location: string;
   quote: string;
 }
@@ -31,12 +45,33 @@ export interface ExtractedContact {
   location: string;
 }
 
+/** 誰の書類かの推測 */
+export interface ExtractedWho {
+  memberIds: string[];
+  /** 原本と家族の情報から言い切れるとき true。迷ったら false（執事が本人に聞く） */
+  sure: boolean;
+  /** なぜそう考えたか・なぜ迷ったか */
+  reason: string;
+}
+
+/** 誰の書類か以外で、本人に聞かないと分からないこと */
+export interface ExtractedQuestion {
+  text: string;
+  reason: string;
+  options: string[];
+  multiple: boolean;
+}
+
 export interface Extraction {
   title: string;
+  /** 書類の種類の名前（自由。例: 「歯科健診のお知らせ」） */
+  docType: string;
   category: DocumentCategory;
+  who: ExtractedWho;
   fields: ExtractedField[];
   deadlines: ExtractedDeadline[];
   contacts: ExtractedContact[];
+  questions: ExtractedQuestion[];
   /** 読めなかった・はっきりしなかった箇所（本人に原本で確かめてもらう） */
   unclear: string[];
 }
@@ -48,9 +83,12 @@ export const CATEGORY_VALUES: DocumentCategory[] = [
   "insurance",
   "vehicle",
   "medical_card",
+  "medical",
   "care",
   "license",
   "subscription",
+  "work",
+  "community",
   "other",
 ];
 
@@ -61,18 +99,27 @@ export const DEADLINE_KIND_VALUES: DeadlineKind[] = [
   "cancel_window",
   "after_event",
   "event",
+  "due",
 ];
 
 const str = { type: "string" } as const;
+const strList = { type: "array", items: str } as const;
 
 /** Claude の構造化出力に渡す JSON Schema */
 export const EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "category", "fields", "deadlines", "contacts", "unclear"],
+  required: ["title", "docType", "category", "who", "fields", "deadlines", "contacts", "questions", "unclear"],
   properties: {
     title: str,
+    docType: str,
     category: { type: "string", enum: CATEGORY_VALUES },
+    who: {
+      type: "object",
+      additionalProperties: false,
+      required: ["memberIds", "sure", "reason"],
+      properties: { memberIds: strList, sure: { type: "boolean" }, reason: str },
+    },
     fields: {
       type: "array",
       items: {
@@ -87,12 +134,15 @@ export const EXTRACTION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["kind", "label", "date", "endDate", "location", "quote"],
+        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "location", "quote"],
         properties: {
           kind: { type: "string", enum: DEADLINE_KIND_VALUES },
           label: str,
           date: { type: "string", format: "date" },
           endDate: str,
+          time: str,
+          place: str,
+          needs: strList,
           location: str,
           quote: str,
         },
@@ -107,28 +157,42 @@ export const EXTRACTION_SCHEMA = {
         properties: { label: str, name: str, phone: str, hours: str, location: str },
       },
     },
-    unclear: { type: "array", items: str },
+    questions: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["text", "reason", "options", "multiple"],
+        properties: { text: str, reason: str, options: strList, multiple: { type: "boolean" } },
+      },
+    },
+    unclear: strList,
   },
 } as const;
 
 const YMD = /^\d{4}-\d{2}-\d{2}$/;
 
-/** 返ってきた JSON を最低限確かめる（形が違えば null） */
-export function parseExtraction(value: unknown): Extraction | null {
+/** 返ってきた JSON を最低限確かめる（形が違えば null）。家族にいない ID は捨てる */
+export function parseExtraction(value: unknown, memberIds: string[]): Extraction | null {
   if (!value || typeof value !== "object") return null;
   const v = value as Record<string, unknown>;
   const isStr = (x: unknown): x is string => typeof x === "string";
-  const arr = (x: unknown) => (Array.isArray(x) ? x : null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const arr = (x: unknown): any[] | null => (Array.isArray(x) ? x : null);
+  const s = (x: unknown) => (isStr(x) ? x.trim() : "");
+  const list = (x: unknown) => (arr(x) ?? []).map(s).filter(Boolean);
   const fields = arr(v.fields);
   const deadlines = arr(v.deadlines);
   const contacts = arr(v.contacts);
-  const unclear = arr(v.unclear);
-  if (!isStr(v.title) || !fields || !deadlines || !contacts || !unclear) return null;
+  if (!isStr(v.title) || !fields || !deadlines || !contacts) return null;
   const category = CATEGORY_VALUES.includes(v.category as DocumentCategory) ? (v.category as DocumentCategory) : "other";
-  const s = (x: unknown) => (isStr(x) ? x.trim() : "");
+  const who = (v.who ?? {}) as Record<string, unknown>;
+  const whoIds = list(who.memberIds).filter((id) => memberIds.includes(id));
   return {
     title: v.title.trim(),
+    docType: s(v.docType),
     category,
+    who: { memberIds: whoIds, sure: who.sure === true && whoIds.length > 0, reason: s(who.reason) },
     fields: fields
       .map((f) => ({ label: s(f?.label), value: s(f?.value), location: s(f?.location), quote: s(f?.quote) }))
       .filter((f) => f.label && f.value),
@@ -138,6 +202,9 @@ export function parseExtraction(value: unknown): Extraction | null {
         label: s(d?.label),
         date: s(d?.date),
         endDate: YMD.test(s(d?.endDate)) ? s(d?.endDate) : "",
+        time: s(d?.time),
+        place: s(d?.place),
+        needs: list(d?.needs),
         location: s(d?.location),
         quote: s(d?.quote),
       }))
@@ -145,32 +212,71 @@ export function parseExtraction(value: unknown): Extraction | null {
     contacts: contacts
       .map((c) => ({ label: s(c?.label), name: s(c?.name), phone: s(c?.phone), hours: s(c?.hours), location: s(c?.location) }))
       .filter((c) => c.name),
-    unclear: unclear.map(s).filter(Boolean),
+    questions: (arr(v.questions) ?? [])
+      .map((q) => ({ text: s(q?.text), reason: s(q?.reason), options: list(q?.options).slice(0, 6), multiple: q?.multiple === true }))
+      .filter((q) => q.text && q.options.length >= 2)
+      .slice(0, 2),
+    unclear: list(v.unclear),
   };
 }
 
 const source = (location: string, quote: string) =>
   location || quote ? { location: location || "（場所の記載なし）", quote: quote || undefined } : undefined;
 
-/** 読み取り結果を「確認待ち」の書類にする。確定は本人が原本と見比べてから */
+/** 家族の情報のうち、読み取りに送るもの（誰の書類かを推測するため） */
+export interface FamilyForReading {
+  id: string;
+  name: string;
+  relation: string;
+  note: string;
+}
+
+/** 誰の書類か迷ったときに、執事が本人に聞く質問を作る（決まった形。Claude は使わない） */
+export function membersQuestion(
+  documentId: string,
+  members: FamilyMember[],
+  guess: string[],
+  reason: string,
+  newId: (prefix: string) => string,
+): ButlerQuestion {
+  const ordered = [...members].sort((a, b) => Number(guess.includes(b.id)) - Number(guess.includes(a.id)));
+  return {
+    id: newId("q"),
+    documentId,
+    about: "members",
+    text: "誰の書類ですか？",
+    reason: reason || undefined,
+    options: [
+      // メモは短いもの（「2歳・保育園」など）だけ添える
+      ...ordered.map((m) => ({ label: m.note && m.note.length <= 8 ? `${m.name}（${m.note}）` : m.name, value: m.id })),
+      { label: "家族みんな", value: "all" },
+    ],
+    multiple: true,
+  };
+}
+
+/** 読み取り結果を「確認待ち」の書類と、執事の質問にする。確定は本人が原本と見比べてから */
 export function extractionToDocument(
   extraction: Extraction,
   options: {
     id: string;
     origin: DocumentOrigin;
     draftSource: "claude" | "provisional";
-    memberIds: string[];
+    members: FamilyMember[];
     expectedId?: string;
     originalText?: string;
     originalFile?: { mediaType: string; dataUrl: string };
     newId: (prefix: string) => string;
   },
-): DocumentRecord {
-  return {
+): { document: DocumentRecord; questions: ButlerQuestion[] } {
+  const self = options.members.find((m) => m.relation === "self")?.id;
+  const memberIds = extraction.who.memberIds.length ? extraction.who.memberIds : self ? [self] : [];
+  const document: DocumentRecord = {
     id: options.id,
     title: extraction.title || "読み取った書類",
     category: extraction.category,
-    memberIds: options.memberIds,
+    docType: extraction.docType || undefined,
+    memberIds,
     origin: options.origin,
     draftSource: options.draftSource,
     expectedId: options.expectedId,
@@ -190,8 +296,11 @@ export function extractionToDocument(
       label: d.label,
       date: d.date,
       endDate: d.endDate || undefined,
+      time: d.time || undefined,
+      place: d.place || undefined,
+      needs: d.needs.length ? d.needs : undefined,
       leadDays: DEFAULT_LEAD_DAYS[d.kind],
-      memberIds: options.memberIds,
+      memberIds,
       source: source(d.location, d.quote),
     })),
     contacts: extraction.contacts.map((c) => ({
@@ -203,4 +312,23 @@ export function extractionToDocument(
     })),
     createdAt: new Date().toISOString(),
   };
+
+  const questions: ButlerQuestion[] = [];
+  if (!extraction.who.sure && options.members.length > 1) {
+    questions.push(
+      membersQuestion(document.id, options.members, extraction.who.memberIds, extraction.who.reason, options.newId),
+    );
+  }
+  for (const q of extraction.questions) {
+    questions.push({
+      id: options.newId("q"),
+      documentId: document.id,
+      about: "other",
+      text: q.text,
+      reason: q.reason || undefined,
+      options: q.options.map((o) => ({ label: o, value: o })),
+      multiple: q.multiple,
+    });
+  }
+  return { document, questions };
 }

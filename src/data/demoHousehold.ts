@@ -7,6 +7,8 @@ import { addDays, toYmd } from "@/lib/deadlines";
 import type { Household } from "@/lib/types";
 import {
   demoDates,
+  dentalCheckupProvisionalDraft,
+  dentalCheckupText,
   fireInsuranceText,
   guaranteeText,
   leaseText,
@@ -264,13 +266,24 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         expectedBy: ymd(today),
         relatedDeadlineId: "dl-sports-day",
         hint: "年間行事予定に「時間・持ち物は案内プリントで知らせる」とあります。ランドセルの中に入ったままかもしれません。",
-        sample: {
-          title: "運動会のご案内（架空）",
-          text: sportsDayNoticeText(t),
-          provisionalDraft: sportsDayNoticeProvisionalDraft(t),
-        },
       },
     ],
+    demoSamples: [
+      {
+        id: "sample-sports-day",
+        title: "運動会のご案内（架空）",
+        text: sportsDayNoticeText(t),
+        expectedId: "exp-sports-day-notice",
+        provisionalDraft: sportsDayNoticeProvisionalDraft(t),
+      },
+      {
+        id: "sample-dental",
+        title: "2歳児歯科健康診査のご案内（架空）",
+        text: dentalCheckupText(today),
+        provisionalDraft: dentalCheckupProvisionalDraft(today),
+      },
+    ],
+    questions: [],
     rules: [
       {
         id: "rule-leave",

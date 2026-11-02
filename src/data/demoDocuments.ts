@@ -187,7 +187,13 @@ export function fireInsuranceText(t: DemoDates): string {
 export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
   return {
     title: "運動会のご案内",
+    docType: "学校行事の案内",
     category: "school",
+    who: {
+      memberIds: ["m-son"],
+      sure: true,
+      reason: "くろうど第一小学校からの案内で、家族のうち小学生は蓮さん",
+    },
     fields: [
       { label: "時間", value: "8:40 開会式、12:00 閉会予定", location: "1. 日時", quote: "8:40 開会式　12:00 閉会予定" },
       {
@@ -211,6 +217,9 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
         label: "運動会",
         date: toYmd(t.sportsDay),
         endDate: "",
+        time: "8:40〜12:00",
+        place: "くろうど第一小学校 校庭",
+        needs: ["体操服", "赤白帽子", "水筒", "タオル"],
         location: "1. 日時",
         quote: jpDate(t.sportsDay),
       },
@@ -218,6 +227,103 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
     contacts: [
       { label: "問い合わせ先", name: "くろうど第一小学校 職員室", phone: "000-0000-0000", hours: "", location: "末尾" },
     ],
+    questions: [],
+    unclear: [],
+  };
+}
+
+/** 平日（月〜金）になるまで日を進める */
+function nextWeekday(date: Date): Date {
+  let d = date;
+  while (d.getDay() === 0 || d.getDay() === 6) d = addDays(d, 1);
+  return d;
+}
+
+/** 歯科健診の日（開いた日の18日後以降の最初の平日） */
+export function dentalCheckupDate(today: Date): Date {
+  return nextWeekday(addDays(today, 18));
+}
+
+/** 対象の生まれ月（開いた日から見て、2歳〜2歳半の子） */
+function dentalTargetText(today: Date): string {
+  const from = new Date(today.getFullYear() - 2, today.getMonth() - 6, 1);
+  const to = new Date(today.getFullYear() - 2, today.getMonth() - 1, 1);
+  return `${from.getFullYear()}年${from.getMonth() + 1}月 〜 ${to.getFullYear()}年${to.getMonth() + 1}月に生まれたお子さま`;
+}
+
+/**
+ * 作り込んでいない書類の見本: 市の2歳児歯科健診のお知らせ。
+ * デモ用の「来るはずの書類」にも、どの家族の予定にも結びつけていない。
+ * 対象が生まれ月で書かれていて、誰の書類か言い切れない（執事が本人に聞く場面）。
+ */
+export function dentalCheckupText(today: Date): string {
+  const day = dentalCheckupDate(today);
+  return `保護者様
+
+くろうど市（架空）健康づくり課
+
+2歳児歯科健康診査のご案内
+
+お子さまの歯の健康を守るため、下記のとおり歯科健康診査を行います。
+対象のお子さまと一緒にお越しください。
+
+記
+
+1. 対象　${dentalTargetText(today)}
+2. 日時　${jpDate(day)}　受付 13:00 〜 13:30
+3. 場所　くろうど市保健センター（架空）2階 健診室
+4. 持ち物　母子健康手帳、問診票（同封のもの。記入してお持ちください）、歯ブラシ
+5. 費用　無料
+6. ご都合の悪い方は、事前に健康づくり課へご連絡ください。次回の日程をご案内します。
+
+お問い合わせ　くろうど市 健康づくり課（架空）　000-0000-0005（平日 8:30〜17:15）`;
+}
+
+/** 歯科健診のお知らせの「仮の読み取り結果」（Claude は使っていない） */
+export function dentalCheckupProvisionalDraft(today: Date): Extraction {
+  const day = dentalCheckupDate(today);
+  return {
+    title: "2歳児歯科健康診査のご案内",
+    docType: "歯科健診のお知らせ",
+    category: "medical",
+    who: {
+      memberIds: ["m-daughter"],
+      sure: false,
+      reason: "対象が「1. 対象」に生まれ月で書かれていて、家族の誕生日は登録されていないため。2歳の結衣さんの可能性が高い",
+    },
+    fields: [
+      { label: "対象", value: dentalTargetText(today), location: "1. 対象", quote: dentalTargetText(today) },
+      { label: "費用", value: "無料", location: "5. 費用", quote: "無料" },
+      {
+        label: "都合が悪いとき",
+        value: "事前に健康づくり課へ連絡すると、次回の日程を案内してもらえる",
+        location: "6.",
+        quote: "ご都合の悪い方は、事前に健康づくり課へご連絡ください",
+      },
+    ],
+    deadlines: [
+      {
+        kind: "event",
+        label: "2歳児歯科健診",
+        date: toYmd(day),
+        endDate: "",
+        time: "受付 13:00〜13:30",
+        place: "くろうど市保健センター（架空）2階 健診室",
+        needs: ["母子健康手帳", "問診票（記入して持参）", "歯ブラシ"],
+        location: "2. 日時",
+        quote: jpDate(day),
+      },
+    ],
+    contacts: [
+      {
+        label: "問い合わせ先",
+        name: "くろうど市 健康づくり課（架空）",
+        phone: "000-0000-0005",
+        hours: "平日 8:30〜17:15",
+        location: "末尾",
+      },
+    ],
+    questions: [],
     unclear: [],
   };
 }

@@ -56,6 +56,7 @@ export function DocumentForm({
 }) {
   const [title, setTitle] = useState(initial.title);
   const [category, setCategory] = useState<DocumentCategory>(initial.category);
+  const [docType, setDocType] = useState(initial.docType ?? "");
   const [memberIds, setMemberIds] = useState<string[]>(initial.memberIds);
   const [storageLocation, setStorageLocation] = useState(initial.storageLocation ?? "");
   const [fields, setFields] = useState<Field[]>(initial.fields.length ? initial.fields : [emptyField()]);
@@ -92,6 +93,7 @@ export function DocumentForm({
       ...initial,
       title: title.trim(),
       category,
+      docType: docType.trim() || undefined,
       memberIds,
       storageLocation: storageLocation.trim() || undefined,
       fields: fields
@@ -101,6 +103,11 @@ export function DocumentForm({
         ...d,
         label: d.label.trim(),
         endDate: RANGE_KINDS.includes(d.kind) ? d.endDate : undefined,
+        time: d.time?.trim() || undefined,
+        place: d.place?.trim() || undefined,
+        needs: d.needs?.map((n) => n.trim()).filter(Boolean).length
+          ? d.needs.map((n) => n.trim()).filter(Boolean)
+          : undefined,
         intent: d.kind === "cancel_window" ? d.intent : undefined,
         memberIds: d.memberIds.length ? d.memberIds : memberIds,
       })),
@@ -135,6 +142,11 @@ export function DocumentForm({
             </option>
           ))}
         </select>
+      </label>
+
+      <label className="label">
+        書類の種類（任意）
+        <input className="input" value={docType} onChange={(e) => setDocType(e.target.value)} placeholder="例: 歯科健診のお知らせ" />
       </label>
 
       <div className="label">誰の書類？</div>
@@ -202,6 +214,24 @@ export function DocumentForm({
               />
             </label>
           )}
+          <label className="label">
+            時刻（任意）
+            <input className="input" value={d.time ?? ""} onChange={(e) => updateDeadline(i, { time: e.target.value })} placeholder="例: 13:00〜13:30" />
+          </label>
+          <label className="label">
+            どこで（任意）
+            <input className="input" value={d.place ?? ""} onChange={(e) => updateDeadline(i, { place: e.target.value })} placeholder="例: 市の保健センター" />
+          </label>
+          <label className="label">
+            必要なもの（任意・1行に1つ）
+            <textarea
+              className="input"
+              rows={2}
+              value={(d.needs ?? []).join("\n")}
+              onChange={(e) => updateDeadline(i, { needs: e.target.value ? e.target.value.split("\n") : undefined })}
+              placeholder={"例: 母子健康手帳\n問診票"}
+            />
+          </label>
           <label className="label">
             何日前から知らせるか
             <input

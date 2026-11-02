@@ -243,3 +243,69 @@ textarea.input {
   background: var(--bg);
   border-radius: 4px;
 }
+
+button.chip {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.chip.selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.question-text {
+  font-weight: 600;
+  margin: 2px 0 4px;
+}
+
+.question .chips {
+  margin-top: 8px;
+}
+
+.briefing {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.briefing-item + .briefing-item {
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.briefing-text {
+  font-weight: 600;
+}
+
+.row-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nav-links .button {
+  margin: 0;
+  text-align: center;
+  text-decoration: none;
+}
+
+.block {
+  display: block;
+}
+
+.provisional {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
