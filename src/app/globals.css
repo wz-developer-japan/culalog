@@ -711,3 +711,33 @@ button.chip {
   height: 1px;
   opacity: 0;
 }
+.number-row {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.number-row:first-of-type {
+  border-top: none;
+}
+.number-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.number-label {
+  font-weight: 700;
+}
+.number-value {
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  word-break: break-all;
+  margin: 2px 0 4px;
+}
+.number-value.masked {
+  color: var(--muted);
+}
+.card.numbers summary {
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -5,7 +5,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NumberRow } from "@/components/NumberRow";
 import { memberMark } from "@/lib/memberMark";
+import { importantNumbers } from "@/lib/numbers";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { DocumentCategory, DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -40,6 +42,9 @@ export default function Documents() {
     .filter((d) => words.every((w) => textOf(d).includes(w)))
     .sort((a, b) => Number(Boolean(a.confirmedAt)) - Number(Boolean(b.confirmedAt)) || b.createdAt.localeCompare(a.createdAt));
   const filtered = words.length > 0 || category !== "" || member !== "";
+  // 大事な番号（確定した今年度の書類から。人で絞っているときはその人の分）
+  const numbers = importantNumbers(household).filter((n) => !member || n.memberIds.includes(member));
+  const ownerOf = (ids: string[]) => ids.map((id) => nameOf(id).split(/\s+/).pop()).filter(Boolean).join("・");
 
   return (
     <main>
@@ -92,6 +97,18 @@ export default function Documents() {
             </p>
           )}
         </>
+      )}
+
+      {numbers.length > 0 && (
+        <details className="card numbers">
+          <summary>
+            大事な番号（{numbers.length}）<span className="block meta">証券番号・受給者番号など、手続きで急に聞かれる番号。押すと番号が見えます</span>
+          </summary>
+          {numbers.map((n, i) => (
+            <NumberRow key={`${n.documentId}-${n.label}-${i}`} item={n} owner={ownerOf(n.memberIds)} />
+          ))}
+          <p className="meta">確定した書類から、コードで探しています。番号は Claude には送りません。</p>
+        </details>
       )}
 
       {docs.length === 0 ? (

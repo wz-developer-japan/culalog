@@ -9,6 +9,7 @@
 import { maskNumbers } from "./connect";
 import { parseDate, toYmd } from "./deadlines";
 import { findQuote } from "./highlight";
+import type { NumberAnswer } from "./numbers";
 import type { Contact, DocumentRecord, Household } from "./types";
 
 export interface AskInput {
@@ -132,6 +133,8 @@ export interface AskRecord {
   question: string;
   askedAt: string;
   result?: AskResult;
+  /** 番号の質問に端末の中だけで答えたもの（Claude には送っていない。番号そのものは残さず、書類と番号の名前だけ） */
+  numberAnswer?: NumberAnswer;
   /** 報告をホームで「見た」にした日時 */
   seenAt?: string;
 }

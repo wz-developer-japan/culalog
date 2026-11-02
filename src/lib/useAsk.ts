@@ -7,12 +7,20 @@
 import { useEffect, useRef } from "react";
 import { type AskRecord, askRecords, runAsk } from "./ask";
 import { characterOf } from "./character";
+import { answerNumberQuestion } from "./numbers";
 import type { Household } from "./types";
 import { newId } from "./useHousehold";
 
-/** 頼みごとを足す（答えはあとで） */
+/**
+ * 頼みごとを足す（答えはあとで）。
+ * 「○○の番号は？」「○○持ってる？」は、Claude に送らずに、この端末の中で確定した書類から探してすぐ答える
+ */
 export function addAsk(household: Household, question: string): { household: Household; record: AskRecord } {
-  const record: AskRecord = { id: newId("ask"), question: question.trim(), askedAt: new Date().toISOString() };
+  const now = new Date().toISOString();
+  const numberAnswer = answerNumberQuestion(household, question.trim());
+  const record: AskRecord = numberAnswer
+    ? { id: newId("ask"), question: question.trim(), askedAt: now, numberAnswer, seenAt: now }
+    : { id: newId("ask"), question: question.trim(), askedAt: now };
   return { household: { ...household, asks: [record, ...askRecords(household)].slice(0, 30) }, record };
 }
 
@@ -24,7 +32,7 @@ export function markAskSeen(household: Household, id: string): Household {
 
 /** まだ答えの無い頼みごと（古い順） */
 export function pendingAsks(household: Household): AskRecord[] {
-  return askRecords(household).filter((a) => !a.result).reverse();
+  return askRecords(household).filter((a) => !a.result && !a.numberAnswer).reverse();
 }
 
 /** 答えが付いて、まだ「見た」にしていない報告（新しい順） */

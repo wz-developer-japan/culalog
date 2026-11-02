@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
+import { NumberAnswerCard } from "@/components/NumberAnswerCard";
 import { askRecords, documentsForAsk } from "@/lib/ask";
 import { butlerName } from "@/lib/character";
 import type { Household } from "@/lib/types";
@@ -22,6 +23,7 @@ const SUGGESTIONS = [
   "賃貸の更新料はいくら？",
   "蓮が学校でけがをした。保険の条件と連絡先を調べておいて",
   "病院に持っていくものは？",
+  "火災保険の証券番号は？",
 ];
 
 function AskPage() {
@@ -40,7 +42,7 @@ function AskPage() {
   const docs = documentsForAsk(h);
   const older = h.documents.filter((d) => d.confirmedAt && d.supersededBy).length;
   const records = askRecords(h);
-  const busy = records.some((a) => !a.result);
+  const busy = records.some((a) => !a.result && !a.numberAnswer);
 
   async function ask(q: string) {
     const text = q.trim();
@@ -86,6 +88,7 @@ function AskPage() {
       {docs.length === 0 && <p className="note">確定した書類がまだありません。書類を登録して、原本と見比べて確定すると聞けるようになります。</p>}
       <p className="note">
         聞くときだけ、確定した書類の中身（証券番号などの番号は伏せ、電話番号は送りません）と質問を Claude API に送ります。このアプリのサーバーには残しません。
+        「○○の番号は？」「○○持ってる？」は Claude に送らず、この端末の中で確定した書類から探してすぐ答えます。
       </p>
       {busy && <p className="meta thinking">{name}が書類を見ています…</p>}
 
@@ -93,7 +96,11 @@ function AskPage() {
         <>
           <h2>頼んだことと報告</h2>
           {records.map((a) => (
-            <AskAnswer key={a.id} record={a} butler={name} />
+            a.numberAnswer ? (
+              <NumberAnswerCard key={a.id} record={a} household={h} />
+            ) : (
+              <AskAnswer key={a.id} record={a} butler={name} />
+            )
           ))}
         </>
       )}
