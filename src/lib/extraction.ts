@@ -39,6 +39,23 @@ export interface ExtractedDeadline {
   quote: string;
   /** 雨天・延期の予備日や振替日（無ければすべて空） */
   reserve: { date: string; condition: string; location: string; quote: string };
+  /**
+   * 本人が動かないと困るか（must）。false は「自動で引き落とされる・自動で更新される」など、知っておくだけのもの（awareness）。
+   * 知っておくだけのものは、ホームのひとことや期限の知らせには出さない
+   */
+  actionNeeded?: boolean;
+  /** 束ねる印（見本の取り込みでだけ入る。Claude には返させない） */
+  bundleKey?: string;
+}
+
+/** 「納付完了」「退会完了」「継続手続き完了」など、何かが済んだことを知らせる記載 */
+export interface ExtractedCompletion {
+  /** 何が済んだか（例: 「令和8年度 住民税 第3期の納付」） */
+  what: string;
+  location: string;
+  quote: string;
+  /** つながる予定の束ねる印（見本の取り込みでだけ入る） */
+  bundleKey?: string;
 }
 
 /** いつの分の書類か（年度・保険期間・契約期間など） */
@@ -103,6 +120,10 @@ export interface Extraction {
    * 家族の情報にしない（誰の書類か聞かない・予定に入れない・聞く／つなぐの根拠にしない）
    */
   notForFamily?: { is: boolean; reason: string };
+  /** 何かが済んだことを知らせる記載（納付完了・退会完了など）。つながる予定を「済んだにしますか？」と本人に聞く */
+  completions?: ExtractedCompletion[];
+  /** 本文には無く、リンク先にしか書いていないこと（例: 「金額」「満了日」）。推測で埋めない */
+  onlyInLink?: string[];
 }
 
 export const CATEGORY_VALUES: DocumentCategory[] = [
@@ -138,7 +159,7 @@ const strList = { type: "array", items: str } as const;
 export const EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "transcript", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear", "notForFamily"],
+  required: ["title", "transcript", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear", "notForFamily", "completions", "onlyInLink"],
   properties: {
     notForFamily: {
       type: "object",
@@ -191,7 +212,7 @@ export const EXTRACTION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "repeatMonths", "location", "quote", "reserve"],
+        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "repeatMonths", "location", "quote", "reserve", "actionNeeded"],
         properties: {
           kind: { type: "string", enum: DEADLINE_KIND_VALUES },
           label: str,
@@ -209,9 +230,20 @@ export const EXTRACTION_SCHEMA = {
             required: ["date", "condition", "location", "quote"],
             properties: { date: str, condition: str, location: str, quote: str },
           },
+          actionNeeded: { type: "boolean" },
         },
       },
     },
+    completions: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["what", "location", "quote"],
+        properties: { what: str, location: str, quote: str },
+      },
+    },
+    onlyInLink: strList,
     contacts: {
       type: "array",
       items: {
@@ -292,6 +324,7 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
         reserve: YMD.test(s(d?.reserve?.date))
           ? { date: s(d.reserve.date), condition: s(d.reserve.condition), location: s(d.reserve.location), quote: s(d.reserve.quote) }
           : { date: "", condition: "", location: "", quote: "" },
+        actionNeeded: d?.actionNeeded !== false,
       }))
       .filter((d) => d.label && YMD.test(d.date)),
     contacts: contacts
@@ -302,6 +335,11 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
       .filter((q) => q.text && q.options.length >= 2)
       .slice(0, 2),
     unclear: list(v.unclear),
+    completions: (arr(v.completions) ?? [])
+      .map((c) => ({ what: s(c?.what), location: s(c?.location), quote: s(c?.quote) }))
+      .filter((c) => c.what)
+      .slice(0, 3),
+    onlyInLink: list(v.onlyInLink).slice(0, 6),
   };
 }
 
@@ -384,6 +422,10 @@ export function extractionToDocument(
     originalFile: options.originalFile,
     unclear: extraction.unclear.length ? extraction.unclear : undefined,
     notForFamily: notFamily ? extraction.notForFamily?.reason || "この家の書類ではありません" : undefined,
+    onlyInLink: extraction.onlyInLink?.length ? extraction.onlyInLink : undefined,
+    completions: extraction.completions?.length
+      ? extraction.completions.map((c) => ({ what: c.what, source: source(c.location, c.quote) ?? { location: c.location }, bundleKey: c.bundleKey || undefined }))
+      : undefined,
     summary:
       what || todo || ifIgnored.text
         ? {
@@ -416,6 +458,8 @@ export function extractionToDocument(
         ? { date: d.reserve.date, condition: d.reserve.condition || undefined, source: source(d.reserve.location, d.reserve.quote) }
         : undefined,
       leadDays: DEFAULT_LEAD_DAYS[d.kind],
+      awareness: d.actionNeeded === false ? true : undefined,
+      bundleKey: d.bundleKey || undefined,
       memberIds,
       source: source(d.location, d.quote),
     })),

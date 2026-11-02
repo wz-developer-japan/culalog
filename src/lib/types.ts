@@ -88,6 +88,13 @@ export interface Deadline {
   applyRuleIds?: string[];
   /** 雨天・延期の予備日や振替日（本番の予定とつながっている） */
   reserve?: ReserveDay;
+  /**
+   * 知っておくだけ（自動で引き落とされる・自動で更新される など、本人が動かなくても困らないもの）。
+   * ホームのひとこと・期限の知らせには出さず、すべての予定・書類の画面で見られるだけ
+   */
+  awareness?: boolean;
+  /** 同じ予定を知らせる別の書類（初回・督促・前日通知のメールなど）と束ねるための印。同じ印の予定は、ホームでは1件にまとめる */
+  bundleKey?: string;
 }
 
 /** 予備日・振替日。本番の予定にぶら下がり、きまりも別に当てはめられる */
@@ -152,11 +159,14 @@ export interface DemoSample {
  * - other:   それ以外（例: 何班か）。答えは書類の項目に「本人の答え」として入る
  * - supersede: 同じ種類の新しい書類が来たので、古い方を「前のもの」にするか（答え: replace / keep）
  * - duplicate: 前に渡した書類と同じもの（写真違い）かもしれないので、今回の分を消すか（答え: same / different）
+ * - close: 「納付完了」などのお知らせが来たので、つながる予定を済んだにするか（答え: done / keep）
  */
 export interface ButlerQuestion {
   id: string;
   documentId: string;
-  about: "members" | "other" | "supersede" | "duplicate";
+  about: "members" | "other" | "supersede" | "duplicate" | "close";
+  /** close: 済んだにするかを聞いている予定（targetDocumentId の書類の中） */
+  targetDeadlineId?: string;
   text: string;
   /** members: いちばんありそうな人（大きく出す） */
   guess?: string[];
@@ -241,6 +251,10 @@ export interface DocumentRecord {
   fileHash?: string;
   /** この家の書類ではないもの（記入例・見本など）の理由。家族の情報にせず、ひとこと・予定・聞く・つなぐ・大事な番号の根拠に使わない */
   notForFamily?: string;
+  /** 本文には無く、リンク先にしか書いていないこと（例: 「金額」「満了日」）。アプリはリンクを開かず、本人に確かめてもらう */
+  onlyInLink?: string[];
+  /** 何かが済んだことを知らせる記載（納付完了・退会完了など） */
+  completions?: { what: string; source: SourceRef; bundleKey?: string }[];
   /** 前に本人が答えたことを当てはめたとき、その説明（例: 「前に教えてもらったので、結衣さんの書類にしました」） */
   learnedNotes?: string[];
 }

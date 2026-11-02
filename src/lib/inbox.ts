@@ -3,7 +3,7 @@
 // 分からないことは「執事から聞きたいこと」に並べ、本人の答えは「覚えたこと」として残して、同じ種類の書類で二度聞かない。
 // 確定は本人（まとめて確認でも、原本と見比べる工程は残す）。
 
-import { answerQuestion, kindKey } from "./butler";
+import { answerQuestion, closeQuestions, kindKey } from "./butler";
 import { type Extraction, extractionToDocument } from "./extraction";
 import type { ButlerQuestion, DocumentRecord, Household } from "./types";
 
@@ -345,6 +345,7 @@ export function confirmMany(
   household: Household,
   ids: string[],
   confirmOne: (h: Household, id: string) => Household,
+  newId?: (prefix: string) => string,
 ): Household {
   let next = household;
   for (const id of ids) {
@@ -353,6 +354,11 @@ export function confirmMany(
       documents: next.documents.map((d) => (d.id === id ? { ...d, fields: d.fields.map((f) => ({ ...f, status: "confirmed" as const })) } : d)),
     };
     next = confirmOne(next, id);
+  }
+  // 完了で閉じる: 一緒に確定した書類どうし（「納付完了」のメールと、その納付書など）も、もう一度つないで聞く
+  for (const id of ids) {
+    const doc = next.documents.find((d) => d.id === id);
+    if (newId && doc?.completions?.length) next = { ...next, questions: [...(next.questions ?? []), ...closeQuestions(next, doc, newId)] };
   }
   return next;
 }

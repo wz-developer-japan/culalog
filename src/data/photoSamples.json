@@ -103,6 +103,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -205,6 +207,8 @@
      "repeatMonths": 0,
      "location": "保証期間の帯・左",
      "quote": "メーカー保証（2年）〜令和9年1月16日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -223,6 +227,8 @@
      "repeatMonths": 0,
      "location": "表・保証期間",
      "quote": "工事完了日から10年間（令和17年1月16日 まで）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -256,6 +262,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -358,6 +366,8 @@
      "repeatMonths": 0,
      "location": "左の面・供給開始日",
      "quote": "令和7年1月22日（水）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -376,6 +386,8 @@
      "repeatMonths": 12,
      "location": "左の面・契約期間",
      "quote": "1年ごとに自動で更新します",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -409,6 +421,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -519,6 +533,8 @@
      "repeatMonths": 0,
      "location": "1/3ページ 1．ご契約の内容・開通工事日",
      "quote": "令和7年1月27日（月）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -537,6 +553,8 @@
      "repeatMonths": 24,
      "location": "3/3ページ 6．契約期間・更新・解約について 2（1/3ページの表にもある）",
      "quote": "2027年2月1日 〜 2027年3月31日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -555,6 +573,8 @@
      "repeatMonths": 24,
      "location": "1/3ページ 1．ご契約の内容・契約期間",
      "quote": "2027年1月分",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -581,6 +601,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -697,6 +719,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・9日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -715,6 +739,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・10日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -733,6 +759,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・11日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -751,6 +779,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・12日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -769,6 +799,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・16日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -787,6 +819,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・17日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -805,6 +839,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・18日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -823,6 +859,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・19日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -841,6 +879,8 @@
      "repeatMonths": 0,
      "location": "1/2ページ うら（10月〜3月）・11月の欄・20日",
      "quote": "",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -859,6 +899,8 @@
      "repeatMonths": 12,
      "location": "1/2ページ うら（10月〜3月）・下の注意書き",
      "quote": "年末年始（12月31日（木）〜1月3日（日））は収集しません。",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -885,6 +927,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1019,6 +1063,8 @@
      "repeatMonths": 12,
      "location": "おもて 加入者証・保険期間",
      "quote": "令和9年4月1日 午後4時まで",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1039,6 +1085,8 @@
      "repeatMonths": 1,
      "location": "おもて 掛金振替のお知らせ・振替日",
      "quote": "毎月27日（金融機関の休業日のときは翌営業日）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1093,6 +1141,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1197,6 +1247,8 @@
      "repeatMonths": 0,
      "location": "記 ３．希望の提出（下線）",
      "quote": "11月13日（金）までに担任へ全員提出",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1217,6 +1269,8 @@
      "repeatMonths": 0,
      "location": "記 １．日時（候補日）の表",
      "quote": "12月1日（火）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1237,6 +1291,8 @@
      "repeatMonths": 0,
      "location": "記 １．日時（候補日）の表",
      "quote": "12月2日（水）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1257,6 +1313,8 @@
      "repeatMonths": 0,
      "location": "記 １．日時（候補日）の表",
      "quote": "12月3日（木）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1277,6 +1335,8 @@
      "repeatMonths": 0,
      "location": "記 １．日時（候補日）の表",
      "quote": "12月4日（金）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1296,6 +1356,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1386,6 +1448,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1499,6 +1563,8 @@
      "repeatMonths": 0,
      "location": "1枚目・表の「定期接種として受けられる期限」",
      "quote": "令和9年6月2日（水） まで",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1525,6 +1591,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1599,6 +1667,8 @@
    "contacts": [],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": true,
     "reason": "記入の見本。名前・住所・生年月日は例として書かれたもので、家族の情報ではない"
@@ -1694,6 +1764,8 @@
      "repeatMonths": 0,
      "location": "まん中の大きな日付と時刻",
      "quote": "2026年11月17日（火）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1712,6 +1784,8 @@
      "repeatMonths": 0,
      "location": "注意書き3行目",
      "quote": "キャンセルは前日までにお電話でお願いします",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1731,6 +1805,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1840,6 +1916,8 @@
      "repeatMonths": 0,
      "location": "表・予約日時",
      "quote": "令和8年11月17日（火）　9:00",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1873,6 +1951,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -1945,6 +2025,8 @@
      "repeatMonths": 0,
      "location": "本文2段落目・赤字",
      "quote": "9時30分に親子で登園",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1963,6 +2045,8 @@
      "repeatMonths": 0,
      "location": "添付ファイルの下の※",
      "quote": "11月12日（木） に掲載を終了します",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -1974,6 +2058,8 @@
    "contacts": [],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2064,6 +2150,8 @@
      "repeatMonths": 0,
      "location": "《ご挨拶》の下・日時",
      "quote": "令和8年11月19日（木）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2083,6 +2171,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2149,6 +2239,8 @@
      "repeatMonths": 0,
      "location": "記 １．移行期間",
      "quote": "令和8年11月2日（月）　〜　11月13日（金）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2167,6 +2259,8 @@
      "repeatMonths": 0,
      "location": "記 ２．冬服への切り替え",
      "quote": "11月16日（月）からは冬服",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2185,6 +2279,8 @@
      "repeatMonths": 0,
      "location": "記 ３．お昼寝の布団",
      "quote": "タオルケットからブランケットに替えてください",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2204,6 +2300,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2262,6 +2360,8 @@
    "contacts": [],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2374,6 +2474,8 @@
    "contacts": [],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2464,6 +2566,8 @@
      "repeatMonths": 0,
      "location": "販売期間",
      "quote": "令和8年11月17日（火） 23:59まで",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2483,6 +2587,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2609,6 +2715,8 @@
      "repeatMonths": 0,
      "location": "上の欄・支給日",
      "quote": "令和8年10月23日（金）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2627,6 +2735,8 @@
      "repeatMonths": 1,
      "location": "下のお知らせ",
      "quote": "次回支給日　令和8年11月25日（水）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2645,6 +2755,8 @@
      "repeatMonths": 0,
      "location": "下のお知らせ（就業規則 第32条）",
      "quote": "取得希望日の7日前までに勤怠システムで所属長に申請してください",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -2664,6 +2776,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2749,6 +2863,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2833,6 +2949,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -2929,6 +3047,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3019,6 +3139,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3115,6 +3237,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3244,6 +3368,8 @@
      "repeatMonths": 0,
      "location": "1ページ目 ご自分で納める分（普通徴収）の納期限と納付額の表・第1期 / 2ページ目 納付書",
      "quote": "令和8年6月30日（火）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3264,6 +3390,8 @@
      "repeatMonths": 0,
      "location": "1ページ目 ご自分で納める分（普通徴収）の納期限と納付額の表・第2期 / 2ページ目 納付書",
      "quote": "令和8年8月31日（月）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3284,6 +3412,8 @@
      "repeatMonths": 0,
      "location": "1ページ目 ご自分で納める分（普通徴収）の納期限と納付額の表・第3期 / 2ページ目 納付書",
      "quote": "令和8年11月2日（月）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3304,6 +3434,8 @@
      "repeatMonths": 0,
      "location": "1ページ目 ご自分で納める分（普通徴収）の納期限と納付額の表・第4期 / 2ページ目 納付書",
      "quote": "令和9年2月1日（月）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3330,6 +3462,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3468,6 +3602,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3555,6 +3691,8 @@
      "repeatMonths": 0,
      "location": "中ほどの二重線の枠（太字）",
      "quote": "参加しない方も、同封のアンケート（記帳の状況についてのお尋ね）を令和8年11月24日（火）までに返送してください",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3577,6 +3715,8 @@
      "repeatMonths": 0,
      "location": "記・日時 ①",
      "quote": "① 令和9年1月13日（水）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3599,6 +3739,8 @@
      "repeatMonths": 0,
      "location": "記・日時 ②",
      "quote": "② 令和9年1月14日（木）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3617,6 +3759,8 @@
      "repeatMonths": 0,
      "location": "記・申込み",
      "quote": "申込期限　令和8年12月25日（金）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3643,6 +3787,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3735,6 +3881,8 @@
      "repeatMonths": 0,
      "location": "1ページ目 左の枠 / 2ページ目 納期限の表",
      "quote": "令和8年7月31日（金）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3755,6 +3903,8 @@
      "repeatMonths": 0,
      "location": "1ページ目 右の枠 / 2ページ目 納期限の表",
      "quote": "令和8年11月30日（月）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -3774,6 +3924,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3864,6 +4016,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3948,6 +4102,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -3962,10 +4118,10 @@
    "/samples/2026-11-07/v1-shaken-hagaki-p1.png",
    "/samples/2026-11-07/v1-shaken-hagaki-p2.png"
   ],
-  "text": "--- 1/2 ページ ---\n車検のお知らせ\nくろうど自動車整備\n令和8年10月28日\n\n日向 翔太 様　いつも当店をご利用いただき、ありがとうございます。お客様のお車（ルミナワゴン（架空））は、まもなく車検の時期をむかえます。\n\n車検満了日\n令和9年1月16日（土）\nこの日を過ぎると、公道を走ることができません\n当店では、満了日の1か月前から車検をお受けしています\n（令和8年12月16日から）\n早めのご予約がおトクです\n早期ご予約割引（架空）　令和8年12月12日までにご予約のお客様は、点検・整備の料金から 3,000円引き。ご予約の方全員に、手洗い洗車のサービスもいたします。\nご予約の方法\nお電話\t000-0000-0075\n9:00〜18:00（日曜・祝日定休）\nWeb予約（24時間）\thttps://yoyaku.kuroudo-seibi.example/\nお客様番号 C-000012 を入力してください\n代車\t無料の代車をご用意できます（台数に限りがあります。ご予約のときにお申し付けください）\nお預かり\t朝9時にお預かりし、夕方6時ごろお返し（整備の内容により2日以上かかることがあります）\n当日お持ちいただくもの\n自動車検査証（車検証）\n自賠責保険証明書（いまの契約のもの）\n自動車税（種別割）の納税を確かめられるもの\nお車のかぎ（ロックナット・ナビの暗証番号がある方はそれも）\n※ 車検の費用は、法定費用（重量税・自賠責保険料・印紙代）と、点検・整備の料金の合計です。お見積りは無料です。\n※ 割引は他の割引と一緒に使えません。法定費用は割引の対象外です。\n※ すでにご予約済みの方、お車を手放された方は、このはがきをお捨てください。\nくろうど自動車整備（架空）　くろうど市みなと町三丁目4番（架空）　認証工場 第0000号（架空）\n見本（架空）\n\n--- 2/2 ページ ---\n料金別納\n郵便\n0\n0\n0\n0\n0\n0\n0\nくろうど市くろうど台1丁目2番3号\nくろうど台ハイツ203号室\n日向 翔太 様\n車検のご案内\nお車　ルミナワゴン（架空）\n登録番号　くろうど 300 さ 00-01\nお客様番号　C-000012\nくろうど自動車整備（架空）\nくろうど市みなと町三丁目4番（架空）\nTEL 000-0000-0075　9:00〜18:00（日曜・祝日定休）\n発行日 令和8年10月28日\n見本（架空）",
+  "text": "--- 1/2 ページ ---\n車検のお知らせ\nくろうど自動車整備\n令和8年10月28日\n\n日向 翔太 様　いつも当店をご利用いただき、ありがとうございます。お客様のお車（ルミナワゴン（架空））は、まもなく車検の時期をむかえます。\n\n車検満了日\n令和9年1月16日（土）\nこの日を過ぎると、公道を走ることができません\nご予約はお早めに（年末年始は混み合います）\n早めのご予約がおトクです\n早期ご予約割引（架空）　令和8年12月12日までにご予約のお客様は、点検・整備の料金から 3,000円引き。ご予約の方全員に、手洗い洗車のサービスもいたします。\nご予約の方法\nお電話\t000-0000-0075\n9:00〜18:00（日曜・祝日定休）\nWeb予約（24時間）\thttps://yoyaku.kuroudo-seibi.example/\nお客様番号 C-000012 を入力してください\n代車\t無料の代車をご用意できます（台数に限りがあります。ご予約のときにお申し付けください）\nお預かり\t朝9時にお預かりし、夕方6時ごろお返し（整備の内容により2日以上かかることがあります）\n当日お持ちいただくもの\n自動車検査証（車検証）\n自賠責保険証明書（いまの契約のもの）\n自動車税（種別割）の納税を確かめられるもの\nお車のかぎ（ロックナット・ナビの暗証番号がある方はそれも）\n※ 車検の費用は、法定費用（重量税・自賠責保険料・印紙代）と、点検・整備の料金の合計です。お見積りは無料です。\n※ 割引は他の割引と一緒に使えません。法定費用は割引の対象外です。\n※ すでにご予約済みの方、お車を手放された方は、このはがきをお捨てください。\nくろうど自動車整備（架空）　くろうど市みなと町三丁目4番（架空）　認証工場 第0000号（架空）\n見本（架空）\n\n--- 2/2 ページ ---\n料金別納\n郵便\n0\n0\n0\n0\n0\n0\n0\nくろうど市くろうど台1丁目2番3号\nくろうど台ハイツ203号室\n日向 翔太 様\n車検のご案内\nお車　ルミナワゴン（架空）\n登録番号　くろうど 300 さ 00-01\nお客様番号　C-000012\nくろうど自動車整備（架空）\nくろうど市みなと町三丁目4番（架空）\nTEL 000-0000-0075　9:00〜18:00（日曜・祝日定休）\n発行日 令和8年10月28日\n見本（架空）",
   "provisionalDraft": {
    "title": "くろうど自動車整備 車検のお知らせ（はがき・2面）",
-   "transcript": "--- 1/2 ページ ---\n車検のお知らせ\nくろうど自動車整備\n令和8年10月28日\n\n日向 翔太 様　いつも当店をご利用いただき、ありがとうございます。お客様のお車（ルミナワゴン（架空））は、まもなく車検の時期をむかえます。\n\n車検満了日\n令和9年1月16日（土）\nこの日を過ぎると、公道を走ることができません\n当店では、満了日の1か月前から車検をお受けしています\n（令和8年12月16日から）\n早めのご予約がおトクです\n早期ご予約割引（架空）　令和8年12月12日までにご予約のお客様は、点検・整備の料金から 3,000円引き。ご予約の方全員に、手洗い洗車のサービスもいたします。\nご予約の方法\nお電話\t000-0000-0075\n9:00〜18:00（日曜・祝日定休）\nWeb予約（24時間）\thttps://yoyaku.kuroudo-seibi.example/\nお客様番号 C-000012 を入力してください\n代車\t無料の代車をご用意できます（台数に限りがあります。ご予約のときにお申し付けください）\nお預かり\t朝9時にお預かりし、夕方6時ごろお返し（整備の内容により2日以上かかることがあります）\n当日お持ちいただくもの\n自動車検査証（車検証）\n自賠責保険証明書（いまの契約のもの）\n自動車税（種別割）の納税を確かめられるもの\nお車のかぎ（ロックナット・ナビの暗証番号がある方はそれも）\n※ 車検の費用は、法定費用（重量税・自賠責保険料・印紙代）と、点検・整備の料金の合計です。お見積りは無料です。\n※ 割引は他の割引と一緒に使えません。法定費用は割引の対象外です。\n※ すでにご予約済みの方、お車を手放された方は、このはがきをお捨てください。\nくろうど自動車整備（架空）　くろうど市みなと町三丁目4番（架空）　認証工場 第0000号（架空）\n見本（架空）\n\n--- 2/2 ページ ---\n料金別納\n郵便\n0\n0\n0\n0\n0\n0\n0\nくろうど市くろうど台1丁目2番3号\nくろうど台ハイツ203号室\n日向 翔太 様\n車検のご案内\nお車　ルミナワゴン（架空）\n登録番号　くろうど 300 さ 00-01\nお客様番号　C-000012\nくろうど自動車整備（架空）\nくろうど市みなと町三丁目4番（架空）\nTEL 000-0000-0075　9:00〜18:00（日曜・祝日定休）\n発行日 令和8年10月28日\n見本（架空）",
+   "transcript": "--- 1/2 ページ ---\n車検のお知らせ\nくろうど自動車整備\n令和8年10月28日\n\n日向 翔太 様　いつも当店をご利用いただき、ありがとうございます。お客様のお車（ルミナワゴン（架空））は、まもなく車検の時期をむかえます。\n\n車検満了日\n令和9年1月16日（土）\nこの日を過ぎると、公道を走ることができません\nご予約はお早めに（年末年始は混み合います）\n早めのご予約がおトクです\n早期ご予約割引（架空）　令和8年12月12日までにご予約のお客様は、点検・整備の料金から 3,000円引き。ご予約の方全員に、手洗い洗車のサービスもいたします。\nご予約の方法\nお電話\t000-0000-0075\n9:00〜18:00（日曜・祝日定休）\nWeb予約（24時間）\thttps://yoyaku.kuroudo-seibi.example/\nお客様番号 C-000012 を入力してください\n代車\t無料の代車をご用意できます（台数に限りがあります。ご予約のときにお申し付けください）\nお預かり\t朝9時にお預かりし、夕方6時ごろお返し（整備の内容により2日以上かかることがあります）\n当日お持ちいただくもの\n自動車検査証（車検証）\n自賠責保険証明書（いまの契約のもの）\n自動車税（種別割）の納税を確かめられるもの\nお車のかぎ（ロックナット・ナビの暗証番号がある方はそれも）\n※ 車検の費用は、法定費用（重量税・自賠責保険料・印紙代）と、点検・整備の料金の合計です。お見積りは無料です。\n※ 割引は他の割引と一緒に使えません。法定費用は割引の対象外です。\n※ すでにご予約済みの方、お車を手放された方は、このはがきをお捨てください。\nくろうど自動車整備（架空）　くろうど市みなと町三丁目4番（架空）　認証工場 第0000号（架空）\n見本（架空）\n\n--- 2/2 ページ ---\n料金別納\n郵便\n0\n0\n0\n0\n0\n0\n0\nくろうど市くろうど台1丁目2番3号\nくろうど台ハイツ203号室\n日向 翔太 様\n車検のご案内\nお車　ルミナワゴン（架空）\n登録番号　くろうど 300 さ 00-01\nお客様番号　C-000012\nくろうど自動車整備（架空）\nくろうど市みなと町三丁目4番（架空）\nTEL 000-0000-0075　9:00〜18:00（日曜・祝日定休）\n発行日 令和8年10月28日\n見本（架空）",
    "summary": {
     "what": "いつもの整備工場から届いた、車検の時期のお知らせです。車検満了日・予約の方法（電話・Web）・代車・当日の持ち物が書いてあります。",
     "todo": "車検満了日（1月16日（土））より前に車検を受ける。予約は電話かWeb。12月12日（土）までの予約なら、はがきに書いてある早期ご予約割引がある。",
@@ -4039,24 +4195,8 @@
      "repeatMonths": 0,
      "location": "案内面・車検満了日の枠",
      "quote": "令和9年1月16日（土）",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    },
-    {
-     "kind": "window",
-     "label": "車検を受けられる期間（当店は満了日の1か月前から）",
-     "date": "2026-12-16",
-     "endDate": "2027-01-16",
-     "time": "",
-     "place": "",
-     "needs": [],
-     "repeatMonths": 0,
-     "location": "案内面・車検満了日の枠の下（手書き）",
-     "quote": "満了日の1か月前から",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4075,6 +4215,8 @@
      "repeatMonths": 0,
      "location": "案内面・早めのご予約がおトクです",
      "quote": "令和8年12月12日までにご予約のお客様",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4094,6 +4236,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -4196,6 +4340,8 @@
      "repeatMonths": 0,
      "location": "下の枠・有効期間の満了する日",
      "quote": "令和9年1月16日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4207,6 +4353,8 @@
    "contacts": [],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -4316,6 +4464,8 @@
      "repeatMonths": 0,
      "location": "1ページ目・赤い枠",
      "quote": "満期日　令和8年12月10日（木）　午後4時",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4334,6 +4484,8 @@
      "repeatMonths": 0,
      "location": "1ページ目・3．継続のお手続き",
      "quote": "令和8年12月9日（水）（満期日の前日）",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4352,6 +4504,8 @@
      "repeatMonths": 0,
      "location": "2ページ目・改定のご案内の前書き",
      "quote": "令和8年12月1日以降に保険期間が始まるご契約から",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4385,6 +4539,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -4473,6 +4629,8 @@
      "repeatMonths": 0,
      "location": "表・更新期間",
      "quote": "令和8年11月18日 〜 令和9年1月18日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4491,6 +4649,8 @@
      "repeatMonths": 0,
      "location": "表・有効期間の末日",
      "quote": "誕生日の1か月後の日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4510,6 +4670,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""
@@ -4600,6 +4762,8 @@
      "repeatMonths": 0,
      "location": "11月の行・21（土）（○なし）と下の※",
      "quote": "○の無い土曜日が出勤日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4618,6 +4782,8 @@
      "repeatMonths": 0,
      "location": "12月の行・2（○）と下の※",
      "quote": "創立記念日のため休日です",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4636,6 +4802,8 @@
      "repeatMonths": 0,
      "location": "8月の行・12（◎）と下の※",
      "quote": "は指定有給休暇です",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4654,6 +4822,8 @@
      "repeatMonths": 0,
      "location": "1月の行・4（◎）と下の※",
      "quote": "は指定有給休暇です",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4672,6 +4842,8 @@
      "repeatMonths": 0,
      "location": "下の※",
      "quote": "夏季休業 8月13日〜8月16日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4690,6 +4862,8 @@
      "repeatMonths": 0,
      "location": "下の※",
      "quote": "年末年始休業 12月29日〜1月3日",
+     "actionNeeded": true,
+     "bundleKey": "",
      "reserve": {
       "date": "",
       "condition": "",
@@ -4709,6 +4883,8 @@
    ],
    "questions": [],
    "unclear": [],
+   "completions": [],
+   "onlyInLink": [],
    "notForFamily": {
     "is": false,
     "reason": ""

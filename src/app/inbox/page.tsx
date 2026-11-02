@@ -70,7 +70,7 @@ export default function Inbox() {
 
   async function confirmSelected() {
     const ids = selected.map((d) => d.id);
-    await update((current) => confirmMany(current, ids, (hh, id) => confirmDocument(hh, id, newId)));
+    await update((current) => confirmMany(current, ids, (hh, id) => confirmDocument(hh, id, newId), newId));
     setMessage(`${ids.length}件を確定しました。ひとこと・予定・聞くの根拠に使います。`);
     setUnchecked(new Set());
     setChecked(new Set());
@@ -184,6 +184,7 @@ export default function Inbox() {
                           <div className="meta" key={x.id}>
                             {formatYmd(x.date)}
                             {x.endDate && `〜${formatYmd(x.endDate)}`} {x.label}
+                            {x.awareness && "（知っておくだけ）"}
                           </div>
                         ))}
                         {d.deadlines.length > 3 && <div className="meta">ほか{d.deadlines.length - 3}件の予定</div>}
@@ -192,6 +193,8 @@ export default function Inbox() {
                             ✓ {n}
                           </div>
                         ))}
+                        {d.onlyInLink?.length ? <div className="meta warn-text">？ {d.onlyInLink.join("・")}はリンク先にしか書いてありません（開いて確かめてください）</div> : null}
+                        {d.completions?.length ? <div className="meta">済んだことのお知らせ: {d.completions.map((c) => c.what).join("、")}</div> : null}
                         {d.notForFamily && <div className="meta">家族の情報にしません: {d.notForFamily}</div>}
                         {blocker && <div className="meta warn-text">⚠ {blocker}</div>}
                       </div>

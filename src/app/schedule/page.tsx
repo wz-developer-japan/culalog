@@ -28,7 +28,7 @@ export default function Schedule() {
   const nameOf = (id: string) => h.members.find((m) => m.id === id)?.name ?? "";
   const isPast = (i: ActionItem) => i.daysLeft < 0 && !(i.deadline.endDate && i.deadline.endDate >= formatKey(today));
 
-  const overdue = items.filter((i) => isPast(i) && i.deadline.kind !== "event" && i.deadline.kind !== "after_event" && !done[i.deadline.id]);
+  const overdue = items.filter((i) => isPast(i) && i.deadline.kind !== "event" && i.deadline.kind !== "after_event" && !i.deadline.awareness && !done[i.deadline.id]);
   const upcoming = items.filter((i) => !isPast(i) && i.deadline.kind !== "after_event" && !done[i.deadline.id]);
   const afterEvent = items.filter((i) => i.deadline.kind === "after_event");
   const finished = items.filter((i) => done[i.deadline.id]);
@@ -59,6 +59,18 @@ export default function Schedule() {
           {d.memberIds.length > 0 && `・${d.memberIds.map(nameOf).join("、")}`}
         </div>
         {d.leadReason && <div className="meta">{d.leadReason}</div>}
+        {d.awareness && <div className="meta">知っておくだけ（自動で進むもの）。ホームでは知らせていません</div>}
+        {item.bundled?.length ? (
+          <div className="meta">
+            同じ予定のお知らせ:{" "}
+            {item.bundled.map((b, i) => (
+              <span key={b.deadline.id}>
+                {i > 0 && "、"}
+                <Link href={`/documents/${b.document.id}`}>{b.document.title}</Link>
+              </span>
+            ))}
+          </div>
+        ) : null}
         {item.daysLeft < 0 && passedBeforeRegistered(item) && (
           <div className="meta">書類を登録したときには、もう過ぎていました（ホームでは知らせていません）</div>
         )}

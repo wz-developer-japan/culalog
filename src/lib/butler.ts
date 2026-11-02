@@ -56,9 +56,10 @@ function titleOf({ deadline, daysLeft }: ActionItem, overdue: boolean): string {
   return `${deadline.label}まで あと${daysLeft}日（${formatYmd(deadline.date)}）`;
 }
 
-function detailOf({ deadline }: ActionItem): string | undefined {
+function detailOf({ deadline, bundled }: ActionItem): string | undefined {
   const parts = [
     deadline.time,
+    bundled?.length ? `同じ予定のお知らせがほかに${bundled.length}通（${bundled.map((b) => b.document.title).join("、")}）` : undefined,
     deadline.place,
     deadline.needs?.length ? `必要なもの: ${deadline.needs.join("、")}` : undefined,
     deadline.intent ? `そのときしたいこと: ${deadline.intent}` : undefined,
@@ -231,6 +232,7 @@ export function effectOf(q: ButlerQuestion): string {
   if (q.about === "members") return "選んだ人の予定として、ひとことでお知らせします。";
   if (q.about === "supersede") return "前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。";
   if (q.about === "duplicate") return "同じ書類なら、今回の分は消して前の書類だけを使います。別の書類なら両方残します。";
+  if (q.about === "close") return "済んだにすると、その予定はホームで知らせなくなります（すべての予定の画面で取り消せます）。";
   return "答えは、この書類の項目に「本人の答え」として残ります。";
 }
 
@@ -287,6 +289,54 @@ export function supersedeQuestions(household: Household, doc: DocumentRecord, ne
     }));
 }
 
+/** 「完了」の言葉の中から、比べる言葉を取り出す */
+function closeWords(text: string): string[] {
+  const generic = new Set(["お知らせ", "ご案内", "完了", "手続き", "結果", "決済", "受付", "ご連絡", "確認", "について", "通知"]);
+  const words = text.replace(/（[^）]*）|\([^)]*\)/g, " ").match(/[\p{Script=Han}\p{Script=Katakana}ーA-Za-z0-9]{2,}/gu) ?? [];
+  return [...new Set(words.filter((w) => !generic.has(w)))];
+}
+
+/**
+ * 完了で閉じる: 確定した書類に「納付完了」「退会完了」などの記載があれば、つながりそうな予定（ほかの確定した書類の、済んでいないもの）を探し、
+ * 「済んだにしますか？」と本人に聞く（勝手に済んだにはしない）。つながりは、束ねる印が同じか、名前の言葉が2つ以上重なるもの。
+ */
+export function closeQuestions(household: Household, doc: DocumentRecord, newId: (p: string) => string): ButlerQuestion[] {
+  if (!doc.completions?.length || doc.notForFamily) return [];
+  const done = household.done ?? {};
+  const asked = new Set((household.questions ?? []).filter((q) => q.about === "close").map((q) => q.targetDeadlineId));
+  const out: ButlerQuestion[] = [];
+  for (const c of doc.completions) {
+    const words = closeWords(c.what);
+    let best: { score: number; target: DocumentRecord; deadline: DocumentRecord["deadlines"][number] } | undefined;
+    for (const other of household.documents) {
+      if (other.id === doc.id || !other.confirmedAt || other.supersededBy || other.notForFamily) continue;
+      for (const d of other.deadlines) {
+        if (done[d.id] || asked.has(d.id) || d.kind === "event") continue;
+        const text = `${d.label} ${other.title} ${other.docType ?? ""}`;
+        const score = c.bundleKey && d.bundleKey === c.bundleKey ? 100 : words.filter((w) => text.includes(w)).length;
+        if (score >= 2 && (!best || score > best.score || (score === best.score && d.date < best.deadline.date))) best = { score, target: other, deadline: d };
+      }
+    }
+    if (!best) continue;
+    asked.add(best.deadline.id);
+    out.push({
+      id: newId("q"),
+      documentId: doc.id,
+      about: "close",
+      targetDocumentId: best.target.id,
+      targetDeadlineId: best.deadline.id,
+      text: `「${best.deadline.label}」（${best.target.title}）は済みましたか？`,
+      reason: `「${doc.title}」に「${c.what}」とあります（${c.source.location}）。`,
+      options: [
+        { label: "済んだにする", value: "done" },
+        { label: "まだ・別のもの", value: "keep" },
+      ],
+      multiple: false,
+    });
+  }
+  return out;
+}
+
 /** 書類を確定する。同じ種類の古い書類があれば、前のものにするかを聞く */
 export function confirmDocument(household: Household, docId: string, newId: (p: string) => string): Household {
   const doc = household.documents.find((d) => d.id === docId);
@@ -295,7 +345,7 @@ export function confirmDocument(household: Household, docId: string, newId: (p: 
   return {
     ...household,
     documents: household.documents.map((d) => (d.id === docId ? confirmed : d)),
-    questions: [...(household.questions ?? []), ...supersedeQuestions(household, confirmed, newId)],
+    questions: [...(household.questions ?? []), ...supersedeQuestions(household, confirmed, newId), ...closeQuestions(household, confirmed, newId)],
   };
 }
 
@@ -304,6 +354,16 @@ export function answerQuestion(household: Household, questionId: string, values:
   const question = household.questions?.find((q) => q.id === questionId);
   if (!question || values.length === 0) return household;
   const now = new Date().toISOString();
+  // 完了で閉じる: 「済んだにする」なら、その予定を済んだにする
+  if (question.about === "close") {
+    const doneMap = { ...(household.done ?? {}) };
+    if (values.includes("done") && question.targetDeadlineId) doneMap[question.targetDeadlineId] = now;
+    return {
+      ...household,
+      done: doneMap,
+      questions: (household.questions ?? []).map((q) => (q.id === questionId ? { ...q, answer: values, answeredAt: now } : q)),
+    };
+  }
   // 写真違いの同じ書類: 今回の分（documentId）を消して、前の書類だけを使う
   if (question.about === "duplicate") {
     const same = values.includes("same");

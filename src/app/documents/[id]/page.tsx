@@ -145,6 +145,24 @@ export default function DocumentDetail() {
         {doc.memberIds.length > 0 && `・${doc.memberIds.map(nameOf).join("、")}`}
         {confirmed ? "・確定済み" : "・確認待ち"}
       </p>
+      {doc.onlyInLink?.length ? (
+        <div className="card unknown">
+          <div className="unknown-label">？ {doc.onlyInLink.join("・")}は、リンク先にしか書いてありません</div>
+          本文には書いていないため、執事は推測で埋めていません。元のメールのリンクを開いて確かめてください（このアプリはリンクを開きません）。
+        </div>
+      ) : null}
+      {doc.completions?.length ? (
+        <div className="card calm">
+          済んだことのお知らせです:
+          {doc.completions.map((c, i) => (
+            <div key={i}>
+              ・{c.what}
+              <span className="meta">（原本: {c.source.location}）</span>
+            </div>
+          ))}
+          <div className="meta">つながりそうな予定があれば、「聞きたいこと」で済んだにするか確かめます。</div>
+        </div>
+      ) : null}
       {doc.notForFamily && (
         <div className="card calm">
           家族の情報にしていません（{doc.notForFamily}）。名前・住所などは家族の誰のものにもせず、予定・ひとこと・執事に聞くの根拠にも使いません。書き方の見本として残しています。
@@ -334,7 +352,7 @@ export default function DocumentDetail() {
               </div>
             )}
             <div className="meta">
-              {DEADLINE_KIND_LABELS[d.kind]}・{d.leadDays}日前からお知らせ
+              {DEADLINE_KIND_LABELS[d.kind]}・{d.awareness ? "知っておくだけ（自動で進むもの。ホームでは知らせません）" : `${d.leadDays}日前からお知らせ`}
             </div>
             <SourceLine id={d.id} source={d.source} />
             {d.leadReason && <div className="meta">{d.leadReason}</div>}

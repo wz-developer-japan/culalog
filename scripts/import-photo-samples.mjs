@@ -14,7 +14,7 @@ if (!dir || !existsSync(dir)) {
   process.exit(1);
 }
 const prefixes = process.argv.slice(3);
-const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhitmgpvr]\d/.test(id));
+const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhitmgpvrxjuzly]\d/.test(id));
 
 const baseDate = basename(dir);
 const outDir = join("public", "samples", baseDate);
@@ -25,6 +25,14 @@ const str = (x) => (typeof x === "string" ? x : "");
 const CATEGORIES = ["school", "childcare", "housing", "insurance", "vehicle", "medical_card", "care", "license", "subscription", "work", "community", "medical", "other"];
 const CATEGORY_ALIASES = { utility: "housing" };
 const categoryOf = (c) => (CATEGORIES.includes(c) ? c : (CATEGORY_ALIASES[c] ?? "other"));
+/** 束ねる印: bundleWith（文字・文字の配列・{id} の配列）を、同じ組でそろう文字にする */
+function bundleKeyOf(ownId, bundleWith) {
+  const list = (Array.isArray(bundleWith) ? bundleWith : bundleWith ? [bundleWith] : []).map((x) => (typeof x === "string" ? x : str(x?.id ?? x?.key ?? x?.label)));
+  const ids = list.filter(Boolean);
+  return ids.length ? [ownId, ...ids].map((x) => x.split(/[#:]/)[0]).sort()[0] : "";
+}
+/** 文字・{label}・{what} のどれでも、文字の配列にする */
+const texts = (x) => (Array.isArray(x) ? x : x ? [x] : []).map((y) => (typeof y === "string" ? y : str(y?.what ?? y?.label ?? y?.item))).filter(Boolean);
 const KINDS = ["expiry", "window", "notice", "cancel_window", "after_event", "event", "due"];
 
 /**
@@ -78,6 +86,8 @@ function toExtraction(t, text) {
         repeatMonths: Number(d.repeatMonths) || 0,
         location: str(d.location),
         quote: str(d.quote),
+        actionNeeded: d.actionNeeded !== false,
+        bundleKey: bundleKeyOf(t.id, d.bundleWith ?? t.bundleWith),
         reserve: {
           date: str(d.reserve?.date),
           condition: str(d.reserve?.condition),
@@ -88,6 +98,14 @@ function toExtraction(t, text) {
     contacts: (t.contacts ?? []).map((c) => ({ label: str(c.label), name: str(c.name), phone: str(c.phone), hours: str(c.hours), location: str(c.location) })),
     questions: [],
     unclear: [],
+    // 済んだことのお知らせ（closes: 何が済んだか。つながる予定の束ねる印も）
+    completions: (Array.isArray(t.closes) ? t.closes : t.closes ? [t.closes] : []).map((c) => ({
+      what: typeof c === "string" ? c : str(c.what ?? c.label ?? c.deadlineLabel),
+      location: typeof c === "string" ? "" : str(c.location),
+      quote: typeof c === "string" ? "" : str(c.quote),
+      bundleKey: typeof c === "string" ? "" : bundleKeyOf(str(c.docId ?? c.id ?? ""), c.bundleWith ?? c.docId ?? c.id),
+    })).filter((c) => c.what),
+    onlyInLink: texts(t.onlyInLink),
     // 書類ごと、この家の書類ではないもの（記入例など）
     notForFamily: t.appliesToFamily === false ? { is: true, reason: str(t.notApplicableReason) || str(t.who?.reason) } : { is: false, reason: "" },
   };

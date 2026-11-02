@@ -158,6 +158,8 @@ export interface ActionItem {
   startDate: Date;
   /** 対象日までの日数 */
   daysLeft: number;
+  /** 同じ予定を知らせている別の書類のもの（初回・督促・前日通知のメールなど）。ホームでは1件にまとめる */
+  bundled?: ActionItem[];
 }
 
 export interface HomeSections {
@@ -186,7 +188,49 @@ export function allItems(household: Household, today: Date): ActionItem[] {
       items.push({ deadline, document, startDate, daysLeft: daysBetween(today, parseDate(deadline.date)) });
     }
   }
-  return dedupe(items).sort((a, b) => a.daysLeft - b.daysLeft);
+  return bundle(dedupe(items)).sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+/** 予定の名前から、比べる言葉を取り出す（どの予定にもある言葉は除く） */
+const GENERIC_WORDS = new Set(["更新", "満了", "満了日", "開始", "終了", "契約", "申請", "受付", "期間", "締切", "期限", "提出", "支払", "支払い", "お支払い", "申し込み", "申込", "予定", "お知らせ", "ご案内", "手続き", "期日", "当日", "前日", "まで", "日付"]);
+function labelWords(label: string): Set<string> {
+  const words = label.replace(/（[^）]*）|\([^)]*\)/g, " ").match(/[\p{Script=Han}\p{Script=Katakana}ーA-Za-z0-9]{2,}/gu) ?? [];
+  return new Set(words.filter((w) => !GENERIC_WORDS.has(w)));
+}
+
+/**
+ * 束ねる: 同じ日の同じ予定を、別々の書類（初回のお知らせ・督促・前日通知のメールなど）が知らせているときは、
+ * いちばん新しい書類のものを代表にして1件にまとめ、ほかは bundled に入れる（ホームのひとことは1件だけ）。
+ * 同じ予定とみなすのは、日付・終わりの日が同じで、束ねる印（bundleKey）が同じか、
+ * 名前の言葉の半分以上が重なり、誰の予定かも重なるとき。
+ */
+function bundle(items: ActionItem[]): ActionItem[] {
+  const out: ActionItem[] = [];
+  const same = (a: ActionItem, b: ActionItem) => {
+    const x = a.deadline;
+    const y = b.deadline;
+    if (a.document.id === b.document.id || x.date !== y.date || (x.endDate ?? "") !== (y.endDate ?? "")) return false;
+    if (x.bundleKey && y.bundleKey) return x.bundleKey === y.bundleKey;
+    if (!x.memberIds.some((id) => y.memberIds.includes(id))) return false;
+    const wa = labelWords(x.label);
+    const wb = labelWords(y.label);
+    if (wa.size === 0 || wb.size === 0) return false;
+    const common = [...wa].filter((w) => wb.has(w) || [...wb].some((v) => v.includes(w) || w.includes(v))).length;
+    return common * 2 >= Math.min(wa.size, wb.size) && common >= 1;
+  };
+  const newer = (a: ActionItem, b: ActionItem) => a.document.createdAt > b.document.createdAt;
+  for (const item of items) {
+    const group = out.findIndex((o) => [o, ...(o.bundled ?? [])].some((x) => same(x, item)));
+    if (group < 0) {
+      out.push(item);
+      continue;
+    }
+    const head = out[group];
+    const members = [head, ...(head.bundled ?? []), item].map((x) => ({ ...x, bundled: undefined }));
+    const lead = members.reduce((a, b) => (newer(b, a) ? b : a));
+    out[group] = { ...lead, bundled: members.filter((x) => x !== lead) };
+  }
+  return out;
 }
 
 /**
@@ -223,7 +267,8 @@ export function buildHome(household: Household, today: Date): HomeSections {
   for (const item of allItems(household, today)) {
     const { deadline, startDate, daysLeft } = item;
     if (deadline.kind === "after_event") continue; // 何か起きたときに出す
-    if (done[deadline.id]) continue;
+    if (deadline.awareness) continue; // 知っておくだけ（自動の引き落とし・更新など）は、すべての予定の画面でだけ見せる
+    if (done[deadline.id] || item.bundled?.some((b) => done[b.deadline.id])) continue;
     const target = parseDate(deadline.endDate ?? deadline.date);
     if (startOfDay(today) >= startDate && startOfDay(today) <= target) {
       soon.push(item);
