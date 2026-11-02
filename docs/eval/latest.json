@@ -1,0 +1,6646 @@
+{
+  "at": "2026-11-02 15:49 UTC",
+  "model": "claude-opus-5-5",
+  "claude": false,
+  "overall": {
+    "hit": 1026,
+    "total": 1026
+  },
+  "perfect": 80,
+  "byKey": {
+    "parsed": {
+      "label": "返す形で受け取れた",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "category": {
+      "label": "書類の種類",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "who": {
+      "label": "誰の（人）",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "household": {
+      "label": "家全体かどうか",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "notForFamily": {
+      "label": "この家の書類ではない",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "deadlineExtra": {
+      "label": "余計な予定を作らない",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "phone": {
+      "label": "問い合わせ先の電話番号",
+      "hit": 93,
+      "total": 93,
+      "docs": 71
+    },
+    "unclear": {
+      "label": "読めなかった所を推測で埋めない",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "noJudging": {
+      "label": "判断の言い回しが無い",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "period": {
+      "label": "期間（いつの分か）",
+      "hit": 63,
+      "total": 63,
+      "docs": 63
+    },
+    "deadlineDate": {
+      "label": "予定の名前と日付",
+      "hit": 109,
+      "total": 109,
+      "docs": 46
+    },
+    "deadlineKind": {
+      "label": "予定の種類",
+      "hit": 109,
+      "total": 109,
+      "docs": 46
+    },
+    "onlyInLink": {
+      "label": "リンク先にしか無いことを推測しない",
+      "hit": 5,
+      "total": 5,
+      "docs": 5
+    },
+    "completions": {
+      "label": "済んだ・訂正のお知らせ",
+      "hit": 7,
+      "total": 7,
+      "docs": 7
+    }
+  },
+  "results": [
+    {
+      "id": "photo-g1-aircon-hosho",
+      "title": "ルームエアコンの保証書（ひだまり電機・表裏）（架空）",
+      "category": "housing",
+      "origin": "photo",
+      "estimate": {
+        "input": 9770,
+        "output": 3374
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-g2-kyutoki-hosho",
+      "title": "ガス給湯器の延長保証書（ほのか住設工業・合計10年）（架空）",
+      "category": "housing",
+      "origin": "photo",
+      "estimate": {
+        "input": 7827,
+        "output": 3351
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-h7-electric",
+      "title": "つきあかり電力 電気需給契約 締結のお知らせ（はがき）（架空）",
+      "category": "housing",
+      "origin": "photo",
+      "estimate": {
+        "input": 8466,
+        "output": 4167
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-h8-internet",
+      "title": "くもまど光ネット ご契約内容のご案内（3枚）（架空）",
+      "category": "subscription",
+      "origin": "photo",
+      "estimate": {
+        "input": 13075,
+        "output": 6997
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-h9-garbage",
+      "title": "くろうど市 家庭ごみ 収集日程表 令和8年度（くろうど台一丁目）（架空）",
+      "category": "community",
+      "origin": "photo",
+      "estimate": {
+        "input": 10760,
+        "output": 10009
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 10,
+          "total": 10
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 10,
+          "total": 10
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-i10-kodomo-insurance",
+      "title": "令和8年度 団体こども総合保険（こどもあんしんプラン）ご加入内容と掛金振替のお知らせ（架空）",
+      "category": "insurance",
+      "origin": "photo",
+      "estimate": {
+        "input": 10758,
+        "output": 8308
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 6,
+          "total": 6
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-j1-gakudo",
+      "title": "放課後児童クラブ 冬休み・春休み（長期休業中）の利用申込のご案内＋冬休み利用申込書（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 10758,
+        "output": 5697
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-j2-genkyo",
+      "title": "保育施設等の利用に係る現況届・就労証明書の提出について（お願い）＋現況届・就労証明書の様式（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 13075,
+        "output": 5826
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-j3-swimming",
+      "title": "みずたまスイミングスクール 設備点検による休館と振替レッスンのお知らせ＋会則（抜粋）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 10758,
+        "output": 5352
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-k5-kondankai",
+      "title": "個別懇談会の開催について（お知らせ）（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 8245,
+        "output": 4411
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 5,
+          "total": 5
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 5,
+          "total": 5
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-k6-dental",
+      "title": "歯科健康診断の結果のお知らせ（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 8549,
+        "output": 2379
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-l1-shobo-tenken",
+      "title": "くろうど台ハイツ 消防設備点検のお知らせ（架空）",
+      "category": "housing",
+      "origin": "photo",
+      "estimate": {
+        "input": 8483,
+        "output": 2967
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-l2-fuzaihyo",
+      "title": "くろうど急便 ご不在連絡票（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 7435,
+        "output": 2068
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-l3-bouhan-toroku",
+      "title": "自転車防犯登録カード（お客様控）（架空）",
+      "category": "vehicle",
+      "origin": "photo",
+      "estimate": {
+        "input": 7361,
+        "output": 1855
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-l4-library",
+      "title": "くろうど市立図書館 貸出票（返却期限）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 7414,
+        "output": 2316
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-m1-yobosesshu",
+      "title": "くろうど市 水痘（水ぼうそう）予防接種のお知らせ（2回目がまだの方へ）＋記入した予診票（架空）",
+      "category": "medical",
+      "origin": "photo",
+      "estimate": {
+        "input": 10758,
+        "output": 5369
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-m1b-yoshinhyo-kinyurei",
+      "title": "水痘（水ぼうそう）予防接種 予診票の記入例（市が配ったもの）（架空）",
+      "category": "medical",
+      "origin": "photo",
+      "estimate": {
+        "input": 8310,
+        "output": 2615
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-m2-shika-yoyaku",
+      "title": "くろうど台こもれび歯科 予約票（日向 蓮）（架空）",
+      "category": "medical",
+      "origin": "photo",
+      "estimate": {
+        "input": 7624,
+        "output": 2189
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-m3-byoin-yoyaku",
+      "title": "くろうど中央医療センター 診察予約票（紹介・整形外科・日向 翔太）（架空）",
+      "category": "medical",
+      "origin": "photo",
+      "estimate": {
+        "input": 8589,
+        "output": 3337
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-n1-app-notice",
+      "title": "【りす組】親子ふれあいデー（保育参加）のお知らせ（連絡アプリ）（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 7639,
+        "output": 2223
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-n1b-timetable",
+      "title": "りす組 親子ふれあいデー 保護者参加の時間割（添付 PDF）（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 8441,
+        "output": 3001
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-n2-koromogae",
+      "title": "衣替えについて（0・1・2歳児）（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 8441,
+        "output": 3038
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-n2b-app-followup",
+      "title": "【0・1・2歳児】衣替えについて（追加のお知らせ）（連絡アプリ）（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 7639,
+        "output": 1526
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-n3-kondate",
+      "title": "くろうど市立 こぐま保育園 令和8年11月の給食献立表（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 8442,
+        "output": 5546
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-n4-photo-sale",
+      "title": "「秋のうんどうあそび」写真販売のお知らせ（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 8441,
+        "output": 3014
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o1-kogai-gakushu",
+      "title": "校外学習（市内めぐり）のお知らせ＋参加同意書（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 8589,
+        "output": 3049
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o2-pta-shigen",
+      "title": "第2回 PTA 資源回収のお知らせ（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 8125,
+        "output": 2674
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "onlyInLink",
+          "label": "リンク先にしか無いことを推測しない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o3a-happyokai-annai",
+      "title": "学習発表会の開催について（お知らせ）（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 8067,
+        "output": 2100
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o3b-gakunen-dayori",
+      "title": "3学年だより 第8号（11月号）（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 7791,
+        "output": 3595
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 6,
+          "total": 6
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 6,
+          "total": 6
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o4-shika-hagaki",
+      "title": "歯科の定期けんしんのご案内（はがき・蓮と結衣）（架空）",
+      "category": "medical",
+      "origin": "photo",
+      "estimate": {
+        "input": 7221,
+        "output": 2292
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o5-seiho-kojo",
+      "title": "令和8年分 生命保険料控除証明書（翔太・ゆきやなぎ生命）＋同封の相談会の案内（架空）",
+      "category": "insurance",
+      "origin": "photo",
+      "estimate": {
+        "input": 10758,
+        "output": 2908
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o6-furikae-kirete",
+      "title": "11月分 学校給食費・PTA会費等の口座振替のお知らせ（写真の下が切れている）（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 7602,
+        "output": 1739
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o7-risu-dayori",
+      "title": "りす組だより 〜クリスマス会のお知らせ〜（登園時間を手書きで訂正）（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 7834,
+        "output": 2261
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o8-genkyo-fubi",
+      "title": "現況届の記載内容の確認について（再提出のお願い）（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 8268,
+        "output": 2574
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-p1-kyuyo-meisai",
+      "title": "くろうどロジスティクス 給与明細書（令和8年10月分・日向 翔太）（架空）",
+      "category": "work",
+      "origin": "photo",
+      "estimate": {
+        "input": 8133,
+        "output": 3661
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-r1-inkan-toroku",
+      "title": "くろうど市 印鑑登録証（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 10522,
+        "output": 1681
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-r2-nenkin-shota",
+      "title": "年金手帳（日向 翔太）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 8115,
+        "output": 1711
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-r3-nenkin-misaki",
+      "title": "年金手帳（日向 美咲・旧姓 浅野で交付）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 8218,
+        "output": 2015
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-r4-koyohoken-misaki",
+      "title": "雇用保険被保険者証・資格取得等確認通知書（美咲・あさぎ食品工業）（架空）",
+      "category": "work",
+      "origin": "photo",
+      "estimate": {
+        "input": 8224,
+        "output": 1918
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-r5-koyohoken-misaki-old",
+      "title": "雇用保険被保険者証・資格取得等確認通知書（美咲・前の勤め先 みなみ野ベーカリー）（架空）",
+      "category": "work",
+      "origin": "photo",
+      "estimate": {
+        "input": 8017,
+        "output": 2142
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-t1-juminzei",
+      "title": "令和8年度 市民税・県民税 税額決定・納税通知書（普通徴収）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 10728,
+        "output": 7234
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-t2-kazei-meisai",
+      "title": "令和8年度 市民税・県民税 課税明細書（2/2）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 8310,
+        "output": 4093
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-t3-zeimusho-setsumeikai",
+      "title": "不動産所得の収支内訳書・決算書の書き方説明会のご案内（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 8589,
+        "output": 4013
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-t4-yotei-nouzei",
+      "title": "令和8年分 所得税及び復興特別所得税の予定納税額の通知書（納付書送付のお知らせつき）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 7887,
+        "output": 3653
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-t5-gensen",
+      "title": "令和7年分 給与所得の源泉徴収票（架空）",
+      "category": "work",
+      "origin": "photo",
+      "estimate": {
+        "input": 7879,
+        "output": 1902
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-t6-furusato",
+      "title": "寄附金受領証明書（そらいろ村）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 7839,
+        "output": 1737
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-u1-card-meisai",
+      "title": "くろうどカード ご利用明細（12月お支払い分・会員ページの画面）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 9154,
+        "output": 3047
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-v1-shaken-hagaki",
+      "title": "くろうど自動車整備 車検のお知らせ（はがき・2面）（架空）",
+      "category": "vehicle",
+      "origin": "photo",
+      "estimate": {
+        "input": 9174,
+        "output": 3336
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-v2-shakensho",
+      "title": "自動車検査証記録事項（翔太の車）（架空）",
+      "category": "vehicle",
+      "origin": "photo",
+      "estimate": {
+        "input": 8441,
+        "output": 2537
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-v3-jidosha-hoken",
+      "title": "はるにれ損害保険 自動車保険 満期日のお知らせ（改定のご案内を同封・2枚）（架空）",
+      "category": "vehicle",
+      "origin": "photo",
+      "estimate": {
+        "input": 10758,
+        "output": 5630
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 3,
+          "total": 3
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-v4-menkyo-koshin",
+      "title": "運転免許証 更新のお知らせ（美咲・はがき）（架空）",
+      "category": "license",
+      "origin": "photo",
+      "estimate": {
+        "input": 7460,
+        "output": 2850
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-w12-misaki-calendar",
+      "title": "2026年度 年間勤務カレンダー（あさぎ食品工業株式会社（架空） くろうど工場）（架空）",
+      "category": "work",
+      "origin": "photo",
+      "estimate": {
+        "input": 8402,
+        "output": 5249
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 6,
+          "total": 6
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 6,
+          "total": 6
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x10-tsuhan-hassou",
+      "title": "こもれび子ども服ストア 発送とご注文内容の確認（メール）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 7115,
+        "output": 2459
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x11-ryokou-yoyaku",
+      "title": "湯の里 ほたる庵 ご予約確認（メール）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 7128,
+        "output": 3539
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x12-sub-kaiyaku-uketsuke",
+      "title": "ぴよまなび 解約のお申し込みの受付（メール）（架空）",
+      "category": "subscription",
+      "origin": "text",
+      "estimate": {
+        "input": 6761,
+        "output": 1772
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x13-sub-saishu-seikyu",
+      "title": "ぴよまなび 最終のご請求と解約手続き完了のお知らせ（メール）（架空）",
+      "category": "subscription",
+      "origin": "text",
+      "estimate": {
+        "input": 6660,
+        "output": 1757
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x14a-churin-annai",
+      "title": "【くろうど台ハイツ】駐輪場使用料（年額）のお支払いのご案内（架空）",
+      "category": "housing",
+      "origin": "text",
+      "estimate": {
+        "input": 6716,
+        "output": 2064
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x14b-churin-teisei",
+      "title": "【訂正】駐輪場使用料（年額）のお支払い期限について（架空）",
+      "category": "housing",
+      "origin": "text",
+      "estimate": {
+        "input": 6744,
+        "output": 2369
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x15-fwd-kazuko-kensa",
+      "title": "転送メール「Fwd: 母さんのこと」（美咲→翔太。元は森 由紀→美咲）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 6798,
+        "output": 2991
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 4,
+          "total": 4
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x16-nursery-saisou",
+      "title": "【りす組】親子ふれあいデー 時間割（再送）（メール）（架空）",
+      "category": "childcare",
+      "origin": "text",
+      "estimate": {
+        "input": 6533,
+        "output": 1205
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x17-kaigo-kyugyo-shonin",
+      "title": "介護休業のお申し出を承認しました（架空）",
+      "category": "work",
+      "origin": "text",
+      "estimate": {
+        "input": 6791,
+        "output": 2641
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x1a-atobarai-bill",
+      "title": "【こもれび後払い】ご請求のお知らせ（支払期限：2026年11月11日 23時59分）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 6813,
+        "output": 2375
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "onlyInLink",
+          "label": "リンク先にしか無いことを推測しない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x1b-atobarai-reminder",
+      "title": "【こもれび後払い】明日がお支払いの期限です（支払期限：2026年11月11日 23時59分）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 6710,
+        "output": 2009
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "onlyInLink",
+          "label": "リンク先にしか無いことを推測しない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x1c-payment-result",
+      "title": "【しずくペイメント】決済結果のお知らせ（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 6662,
+        "output": 1869
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x2-card-retry",
+      "title": "お支払いを確認できなかったため、お手続きの再試行をさせていただきます（架空）",
+      "category": "subscription",
+      "origin": "text",
+      "estimate": {
+        "input": 6812,
+        "output": 2143
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x3a-kazai-renewal-notice",
+      "title": "【満期日と継続のご案内】お部屋の家財の保険（証券番号 DEMO-****-0000）（架空）",
+      "category": "insurance",
+      "origin": "text",
+      "estimate": {
+        "input": 7151,
+        "output": 2957
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x3b-kazai-renewal-reminder",
+      "title": "【継続のご案内】お部屋の家財の保険（証券番号 DEMO-****-0000）（架空）",
+      "category": "insurance",
+      "origin": "text",
+      "estimate": {
+        "input": 6874,
+        "output": 2479
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x3c-kazai-renewal-done",
+      "title": "【継続手続き完了のお知らせ】お部屋の家財の保険（証券番号 DEMO-****-0000）（架空）",
+      "category": "insurance",
+      "origin": "text",
+      "estimate": {
+        "input": 6765,
+        "output": 2030
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x3d-kazai-coverage-start",
+      "title": "【補償開始のお知らせ】お部屋の家財の保険（証券番号 DEMO-****-0000）（架空）",
+      "category": "insurance",
+      "origin": "text",
+      "estimate": {
+        "input": 6662,
+        "output": 1683
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x4-smartphone-ins-renewal",
+      "title": "【ご契約更新のご案内】スマホ修理の保険（架空）",
+      "category": "insurance",
+      "origin": "text",
+      "estimate": {
+        "input": 6685,
+        "output": 1793
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "onlyInLink",
+          "label": "リンク先にしか無いことを推測しない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x5-cinema-member",
+      "title": "シネマくろうど メンバーズクラブ 会員有効期限のお知らせ（メール）（架空）",
+      "category": "subscription",
+      "origin": "text",
+      "estimate": {
+        "input": 6890,
+        "output": 2009
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x6-electric-price",
+      "title": "つきあかり電力 電気料金単価の改定のお知らせ（メール）（架空）",
+      "category": "housing",
+      "origin": "text",
+      "estimate": {
+        "input": 7345,
+        "output": 2434
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "onlyInLink",
+          "label": "リンク先にしか無いことを推測しない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x7-card-seikyu",
+      "title": "くろうどカード ご請求額確定のお知らせ（メール）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 6578,
+        "output": 1420
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x7b-catv-seikyu",
+      "title": "くろうどケーブルネット ご請求額のお知らせ（メール）（架空）",
+      "category": "subscription",
+      "origin": "text",
+      "estimate": {
+        "input": 6784,
+        "output": 1651
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x8-point-shikkou",
+      "title": "くろうどポイントモール ポイント残高のお知らせ（メール）（架空）",
+      "category": "subscription",
+      "origin": "text",
+      "estimate": {
+        "input": 7003,
+        "output": 2195
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-x9-juminzei-paid",
+      "title": "【納付完了のお知らせ】市民税・県民税（普通徴収）（架空）",
+      "category": "other",
+      "origin": "text",
+      "estimate": {
+        "input": 6673,
+        "output": 2026
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "completions",
+          "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-y1-tsuin-yoyaku",
+      "title": "ゆずりは中央みどり病院 予約票（日向 和子）（架空）",
+      "category": "medical",
+      "origin": "photo",
+      "estimate": {
+        "input": 7325,
+        "output": 1605
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-y2-kaigo-hokensho",
+      "title": "介護保険被保険者証（日向 和子）（架空）",
+      "category": "care",
+      "origin": "photo",
+      "estimate": {
+        "input": 8482,
+        "output": 2834
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の名前と日付",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-z1-sankahyo-other",
+      "title": "ひよこ組（0歳児）保育参観と離乳食の試食会のお知らせ・参加票（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 7418,
+        "output": 1306
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-z2-chirashi",
+      "title": "まなびの森ゼミ 冬期講習のチラシ（新聞折込の広告）（架空）",
+      "category": "other",
+      "origin": "photo",
+      "estimate": {
+        "input": 7128,
+        "output": 1577
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "余計な予定を作らない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    }
+  ]
+}
