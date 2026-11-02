@@ -1202,3 +1202,276 @@ body[data-start] .tabbar {
   width: 26px;
   height: 26px;
 }
+
+/* ---- トップ（メニュー）・家族ごとのページ・「‹ トップ」 ---- */
+h1.pt {
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0 8px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--accent-ink);
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+.back svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 家族の丸 */
+.fam {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px 2px 6px;
+  scrollbar-width: none;
+}
+.fam::-webkit-scrollbar {
+  display: none;
+}
+.fam a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  flex: none;
+  text-decoration: none;
+  min-width: 52px;
+}
+.fam b {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  color: #fff;
+  background: var(--muted);
+}
+.fam b.house {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+}
+.fam b svg {
+  width: 24px;
+  height: 24px;
+}
+.fam a.on b {
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent);
+}
+.fam a.on {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* いちばん近い締切の小さなカード */
+.mini {
+  margin-top: 6px;
+  border-radius: 18px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--accent-text);
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(232, 102, 42, 0.22);
+}
+.mini.over {
+  background: linear-gradient(135deg, #ef7f6e, var(--alert));
+  box-shadow: 0 6px 18px rgba(210, 69, 47, 0.22);
+}
+.mini .n {
+  font-family: var(--display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+  flex: none;
+  min-width: 52px;
+  text-align: center;
+}
+.mini .n small {
+  font-size: 0.7rem;
+  margin-left: 1px;
+}
+.mini .n .word {
+  font-size: 0.95rem;
+}
+.mini .body {
+  min-width: 0;
+  flex: 1;
+}
+.mini .t {
+  font-weight: 700;
+  font-size: 0.98rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini .s {
+  font-size: 0.78rem;
+  opacity: 0.92;
+}
+.mini svg.go {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  opacity: 0.9;
+}
+
+/* メニュー6つ */
+.menu {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.mi {
+  background: var(--soft);
+  border-radius: 20px;
+  padding: 12px 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+.mi svg {
+  width: 40px;
+  height: 40px;
+}
+.mi b {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.mi small {
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.mi .dot {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--alert);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+}
+main.top .note {
+  margin-top: 14px;
+}
+
+/* 家族ごとのページ */
+.who {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 6px 0 4px;
+}
+.who b.av {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  color: #fff;
+  background: var(--muted);
+}
+.who b.av.house {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+}
+.who b.av svg {
+  width: 28px;
+  height: 28px;
+}
+.who h1 {
+  font-size: 1.4rem;
+  margin: 0;
+  line-height: 1.2;
+}
+.who .s {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.seg {
+  display: flex;
+  background: var(--soft);
+  border-radius: 12px;
+  padding: 3px;
+  margin-top: 10px;
+}
+.seg button {
+  flex: 1;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 7px 0;
+  border-radius: 9px;
+  color: var(--muted);
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.seg button.on {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+h2.sec small {
+  font-family: var(--body);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 6px;
+}
+.lrow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--border);
+}
+.lrow .when {
+  flex: none;
+  width: 92px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding-top: 2px;
+}
+.lrow .body {
+  min-width: 0;
+  flex: 1;
+}
+.lrow .t {
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.lrow .tag {
+  flex: none;
+  margin-top: 2px;
+}

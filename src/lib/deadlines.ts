@@ -211,7 +211,8 @@ function bundle(items: ActionItem[]): ActionItem[] {
     const y = b.deadline;
     if (a.document.id === b.document.id || x.date !== y.date || (x.endDate ?? "") !== (y.endDate ?? "")) return false;
     if (x.bundleKey && y.bundleKey) return x.bundleKey === y.bundleKey;
-    if (!x.memberIds.some((id) => y.memberIds.includes(id))) return false;
+    // 家全体の予定（誰のが空）は、相手が誰のものでも名前で比べる
+    if (x.memberIds.length && y.memberIds.length && !x.memberIds.some((id) => y.memberIds.includes(id))) return false;
     const wa = labelWords(x.label);
     const wb = labelWords(y.label);
     if (wa.size === 0 || wb.size === 0) return false;

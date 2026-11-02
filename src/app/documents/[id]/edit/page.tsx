@@ -19,7 +19,7 @@ export default function EditDocument() {
     return (
       <main>
         <p>書類が見つかりません。</p>
-        <Link href="/">ホームへ</Link>
+        <Link href="/">トップへ</Link>
       </main>
     );
   }

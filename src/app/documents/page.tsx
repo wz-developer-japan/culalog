@@ -3,15 +3,16 @@
 // 登録した書類の一覧。ホームからは外して、ここにまとめる。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { NumberRow } from "@/components/NumberRow";
 import { memberMark } from "@/lib/memberMark";
 import { importantNumbers } from "@/lib/numbers";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { DocumentCategory, DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
+import { ownersLabel } from "@/lib/whose";
 
 export default function Documents() {
   const router = useRouter();
@@ -44,13 +45,10 @@ export default function Documents() {
   const filtered = words.length > 0 || category !== "" || member !== "";
   // 大事な番号（確定した今年度の書類から。人で絞っているときはその人の分）
   const numbers = importantNumbers(household).filter((n) => !member || n.memberIds.includes(member));
-  const ownerOf = (ids: string[]) => ids.map((id) => nameOf(id).split(/\s+/).pop()).filter(Boolean).join("・");
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>書類の一覧</h1>
       <p className="lead">執事に渡した書類です。データはこの端末の中にだけ保存しています。</p>
 
@@ -100,22 +98,9 @@ export default function Documents() {
       )}
 
       {numbers.length > 0 && (
-        <details className="card numbers">
-          <summary>
-            大事な番号（{numbers.length}）<span className="block meta">証券番号・受給者番号など、手続きで急に聞かれる番号。押すと番号が見えます</span>
-          </summary>
-          {[...new Set(numbers.map((n) => ownerOf(n.memberIds) || "家族"))].map((owner) => (
-            <div key={owner}>
-              <h3 className="number-owner">{owner}</h3>
-              {numbers
-                .filter((n) => (ownerOf(n.memberIds) || "家族") === owner)
-                .map((n, i) => (
-                  <NumberRow key={`${n.documentId}-${n.label}-${i}`} item={n} />
-                ))}
-            </div>
-          ))}
-          <p className="meta">確定した書類から、コードで探しています。番号は Claude には送りません。</p>
-        </details>
+        <p className="meta">
+          <Link href="/numbers">大事な番号（{numbers.length}）</Link>: 証券番号・受給者番号など、手続きで急に聞かれる番号。端末の中だけで答えます
+        </p>
       )}
 
       {docs.length === 0 ? (
@@ -128,7 +113,7 @@ export default function Documents() {
             <div className="meta">
               {d.docType ?? CATEGORY_LABELS[d.category]}
               {d.periodLabel && `・${d.periodLabel}`}
-              {d.memberIds.length > 0 && `・${d.memberIds.map(nameOf).join("、")}`}
+              ・{d.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, d)}
             </div>
             {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
             {d.notForFamily && <div className="meta">家族の情報にしていません（記入例・見本など）</div>}

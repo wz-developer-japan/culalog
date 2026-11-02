@@ -83,6 +83,8 @@ export interface ExtractedWho {
   sure: boolean;
   /** なぜそう考えたか・なぜ迷ったか */
   reason: string;
+  /** 家全体のもの（住まい・光熱・通信・家財の保険・家の車・町内会など）か。宛名が一人でも、その人だけのものではないとき true */
+  household: boolean;
 }
 
 /** 誰の書類か以外で、本人に聞かないと分からないこと */
@@ -191,8 +193,8 @@ export const EXTRACTION_SCHEMA = {
     who: {
       type: "object",
       additionalProperties: false,
-      required: ["memberIds", "sure", "reason"],
-      properties: { memberIds: strList, sure: { type: "boolean" }, reason: str },
+      required: ["memberIds", "sure", "reason", "household"],
+      properties: { memberIds: strList, sure: { type: "boolean" }, reason: str, household: { type: "boolean" } },
     },
     period: {
       type: "object",
@@ -306,7 +308,7 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
     },
     docType: s(v.docType),
     category,
-    who: { memberIds: whoIds, sure: who.sure === true && whoIds.length > 0, reason: s(who.reason) },
+    who: { memberIds: whoIds, sure: who.sure === true && (whoIds.length > 0 || who.household === true), reason: s(who.reason), household: who.household === true },
     period: { label: s(period.label), from: ymdOrEmpty(period.from), until: ymdOrEmpty(period.until) },
     fields: fields
       .map((f) => ({ label: s(f?.label), value: s(f?.value), location: s(f?.location), quote: s(f?.quote) }))
@@ -403,7 +405,9 @@ export function extractionToDocument(
   const self = options.members.find((m) => m.relation === "self")?.id;
   // 記入例・見本など、この家の書類ではないもの: 誰のものにもせず、予定・質問も作らない（書き方の見本として残すだけ）
   const notFamily = extraction.notForFamily?.is === true;
-  const memberIds = notFamily ? [] : extraction.who.memberIds.length ? extraction.who.memberIds : self ? [self] : [];
+  // 🔴 誰のか書類から分からないものは、勝手に誰かに入れない（空のまま「誰のか分からない」として執事が聞く）。家族が本人だけのときだけ本人に
+  const memberIds = notFamily ? [] : extraction.who.memberIds.length ? extraction.who.memberIds : self && options.members.length <= 1 ? [self] : [];
+  const householdWide = !notFamily && extraction.who.household === true;
   const { what, todo, ifIgnored } = extraction.summary;
   // 文字起こしがあるときは、放置すると？ の原文が本当に原本にあるかをコードで確かめる
   const squash = (x: string) => x.replace(/\s/g, "");
@@ -414,6 +418,7 @@ export function extractionToDocument(
     category: extraction.category,
     docType: extraction.docType || undefined,
     memberIds,
+    householdWide: householdWide || undefined,
     periodLabel: extraction.period.label || undefined,
     validFrom: extraction.period.from || undefined,
     validUntil: extraction.period.until || undefined,

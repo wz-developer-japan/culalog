@@ -19,6 +19,75 @@ const C = {
 };
 
 export type PicKind = DocumentCategory | "missing" | "money";
+export type MenuKind = "schedule" | "documents" | "family" | "numbers" | "ask" | "rules";
+
+/** トップのメニューの挿絵（40×40） */
+export function MenuPic({ kind, size = 40 }: { kind: MenuKind; size?: number }) {
+  const common = { width: size, height: size, viewBox: "0 0 40 40", "aria-hidden": true as const };
+  switch (kind) {
+    case "schedule":
+      return (
+        <svg {...common}>
+          <rect x="6" y="9" width="28" height="25" rx="5" fill={C.white} stroke="#eee8e3" strokeWidth="1" />
+          <path d="M6 14a5 5 0 0 1 5-5h18a5 5 0 0 1 5 5v3H6z" fill={C.orange} />
+          <rect x="12" y="5" width="3" height="7" rx="1.5" fill={C.navy} />
+          <rect x="25" y="5" width="3" height="7" rx="1.5" fill={C.navy} />
+          <rect x="11" y="21" width="5" height="4" rx="1" fill={C.yellow} />
+          <rect x="18" y="21" width="5" height="4" rx="1" fill="#eadfd6" />
+          <rect x="25" y="21" width="5" height="4" rx="1" fill="#eadfd6" />
+          <rect x="11" y="27" width="5" height="4" rx="1" fill="#eadfd6" />
+          <rect x="18" y="27" width="5" height="4" rx="1" fill={C.red} />
+        </svg>
+      );
+    case "documents":
+      return (
+        <svg {...common}>
+          <rect x="8" y="7" width="18" height="22" rx="2" fill={C.white} transform="rotate(-8 17 18)" />
+          <rect x="14" y="6" width="18" height="22" rx="2" fill={C.paper} stroke="#eadfd6" transform="rotate(6 23 17)" />
+          <path d="M5 19h30l-3 15H8z" fill={C.orangeLight} />
+          <path d="M5 19h30v4H5z" fill={C.orange} />
+        </svg>
+      );
+    case "family":
+      return (
+        <svg {...common}>
+          <circle cx="13" cy="13" r="5" fill={C.blue} />
+          <path d="M5 30c0-6 4-9 8-9s8 3 8 9z" fill={C.blue} />
+          <circle cx="27" cy="13" r="5" fill={C.orange} />
+          <path d="M19 30c0-6 4-9 8-9s8 3 8 9z" fill={C.orange} />
+          <circle cx="20" cy="22" r="4" fill={C.yellow} />
+          <path d="M13.5 35c0-5 3-7 6.5-7s6.5 2 6.5 7z" fill={C.yellow} />
+        </svg>
+      );
+    case "numbers":
+      return (
+        <svg {...common}>
+          <rect x="9" y="17" width="22" height="17" rx="4" fill={C.navy} />
+          <path d="M14 17v-4a6 6 0 0 1 12 0v4" fill="none" stroke={C.navy} strokeWidth="3" />
+          <circle cx="20" cy="24" r="2.5" fill={C.yellow} />
+          <rect x="19" y="25" width="2" height="4" rx="1" fill={C.yellow} />
+        </svg>
+      );
+    case "ask":
+      return (
+        <svg {...common}>
+          <path d="M6 10a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v13a4 4 0 0 1-4 4H16l-7 6v-6a4 4 0 0 1-3-4z" fill={C.orange} />
+          <circle cx="14" cy="16.5" r="2" fill={C.white} />
+          <circle cx="20" cy="16.5" r="2" fill={C.white} />
+          <circle cx="26" cy="16.5" r="2" fill={C.white} />
+        </svg>
+      );
+    case "rules":
+      return (
+        <svg {...common}>
+          <rect x="9" y="5" width="22" height="30" rx="3" fill={C.green} />
+          <rect x="12" y="8" width="16" height="24" rx="1.5" fill={C.white} />
+          <path d="M15 14h10M15 19h10M15 24h6" stroke="#cfe6d7" strokeWidth="2" strokeLinecap="round" />
+          <path d="M25 5v10l2.5-2 2.5 2V5" fill={C.red} />
+        </svg>
+      );
+  }
+}
 
 /** 種類ごとの挿絵（40×40） */
 export function Pic({ kind, size = 34 }: { kind: PicKind; size?: number }) {

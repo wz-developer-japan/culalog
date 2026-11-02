@@ -42,6 +42,8 @@ export interface Candidate {
   followUp?: { stage: number; label: string };
   /** この候補に関わる日付 YYYY-MM-DD（Claude の文に出てくる日付を、コードで照らし合わせるため） */
   dates: string[];
+  /** 誰の予定か（「誰の」で分けて見るため。空なら家全体・誰のか分からないもの） */
+  memberIds: string[];
   /** 画面のカード用（見せ方だけに使う。文は title・detail・why のまま） */
   card?: {
     /** 予定の名前（1行で出す） */
@@ -107,6 +109,7 @@ function fromItem(item: ActionItem, overdue: boolean): Candidate {
     },
     followUp: followUpOf(item, overdue),
     dates: [item.deadline.date, item.deadline.endDate ?? "", item.deadline.reserve?.date ?? ""].filter(Boolean),
+    memberIds: item.deadline.memberIds.length ? item.deadline.memberIds : item.document.memberIds,
     id: item.deadline.id,
     type: "deadline",
     isEvent: item.deadline.kind === "event",
@@ -125,6 +128,14 @@ function fromItem(item: ActionItem, overdue: boolean): Candidate {
 /** ひとことの候補をすべて作る（決まった計算） */
 export function buildCandidates(household: Household, today: Date): Candidate[] {
   const { soon, overdue, missing } = buildHome(household, today);
+  // 来るはずの書類は、もとの予定（例: 年間行事予定の運動会）の「誰の」を引き継ぐ
+  const ownersOfExpected = (relatedDeadlineId?: string) => {
+    for (const d of household.documents) {
+      const x = d.deadlines.find((y) => y.id === relatedDeadlineId);
+      if (x) return x.memberIds.length ? x.memberIds : d.memberIds;
+    }
+    return [];
+  };
   return [
     ...overdue.map((i) => fromItem(i, true)),
     ...soon.map((i) => fromItem(i, false)),
@@ -137,6 +148,7 @@ export function buildCandidates(household: Household, today: Date): Candidate[] 
       title: `${e.label}がまだ届いていません`,
       why: e.hint,
       dates: [],
+      memberIds: ownersOfExpected(e.relatedDeadlineId),
     })),
   ];
 }
@@ -428,11 +440,14 @@ export function answerQuestion(household: Household, questionId: string, values:
     }
     if (doc.id !== question.documentId) return doc;
     if (question.about === "members") {
-      const ids = values.includes("all") ? household.members.map((m) => m.id) : values;
+      // 「家族みんな」は家全体のものとして、勝手に全員の名前を入れない
+      const all = values.includes("all");
+      const ids = all ? [] : values;
       const old = doc.memberIds.join(",");
       return {
         ...doc,
         memberIds: ids,
+        householdWide: all || undefined,
         // 書類と同じ人になっていた予定は、一緒に直す（きまりで別の人にしたものはそのまま）
         deadlines: doc.deadlines.map((d) => (d.memberIds.join(",") === old ? { ...d, memberIds: ids } : d)),
       };

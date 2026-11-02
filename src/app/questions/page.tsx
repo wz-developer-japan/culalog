@@ -5,6 +5,7 @@
 // 答えは「覚えたこと」として残り、同じ種類の書類では二度聞かない（ほかの書類の同じ質問にも、その場で当てはめる）。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
@@ -56,9 +57,7 @@ export default function Questions() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>{name}から聞きたいこと</h1>
       <p className="lead">
         {now.length > 0 ? `あと ${now.length}問` : "いま聞きたいことはありません"}

@@ -156,8 +156,9 @@ function applyLearned(
       continue;
     }
     if (q.about === "members") {
-      const ids = hit.values.includes("all") ? household.members.map((m) => m.id) : hit.values.filter((id) => household.members.some((m) => m.id === id));
-      if (ids.length === 0) {
+      const all = hit.values.includes("all");
+      const ids = all ? [] : hit.values.filter((id) => household.members.some((m) => m.id === id));
+      if (ids.length === 0 && !all) {
         keep.push(q);
         continue;
       }
@@ -165,6 +166,7 @@ function applyLearned(
       next = {
         ...next,
         memberIds: ids,
+        householdWide: all || undefined,
         deadlines: next.deadlines.map((d) => (d.memberIds.join(",") === old ? { ...d, memberIds: ids } : d)),
       };
       notes.push(`前に「${hit.docType}」は${namesOf(household, ids).join("・")}さんの書類と教えてもらったので、そうしました。`);

@@ -211,8 +211,13 @@ export interface DocumentRecord {
   category: DocumentCategory;
   /** 書類の種類の名前（Claude が自由に付ける。例: 「歯科健診のお知らせ」） */
   docType?: string;
-  /** 誰の書類か */
+  /** 誰の書類か（誰のことか＝「誰の」で絞ったときに出す人。二人以上なら全員。空なら家全体か、誰のか分からない） */
   memberIds: string[];
+  /**
+   * 家全体のもの（住まい・光熱・通信・家財の保険・家の車・町内会など）。宛名が一人でも、その人だけのものではない。
+   * 「みんな」の欄に出し、memberIds が空でも「誰のか分からない」とは扱わない
+   */
+  householdWide?: boolean;
   /** いつの分か（例: 「2026年度」「2026年4月1日〜2027年3月31日」） */
   periodLabel?: string;
   /** 有効な期間の始まり・終わり YYYY-MM-DD（年度・保険期間・契約期間など） */

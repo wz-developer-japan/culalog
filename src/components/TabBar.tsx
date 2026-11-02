@@ -1,15 +1,15 @@
 "use client";
 
-// 画面の下の4つのタブ（ホーム／予定／書類／聞く）と、まん中の「書類を渡す」ボタン。全部の画面に出す。
+// 画面の下の4つのタブ（トップ／予定／書類／聞く）と、まん中の「書類を渡す」ボタン。全部の画面に出す。
 // はじめて開いたとき（家のデータが無い画面）は、ホームが body[data-start] を立てて隠す。
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/", label: "ホーム", match: (p: string) => p === "/" },
-  { href: "/schedule", label: "予定", match: (p: string) => p.startsWith("/schedule") || p.startsWith("/rules") },
-  { href: "/documents", label: "書類", match: (p: string) => p.startsWith("/documents") || p.startsWith("/inbox") || p.startsWith("/add") },
+  { href: "/", label: "トップ", match: (p: string) => p === "/" },
+  { href: "/schedule", label: "予定", match: (p: string) => p.startsWith("/schedule") || p.startsWith("/rules") || p.startsWith("/family") },
+  { href: "/documents", label: "書類", match: (p: string) => p.startsWith("/documents") || p.startsWith("/inbox") || p.startsWith("/add") || p.startsWith("/numbers") },
   { href: "/ask", label: "聞く", match: (p: string) => p.startsWith("/ask") || p.startsWith("/questions") },
 ];
 

@@ -5,6 +5,7 @@
 // 確定した書類の期限だけがホームの知らせに使われる。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
@@ -15,6 +16,7 @@ import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
 import { findQuote, type Mark, segments } from "@/lib/highlight";
 import type { DocumentRecord, SourceRef } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
+import { ownersLabel } from "@/lib/whose";
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +42,7 @@ export default function DocumentDetail() {
     return (
       <main>
         <p>書類が見つかりません。</p>
-        <Link href="/">ホームへ</Link>
+        <Link href="/">トップへ</Link>
       </main>
     );
   }
@@ -135,14 +137,12 @@ export default function DocumentDetail() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>{doc.title}</h1>
       <p className="lead">
         {doc.docType ?? CATEGORY_LABELS[doc.category]}
         {doc.periodLabel && `・${doc.periodLabel}`}
-        {doc.memberIds.length > 0 && `・${doc.memberIds.map(nameOf).join("、")}`}
+        ・{doc.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, doc)}
         {confirmed ? "・確定済み" : "・確認待ち"}
       </p>
       {doc.onlyInLink?.length ? (

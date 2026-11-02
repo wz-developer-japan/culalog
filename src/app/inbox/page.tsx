@@ -5,6 +5,7 @@
 // 下: 読み終わった下書きを種類ごとに並べ、チェックしたものを一度に確定する。気になるものだけ詳細で原本と見比べて直す。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { confirmDocument, openQuestions } from "@/lib/butler";
@@ -84,9 +85,7 @@ export default function Inbox() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>まとめて確認</h1>
 
       {progress.total > 0 && (

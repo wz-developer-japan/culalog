@@ -118,7 +118,19 @@ function toExtraction(raw, text) {
     },
     docType: str(t.docType),
     category: categoryOf(str(t.category)),
-    who: { memberIds: t.who?.memberIds ?? [], sure: t.who?.sure === true, reason: str(t.who?.reason) },
+    // 「誰の」は 2号の正解 scope を写す: concerns＝誰のことか（二人以上なら全員）、household＝家全体。
+    // concerns が空で household でもないものは「誰のか分からない」（sure を false にして執事が聞く。推測で入れない）
+    who: t.scope
+      ? {
+          memberIds: t.scope.concerns ?? [],
+          sure: (t.scope.concerns ?? []).length > 0 || t.scope.household === true,
+          reason:
+            (t.scope.concerns ?? []).length === 0 && t.scope.household !== true
+              ? (str(t.scope.note) || str(t.who?.reason)).replace(/（[^）]*\bwho\b[^）]*）/g, "").replace(/→\s*聞いて決める/g, "").trim()
+              : str(t.who?.reason),
+          household: t.scope.household === true,
+        }
+      : { memberIds: t.who?.memberIds ?? [], sure: t.who?.sure === true, reason: str(t.who?.reason), household: false },
     period: { label: str(t.period?.label), from: str(t.period?.from), until: str(t.period?.until) },
     fields: withNumbers(
       (t.fields ?? []).map((f) => ({ label: str(f.label), value: str(f.value), location: str(f.location), quote: str(f.quote) })),

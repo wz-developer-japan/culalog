@@ -4,6 +4,7 @@
 // 書類の予定に当てはめると、予定の日から逆算した締切がホームに出る。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Household, HouseRule } from "@/lib/types";
@@ -51,9 +52,7 @@ export default function Rules() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>わが家のきまり</h1>
       <p className="lead">
         書類には書いていない、家の事情です。書類の予定に当てはめると、その日から逆算した締切をお知らせします。

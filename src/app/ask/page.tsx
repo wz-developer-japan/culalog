@@ -7,6 +7,7 @@
 // 頼んだことは端末にすぐ保存し、答えはあとから付く。画面を閉じても、次に開いたときに調べてホームの報告に残る。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
@@ -53,9 +54,7 @@ function AskPage() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>{name}に聞く</h1>
       <p className="lead">
         今年度の登録書類（確定済み {docs.length}件）からお答えします。

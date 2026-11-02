@@ -5,6 +5,7 @@
 // 読み取りは登録の入口の一つ。手入力（/add）でも同じように登録できる。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { type AddResult, addFilesToInbox, addPagesToInbox, addSamplesToInbox, addTextToInbox, MAX_PAGES, MAX_TEXT } from "@/lib/addToInbox";
@@ -88,9 +89,7 @@ function ScanPage() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>執事に書類を渡す</h1>
       <p className="lead">
         写真・スクショ・PDF を、何枚でもまとめて渡してください。執事が1枚ずつ順番に読んで、何の書類か・誰の書類かを考えて下書きにします。

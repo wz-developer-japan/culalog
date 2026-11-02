@@ -46,7 +46,10 @@ await step("最初の画面から架空の家族で始められる", async () =>
   await see("架空の家族で試しています");
 });
 
-await step("ホームに執事のひとことと安全網がある", async () => {
+await step("トップに家族の丸とメニューがあり、予定の画面に執事のひとことと安全網がある", async () => {
+  await page.locator(".fam a", { hasText: "みんな" }).waitFor({ timeout: 15000 });
+  await page.locator(".menu a", { hasText: "予定" }).click();
+  await page.waitForURL(/\/schedule$/, { timeout: 15000 });
   await page.locator("h2", { hasText: "のひとこと" }).waitFor({ timeout: 15000 });
   await page.locator("h2", { hasText: "期日が近いもの" }).waitFor({ timeout: 15000 });
 });
@@ -57,7 +60,7 @@ await step("Claude の答えでないものには「仮」と出ている（キ�
 });
 
 await step("すべての予定に、これからの予定が並ぶ", async () => {
-  await page.goto(BASE + "/schedule");
+  await page.goto(BASE + "/schedule/all");
   await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
 });
 
@@ -85,8 +88,8 @@ await step("けがの頼みごとで、学校のお知らせと傷害保険の�
   await card.scrollIntoViewIfNeeded();
 });
 
-await step("頼んだことがホームの報告に残る", async () => {
-  await page.goto(BASE + "/");
+await step("頼んだことが予定の画面の報告に残る", async () => {
+  await page.goto(BASE + "/schedule");
   await page.locator("h2", { hasText: "からの報告" }).waitFor({ timeout: 15000 });
 });
 
@@ -114,7 +117,7 @@ await step("同じ見本をもう一度渡すと、同じファイルとして�
   await see("前に渡したものと同じファイル");
 });
 
-await step("写真の見本をまとめて渡しても、ホームのひとことは3件まで", async () => {
+await step("写真の見本をまとめて渡しても、予定の画面のひとことは3件まで", async () => {
   await page.goto(BASE + "/scan");
   await page.getByRole("button", { name: /写真の見本を\d+件まとめて渡す/ }).click();
   await page.waitForURL(/\/inbox/, { timeout: 120000 });
@@ -122,10 +125,30 @@ await step("写真の見本をまとめて渡しても、ホームのひとこ�
   await see("全部読み終わりました", 180000);
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
-  await page.goto(BASE + "/");
+  await page.goto(BASE + "/schedule");
   await page.locator("h2", { hasText: "のひとこと" }).waitFor({ timeout: 15000 });
   const n = await page.locator(".briefing-item").count();
   if (n > 3) throw new Error(`ひとことが${n}件あります`);
+});
+
+await step("「誰の」で分ける: 翔太のページに電気・記入例は出ず、蓮のページに年間行事予定が出て、みんなには家全体の札で出る", async () => {
+  const docsOf = async (whose) => {
+    await page.goto(BASE + "/family/" + whose);
+    await page.getByRole("tab", { name: "書類" }).click();
+    await page.locator("h2", { hasText: "書類" }).waitFor({ timeout: 15000 });
+    return page.locator("main").innerText();
+  };
+  const self = await docsOf("m-self");
+  if (/電気需給契約/.test(self)) throw new Error("翔太のページに家全体の電気の書類が出ています");
+  if (/記入例/.test(self)) throw new Error("翔太のページに記入例が出ています");
+  if (!/就労証明書/.test(self)) throw new Error("翔太のページに、翔太・美咲・結衣の現況届が出ていません");
+  const son = await docsOf("m-son");
+  if (!/年間行事予定/.test(son)) throw new Error("蓮のページに年間行事予定が出ていません");
+  if (/電気需給契約|記入例/.test(son)) throw new Error("蓮のページに家全体・記入例の書類が出ています");
+  const all = await docsOf("all");
+  if (!/電気需給契約[\s\S]*家全体/.test(all)) throw new Error("みんなのページで電気が「家全体」になっていません");
+  if (!/印鑑登録証[\s\S]*誰のか分からない/.test(all)) throw new Error("券面に名前の無い印鑑登録証が「誰のか分からない」になっていません");
+  if (!/記入例[\s\S]*この家の書類ではない/.test(all)) throw new Error("記入例が「この家の書類ではない」になっていません");
 });
 
 await step("崩れた紙: 写真が切れている・日付と曜日が合わないものは確定から外れて理由が出る、二つの書類で日付が食い違えば両方出る", async () => {
@@ -137,7 +160,7 @@ await step("崩れた紙: 写真が切れている・日付と曜日が合わな
     if (!body.includes(t)) throw new Error(`確認待ちに「${t}」がありません`);
   }
   // 学校のお知らせ（1/22）と学年だより（1/29）で日付が食い違う学習発表会は、どちらも予定に出る（違いに気づけるように）
-  await page.goto(BASE + "/schedule");
+  await page.goto(BASE + "/schedule/all");
   await see("これから");
   const n = await page.locator(".card").filter({ hasText: "学習発表会" }).count();
   if (n !== 2) throw new Error(`学習発表会が${n}件です（日付が食い違う2件が両方出るはず）`);
@@ -151,7 +174,7 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
   // 束ねる: 後払いの請求と前日の督促（同じ注文・同じ期限）が、すべての予定で1件になっている
-  await page.goto(BASE + "/schedule");
+  await page.goto(BASE + "/schedule/all");
   await see("これから");
   const bill = page.locator(".card").filter({ hasText: "後払いの支払期限" });
   if ((await bill.count()) !== 1) throw new Error(`後払いの支払期限が${await bill.count()}件あります（1件に束ねられていません）`);
@@ -175,7 +198,7 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   await page.getByRole("button", { name: "済んだにする" }).click();
   await see("答えました");
   // 済んだにしたので、束ねた督促ごと「済んだもの」に移る（ホームでは知らせない）
-  await page.goto(BASE + "/schedule");
+  await page.goto(BASE + "/schedule/all");
   await see("済んだもの");
   await page.locator("details").filter({ hasText: "済んだもの" }).locator("summary").click();
   const finished = page.locator(".card").filter({ hasText: "後払いの支払期限" });

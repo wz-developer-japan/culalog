@@ -246,6 +246,7 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
       memberIds: ["m-son"],
       sure: true,
       reason: "くろうど第一小学校からの案内で、家族のうち小学生は蓮さん",
+      household: false,
     },
     period: { label: "", from: "", until: "" },
     fields: [
@@ -357,6 +358,7 @@ export function dentalCheckupProvisionalDraft(today: Date): Extraction {
       memberIds: ["m-daughter"],
       sure: false,
       reason: `対象は${dentalTargetText(today).replace("に生まれたお子さま", "")}生まれの子。うちだと2歳の結衣さんが当てはまりそう`,
+      household: false,
     },
     period: { label: "", from: "", until: "" },
     fields: [
@@ -461,7 +463,7 @@ export function revisedSchoolAnnualProvisionalDraft(t: DemoDates): Extraction {
     },
     docType: "年間行事予定",
     category: "school",
-    who: { memberIds: ["m-son"], sure: true, reason: "くろうど第一小学校の予定表で、3年生の日課が書いてある。家族で小学生は蓮さん" },
+    who: { memberIds: ["m-son"], sure: true, reason: "くろうど第一小学校の予定表で、3年生の日課が書いてある。家族で小学生は蓮さん", household: false },
     period: { label: `${y}年度`, from: `${y}-04-01`, until: `${y + 1}-03-31` },
     fields: [
       { label: "変更した行事", value: `個人面談 ${md(t.interview.from)}〜 → ${md(t.interviewRevised.from)}〜（★印）`, location: "冒頭の★の説明", quote: `★印は変更した行事です（個人面談　${md(t.interview.from)}〜 → ${md(t.interviewRevised.from)}〜` },
@@ -533,7 +535,7 @@ export function subscriptionProvisionalDraft(t: DemoDates): Extraction {
     },
     docType: "サブスクの契約画面",
     category: "subscription",
-    who: { memberIds: ["m-self"], sure: true, reason: "ご契約者 日向 翔太 様 と書いてある" },
+    who: { memberIds: ["m-self"], sure: true, reason: "ご契約者 日向 翔太 様 と書いてある。家で使う動画配信なので家全体のものでもある", household: true },
     period: { label: `今の契約期間 ${slash(s.start)}〜${slash(s.end)}`, from: toYmd(s.start), until: toYmd(s.end) },
     fields: [
       { label: "プラン", value: "年割プラン（12か月契約・自動更新）", location: "契約内容・プラン", quote: "年割プラン（12か月契約・自動更新）" },

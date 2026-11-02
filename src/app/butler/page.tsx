@@ -3,6 +3,7 @@
 // 執事のキャラと名前を選ぶ。変わるのは口調だけで、知らせる中身はどのキャラでも同じ。
 
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { addressee, butlerName, CHARACTERS, characterOf, cleanName, NAME_MAX, timeOfDay, UNCHANGING } from "@/lib/character";
@@ -40,9 +41,7 @@ export default function ButlerSettingsPage() {
 
   return (
     <main>
-      <p className="meta">
-        <Link href="/">← ホーム</Link>
-      </p>
+      <BackToTop />
       <h1>執事を選ぶ</h1>
       <p className="lead">話し方と名前を選べます。いつでも変えられます。</p>
 
