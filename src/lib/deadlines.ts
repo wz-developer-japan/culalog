@@ -32,6 +32,33 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
+/** 月を足す（月末は、その月の最後の日にそろえる） */
+export function addMonths(date: Date, months: number): Date {
+  const target = new Date(date.getFullYear(), date.getMonth() + months, 1);
+  const last = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  return new Date(target.getFullYear(), target.getMonth(), Math.min(date.getDate(), last));
+}
+
+/**
+ * くり返す期限（例: 2年ごとの「解約できる期間」）は、過ぎていたら次の回を計算する。
+ * 次の回の ID は `元の ID@その回の日付`（「済んだ」を回ごとに持てるように）。
+ */
+export function currentOccurrence(deadline: Deadline, today: Date): Deadline {
+  if (!deadline.repeatMonths) return deadline;
+  const start = parseDate(deadline.date);
+  const end = deadline.endDate ? parseDate(deadline.endDate) : start;
+  let k = 0;
+  while (addMonths(end, k * deadline.repeatMonths) < startOfDay(today) && k < 1200) k++;
+  if (k === 0) return deadline;
+  const date = toYmd(addMonths(start, k * deadline.repeatMonths));
+  return {
+    ...deadline,
+    id: `${deadline.id}@${date}`,
+    date,
+    endDate: deadline.endDate ? toYmd(addMonths(end, k * deadline.repeatMonths)) : undefined,
+  };
+}
+
 export function daysBetween(from: Date, to: Date): number {
   return Math.round((startOfDay(to).getTime() - startOfDay(from).getTime()) / DAY_MS);
 }
@@ -63,9 +90,11 @@ export function ruleDeadlines(deadline: Deadline, rules: HouseRule[]): Deadline[
     }));
 }
 
-/** 書類の期限と、そこにきまりを当てはめた締切をまとめて返す */
-export function expandDeadlines(document: DocumentRecord, rules: HouseRule[]): Deadline[] {
-  return document.deadlines.flatMap((d) => [d, ...ruleDeadlines(d, rules)]);
+/** 書類の期限と、そこにきまりを当てはめた締切をまとめて返す（today があれば、くり返す期限は今の回にする） */
+export function expandDeadlines(document: DocumentRecord, rules: HouseRule[], today?: Date): Deadline[] {
+  return document.deadlines
+    .map((d) => (today ? currentOccurrence(d, today) : d))
+    .flatMap((d) => [d, ...ruleDeadlines(d, rules)]);
 }
 
 /**
@@ -115,8 +144,9 @@ export function allItems(household: Household, today: Date): ActionItem[] {
   const superseded = supersededDeadlineIds(household);
   for (const document of household.documents) {
     if (!document.confirmedAt) continue; // 確定していない書類の期限では知らせない
-    for (const deadline of expandDeadlines(document, rules)) {
-      if (superseded.has(deadline.id.split("--")[0])) continue; // きまりから作った締切も一緒に
+    if (document.supersededBy) continue; // 「前のもの」は根拠に使わない（年度の取り違えを防ぐ）
+    for (const deadline of expandDeadlines(document, rules, today)) {
+      if (superseded.has(deadline.id.split("--")[0].split("@")[0])) continue; // きまりから作った締切も一緒に
       const startDate = addDays(parseDate(deadline.date), -deadline.leadDays);
       items.push({ deadline, document, startDate, daysLeft: daysBetween(today, parseDate(deadline.date)) });
     }

@@ -3,7 +3,7 @@
 // Claude が選ばなかったものでも、締切が近いもの・過ぎたものはコードの側で必ず出す。
 
 import { type ActionItem, buildHome, formatYmd } from "./deadlines";
-import type { ButlerQuestion, Household } from "./types";
+import type { ButlerQuestion, DocumentRecord, Household } from "./types";
 
 /** 締切が何日以内なら、Claude が選ばなくても必ず出すか */
 export const URGENT_DAYS = 3;
@@ -31,6 +31,10 @@ export interface Candidate {
 
 function titleOf({ deadline, daysLeft }: ActionItem, overdue: boolean): string {
   if (overdue) return `${deadline.label}の締切（${formatYmd(deadline.date)}）を${-daysLeft}日過ぎています`;
+  const isWindow = deadline.kind === "window" || deadline.kind === "cancel_window";
+  if (isWindow && daysLeft > 0 && deadline.endDate) {
+    return `${deadline.label}が あと${daysLeft}日で始まります（${formatYmd(deadline.date)}〜${formatYmd(deadline.endDate)}）`;
+  }
   if (daysLeft < 0) return `${deadline.label}（受付中・${formatYmd(deadline.endDate ?? deadline.date)}まで）`;
   if (daysLeft === 0) return `今日: ${deadline.label}`;
   if (daysLeft === 1) return `明日: ${deadline.label}`;
@@ -42,6 +46,7 @@ function detailOf({ deadline }: ActionItem): string | undefined {
     deadline.time,
     deadline.place,
     deadline.needs?.length ? `必要なもの: ${deadline.needs.join("、")}` : undefined,
+    deadline.intent ? `そのときしたいこと: ${deadline.intent}` : undefined,
   ].filter(Boolean);
   return parts.length ? parts.join("・") : undefined;
 }
@@ -127,7 +132,65 @@ export function safetyNet(candidates: Candidate[], briefing: Briefing): Candidat
 /** まだ答えていない質問 */
 export function openQuestions(household: Household): ButlerQuestion[] {
   const ids = new Set(household.documents.map((d) => d.id));
-  return (household.questions ?? []).filter((q) => !q.answeredAt && ids.has(q.documentId));
+  return (household.questions ?? []).filter(
+    (q) => !q.answeredAt && ids.has(q.documentId) && (!q.targetDocumentId || ids.has(q.targetDocumentId)),
+  );
+}
+
+/** 同じ種類かどうかを見るために、年・年度・空白・かっこ書きを取り除く */
+const kindKey = (doc: DocumentRecord) =>
+  (doc.docType || doc.title)
+    .replace(/[（(].*?[)）]/g, "")
+    .replace(/(令和|平成)?[0-9０-９]+年度?/g, "")
+    .replace(/\s|表$/g, "");
+
+const startOf = (doc: DocumentRecord) => doc.validFrom ?? doc.createdAt.slice(0, 10);
+
+/**
+ * 新しい書類を確定したとき、同じ種類・同じ人の古い書類があれば「前のものにしますか？」と聞く（決まった形）。
+ * 去年の年間行事予定を見てしまう、といった年度の取り違えを防ぐため。決めるのは本人。
+ */
+export function supersedeQuestions(household: Household, doc: DocumentRecord, newId: (p: string) => string): ButlerQuestion[] {
+  const asked = new Set(
+    (household.questions ?? []).filter((q) => q.about === "supersede" && q.documentId === doc.id).map((q) => q.targetDocumentId),
+  );
+  const overlap = (a: string[], b: string[]) => (a.length === 0 && b.length === 0) || a.some((id) => b.includes(id));
+  return household.documents
+    .filter(
+      (old) =>
+        old.id !== doc.id &&
+        old.confirmedAt &&
+        !old.supersededBy &&
+        !asked.has(old.id) &&
+        kindKey(old) === kindKey(doc) &&
+        overlap(old.memberIds, doc.memberIds) &&
+        startOf(old) <= startOf(doc),
+    )
+    .map((old) => ({
+      id: newId("q"),
+      documentId: doc.id,
+      about: "supersede" as const,
+      targetDocumentId: old.id,
+      text: `前の「${old.title}${old.periodLabel ? `（${old.periodLabel}）` : ""}」は、前のものにしますか？`,
+      reason: `同じ種類の「${doc.title}${doc.periodLabel ? `（${doc.periodLabel}）` : ""}」が新しく届いたためです。前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。`,
+      options: [
+        { label: "前のものにする", value: "replace" },
+        { label: "別の書類なので両方使う", value: "keep" },
+      ],
+      multiple: false,
+    }));
+}
+
+/** 書類を確定する。同じ種類の古い書類があれば、前のものにするかを聞く */
+export function confirmDocument(household: Household, docId: string, newId: (p: string) => string): Household {
+  const doc = household.documents.find((d) => d.id === docId);
+  if (!doc) return household;
+  const confirmed = { ...doc, confirmedAt: new Date().toISOString() };
+  return {
+    ...household,
+    documents: household.documents.map((d) => (d.id === docId ? confirmed : d)),
+    questions: [...(household.questions ?? []), ...supersedeQuestions(household, confirmed, newId)],
+  };
 }
 
 /** 質問に答える。答えは書類に入れる（誰の書類か・本人の答え） */
@@ -136,6 +199,11 @@ export function answerQuestion(household: Household, questionId: string, values:
   if (!question || values.length === 0) return household;
   const now = new Date().toISOString();
   const documents = household.documents.map((doc) => {
+    if (question.about === "supersede") {
+      return doc.id === question.targetDocumentId && values.includes("replace")
+        ? { ...doc, supersededBy: question.documentId }
+        : doc;
+    }
     if (doc.id !== question.documentId) return doc;
     if (question.about === "members") {
       const ids = values.includes("all") ? household.members.map((m) => m.id) : values;

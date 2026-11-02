@@ -67,6 +67,8 @@ export interface Deadline {
   place?: string;
   /** 何が必要か（持ち物・書類・お金） */
   needs?: string[];
+  /** 何か月ごとに繰り返すか（例: 自動更新の契約の「解約できる期間」が2年ごと → 24）。過ぎたら次の回を計算する */
+  repeatMonths?: number;
   /** 何日前から動き始めるか（準備にかかる時間・自分の申請の締切などから決める） */
   leadDays: number;
   /** 動き始める理由（例: 「有給の申請は1週間前まで」） */
@@ -125,12 +127,17 @@ export interface DemoSample {
  * 執事から本人への質問。推測できないことだけを、選択肢で聞く。
  * - members: 誰の書類か。答えは書類の「誰の」に入る
  * - other:   それ以外（例: 何班か）。答えは書類の項目に「本人の答え」として入る
+ * - supersede: 同じ種類の新しい書類が来たので、古い方を「前のもの」にするか（答え: replace / keep）
  */
 export interface ButlerQuestion {
   id: string;
   documentId: string;
-  about: "members" | "other";
+  about: "members" | "other" | "supersede";
   text: string;
+  /** members: いちばんありそうな人（大きく出す） */
+  guess?: string[];
+  /** supersede: 「前のもの」にするかを聞いている古い書類 */
+  targetDocumentId?: string;
   /** なぜ聞くのか（例: 対象が生まれ月で書かれていて、誕生日が登録されていない） */
   reason?: string;
   options: { label: string; value: string }[];
@@ -164,6 +171,13 @@ export interface DocumentRecord {
   docType?: string;
   /** 誰の書類か */
   memberIds: string[];
+  /** いつの分か（例: 「2026年度」「2026年4月1日〜2027年3月31日」） */
+  periodLabel?: string;
+  /** 有効な期間の始まり・終わり YYYY-MM-DD（年度・保険期間・契約期間など） */
+  validFrom?: string;
+  validUntil?: string;
+  /** 同じ種類の新しい書類が来て「前のもの」になった（新しい方の ID）。前のものは、ひとこと・予定・チャットの根拠に使わない */
+  supersededBy?: string;
   origin: DocumentOrigin;
   /** 現物のしまい場所 */
   storageLocation?: string;

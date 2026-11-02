@@ -18,6 +18,11 @@ export function QuestionCard({
   showDocument?: boolean;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
+  // 誰の書類か: いちばんの候補を大きく出し、ほかの人は畳んでおく
+  const guess = question.about === "members" ? (question.guess ?? []) : [];
+  const nameOf = (value: string) =>
+    (question.options.find((o) => o.value === value)?.label ?? "").replace(/（.*）$/, "");
+  const guessNames = guess.map((v) => `${nameOf(v)}さん`).join("と");
 
   const press = (value: string) => {
     if (!question.multiple || value === "all") {
@@ -34,8 +39,35 @@ export function QuestionCard({
           <Link href={`/documents/${document.id}`}>{document.title}</Link>について
         </div>
       )}
-      <div className="question-text">{question.text}</div>
+      <div className="question-text">{guess.length ? `たぶん${guessNames}の書類？` : question.text}</div>
       {question.reason && <div className="meta">{question.reason}</div>}
+      {guess.length > 0 && (
+        <>
+          <button className="button small guess" onClick={() => onAnswer(guess)}>
+            はい、{guessNames}
+          </button>
+          <details className="others">
+            <summary>ほかの人・複数の人</summary>
+            {optionChips()}
+            {selected.length > 0 && (
+              <button className="button small" onClick={() => onAnswer(selected)}>
+                これで答える
+              </button>
+            )}
+          </details>
+        </>
+      )}
+      {guess.length === 0 && optionChips()}
+      {guess.length === 0 && question.multiple && selected.length > 0 && (
+        <button className="button small" onClick={() => onAnswer(selected)}>
+          これで答える
+        </button>
+      )}
+    </div>
+  );
+
+  function optionChips() {
+    return (
       <div className="chips">
         {question.options.map((o) => (
           <button
@@ -47,11 +79,6 @@ export function QuestionCard({
           </button>
         ))}
       </div>
-      {question.multiple && selected.length > 0 && (
-        <button className="button small" onClick={() => onAnswer(selected)}>
-          これで答える
-        </button>
-      )}
-    </div>
-  );
+    );
+  }
 }

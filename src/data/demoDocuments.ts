@@ -40,6 +40,8 @@ export interface DemoDates {
   leaseStart: Date;
   /** 火災保険の満了日（賃貸の満了より前に来る） */
   fireInsuranceEnd: Date;
+  /** 遠足（開いた日の翌日以降の最初の平日。お弁当がいる日） */
+  excursion: Date;
 }
 
 export function demoDates(today: Date): DemoDates {
@@ -51,6 +53,7 @@ export function demoDates(today: Date): DemoDates {
     schoolYear: schoolYearOf(today),
     sportsDay,
     sportsDayReserve: addDays(sportsDay, 1),
+    excursion: nextWeekday(addDays(today, 1)),
     leaseEnd,
     leaseStart,
     fireInsuranceEnd: addDays(leaseEnd, -9),
@@ -65,12 +68,14 @@ export function schoolAnnualText(t: DemoDates): string {
 ・始業式　　　　　${y}年4月7日
 ・授業参観・懇談会　${y}年4月24日
 ・夏休み　　　　　${y}年7月18日 〜 8月31日
+・遠足（3年生）　　${jpDate(t.excursion)}（雨天の場合は校内で学習）
 ・運動会　　　　　${jpDate(t.sportsDay)}（雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延）
 ・個人面談　　　　${y}年12月8日 〜 12月12日（日程は別途お知らせします）
 ・冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日
 ・修了式　　　　　${y + 1}年3月24日
 
 ※ 行事の詳しい時間・持ち物は、その都度お配りする案内プリントでお知らせします。
+※ 遠足の日は、お弁当・水筒・敷物をご用意ください（給食はありません）。
 
 ■ 日課表（3年生）
 ・月・水・金曜日　6時間授業　下校 15:40ごろ
@@ -194,6 +199,7 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
       sure: true,
       reason: "くろうど第一小学校からの案内で、家族のうち小学生は蓮さん",
     },
+    period: { label: "", from: "", until: "" },
     fields: [
       { label: "時間", value: "8:40 開会式、12:00 閉会予定", location: "1. 日時", quote: "8:40 開会式　12:00 閉会予定" },
       {
@@ -220,6 +226,7 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
         time: "8:40〜12:00",
         place: "くろうど第一小学校 校庭",
         needs: ["体操服", "赤白帽子", "水筒", "タオル"],
+        repeatMonths: 0,
         location: "1. 日時",
         quote: jpDate(t.sportsDay),
       },
@@ -233,7 +240,7 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
 }
 
 /** 平日（月〜金）になるまで日を進める */
-function nextWeekday(date: Date): Date {
+export function nextWeekday(date: Date): Date {
   let d = date;
   while (d.getDay() === 0 || d.getDay() === 6) d = addDays(d, 1);
   return d;
@@ -291,6 +298,7 @@ export function dentalCheckupProvisionalDraft(today: Date): Extraction {
       sure: false,
       reason: "対象が「1. 対象」に生まれ月で書かれていて、家族の誕生日は登録されていないため。2歳の結衣さんの可能性が高い",
     },
+    period: { label: "", from: "", until: "" },
     fields: [
       { label: "対象", value: dentalTargetText(today), location: "1. 対象", quote: dentalTargetText(today) },
       { label: "費用", value: "無料", location: "5. 費用", quote: "無料" },
@@ -310,6 +318,7 @@ export function dentalCheckupProvisionalDraft(today: Date): Extraction {
         time: "受付 13:00〜13:30",
         place: "くろうど市保健センター（架空）2階 健診室",
         needs: ["母子健康手帳", "問診票（記入して持参）", "歯ブラシ"],
+        repeatMonths: 0,
         location: "2. 日時",
         quote: jpDate(day),
       },

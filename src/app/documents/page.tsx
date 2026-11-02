@@ -18,7 +18,9 @@ export default function Documents() {
 
   if (!loaded || !household) return <main />;
   const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name ?? "";
-  const docs = [...household.documents].sort(
+  const current = household.documents.filter((d) => !d.supersededBy);
+  const old = household.documents.filter((d) => d.supersededBy);
+  const docs = [...current].sort(
     (a, b) => Number(Boolean(a.confirmedAt)) - Number(Boolean(b.confirmedAt)) || b.createdAt.localeCompare(a.createdAt),
   );
 
@@ -39,11 +41,25 @@ export default function Documents() {
             {!d.confirmedAt && <span className="badge">確認待ち</span>}
             <div className="meta">
               {d.docType ?? CATEGORY_LABELS[d.category]}
+              {d.periodLabel && `・${d.periodLabel}`}
               {d.memberIds.length > 0 && `・${d.memberIds.map(nameOf).join("、")}`}
             </div>
             {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
           </Link>
         ))
+      )}
+
+      {old.length > 0 && (
+        <details className="original">
+          <summary>前のもの（{old.length}件）</summary>
+          <p className="meta">同じ種類の新しい書類が来たので、ひとこと・予定の根拠には使っていない書類です。</p>
+          {old.map((d) => (
+            <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
+              {d.title}
+              <div className="meta">{d.periodLabel ?? d.createdAt.slice(0, 10)}</div>
+            </Link>
+          ))}
+        </details>
       )}
 
       <div className="spacer" />

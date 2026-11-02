@@ -8,11 +8,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
-import { answerQuestion, openQuestions } from "@/lib/butler";
+import { answerQuestion, confirmDocument, openQuestions } from "@/lib/butler";
 import { formatYmd, ruleDeadlines } from "@/lib/deadlines";
 import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { DocumentRecord } from "@/lib/types";
-import { useHousehold } from "@/lib/useHousehold";
+import { newId, useHousehold } from "@/lib/useHousehold";
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -82,6 +82,7 @@ export default function DocumentDetail() {
       <h1>{doc.title}</h1>
       <p className="lead">
         {doc.docType ?? CATEGORY_LABELS[doc.category]}
+        {doc.periodLabel && `・${doc.periodLabel}`}
         {doc.memberIds.length > 0 && `・${doc.memberIds.map(nameOf).join("、")}`}
         {confirmed ? "・確定済み" : "・確認待ち"}
       </p>
@@ -90,6 +91,20 @@ export default function DocumentDetail() {
         <div className="card warn">
           原本と見比べて、合っている項目に印を付けてください。すべて付けると確定できます。
           確定するまで、この書類の期限ではお知らせしません。
+        </div>
+      )}
+
+      {doc.supersededBy && (
+        <div className="card warn">
+          これは<strong>前のもの</strong>です。ひとこと・予定の根拠には使っていません。
+          {household.documents.some((d) => d.id === doc.supersededBy) && (
+            <div>
+              新しい方: <Link href={`/documents/${doc.supersededBy}`}>{household.documents.find((d) => d.id === doc.supersededBy)!.title}</Link>
+            </div>
+          )}
+          <button className="link-button" onClick={() => update({ ...doc, supersededBy: undefined })}>
+            前のものにしたのを取り消す
+          </button>
         </div>
       )}
 
@@ -261,7 +276,7 @@ export default function DocumentDetail() {
         <button
           className="button"
           disabled={!allChecked}
-          onClick={() => update({ ...doc, confirmedAt: new Date().toISOString() })}
+          onClick={() => save(confirmDocument(household, doc.id, newId))}
         >
           原本と見比べて確定する
         </button>

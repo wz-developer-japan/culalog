@@ -33,8 +33,18 @@ export interface ExtractedDeadline {
   place: string;
   /** 何が必要か */
   needs: string[];
+  /** 何か月ごとに繰り返すか（無ければ 0） */
+  repeatMonths: number;
   location: string;
   quote: string;
+}
+
+/** いつの分の書類か（年度・保険期間・契約期間など） */
+export interface ExtractedPeriod {
+  label: string;
+  /** YYYY-MM-DD（無ければ空） */
+  from: string;
+  until: string;
 }
 
 export interface ExtractedContact {
@@ -68,6 +78,7 @@ export interface Extraction {
   docType: string;
   category: DocumentCategory;
   who: ExtractedWho;
+  period: ExtractedPeriod;
   fields: ExtractedField[];
   deadlines: ExtractedDeadline[];
   contacts: ExtractedContact[];
@@ -109,7 +120,7 @@ const strList = { type: "array", items: str } as const;
 export const EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "docType", "category", "who", "fields", "deadlines", "contacts", "questions", "unclear"],
+  required: ["title", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear"],
   properties: {
     title: str,
     docType: str,
@@ -119,6 +130,12 @@ export const EXTRACTION_SCHEMA = {
       additionalProperties: false,
       required: ["memberIds", "sure", "reason"],
       properties: { memberIds: strList, sure: { type: "boolean" }, reason: str },
+    },
+    period: {
+      type: "object",
+      additionalProperties: false,
+      required: ["label", "from", "until"],
+      properties: { label: str, from: str, until: str },
     },
     fields: {
       type: "array",
@@ -134,7 +151,7 @@ export const EXTRACTION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "location", "quote"],
+        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "repeatMonths", "location", "quote"],
         properties: {
           kind: { type: "string", enum: DEADLINE_KIND_VALUES },
           label: str,
@@ -143,6 +160,7 @@ export const EXTRACTION_SCHEMA = {
           time: str,
           place: str,
           needs: strList,
+          repeatMonths: { type: "integer" },
           location: str,
           quote: str,
         },
@@ -188,11 +206,14 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
   const category = CATEGORY_VALUES.includes(v.category as DocumentCategory) ? (v.category as DocumentCategory) : "other";
   const who = (v.who ?? {}) as Record<string, unknown>;
   const whoIds = list(who.memberIds).filter((id) => memberIds.includes(id));
+  const period = (v.period ?? {}) as Record<string, unknown>;
+  const ymdOrEmpty = (x: unknown) => (YMD.test(s(x)) ? s(x) : "");
   return {
     title: v.title.trim(),
     docType: s(v.docType),
     category,
     who: { memberIds: whoIds, sure: who.sure === true && whoIds.length > 0, reason: s(who.reason) },
+    period: { label: s(period.label), from: ymdOrEmpty(period.from), until: ymdOrEmpty(period.until) },
     fields: fields
       .map((f) => ({ label: s(f?.label), value: s(f?.value), location: s(f?.location), quote: s(f?.quote) }))
       .filter((f) => f.label && f.value),
@@ -205,6 +226,7 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
         time: s(d?.time),
         place: s(d?.place),
         needs: list(d?.needs),
+        repeatMonths: [1, 3, 6, 12, 24, 36].includes(Number(d?.repeatMonths)) ? Number(d.repeatMonths) : 0,
         location: s(d?.location),
         quote: s(d?.quote),
       }))
@@ -246,6 +268,7 @@ export function membersQuestion(
     about: "members",
     text: "誰の書類ですか？",
     reason: reason || undefined,
+    guess: guess.length ? guess : undefined,
     options: [
       // メモは短いもの（「2歳・保育園」など）だけ添える
       ...ordered.map((m) => ({ label: m.note && m.note.length <= 8 ? `${m.name}（${m.note}）` : m.name, value: m.id })),
@@ -277,6 +300,9 @@ export function extractionToDocument(
     category: extraction.category,
     docType: extraction.docType || undefined,
     memberIds,
+    periodLabel: extraction.period.label || undefined,
+    validFrom: extraction.period.from || undefined,
+    validUntil: extraction.period.until || undefined,
     origin: options.origin,
     draftSource: options.draftSource,
     expectedId: options.expectedId,
@@ -299,6 +325,7 @@ export function extractionToDocument(
       time: d.time || undefined,
       place: d.place || undefined,
       needs: d.needs.length ? d.needs : undefined,
+      repeatMonths: d.repeatMonths || undefined,
       leadDays: DEFAULT_LEAD_DAYS[d.kind],
       memberIds,
       source: source(d.location, d.quote),

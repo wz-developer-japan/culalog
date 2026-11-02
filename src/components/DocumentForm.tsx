@@ -57,6 +57,7 @@ export function DocumentForm({
   const [title, setTitle] = useState(initial.title);
   const [category, setCategory] = useState<DocumentCategory>(initial.category);
   const [docType, setDocType] = useState(initial.docType ?? "");
+  const [periodLabel, setPeriodLabel] = useState(initial.periodLabel ?? "");
   const [memberIds, setMemberIds] = useState<string[]>(initial.memberIds);
   const [storageLocation, setStorageLocation] = useState(initial.storageLocation ?? "");
   const [fields, setFields] = useState<Field[]>(initial.fields.length ? initial.fields : [emptyField()]);
@@ -94,6 +95,7 @@ export function DocumentForm({
       title: title.trim(),
       category,
       docType: docType.trim() || undefined,
+      periodLabel: periodLabel.trim() || undefined,
       memberIds,
       storageLocation: storageLocation.trim() || undefined,
       fields: fields
@@ -147,6 +149,11 @@ export function DocumentForm({
       <label className="label">
         書類の種類（任意）
         <input className="input" value={docType} onChange={(e) => setDocType(e.target.value)} placeholder="例: 歯科健診のお知らせ" />
+      </label>
+
+      <label className="label">
+        いつの分か（任意）
+        <input className="input" value={periodLabel} onChange={(e) => setPeriodLabel(e.target.value)} placeholder="例: 2026年度" />
       </label>
 
       <div className="label">誰の書類？</div>
@@ -232,6 +239,22 @@ export function DocumentForm({
               placeholder={"例: 母子健康手帳\n問診票"}
             />
           </label>
+          {(d.kind === "expiry" || d.kind === "cancel_window" || d.kind === "window" || d.kind === "due") && (
+            <label className="label">
+              くり返し
+              <select
+                className="input"
+                value={d.repeatMonths ?? 0}
+                onChange={(e) => updateDeadline(i, { repeatMonths: Number(e.target.value) || undefined })}
+              >
+                <option value={0}>くり返さない</option>
+                <option value={1}>毎月</option>
+                <option value={12}>毎年</option>
+                <option value={24}>2年ごと</option>
+                <option value={36}>3年ごと</option>
+              </select>
+            </label>
+          )}
           <label className="label">
             何日前から知らせるか
             <input

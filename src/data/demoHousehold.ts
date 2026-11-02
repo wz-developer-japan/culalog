@@ -40,7 +40,11 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         id: "doc-school-annual",
         title: "くろうど第一小学校 年間行事予定",
         category: "school",
+        docType: "年間行事予定",
         memberIds: ["m-son"],
+        periodLabel: `${y}年度`,
+        validFrom: `${y}-04-01`,
+        validUntil: `${y + 1}-03-31`,
         origin: "demo",
         storageLocation: "冷蔵庫の扉（磁石）",
         originalText: schoolAnnualText(t),
@@ -70,6 +74,16 @@ export function createDemoHousehold(today: Date = new Date()): Household {
           },
         ],
         deadlines: [
+          {
+            id: "dl-excursion",
+            kind: "event",
+            label: "遠足（3年生）",
+            date: ymd(t.excursion),
+            leadDays: 7,
+            needs: ["お弁当", "水筒", "敷物"],
+            memberIds: ["m-son"],
+            source: { location: "主な行事・遠足 ／ 下の※", quote: "遠足の日は、お弁当・水筒・敷物をご用意ください" },
+          },
           {
             id: "dl-sports-day",
             kind: "event",

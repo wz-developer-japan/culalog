@@ -309,3 +309,19 @@ button.chip {
   padding-top: 8px;
   border-top: 1px dashed var(--border);
 }
+
+.button.guess {
+  margin-top: 10px;
+  font-size: 1rem;
+  padding: 12px;
+}
+
+.others {
+  margin-top: 8px;
+}
+
+.others summary {
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
