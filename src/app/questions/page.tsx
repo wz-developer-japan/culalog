@@ -8,6 +8,7 @@ import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ButlerPic } from "@/components/Pics";
 import { QuestionCard } from "@/components/QuestionCard";
 import { answerLater, effectOf, openQuestions } from "@/lib/butler";
 import { butlerName, characterOf } from "@/lib/character";
@@ -89,20 +90,22 @@ export default function Questions() {
           {now.length > 1 && <p className="meta">次の質問: {now[1].text}</p>}
         </div>
       ) : (
-        <div className="card calm">
-          {answered > 0 ? "全部答えてもらいました。ありがとうございます。" : "書類を渡すと、分からないことがあればここに並べます。"}
+        <div className="empty">
+          <ButlerPic width={110} />
+          <div className="t">{answered > 0 ? "全部答えてもらいました" : "いま聞きたいことはありません"}</div>
+          <div className="s">{answered > 0 ? "ありがとうございます。" : "書類を渡すと、分からないことがあればここに並べます。"}</div>
         </div>
       )}
 
-      <h2>
-        {name}が覚えたこと（{learned.length}）
+      <h2 className="sec">
+        {name}が覚えたこと <small>{learned.length}件</small>
       </h2>
       <p className="meta">
         これまでに答えてもらった {answered}問から覚えました。
         {saved > 0 && ` 覚えたことのおかげで、${saved}回は聞かずに済みました。`}
       </p>
       {learned.length === 0 ? (
-        <div className="card meta">まだありません。質問に答えると、同じ種類の書類では二度聞かないように覚えます。</div>
+        <div className="calm-line">まだありません。質問に答えると、同じ種類の書類では二度聞かないように覚えます。</div>
       ) : (
         learned.map((l) => (
           <div className="card" key={l.id}>

@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
+import { ButlerPic } from "@/components/Pics";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { confirmDocument, openQuestions } from "@/lib/butler";
@@ -97,7 +98,12 @@ export default function Inbox() {
           <div className="progress" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
             <span style={{ width: `${percent}%` }} />
           </div>
-          {reading && <div className="meta thinking">いま読んでいます: {reading.name}</div>}
+          {reading && (
+            <div className="reading">
+              <ButlerPic width={64} />
+              <div className="meta thinking">いま読んでいます: {reading.name}</div>
+            </div>
+          )}
           {progress.pausedUntil && progress.waiting > 0 && (
             <div className="meta">
               読み取りの回数の上限に当たったので、{timeOf(progress.pausedUntil)}ごろから続きを読みます（この画面かトップを開いていれば、自動で続けます）。

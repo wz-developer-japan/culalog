@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { memberMark } from "@/lib/memberMark";
 import { importantNumbers } from "@/lib/numbers";
-import { Pic } from "@/components/Pics";
+import { ButlerPic, Pic } from "@/components/Pics";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { DocumentCategory, DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -105,7 +105,15 @@ export default function Documents() {
       )}
 
       {docs.length === 0 ? (
-        <div className="calm-line">{filtered ? "当てはまる書類はありません。" : "まだありません。"}</div>
+        filtered ? (
+          <div className="calm-line">当てはまる書類はありません。</div>
+        ) : (
+          <div className="empty">
+            <ButlerPic width={110} />
+            <div className="t">まだ書類はありません</div>
+            <div className="s">下の「＋」から、写真・スクショ・PDF・メールの本文を渡してください。</div>
+          </div>
+        )
       ) : (
         docs.map((d) => (
           <Link className="dcard row-link" key={d.id} href={`/documents/${d.id}`}>

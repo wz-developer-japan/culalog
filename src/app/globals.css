@@ -1485,3 +1485,60 @@ h2.sec small {
   flex: none;
   margin-top: 2px;
 }
+
+/* ---- 使いやすさ: 押せる所の大きさ・動き・iPhone の下の余白 ---- */
+.reading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+main {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
+.back,
+.tab,
+.link-button,
+.seg button,
+.chip,
+h2.sec .more {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.tab {
+  justify-content: center;
+}
+.chip {
+  min-height: 40px;
+}
+h2.sec .more {
+  min-height: 32px;
+}
+.tag.act,
+.tag.src {
+  min-height: 30px;
+  padding: 0 10px;
+}
+.dcard .m {
+  row-gap: 4px;
+}
+.fab:focus-visible,
+.tab:focus-visible,
+.mi:focus-visible,
+.fam a:focus-visible,
+.tag.act:focus-visible,
+.tag.src:focus-visible {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
