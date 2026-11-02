@@ -21,6 +21,12 @@ Claude を活用した、暮らしのログ。
 
 > ハッカソン提出作品です。
 
+| トップ（メニュー） | 蓮のページ | 予定 | 書類 |
+|---|---|---|---|
+| ![トップ](docs/img/screen-top-fold.png) | ![蓮のページ](docs/img/screen-family-fold.png) | ![予定](docs/img/screen-schedule-fold.png) | ![書類](docs/img/screen-documents-fold.png) |
+
+（架空の家族・2026年11月7日の画面。画像は `node scripts/shots.mjs` で撮り直せます）
+
 ## 試し方
 
 1. スマートフォンで https://culalog.vercel.app/ を開きます
