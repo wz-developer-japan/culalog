@@ -15,6 +15,9 @@ type ImageType = (typeof IMAGE_TYPES)[number];
 
 const MODEL = "claude-opus-5-5";
 
+/** 1つの書類として一緒に読む写真の枚数の上限（何ページもある契約書・郵便一式など） */
+const MAX_PAGES = 6;
+
 /** 読み取りは数十秒かかることがあるので、関数の実行時間を長めにとる */
 export const maxDuration = 60;
 
@@ -72,17 +75,23 @@ export async function POST(request: NextRequest) {
     return fail(413, "ファイルが大きすぎるか、空です。5MB 以下の画像か PDF を選んでください。");
   }
 
-  let body: { mediaType?: unknown; data?: unknown; today?: unknown; family?: unknown };
+  let body: { mediaType?: unknown; data?: unknown; pages?: unknown; today?: unknown; family?: unknown };
   try {
     body = await request.json();
   } catch {
     return fail(400, "送られてきた内容を読めませんでした。");
   }
-  const { mediaType, data, today } = body;
-  const isPdf = mediaType === "application/pdf";
-  const isImage = IMAGE_TYPES.includes(mediaType as ImageType);
-  if ((!isPdf && !isImage) || typeof data !== "string" || !data || /[^A-Za-z0-9+/=]/.test(data)) {
-    return fail(400, "画像（JPEG・PNG・WebP）か PDF を選んでください。");
+  const { today } = body;
+  // 1枚（画像か PDF）か、1つの書類の何ページかの写真（pages）
+  const files = Array.isArray(body.pages) ? (body.pages as { mediaType?: unknown; data?: unknown }[]) : [{ mediaType: body.mediaType, data: body.data }];
+  if (files.length === 0 || files.length > MAX_PAGES) return fail(400, `1つの書類として読めるのは${MAX_PAGES}ページまでです。`);
+  const many = Array.isArray(body.pages);
+  for (const f of files) {
+    const isPdf = f?.mediaType === "application/pdf";
+    const isImage = IMAGE_TYPES.includes(f?.mediaType as ImageType);
+    if ((!isPdf && !isImage) || (many && isPdf) || typeof f.data !== "string" || !f.data || /[^A-Za-z0-9+/=]/.test(f.data)) {
+      return fail(400, many ? "ページの写真は画像（JPEG・PNG・WebP）で送ってください。" : "画像（JPEG・PNG・WebP）か PDF を選んでください。");
+    }
   }
   const todayText = typeof today === "string" && /^\d{4}-\d{2}-\d{2}$/.test(today) ? today : null;
   if (!todayText) return fail(400, "今日の日付が送られてきませんでした。");
@@ -99,9 +108,16 @@ export async function POST(request: NextRequest) {
     return fail(429, message, { "Retry-After": String(limit.retryAfterSeconds) });
   }
 
-  const file: Anthropic.Beta.BetaContentBlockParam = isPdf
-    ? { type: "document", source: { type: "base64", media_type: "application/pdf", data } }
-    : { type: "image", source: { type: "base64", media_type: mediaType as ImageType, data } };
+  const blocks: Anthropic.Beta.BetaContentBlockParam[] = files.flatMap((f, i) => {
+    const block: Anthropic.Beta.BetaContentBlockParam =
+      f.mediaType === "application/pdf"
+        ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: f.data as string } }
+        : { type: "image", source: { type: "base64", media_type: f.mediaType as ImageType, data: f.data as string } };
+    return many ? [{ type: "text" as const, text: `${i + 1}ページ目:` }, block] : [block];
+  });
+  const pagesNote = many
+    ? `\nこれは1つの書類の${files.length}ページ分の写真です（順番どおり）。1つの書類として書き写し、location には「2ページ目 第5条」のようにページも書いてください。\n`
+    : "";
 
   const client = new Anthropic();
   try {
@@ -116,10 +132,10 @@ export async function POST(request: NextRequest) {
         {
           role: "user",
           content: [
-            file,
+            ...blocks,
             {
               type: "text",
-              text: `今日の日付: ${todayText}\n家族の一覧:\n${family
+              text: `${pagesNote}今日の日付: ${todayText}\n家族の一覧:\n${family
                 .map((m) => `- id: ${m.id} / 呼び名: ${m.name} / 続柄: ${m.relation}${m.note ? ` / メモ: ${m.note}` : ""}`)
                 .join("\n")}\n\nこの書類に書いてあることを書き写してください。`,
             },

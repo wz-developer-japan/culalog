@@ -36,6 +36,8 @@ export interface InboxItem {
   expectedId?: string;
   /** 同じだった書類の ID（または同じファイルの受け取り箱の ID） */
   duplicateOf?: string;
+  /** 1つの書類の2ページ目から先の写真（ファイルは別の場所に、この ID で置く） */
+  pageIds?: string[];
 }
 
 /** 本人が質問に答えて、執事が覚えたこと */
@@ -81,6 +83,7 @@ export interface NewInboxEntry {
   hash: string;
   sampleId?: string;
   expectedId?: string;
+  pageIds?: string[];
 }
 
 /**
@@ -195,6 +198,8 @@ export function applyExtraction(
   options: {
     draftSource: "claude" | "provisional";
     dataUrl: string;
+    /** 2ページ目から先の写真 */
+    pages?: string[];
     originalText?: string;
     newId: (prefix: string) => string;
   },
@@ -212,7 +217,12 @@ export function applyExtraction(
     originalFile: { mediaType: item.mediaType, dataUrl: options.dataUrl },
     newId: options.newId,
   });
-  const { doc, questions } = applyLearned(household, { ...made.document, fileHash: item.hash }, made.questions);
+  const pages = (options.pages ?? []).map((dataUrl) => ({ mediaType: item.mediaType, dataUrl }));
+  const { doc, questions } = applyLearned(
+    household,
+    { ...made.document, fileHash: item.hash, originalPages: pages.length ? pages : undefined },
+    made.questions,
+  );
   const similar = similarDocument(household, doc);
   if (similar) {
     questions.unshift({

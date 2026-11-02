@@ -63,7 +63,7 @@ export default function Questions() {
       <p className="lead">
         {now.length > 0 ? `あと ${now.length}問` : "いま聞きたいことはありません"}
         {later > 0 && `（「あとで」にしたもの ${later}問は、明日また聞きます）`}
-        <span className="block meta">{characterOf(household).asking} 暇なときに、ぼちぼち答えてください。</span>
+        <span className="block meta">{characterOf(household).asking}</span>
       </p>
 
       {feedback.length > 0 && (

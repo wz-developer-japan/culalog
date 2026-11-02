@@ -92,8 +92,8 @@ export default function Inbox() {
       {progress.total > 0 && (
         <div className="card">
           <div className="progress-label">
-            受け取った {progress.total}枚のうち、{read}枚済み
-            <span className="meta">（読んで下書きにした {progress.done}枚）</span>
+            受け取った {progress.total}件のうち、{read}件済み
+            <span className="meta">（読んで下書きにした {progress.done}件）</span>
           </div>
           <div className="progress" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
             <span style={{ width: `${percent}%` }} />
@@ -108,13 +108,13 @@ export default function Inbox() {
           {progress.waiting === 0 && progress.needsKey === 0 && <div className="meta">全部読み終わりました。</div>}
           {progress.needsKey > 0 && (
             <div className="card unknown" style={{ marginTop: 8 }}>
-              {progress.needsKey}枚は、執事（Claude）の読み取りの準備ができていないため、まだ読めていません。写真は端末に置いてあります。
+              {progress.needsKey}件は、執事（Claude）の読み取りの準備ができていないため、まだ読めていません。写真は端末に置いてあります。
               <button className="link-button" onClick={() => update((c) => retryInbox(c, ["needsKey"]))}>
                 もう一度読んでみる
               </button>
             </div>
           )}
-          {progress.duplicate > 0 && <div className="meta">{progress.duplicate}枚は、前に渡したものと同じだったので読んでいません。</div>}
+          {progress.duplicate > 0 && <div className="meta">{progress.duplicate}件は、前に渡したものと同じだったので読んでいません。</div>}
           {items
             .filter((i) => i.status === "failed")
             .map((i) => (

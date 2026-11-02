@@ -7,7 +7,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { type AddResult, addFilesToInbox, addSamplesToInbox } from "@/lib/addToInbox";
+import { type AddResult, addFilesToInbox, addPagesToInbox, addSamplesToInbox, MAX_PAGES } from "@/lib/addToInbox";
 import { renderSampleImage } from "@/lib/files";
 import { inboxProgress } from "@/lib/inbox";
 import { useHousehold } from "@/lib/useHousehold";
@@ -23,6 +23,8 @@ function ScanPage() {
   const [dragging, setDragging] = useState(false);
   const [result, setResult] = useState<AddResult | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  // 次に渡す写真を、1つの書類のページとしてまとめるか
+  const [asPages, setAsPages] = useState(false);
   const sample = household?.demoSamples?.find((x) => x.id === sampleId);
   const expected = household?.expected.find((e) => e.id === sample?.expectedId);
 
@@ -54,7 +56,7 @@ function ScanPage() {
   async function give(files: File[]) {
     if (files.length === 0 || busy) return;
     setBusy(true);
-    setResult(await addFilesToInbox(files, update));
+    setResult(await (asPages ? addPagesToInbox(files, update) : addFilesToInbox(files, update)));
     setBusy(false);
   }
 
@@ -93,7 +95,7 @@ function ScanPage() {
           give([...e.dataTransfer.files]);
         }}
       >
-        <span className="dropzone-title">{busy ? "受け取っています…" : "写真を撮る・まとめて選ぶ"}</span>
+        <span className="dropzone-title">{busy ? "受け取っています…" : asPages ? "1つの書類のページを選ぶ" : "写真を撮る・まとめて選ぶ"}</span>
         <span className="meta">ここにドラッグ、またはスクショを貼り付けても渡せます</span>
         <input
           type="file"
@@ -107,10 +109,18 @@ function ScanPage() {
         />
       </label>
 
+      <label className="toggle-row">
+        <input type="checkbox" checked={asPages} onChange={(e) => setAsPages(e.target.checked)} />
+        <span>
+          次に選ぶ写真は、1つの書類のページ（{MAX_PAGES}枚まで）
+          <span className="block meta">何ページもある契約書や、同じ封筒に入っていた郵便一式を、1つの書類として読みます。オフなら1枚ずつ別の書類です。</span>
+        </span>
+      </label>
+
       {result && (
         <div className="card calm">
-          {result.added > 0 && <div>{result.added}枚を受け取りました。執事が順番に読みます。</div>}
-          {result.duplicates > 0 && <div>{result.duplicates}枚は、前に渡したものと同じファイルだったので読みません。</div>}
+          {result.added > 0 && <div>{result.added}件を受け取りました。執事が順番に読みます。</div>}
+          {result.duplicates > 0 && <div>{result.duplicates}件は、前に渡したものと同じファイルだったので読みません。</div>}
           {result.rejected.map((r, i) => (
             <div key={i} className="meta">
               {r.name}: {r.error}
@@ -126,7 +136,7 @@ function ScanPage() {
 
       {progress.total > 0 && !result && (
         <Link className="card row-link" href="/inbox">
-          受け取り箱: {progress.total}枚（読んだ {progress.done}・待っている {progress.waiting + progress.needsKey}）
+          受け取り箱: {progress.total}件（読んだ {progress.done}・待っている {progress.waiting + progress.needsKey}）
           <span className="badge">まとめて確認</span>
         </Link>
       )}

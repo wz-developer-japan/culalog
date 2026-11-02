@@ -41,15 +41,30 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
           await update((h) => markItem(h, item.id, { status: "failed", error: "ファイルが端末に見つかりませんでした。もう一度渡してください。" }));
           return;
         }
+        const pages: string[] = [];
+        for (const pid of item.pageIds ?? []) {
+          const page = await getFile(pid);
+          if (page) pages.push(page);
+        }
+        if (pages.length < (item.pageIds?.length ?? 0)) {
+          await update((h) => markItem(h, item.id, { status: "failed", error: "ページの写真が端末に見つかりませんでした。もう一度渡してください。" }));
+          return;
+        }
         const sample = item.sampleId ? household.demoSamples?.find((x) => x.id === item.sampleId) : undefined;
         const body = JSON.stringify({
-          mediaType: item.mediaType,
-          data: base64Of(dataUrl),
+          ...(pages.length
+            ? { pages: [dataUrl, ...pages].map((d) => ({ mediaType: item.mediaType, data: base64Of(d) })) }
+            : { mediaType: item.mediaType, data: base64Of(dataUrl) }),
           today: toYmd(new Date()),
           family: household.members.map((m) => ({ id: m.id, name: m.name, relation: RELATION_LABELS[m.relation], note: m.note ?? "" })),
         });
         if (body.length > MAX_SEND_BYTES) {
-          await update((h) => markItem(h, item.id, { status: "failed", error: "ファイルが大きすぎます。撮り直すか、手入力で登録してください。" }));
+          await update((h) =>
+            markItem(h, item.id, {
+              status: "failed",
+              error: pages.length ? "ページの写真を合わせると大きすぎます。ページを分けて渡してください。" : "ファイルが大きすぎます。撮り直すか、手入力で登録してください。",
+            }),
+          );
           return;
         }
         let res: Response;
@@ -66,11 +81,12 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
             applyExtraction(h, item, json.extraction as Extraction, {
               draftSource: "claude",
               dataUrl,
+              pages,
               originalText: sample?.text ?? ((json.extraction as Extraction).transcript || undefined),
               newId,
             }),
           );
-          await deleteFile(item.id);
+          await Promise.all([item.id, ...(item.pageIds ?? [])].map(deleteFile));
           return;
         }
         if (res.status === 503) {

@@ -287,8 +287,14 @@ export default function DocumentDetail() {
               PDF を開く
             </a>
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="original-image" src={doc.originalFile.dataUrl} alt="読み取った書類の写真" />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="original-image" src={doc.originalFile.dataUrl} alt={doc.originalPages?.length ? "読み取った書類の写真（1ページ目）" : "読み取った書類の写真"} />
+              {doc.originalPages?.map((p, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={i} className="original-image" src={p.dataUrl} alt={`読み取った書類の写真（${i + 2}ページ目）`} />
+              ))}
+            </>
           )}
         </details>
       )}

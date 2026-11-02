@@ -209,6 +209,8 @@ export interface DocumentRecord {
   originalText?: string;
   /** 読み取りに使った写真・PDF（端末の中にだけ置く。見比べるときに表示する） */
   originalFile?: { mediaType: string; dataUrl: string };
+  /** 何ページかの写真を1つの書類として渡したときの、2ページ目から先 */
+  originalPages?: { mediaType: string; dataUrl: string }[];
   /**
    * 下書きの出どころ。
    * - claude:      Claude が原本から読み取った
