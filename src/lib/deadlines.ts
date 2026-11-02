@@ -174,8 +174,14 @@ export function buildHome(household: Household, today: Date): HomeSections {
   const received = new Set(
     household.documents.filter((d) => d.confirmedAt && d.expectedId).map((d) => d.expectedId),
   );
+  // もとの予定（例: 運動会）が過ぎたら、もう待たない
+  const allDeadlines = household.documents.flatMap((d) => d.deadlines);
+  const eventPassed = (e: ExpectedDocument) => {
+    const original = allDeadlines.find((d) => d.id === e.relatedDeadlineId);
+    return !!original && startOfDay(today) > parseDate(original.endDate ?? original.date);
+  };
   const missing = household.expected.filter(
-    (e) => !e.receivedDocumentId && !received.has(e.id) && startOfDay(today) >= parseDate(e.expectedBy),
+    (e) => !e.receivedDocumentId && !received.has(e.id) && startOfDay(today) >= parseDate(e.expectedBy) && !eventPassed(e),
   );
 
   return { soon, overdue, missing };

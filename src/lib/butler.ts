@@ -2,11 +2,22 @@
 // 候補（期日の逆算・来ていないもの）を作るのはコード。何を言うかを選ぶのは Claude（11/4 から）。
 // Claude が選ばなかったものでも、締切が近いもの・過ぎたものはコードの側で必ず出す。
 
-import { type ActionItem, buildHome, formatYmd } from "./deadlines";
+import { type ActionItem, buildHome, formatYmd, toYmd } from "./deadlines";
 import type { ButlerQuestion, DocumentRecord, Household } from "./types";
 
 /** 締切が何日以内なら、Claude が選ばなくても必ず出すか */
 export const URGENT_DAYS = 3;
+
+/** 済むまで追いかける: 「済んだ」を押していない締切は、この日数前にもう一度ひとことの上に出す */
+export const FOLLOW_UP_DAYS = [7, 3, 1] as const;
+
+const FOLLOW_UP_LABEL: Record<number, string> = { 7: "1週間前", 3: "3日前", 1: "前日" };
+
+/** いま何日前の念押しの段か（締切まで 0〜7 日のとき）。まだなら undefined */
+export function followUpStage(daysLeft: number): number | undefined {
+  if (daysLeft < 0) return undefined;
+  return [...FOLLOW_UP_DAYS].reverse().find((s) => daysLeft <= s);
+}
 
 export interface Candidate {
   /** 予定・やることの ID、または `missing:来るはずの書類の ID` */
@@ -27,6 +38,8 @@ export interface Candidate {
   documentTitle?: string;
   /** 原本のどこか */
   location?: string;
+  /** 済むまで追いかける: 前から知らせていて、まだ済んでいない締切の念押しの段（7・3・1 日前） */
+  followUp?: { stage: number; label: string };
 }
 
 function titleOf({ deadline, daysLeft }: ActionItem, overdue: boolean): string {
@@ -51,8 +64,17 @@ function detailOf({ deadline }: ActionItem): string | undefined {
   return parts.length ? parts.join("・") : undefined;
 }
 
+function followUpOf(item: ActionItem, overdue: boolean): Candidate["followUp"] {
+  if (overdue || item.deadline.kind === "event") return undefined; // 予定・行事は「済んだ」が無い
+  const stage = followUpStage(item.daysLeft);
+  // 知らせ始めたのがこの段より前のときだけ「もう一度」（初めて知らせるときは念押しではない）
+  if (stage === undefined || item.deadline.leadDays <= stage) return undefined;
+  return { stage, label: FOLLOW_UP_LABEL[stage] };
+}
+
 function fromItem(item: ActionItem, overdue: boolean): Candidate {
   return {
+    followUp: followUpOf(item, overdue),
     id: item.deadline.id,
     type: "deadline",
     isEvent: item.deadline.kind === "event",
@@ -88,6 +110,8 @@ export function buildCandidates(household: Household, today: Date): Candidate[] 
 
 export interface BriefingItem {
   candidateId: string;
+  /** 済むまで追いかける念押し（例: 「1週間前」） */
+  followUpLabel?: string;
   isEvent?: boolean;
   text: string;
   detail?: string;
@@ -103,15 +127,39 @@ export interface Briefing {
   items: BriefingItem[];
 }
 
-const priority = (c: Candidate) => (c.overdue ? 0 : c.urgent ? 1 : c.type === "missing" ? 2 : 3);
+/**
+ * 済むまで追いかける: 念押しの段に入った日だけ、ひとことの上に出す。
+ * 段に入って最初に開いた日を覚えておき、その日のうちは何度開いても上に出す。
+ */
+export function followUpToday(household: Household, c: Candidate, today: Date): boolean {
+  if (!c.followUp) return false;
+  const seen = household.followUps?.[c.id];
+  return !seen || seen.stage !== c.followUp.stage || seen.shownOn === toYmd(today);
+}
 
-/** Claude の準備中に使う、仮のひとこと（期日の近い順に3件。Claude は使っていない） */
-export function provisionalBriefing(candidates: Candidate[], limit = 3): Briefing {
+/** 念押しの段に入った候補を「この日に出した」と覚える。変わりが無ければ同じ household を返す */
+export function markFollowUps(household: Household, candidates: Candidate[], today: Date): Household {
+  const ymd = toYmd(today);
+  const followUps = { ...(household.followUps ?? {}) };
+  let changed = false;
+  for (const c of candidates) {
+    if (!c.followUp || followUps[c.id]?.stage === c.followUp.stage) continue;
+    followUps[c.id] = { stage: c.followUp.stage, shownOn: ymd };
+    changed = true;
+  }
+  return changed ? { ...household, followUps } : household;
+}
+
+/** Claude の準備中に使う、仮のひとこと（念押し・過ぎた・近い順に3件。Claude は使っていない） */
+export function provisionalBriefing(candidates: Candidate[], limit = 3, isFollowUp: (c: Candidate) => boolean = () => false): Briefing {
+  const priority = (c: Candidate) =>
+    c.overdue ? 0 : isFollowUp(c) ? 1 : c.urgent ? 2 : c.type === "missing" ? 3 : 4;
   const items = [...candidates]
     .sort((a, b) => priority(a) - priority(b) || a.daysLeft - b.daysLeft)
     .slice(0, limit)
     .map((c) => ({
       candidateId: c.id,
+      followUpLabel: isFollowUp(c) ? c.followUp?.label : undefined,
       isEvent: c.isEvent,
       text: c.title,
       detail: c.detail,

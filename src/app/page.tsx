@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { createDemoHousehold } from "@/data/demoHousehold";
 import {
@@ -8,6 +9,8 @@ import {
   type BriefingItem,
   buildCandidates,
   type Candidate,
+  followUpToday,
+  markFollowUps,
   openQuestions,
   provisionalBriefing,
   safetyNet,
@@ -20,6 +23,13 @@ const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 export default function Home() {
   const { household, loaded, save } = useHousehold();
+
+  // 済むまで追いかける: 念押しの段に入った日を覚える（その日だけ、ひとことの上に出す）
+  useEffect(() => {
+    if (!household) return;
+    const marked = markFollowUps(household, buildCandidates(household, new Date()), new Date());
+    if (marked !== household) save(marked);
+  }, [household, save]);
 
   if (!loaded) return <main />;
 
@@ -45,7 +55,7 @@ export default function Home() {
   const h = household as Household;
   const candidates = buildCandidates(h, today);
   // 11/4 から: Claude が選んだひとこと（書類を確定したとき・1日1回だけ作る）。それまではコードで並べた仮のもの
-  const briefing = provisionalBriefing(candidates);
+  const briefing = provisionalBriefing(candidates, 3, (c) => followUpToday(h, c, today));
   const net = safetyNet(candidates, briefing);
   const questions = openQuestions(h);
   const pending = h.documents.filter((d) => !d.confirmedAt);
@@ -103,6 +113,9 @@ export default function Home() {
         ) : (
           briefing.items.map((item) => (
             <div className="briefing-item" key={item.candidateId}>
+              {item.followUpLabel && (
+                <div className="follow-up">まだ済んでいません・{item.followUpLabel}</div>
+              )}
               <div className="briefing-text">{item.text}</div>
               {item.detail && <div>{item.detail}</div>}
               {item.why && <div className="meta">{item.why}</div>}

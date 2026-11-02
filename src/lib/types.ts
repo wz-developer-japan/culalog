@@ -225,5 +225,7 @@ export interface Household {
   demoSamples?: DemoSample[];
   /** 本人が「済んだ」にした予定・やること（ID → 日時）。きまりから作った締切も含む。済んだものは知らせない */
   done?: Record<string, string>;
+  /** 済むまで追いかける: 予定・やることの ID → 何日前の念押しを、いつ最初に出したか（その日だけ、ひとことの上に出す） */
+  followUps?: Record<string, { stage: number; shownOn: string }>;
   isDemo: boolean;
 }
