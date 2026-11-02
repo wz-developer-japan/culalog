@@ -119,6 +119,9 @@ export default function Home() {
       <Link className="button secondary" href="/add" style={{ textAlign: "center", textDecoration: "none" }}>
         手入力で登録する
       </Link>
+      <Link className="button secondary" href="/rules" style={{ textAlign: "center", textDecoration: "none" }}>
+        わが家のきまり
+      </Link>
       <button
         className="button secondary"
         onClick={() => {

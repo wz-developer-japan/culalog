@@ -73,19 +73,10 @@ export function createDemoHousehold(today: Date = new Date()): Household {
             kind: "event",
             label: "運動会",
             date: ymd(t.sportsDay),
-            leadDays: 14,
+            leadDays: 21,
             leadReason: "土日も勤務がある。有給の申請に間に合うよう、案内プリントで日時を確かめたい",
             memberIds: ["m-son", "m-self"],
             source: { location: "主な行事・運動会", quote: "雨天の場合は翌日に順延" },
-          },
-          {
-            id: "dl-sports-day-leave",
-            kind: "notice",
-            label: "運動会の日の有給の申請（勤務先）",
-            date: ymd(addDays(t.sportsDay, -7)),
-            leadDays: 7,
-            leadReason: "勤務先のきまりで、有給の申請は遅くとも1週間前まで",
-            memberIds: ["m-self"],
           },
           {
             id: "dl-interview",
@@ -278,6 +269,15 @@ export function createDemoHousehold(today: Date = new Date()): Household {
           text: sportsDayNoticeText(t),
           provisionalDraft: sportsDayNoticeProvisionalDraft(t),
         },
+      },
+    ],
+    rules: [
+      {
+        id: "rule-leave",
+        label: "有給の申請（勤務先）",
+        daysBefore: 7,
+        memberId: "m-self",
+        note: "勤務先のきまりで、有給の申請は遅くとも1週間前まで",
       },
     ],
     timetable: [

@@ -29,7 +29,7 @@ export const DEFAULT_LEAD_DAYS: Record<DeadlineKind, number> = {
   notice: 30,
   cancel_window: 14,
   after_event: 0,
-  event: 14,
+  event: 21,
 };
 
 /** 期間（開始日と終了日）を持つ種類 */

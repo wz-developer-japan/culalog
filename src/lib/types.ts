@@ -66,6 +66,25 @@ export interface Deadline {
   /** 本人の意向（例: 「次の更新月に解約したい」） */
   intent?: string;
   source?: SourceRef;
+  /** この予定に当てはめる「わが家のきまり」の ID（例: 有給の申請）。締切はきまりから毎回計算する */
+  applyRuleIds?: string[];
+}
+
+/**
+ * わが家のきまり（書類には書いていない、その家の事情）。
+ * 例: 勤務先のきまりで、有給の申請は遅くとも1週間前まで。
+ * 予定に当てはめると、予定の日から逆算した締切が出る。
+ */
+export interface HouseRule {
+  id: string;
+  /** 例: 「有給の申請（勤務先）」 */
+  label: string;
+  /** 予定の何日前までか */
+  daysBefore: number;
+  /** 誰のきまりか */
+  memberId: string;
+  /** 例: 「勤務先のきまりで、遅くとも1週間前まで」 */
+  note?: string;
 }
 
 /** 来るはずの書類（例: 年間行事予定に運動会がある → 案内プリントが来るはず） */
@@ -147,5 +166,7 @@ export interface Household {
   documents: DocumentRecord[];
   expected: ExpectedDocument[];
   timetable: SchoolDaySchedule[];
+  /** わが家のきまり（古い保存データには無いことがある） */
+  rules?: HouseRule[];
   isDemo: boolean;
 }

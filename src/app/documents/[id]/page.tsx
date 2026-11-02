@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatYmd, ruleDeadlines } from "@/lib/deadlines";
 import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -37,6 +38,22 @@ export default function DocumentDetail() {
 
   async function update(next: DocumentRecord) {
     await save({ ...household!, documents: household!.documents.map((d) => (d.id === next.id ? next : d)) });
+  }
+
+  const rules = household.rules ?? [];
+  const expected = household.expected.find((e) => e.id === doc.expectedId);
+
+  /** 予定に「わが家のきまり」を当てはめる／外す（締切は毎回きまりから計算する） */
+  async function toggleRule(deadlineId: string, ruleId: string) {
+    await update({
+      ...doc!,
+      deadlines: doc!.deadlines.map((d) => {
+        if (d.id !== deadlineId) return d;
+        const ids = d.applyRuleIds ?? [];
+        const next = ids.includes(ruleId) ? ids.filter((x) => x !== ruleId) : [...ids, ruleId];
+        return { ...d, applyRuleIds: next.length ? next : undefined };
+      }),
+    });
   }
 
   async function toggleField(key: string) {
@@ -70,6 +87,12 @@ export default function DocumentDetail() {
         <div className="card warn">
           原本と見比べて、合っている項目に印を付けてください。すべて付けると確定できます。
           確定するまで、この書類の期限ではお知らせしません。
+        </div>
+      )}
+
+      {confirmed && expected && (
+        <div className="card">
+          「{expected.label}」が届いたので、来ていないものから外しました。
         </div>
       )}
 
@@ -123,8 +146,8 @@ export default function DocumentDetail() {
       ) : (
         doc.deadlines.map((d) => (
           <div className="card" key={d.id}>
-            {d.label}: {d.date}
-            {d.endDate && ` 〜 ${d.endDate}`}
+            {d.label}: {formatYmd(d.date)}
+            {d.endDate && ` 〜 ${formatYmd(d.endDate)}`}
             <div className="meta">
               {DEADLINE_KIND_LABELS[d.kind]}・{d.leadDays}日前からお知らせ
               {d.source && `・原本: ${d.source.location}`}
@@ -145,6 +168,25 @@ export default function DocumentDetail() {
                 原本と見比べた
               </label>
             )}
+            {d.kind === "event" &&
+              ruleDeadlines(d, rules).map((r) => (
+                <div className="derived" key={r.id}>
+                  {r.label}: {formatYmd(r.date)}まで
+                  <div className="meta">わが家のきまりから計算・{r.leadReason}</div>
+                </div>
+              ))}
+            {d.kind === "event" &&
+              rules.map((rule) =>
+                d.applyRuleIds?.includes(rule.id) ? (
+                  <button key={rule.id} className="link-button" onClick={() => toggleRule(d.id, rule.id)}>
+                    「{rule.label}」を外す
+                  </button>
+                ) : (
+                  <button key={rule.id} className="button secondary small" onClick={() => toggleRule(d.id, rule.id)}>
+                    この予定に「{rule.label}・{rule.daysBefore}日前まで」を当てはめる
+                  </button>
+                ),
+              )}
           </div>
         ))
       )}
