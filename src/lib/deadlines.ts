@@ -129,6 +129,10 @@ function supersededDeadlineIds(household: Household): Set<string> {
     const received = household.documents.filter((d) => d.confirmedAt && d.expectedId === e.id);
     if (received.some((d) => d.deadlines.some((x) => x.kind === "event" && x.date === original.date))) {
       ids.add(original.id);
+      // 同じ予定が、ほかの書類（例: 年間行事予定の改訂版）に同じ名前・同じ日で載っていれば、それも案内に任せる
+      for (const d of all) {
+        if (d.id !== original.id && d.kind === "event" && d.label === original.label && d.date === original.date) ids.add(d.id);
+      }
     }
   }
   return ids;
@@ -182,7 +186,26 @@ export function allItems(household: Household, today: Date): ActionItem[] {
       items.push({ deadline, document, startDate, daysLeft: daysBetween(today, parseDate(deadline.date)) });
     }
   }
-  return items.sort((a, b) => a.daysLeft - b.daysLeft);
+  return dedupe(items).sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+/**
+ * 同じ予定（種類・名前・日付・誰の、がすべて同じ）が2つの書類に載っているとき（例: 年間行事予定と、その改訂版を
+ * 「前のものにしますか？」と聞いている最中）は、新しい方の書類のものだけ出す。日付が違えば両方出す（違いに気づけるように）。
+ */
+function dedupe(items: ActionItem[]): ActionItem[] {
+  const newest = new Map<string, ActionItem>();
+  const keyOf = ({ deadline: d }: ActionItem) => [d.kind, d.label, d.date, d.endDate ?? "", [...d.memberIds].sort().join(",")].join("|");
+  const startOf = (doc: DocumentRecord) => doc.validFrom ?? doc.createdAt.slice(0, 10);
+  for (const item of items) {
+    const key = keyOf(item);
+    const seen = newest.get(key);
+    // 同じ始まりなら、あとに登録した方（書類の並びで後ろ）を新しいとみなす
+    if (!seen || startOf(item.document) > startOf(seen.document) || (startOf(item.document) === startOf(seen.document) && item.document.createdAt >= seen.document.createdAt)) {
+      newest.set(key, item);
+    }
+  }
+  return items.filter((item) => newest.get(keyOf(item)) === item);
 }
 
 export function buildHome(household: Household, today: Date): HomeSections {

@@ -14,9 +14,13 @@ import {
   jpDate,
   jpShortDate,
   leaseText,
+  revisedSchoolAnnualProvisionalDraft,
+  revisedSchoolAnnualText,
   schoolAnnualText,
   sportsDayNoticeProvisionalDraft,
   sportsDayNoticeText,
+  subscriptionProvisionalDraft,
+  subscriptionText,
 } from "./demoDocuments";
 
 export function createDemoHousehold(today: Date = new Date()): Household {
@@ -310,6 +314,18 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         title: "2歳児歯科健康診査のご案内（架空）",
         text: dentalCheckupText(today),
         provisionalDraft: dentalCheckupProvisionalDraft(today),
+      },
+      {
+        id: "sample-annual-revised",
+        title: "年間行事予定の改訂版（架空）",
+        text: revisedSchoolAnnualText(t),
+        provisionalDraft: revisedSchoolAnnualProvisionalDraft(t),
+      },
+      {
+        id: "sample-subscription",
+        title: "サブスクの契約画面（架空）",
+        text: subscriptionText(t),
+        provisionalDraft: subscriptionProvisionalDraft(t),
       },
     ],
     questions: [],
