@@ -63,11 +63,11 @@ export function AskAnswer({
           )}
         </div>
       )}
-      {unknown && (
+      {(unknown || result.contacts.length > 0) && (
         <div style={{ marginTop: 8 }}>
           {result.contacts.length > 0 ? (
             <>
-              <div className="meta">書類に載っている問い合わせ先（確かめるのはこちらへ）:</div>
+              <div className="meta">{unknown ? "書類に載っている問い合わせ先（確かめるのはこちらへ）:" : "引用した書類に載っている問い合わせ先（確かめるのはこちらへ）:"}</div>
               {result.contacts.slice(0, compact ? 2 : 10).map((c, i) => (
                 <div className="meta" key={i}>
                   {c.contact.label}: {c.contact.name}

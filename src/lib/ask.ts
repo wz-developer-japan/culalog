@@ -242,12 +242,42 @@ export function verifyAsk(raw: unknown, household: Household, question: string):
 
 // ---- Claude の準備中（キーが無いとき）に使う、仮の答え（検索） ----
 
+/** ひらがなだけでも探す語（ふだんの言葉で書類にもよく出るもの） */
+const HIRAGANA_WORDS = ["けが"];
+/** ひらがなをまたぐ語（「持ち物」が「持ち」で切れないように） */
+const COMPOUND_WORDS = ["持ち物", "お弁当", "申し込み", "引き落とし", "払い戻し"];
+/** 1文字でも探す語 */
+const SHORT_WORDS = ["犬", "猫"];
+
+/**
+ * ふだんの言葉 → 書類で使われやすい言葉。仮の検索で、質問の言葉が書類にそのまま無いときの手がかりにする。
+ * 意味を判断するためではなく、探す場所を広げるためだけ（当たった所は原文のまま見せる）
+ */
+const RELATED_WORDS: Record<string, string[]> = {
+  けが: ["事故", "傷害", "負傷"],
+  怪我: ["事故", "傷害", "負傷"],
+  保険: ["補償", "保険金", "給付"],
+  条件: ["対象", "範囲", "基準"],
+  連絡先: ["連絡", "問い合わせ", "受付", "窓口"],
+  連絡: ["問い合わせ", "受付", "窓口"],
+  期限: ["以内", "締切"],
+  締切: ["以内", "期限"],
+  飼え: ["ペット", "動物", "飼育"],
+  犬: ["ペット", "動物", "飼育"],
+  猫: ["ペット", "動物", "飼育"],
+  ペット: ["動物", "飼育"],
+  解約: ["解除", "退去"],
+  持ち物: ["持参", "準備"],
+};
+/** 言い換えでも、元の言葉と同じ重さで探す語（「条件」は書類では「対象」「範囲」と書かれることが多い） */
+const STRONG_RELATED = new Set(["対象", "範囲"]);
+
 /**
  * 質問から、探す言葉を取り出す（漢字のかたまり＋送りがな、カタカナ、英数）。
  * 「冬休みは」→「冬休み」のように、終わりの助詞は落とす。ひらがなだけの語は探さない（「いつから」などは当たりすぎるため）
  */
 export function keywordsOf(question: string): string[] {
-  const stop = new Set(["息子", "娘", "うち", "教え", "今年", "今度", "来月", "今月", "書類"]);
+  const stop = new Set(["息子", "娘", "うち", "教え", "今年", "今度", "来月", "今月", "書類", "調べ", "知り", "確認", "探し"]);
   const raw = question.match(/[\p{Script=Han}]+[\p{Script=Hiragana}]{0,2}|[\p{Script=Katakana}ー]{2,}|[A-Za-z0-9]{2,}/gu) ?? [];
   const particles = "はがをにでとものかへやもね";
   const words = raw
@@ -260,67 +290,135 @@ export function keywordsOf(question: string): string[] {
       return cut < 0 ? w : m[1] + tail.slice(0, cut).join("");
     })
     .map((w) => (w.length >= 3 && /[\p{Script=Hiragana}]{2}$/u.test(w) ? w.slice(0, -1) : w)) // 「飼える」→「飼え」「調べて」→「調べ」程度に
-    .filter((w) => w.length >= 2 || /^[\p{Script=Han}]$/u.test(w) === false)
     .filter((w) => w.length >= 2 && !stop.has(w));
-  return [...new Set(words)];
+  const extra = [...COMPOUND_WORDS, ...HIRAGANA_WORDS, ...SHORT_WORDS].filter((w) => question.includes(w));
+  // 「持ち物」があれば、その切れ端の「持ち」は探さない
+  return [...new Set([...words.filter((w) => !COMPOUND_WORDS.some((c) => question.includes(c) && c !== w && c.includes(w))), ...extra])];
+}
+
+/** タイトル・学校名や会社名・宛名・あいさつ・見出しだけの行（引用にしても中身が無い） */
+function isEmptyLine(line: string, title: string): boolean {
+  if (line === title || title.includes(line)) return true;
+  if (/(様|各位|殿|御中)$/.test(line)) return true;
+  if (/^(記|以上|拝啓|敬具)$/.test(line)) return true;
+  if (/^第\d+条（[^）]*）$/.test(line)) return true;
+  // 短くて、文になっていない行（「くろうど第一小学校」「こもれび損害保険（架空）」など）
+  if (line.length <= 20 && !/[、。，：:はをがにで\d]/.test(line.replace(/[（(][^）)]*[）)]/g, ""))) return true;
+  // 届け出の手続きのきまり文句（どの書類にもあり、聞かれたことの答えにならない）
+  if (/変わった(とき|場合)|変更(の)?届/.test(line)) return true;
+  return false;
 }
 
 /**
  * 仮の答え: 質問の言葉を、確定した書類の項目・予定・原本の文字からコードで探して、当たった所を並べる（Claude は使っていない）。
  * 文章の答えは作らない。見つからなければ「書いていません」。
+ * - タイトル・学校名などの名前・宛名・見出しだけの行は引用にしない
+ * - 見るのは関係しそうな書類の上位3つまで（いちばんの書類の半分以上当たっているもの）。質問に名前が出た人の書類を先に見る。名前の出た子とは別の子だけの書類は外す
+ * - 1つの書類から出すのは2件まで（書類が1つしか当たらないときは4件まで）。関係しそうな書類から順に1件ずつ取り、
+ *   2件目からは、すでに出した所と違う言葉に当たっている所を選ぶ
+ * - 抜き書きが短すぎる（「冬休み」だけなど）ときは、原本のそれを含む行を見せる
  */
 export function provisionalAsk(household: Household, question: string): AskResult {
   const docs = documentsForAsk(household);
   const words = keywordsOf(question);
-  // 質問に家族の名前（下の名前）があれば、その人の書類を先に見る
-  const named = household.members.filter((m) => {
-    const first = m.name.split(/\s+/).pop() ?? "";
-    return first.length >= 2 && question.includes(first);
-  });
-  const count = (text: string) => words.filter((w) => text.includes(w)).length;
-  // 書類ごとの当たり: 当たった言葉の種類の数（＋名前の人の書類）。多い書類から並べる
-  const scored = docs
-    .map((doc) => {
-      const all = `${doc.title} ${doc.docType ?? ""} ${doc.fields.map((f) => `${f.label} ${f.value}`).join(" ")} ${doc.deadlines.map((d) => d.label).join(" ")} ${doc.originalText ?? ""}`;
-      const kinds = words.filter((w) => all.includes(w)).length;
-      const mine = named.length > 0 && doc.memberIds.some((id) => named.some((m) => m.id === id)) ? 2 : 0;
-      return { doc, score: kinds + mine, kinds };
-    })
-    .filter((x) => x.kinds > 0)
-    .sort((a, b) => b.score - a.score);
-  const citations: { c: Citation; score: number; order: number }[] = [];
-  let order = 0;
-  for (const { doc, score } of scored) {
-    for (const f of doc.fields) {
-      const n = count(`${f.label} ${f.value}`);
-      if (n) citations.push({ c: { documentId: doc.id, documentTitle: doc.title, location: f.source?.location ?? f.label, quote: f.source?.quote || `${f.label}: ${f.value}` }, score: score * 10 + n + 1, order: order++ });
-    }
-    for (const d of doc.deadlines) {
-      const n = count(d.label);
-      if (n) citations.push({ c: { documentId: doc.id, documentTitle: doc.title, location: d.source?.location ?? "", quote: d.source?.quote || d.label }, score: score * 10 + n + 1, order: order++ });
-    }
-    if (doc.originalText) {
-      for (const line of doc.originalText.split("\n")) {
-        const t = line.trim();
-        const n = t ? count(t) : 0;
-        if (n && !citations.some((x) => x.c.documentId === doc.id && (x.c.quote === t || t.includes(x.c.quote)))) {
-          citations.push({ c: { documentId: doc.id, documentTitle: doc.title, location: "原本の文字", quote: t.length > 80 ? `${t.slice(0, 80)}…` : t }, score: score * 10 + n, order: order++ });
-        }
-      }
+  // 書類のどこにも無い言葉（「条件」など）は、言い換えの言葉（「対象」「範囲」）を同じ重さで探す
+  const allText = docs.map((d) => `${d.title} ${d.fields.map((f) => `${f.label} ${f.value}`).join(" ")} ${d.originalText ?? ""}`).join(" ");
+  const related = new Map<string, number>();
+  for (const w of words) {
+    for (const r of RELATED_WORDS[w] ?? []) {
+      if (!words.includes(r)) related.set(r, Math.max(related.get(r) ?? 0, allText.includes(w) && !STRONG_RELATED.has(r) ? 1 : 2));
     }
   }
-  const picked = citations
-    .sort((a, b) => b.score - a.score || a.order - b.order)
-    .slice(0, 6)
-    .sort((a, b) => a.order - b.order)
-    .map((x) => x.c);
-  const citedDocs = [...new Set(picked.map((c) => docs.find((d) => d.id === c.documentId)!))];
+  const terms = [...words.map((w) => ({ w, weight: 2 })), ...[...related].map(([w, weight]) => ({ w, weight }))];
+  const asksWhen = /いつ|何日|期限|締切|まで/.test(question);
+  const named = household.members.filter((m) => {
+    const first = m.name.split(/\s+/).pop() ?? "";
+    return first.length >= 1 && question.includes(first);
+  });
+  const namedIds = new Set(named.map((m) => m.id));
+  const otherChildOnly = (doc: DocumentRecord) =>
+    named.length > 0 &&
+    doc.memberIds.length > 0 &&
+    doc.memberIds.every((id) => !namedIds.has(id) && household.members.find((m) => m.id === id)?.relation === "child");
+
+  const scored = docs
+    .filter((doc) => !otherChildOnly(doc))
+    .map((doc) => {
+      const all = `${doc.title} ${doc.docType ?? ""} ${doc.fields.map((f) => `${f.label} ${f.value}`).join(" ")} ${doc.deadlines.map((d) => d.label).join(" ")} ${doc.originalText ?? ""}`;
+      const hit = terms.filter((t) => all.includes(t.w));
+      const mine = doc.memberIds.some((id) => namedIds.has(id)) ? 6 : 0;
+      return { doc, score: hit.reduce((n, t) => n + t.weight, 0) + mine, hits: hit.length };
+    })
+    .filter((x) => x.hits > 0)
+    .sort((a, b) => b.score - a.score);
+  const top = scored.length ? scored[0].score : 0;
+  const near = scored.filter((x) => x.score * 2 >= top).slice(0, 3);
+
+  type Cand = { c: Citation; hit: { w: string; weight: number }[]; extra: number; order: number };
+  const scoreOf = (x: Cand, covered: Set<string>) => x.hit.filter((t) => !covered.has(t.w)).reduce((n, t) => n + t.weight, 0) + x.extra;
+  const jpDate = (ymd: string) => {
+    const m = ymd.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m ? `${m[1]}年${Number(m[2])}月${Number(m[3])}日` : ymd;
+  };
+  const perDoc: Cand[][] = [];
+  let order = 0;
+  for (const { doc } of near) {
+    const cands: Cand[] = [];
+    // タイトル・書類の種類にも出てくる言葉（「家族傷害保険の…」の「傷害」など）は、行の中では半分に数える
+    const head = `${doc.title} ${doc.docType ?? ""}`;
+    const lines = (doc.originalText ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+    const push = (location: string, quote: string, text: string, extra: number) => {
+      if (!quote) return;
+      if (quote.length < 10) {
+        const longer = lines.find((l) => l.includes(quote) && l.length > quote.length && l.length <= 80);
+        if (longer) quote = longer;
+      }
+      if (isEmptyLine(quote, doc.title)) return;
+      const hit = terms
+        .filter((t) => text.includes(t.w) || quote.includes(t.w))
+        .map((t) => (head.includes(t.w) ? { w: t.w, weight: t.weight / 2 } : t));
+      if (hit.reduce((n, t) => n + t.weight, 0) < 1) return;
+      // 原本の文字の行は、タイトルにも出てくる言葉だけの一致なら引用にしない（見出し・学校名・園名の行が並ばないように）
+      if (location === "原本の文字" && hit.every((t) => head.includes(t.w))) return;
+      if (cands.some((x) => x.c.quote === quote || x.c.quote.includes(quote) || quote.includes(x.c.quote))) return;
+      cands.push({ c: { documentId: doc.id, documentTitle: doc.title, location, quote }, hit, extra, order: order++ });
+    };
+    // 項目・予定は、当たったときに原本の文字の行より少し先に（問い合わせ先は別に並べるので、ここには入れない）
+    for (const f of doc.fields) push(f.source?.location ?? f.label, f.source?.quote || `${f.label}: ${f.value}`, `${f.label} ${f.value}`, 1);
+    for (const d of doc.deadlines) {
+      const when = `${d.label}: ${jpDate(d.date)}${d.endDate ? `〜${jpDate(d.endDate)}` : ""}`;
+      push(d.source?.location || d.label, d.source?.quote && d.source.quote.length >= 10 ? d.source.quote : when, d.label, asksWhen ? 3 : 1);
+    }
+    for (const t of lines) push("原本の文字", t.length > 80 ? `${t.slice(0, 80)}…` : t, t, 0);
+    // この書類そのものの期間（「火災保険はいつまで？」のように、書類の名前で聞かれたとき）
+    if (asksWhen && doc.periodLabel && terms.some((t) => doc.title.includes(t.w))) {
+      cands.push({ c: { documentId: doc.id, documentTitle: doc.title, location: "期間", quote: doc.periodLabel }, hit: [], extra: 5, order: order++ });
+    }
+    if (cands.length) perDoc.push(cands);
+  }
+
+  const cap = perDoc.length === 1 ? 4 : 2;
+  const picked: Cand[] = [];
+  for (let round = 0; round < cap && picked.length < 6; round++) {
+    for (const cands of perDoc) {
+      if (picked.length >= 6) break;
+      const mine = picked.filter((p) => cands.includes(p));
+      if (mine.length < round) continue;
+      const covered = new Set(mine.flatMap((p) => p.hit.map((t) => t.w)));
+      const rest = cands.filter((x) => !picked.includes(x)).sort((a, b) => scoreOf(b, covered) - scoreOf(a, covered) || a.order - b.order);
+      const best = rest[0];
+      // 2件目からは、まだ出していない言葉に十分当たっている所だけ（弱い一致で枠を埋めない）
+      if (best && (round === 0 || scoreOf(best, covered) >= (perDoc.length === 1 ? 1 : 2))) picked.push(best);
+    }
+  }
+  const citations = picked.sort((a, b) => a.order - b.order).map((x) => x.c);
+  const citedDocs = [...new Set(citations.map((c) => docs.find((d) => d.id === c.documentId)!))];
   return {
     source: "provisional",
     question,
-    found: picked.length > 0,
-    answer: picked.length > 0 ? `「${words.join("」「")}」が書いてある所を、書類から探しました（仮）。` : "",
-    citations: picked,
+    found: citations.length > 0,
+    answer: citations.length > 0 ? `「${words.join("」「")}」に関係しそうな所を、書類から探しました（仮）。` : "",
+    citations,
     contacts: contactsOf(citedDocs.length ? citedDocs : []),
     dropped: 0,
     createdAt: new Date().toISOString(),
