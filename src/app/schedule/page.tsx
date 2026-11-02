@@ -4,6 +4,7 @@
 // 念のための欄・報告・気づいたこと。ここには大事なものだけを出し、すべての予定は /schedule/all にいつでも全部ある。
 
 import Link from "next/link";
+import { now } from "@/lib/clock";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
@@ -45,7 +46,7 @@ export default function Schedule() {
   // 済むまで追いかける: 念押しの段に入った日を覚える（その日だけ、ひとことの上に出す）
   useEffect(() => {
     if (!household) return;
-    const marked = markFollowUps(household, buildCandidates(household, new Date()), new Date());
+    const marked = markFollowUps(household, buildCandidates(household, now()), now());
     if (marked !== household) save(marked);
   }, [household, save]);
 
@@ -55,7 +56,7 @@ export default function Schedule() {
 
   if (!loaded || !household) return <main />;
 
-  const today = new Date();
+  const today = now();
   const h = household as Household;
   const candidates = buildCandidates(h, today);
   // Claude が選んだひとこと。Claude の準備中・つながらないときは、コードで期日の近い順に並べた仮のもの

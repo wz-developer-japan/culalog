@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "CULALOG（クラログ）",
   description: "家族の書類から、いつ・何を・どこで、を先回りして知らせる暮らしのログ",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "クラログ" },
+  icons: { apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {

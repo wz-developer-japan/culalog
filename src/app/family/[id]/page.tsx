@@ -5,6 +5,7 @@
 // 二人に関係する書類は両方の人に出す。この家の書類ではないもの（記入例・見本）は誰の欄にも出さない。
 
 import Link from "next/link";
+import { now } from "@/lib/clock";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BackToTop } from "@/components/BackToTop";
@@ -50,7 +51,7 @@ export default function FamilyPage() {
       </main>
     );
   }
-  const today = new Date();
+  const today = now();
   const mark = member ? memberMark(h.members, member.id) : undefined;
 
   // 書類（前のもの・この家の書類ではないものは、その人のページには出さない）

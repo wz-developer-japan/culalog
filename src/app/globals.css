@@ -1555,3 +1555,34 @@ h2.sec .more {
     scroll-behavior: auto !important;
   }
 }
+
+/* 日付を進める（デモ） */
+.timeshift {
+  margin-top: 22px;
+  background: var(--soft);
+  border-radius: 20px;
+  padding: 12px 14px;
+}
+.timeshift .k {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.timeshift .row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.timeshift .chip {
+  background: var(--surface);
+  min-height: 36px;
+}
+.timeshift .meta {
+  font-size: 0.78rem;
+}
+.timeshift .chip.selected {
+  background: var(--accent);
+  color: var(--accent-text);
+}

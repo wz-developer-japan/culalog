@@ -5,6 +5,7 @@
 // 答えは「覚えたこと」として残り、同じ種類の書類では二度聞かない（ほかの書類の同じ質問にも、その場で当てはめる）。
 
 import Link from "next/link";
+import { now as clockNow } from "@/lib/clock";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ export default function Questions() {
   }, [loaded, household, router]);
 
   if (!loaded || !household) return <main />;
-  const today = new Date();
+  const today = clockNow();
   const name = butlerName(household);
   const all = openQuestions(household);
   const now = openQuestions(household, today);

@@ -3,6 +3,7 @@
 // 執事のキャラと名前を選ぶ。変わるのは口調だけで、知らせる中身はどのキャラでも同じ。
 
 import Link from "next/link";
+import { now } from "@/lib/clock";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -67,7 +68,7 @@ export default function ButlerSettingsPage() {
           <span>
             <span className="character-name">{c.defaultName}</span>
             <span className="block meta">{c.style}</span>
-            <span className="block">「{c.greeting(timeOfDay(new Date()), addressee(household))}」</span>
+            <span className="block">「{c.greeting(timeOfDay(now()), addressee(household))}」</span>
           </span>
         </button>
       ))}

@@ -6,6 +6,7 @@
 // 使いすぎ対策の上限（429）に当たったら、言われた時刻まで待ってから続きを読む。
 
 import { useEffect, useRef, useState } from "react";
+import { now } from "./clock";
 import { toYmd } from "./deadlines";
 import type { Extraction } from "./extraction";
 import { base64Of, MAX_SEND_BYTES, textOfDataUrl } from "./files";
@@ -55,7 +56,7 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
           ...(pages.length
             ? { pages: [dataUrl, ...pages].map((d) => ({ mediaType: item.mediaType, data: base64Of(d) })) }
             : { mediaType: item.mediaType, data: base64Of(dataUrl) }),
-          today: toYmd(new Date()),
+          today: toYmd(now()),
           family: household.members.map((m) => ({ id: m.id, name: m.name, relation: RELATION_LABELS[m.relation], note: m.note ?? "" })),
         });
         if (body.length > MAX_SEND_BYTES) {

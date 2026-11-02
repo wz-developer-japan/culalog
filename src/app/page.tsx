@@ -6,6 +6,7 @@
 // 日付の計算はコード（lib/butler・lib/deadlines）。ここは見せ方と入口だけ。
 
 import Link from "next/link";
+import { now, useTodayOffset } from "@/lib/clock";
 import { useEffect } from "react";
 import { FamilyRow } from "@/components/FamilyRow";
 import { ButlerPic, MenuPic, type MenuKind } from "@/components/Pics";
@@ -27,6 +28,7 @@ const countOf = (n: number) => (n < 10 ? `${n}つ` : `${n}件`);
 
 export default function Top() {
   const { household, loaded, save, update } = useHousehold();
+  const [offset, setOffset] = useTodayOffset();
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
   useConnect(household, update);
   // 頼んで、あとで報告: 答えの無い頼みごとがあれば、この画面を開いているあいだに調べて保存する
@@ -37,7 +39,7 @@ export default function Top() {
   // 済むまで追いかける: 念押しの段に入った日を覚える（その日だけ、ひとことの上に出す）
   useEffect(() => {
     if (!household) return;
-    const marked = markFollowUps(household, buildCandidates(household, new Date()), new Date());
+    const marked = markFollowUps(household, buildCandidates(household, now()), now());
     if (marked !== household) save(marked);
   }, [household, save]);
 
@@ -82,7 +84,7 @@ export default function Top() {
     );
   }
 
-  const today = new Date();
+  const today = now();
   const h = household as Household;
   const candidates = buildCandidates(h, today);
   // いちばん近い締切（期限切れがあればそれ）を、小さなオレンジのカードに
@@ -118,6 +120,7 @@ export default function Top() {
           <h1>{character.greeting(timeOfDay(today), addressee(h))}</h1>
           <div className="d">
             {today.getMonth() + 1}月{today.getDate()}日（{WEEKDAYS[today.getDay()]}）{h.isDemo && "・架空の家族で試しています"}
+            {offset !== 0 && <span className="tag acc" style={{ marginLeft: 6 }}>{offset > 0 ? `${offset}日先の日として見ています` : `${-offset}日前の日として見ています`}</span>}
             {todayClasses.map((t) => (
               <span key={t.memberId} className="block">
                 {nameOf(t.memberId)}: {t.periods}限まで・下校はだいたい {t.dismissal}
@@ -201,6 +204,20 @@ export default function Top() {
           </Link>
         ))}
       </nav>
+
+      {h.isDemo && (
+        <div className="timeshift">
+          <span className="k">日付を進めて、締切が近づく・過ぎる様子を見る</span>
+          <div className="row">
+            {[0, 1, 3, 7, 14, 30].map((d) => (
+              <button key={d} className={`chip${offset === d ? " selected" : ""}`} onClick={() => setOffset(d)} aria-pressed={offset === d}>
+                {d === 0 ? "今日" : `+${d}日`}
+              </button>
+            ))}
+          </div>
+          <span className="meta">架空の家族のときだけ。日付の計算は同じコードで、進めた日を「今日」とみなします。</span>
+        </div>
+      )}
 
       <div className="foot-links">
         <Link href="/scan">渡し方を選ぶ</Link>

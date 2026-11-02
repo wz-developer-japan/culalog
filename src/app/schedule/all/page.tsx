@@ -3,6 +3,7 @@
 // すべての予定・やること。予定の画面には大事なものだけを出すので、ここにはいつでも全部ある。
 
 import Link from "next/link";
+import { now } from "@/lib/clock";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -25,7 +26,7 @@ export default function Schedule() {
 
   if (!loaded || !household) return <main />;
   const h = household as Household;
-  const today = new Date();
+  const today = now();
   const done = h.done ?? {};
   const items = allItems(h, today);
   const { missing } = buildHome(h, today);

@@ -7,6 +7,7 @@
 // 書類に書いていないことは「書いていません」と色の違うカードで出し、問い合わせ先だけを添える。
 
 import { maskNumbers } from "./connect";
+import { now } from "./clock";
 import { parseDate, toYmd } from "./deadlines";
 import { findQuote } from "./highlight";
 import { maskKnownNumbers, type NumberAnswer } from "./numbers";
@@ -448,7 +449,7 @@ export function askRecords(household: Household): AskRecord[] {
  * 答えの出どころ（Claude か仮か）と、仮になった理由は result に残す。
  */
 export async function runAsk(household: Household, question: string, style: string, signal?: AbortSignal): Promise<AskResult> {
-  const input = buildAskInput(household, question, toYmd(new Date()), style);
+  const input = buildAskInput(household, question, toYmd(now()), style);
   const provisional = (reason?: string) => {
     const r = provisionalAsk(household, question);
     return reason ? { ...r, withheld: undefined, fallbackReason: reason } : r;

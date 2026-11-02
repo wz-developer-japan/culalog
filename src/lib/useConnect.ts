@@ -4,6 +4,7 @@
 // 結果は端末に保存する。Claude の準備中・つながらないときは、その場で仮のものを作る（保存しない）。
 
 import { useEffect, useRef, useState } from "react";
+import { now } from "./clock";
 import { buildCandidates } from "./butler";
 import { characterOf } from "./character";
 import { basisOf, buildConnectInput, type ConnectResult, provisionalConnect, verifyConnect } from "./connect";
@@ -18,9 +19,9 @@ export function useConnect(
 ) {
   const [status, setStatus] = useState<ConnectStatus>("thinking");
   const asked = useRef("");
-  const ymd = toYmd(new Date());
+  const ymd = toYmd(now());
 
-  const input = household ? buildConnectInput(household, buildCandidates(household, new Date()), ymd, characterOf(household).style) : null;
+  const input = household ? buildConnectInput(household, buildCandidates(household, now()), ymd, characterOf(household).style) : null;
   const basis = input ? basisOf(input) : "";
   const stored = household?.connect;
   const fresh = Boolean(stored && stored.source === "claude" && stored.basis === basis && stored.createdOn === ymd);
@@ -50,7 +51,7 @@ export function useConnect(
         let ok = false;
         await update((current) => {
           // 返ってくるまでのあいだに変わっていても、そのときの家で確かめる
-          const verified = verifyConnect(body.result, current, buildCandidates(current, new Date()), {
+          const verified = verifyConnect(body.result, current, buildCandidates(current, now()), {
             source: "claude",
             createdOn: ymd,
             basis,
@@ -73,7 +74,7 @@ export function useConnect(
     return { result: stored, status: fresh ? ("claude" as const) : status };
   }
   // 仮: コードで比べた違いと、デモ用に用意した例（Claude は使っていない）
-  const result = verifyConnect(provisionalConnect(household), household, buildCandidates(household, new Date()), {
+  const result = verifyConnect(provisionalConnect(household), household, buildCandidates(household, now()), {
     source: "provisional",
     createdOn: ymd,
     basis,
