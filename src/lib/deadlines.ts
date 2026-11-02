@@ -116,6 +116,19 @@ function supersededDeadlineIds(household: Household): Set<string> {
   return ids;
 }
 
+/**
+ * 読んだ直後の4行の「いつまで？」。日付はコードで予定から出す（Claude の文には任せない）。
+ * 締切（提出・申し出・満了など）があればいちばん早いもの、無ければいちばん早い予定。
+ */
+export function untilOf(document: DocumentRecord): { text: string; location?: string } | undefined {
+  const list = document.deadlines.filter((d) => d.kind !== "after_event");
+  const pick = (xs: Deadline[]) => [...xs].sort((a, b) => a.date.localeCompare(b.date))[0];
+  const d = pick(list.filter((x) => x.kind !== "event")) ?? pick(list);
+  if (!d) return undefined;
+  const when = d.endDate ? `${formatYmd(d.date)}〜${formatYmd(d.endDate)}` : formatYmd(d.date);
+  return { text: `${when} ${d.label}${d.repeatMonths ? `（${d.repeatMonths}か月ごと）` : ""}`, location: d.source?.location };
+}
+
 export interface ActionItem {
   deadline: Deadline;
   document: DocumentRecord;

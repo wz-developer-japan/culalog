@@ -224,6 +224,14 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         origin: "demo",
         storageLocation: "書類棚 2段目の青いファイル",
         originalText: fireInsuranceText(t),
+        summary: {
+          what: "住まいの火災保険（家財）の保険証券です。保険期間は2年。",
+          todo: "満期日の約1か月前に届く更新の案内を見て、更新の手続きをするか決める。",
+          ifIgnored: {
+            text: "更新の手続きをしないと、満期日で契約が終わる",
+            source: { location: "満期について", quote: "更新の手続きをされない場合、満期日をもって契約は終了します。" },
+          },
+        },
         fields: [
           { key: "f-premium", label: "保険料", value: "2年分 一括 20,000円", source: { location: "保険料" }, status: "confirmed" },
           {

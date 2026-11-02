@@ -192,6 +192,11 @@ export function fireInsuranceText(t: DemoDates): string {
 export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
   return {
     title: "運動会のご案内",
+    summary: {
+      what: "くろうど第一小学校の運動会の、時間・場所・持ち物の案内です。",
+      todo: "持ち物（体操服・赤白帽子・水筒・タオル）を用意する。雨のときは当日 6:30 の連絡を見る。",
+      ifIgnored: { text: "", location: "", quote: "" },
+    },
     docType: "学校行事の案内",
     category: "school",
     who: {
@@ -291,6 +296,11 @@ export function dentalCheckupProvisionalDraft(today: Date): Extraction {
   const day = dentalCheckupDate(today);
   return {
     title: "2歳児歯科健康診査のご案内",
+    summary: {
+      what: "くろうど市の、2歳児の歯科健診の案内です。",
+      todo: "問診票に記入し、母子健康手帳・歯ブラシと一緒に当日持っていく。都合が悪ければ事前に健康づくり課へ連絡する。",
+      ifIgnored: { text: "", location: "", quote: "" },
+    },
     docType: "歯科健診のお知らせ",
     category: "medical",
     who: {

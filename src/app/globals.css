@@ -335,3 +335,19 @@ button.chip {
   padding: 1px 8px;
   margin-bottom: 4px;
 }
+
+.four-lines dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0;
+}
+
+.four-lines dt {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.four-lines dd {
+  margin: 0;
+}

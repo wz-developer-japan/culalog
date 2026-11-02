@@ -72,8 +72,17 @@ export interface ExtractedQuestion {
   multiple: boolean;
 }
 
+/** 読んだ直後の4行のうち3行（いつまで？ は予定からコードで出す） */
+export interface ExtractedSummary {
+  what: string;
+  todo: string;
+  /** 放置すると？ 原本に書いてあるときだけ。無ければ text・location・quote をすべて空に */
+  ifIgnored: { text: string; location: string; quote: string };
+}
+
 export interface Extraction {
   title: string;
+  summary: ExtractedSummary;
   /** 書類の種類の名前（自由。例: 「歯科健診のお知らせ」） */
   docType: string;
   category: DocumentCategory;
@@ -120,9 +129,24 @@ const strList = { type: "array", items: str } as const;
 export const EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear"],
+  required: ["title", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear"],
   properties: {
     title: str,
+    summary: {
+      type: "object",
+      additionalProperties: false,
+      required: ["what", "todo", "ifIgnored"],
+      properties: {
+        what: str,
+        todo: str,
+        ifIgnored: {
+          type: "object",
+          additionalProperties: false,
+          required: ["text", "location", "quote"],
+          properties: { text: str, location: str, quote: str },
+        },
+      },
+    },
     docType: str,
     category: { type: "string", enum: CATEGORY_VALUES },
     who: {
@@ -208,8 +232,19 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
   const whoIds = list(who.memberIds).filter((id) => memberIds.includes(id));
   const period = (v.period ?? {}) as Record<string, unknown>;
   const ymdOrEmpty = (x: unknown) => (YMD.test(s(x)) ? s(x) : "");
+  const summary = (v.summary ?? {}) as Record<string, unknown>;
+  const ignored = (summary.ifIgnored ?? {}) as Record<string, unknown>;
+  // 放置すると？ は、原本の場所と原文がそろっているときだけ残す（推測で埋めさせない）
+  const hasIgnored = Boolean(s(ignored.text) && s(ignored.location) && s(ignored.quote));
   return {
     title: v.title.trim(),
+    summary: {
+      what: s(summary.what),
+      todo: s(summary.todo),
+      ifIgnored: hasIgnored
+        ? { text: s(ignored.text), location: s(ignored.location), quote: s(ignored.quote) }
+        : { text: "", location: "", quote: "" },
+    },
     docType: s(v.docType),
     category,
     who: { memberIds: whoIds, sure: who.sure === true && whoIds.length > 0, reason: s(who.reason) },
@@ -294,6 +329,10 @@ export function extractionToDocument(
 ): { document: DocumentRecord; questions: ButlerQuestion[] } {
   const self = options.members.find((m) => m.relation === "self")?.id;
   const memberIds = extraction.who.memberIds.length ? extraction.who.memberIds : self ? [self] : [];
+  const { what, todo, ifIgnored } = extraction.summary;
+  // 文字起こしがあるときは、放置すると？ の原文が本当に原本にあるかをコードで確かめる
+  const squash = (x: string) => x.replace(/\s/g, "");
+  const quoteOk = !options.originalText || squash(options.originalText).includes(squash(ifIgnored.quote));
   const document: DocumentRecord = {
     id: options.id,
     title: extraction.title || "読み取った書類",
@@ -309,6 +348,17 @@ export function extractionToDocument(
     originalText: options.originalText,
     originalFile: options.originalFile,
     unclear: extraction.unclear.length ? extraction.unclear : undefined,
+    summary:
+      what || todo || ifIgnored.text
+        ? {
+            what,
+            todo,
+            ifIgnored:
+              ifIgnored.text && quoteOk
+                ? { text: ifIgnored.text, source: { location: ifIgnored.location, quote: ifIgnored.quote } }
+                : undefined,
+          }
+        : undefined,
     fields: extraction.fields.map((f) => ({
       key: options.newId("f"),
       label: f.label,

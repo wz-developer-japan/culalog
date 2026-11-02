@@ -9,7 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { answerQuestion, confirmDocument, openQuestions } from "@/lib/butler";
-import { formatYmd, ruleDeadlines } from "@/lib/deadlines";
+import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { DocumentRecord } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
@@ -45,6 +45,7 @@ export default function DocumentDetail() {
   const rules = household.rules ?? [];
   const questions = openQuestions(household).filter((q) => q.documentId === doc.id);
   const expected = household.expected.find((e) => e.id === doc.expectedId);
+  const until = untilOf(doc);
 
   /** 予定に「わが家のきまり」を当てはめる／外す（締切は毎回きまりから計算する） */
   async function toggleRule(deadlineId: string, ruleId: string) {
@@ -86,6 +87,35 @@ export default function DocumentDetail() {
         {doc.memberIds.length > 0 && `・${doc.memberIds.map(nameOf).join("、")}`}
         {confirmed ? "・確定済み" : "・確認待ち"}
       </p>
+
+      {(doc.summary || until) && (
+        <div className="card four-lines">
+          <dl>
+            <dt>これは何？</dt>
+            <dd>{doc.summary?.what || <span className="meta">—</span>}</dd>
+            <dt>いつまで？</dt>
+            <dd>
+              {until ? until.text : <span className="meta">日付の書いてある予定はありません</span>}
+              {until?.location && <span className="meta">（原本: {until.location}）</span>}
+            </dd>
+            <dt>何をする？</dt>
+            <dd>{doc.summary?.todo || <span className="meta">—</span>}</dd>
+            <dt>放置すると？</dt>
+            <dd>
+              {doc.summary?.ifIgnored ? (
+                <>
+                  {doc.summary.ifIgnored.text}
+                  <span className="meta block">
+                    原本: {doc.summary.ifIgnored.source.location}「{doc.summary.ifIgnored.source.quote}」
+                  </span>
+                </>
+              ) : (
+                <span className="meta">原本には書いてありません</span>
+              )}
+            </dd>
+          </dl>
+        </div>
+      )}
 
       {!confirmed && (
         <div className="card warn">

@@ -199,8 +199,22 @@ export interface DocumentRecord {
   contacts: Contact[];
   deadlines: Deadline[];
   createdAt: string;
+  /**
+   * 読んだ直後の4行のうち、Claude が書く3行（いつまで？ は予定からコードで出す）。
+   * ifIgnored（放置すると？）は、原本に書いてあるときだけ。場所と原文つき。書いていなければ無い
+   */
+  summary?: DocumentSummary;
   /** 本人が原本と見比べて確定した日時。未確定の書類はホームの計算に使わない */
   confirmedAt?: string;
+}
+
+export interface DocumentSummary {
+  /** これは何？（1文） */
+  what: string;
+  /** 何をする？（1文。書類が求めていること。判断・助言ではない） */
+  todo: string;
+  /** 放置すると？（原本に書いてある通りに） */
+  ifIgnored?: { text: string; source: SourceRef };
 }
 
 /** 曜日ごとの授業（③今日の時間割） 0=日 … 6=土 */
