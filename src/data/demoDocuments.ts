@@ -2,7 +2,8 @@
 // 学校・会社・人物・電話番号はすべて架空で、このリポジトリのために新しく作ったもの。
 // 日付はデモを始めた日から計算して差し込むので、いつ開いても話の流れが変わらない。
 
-import { addDays } from "@/lib/deadlines";
+import { addDays, toYmd } from "@/lib/deadlines";
+import type { Extraction } from "@/lib/extraction";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -176,4 +177,47 @@ export function fireInsuranceText(t: DemoDates): string {
 
 事故のご連絡　そよかぜ少額短期保険 事故受付　000-0000-0003（24時間）
 契約内容のお問い合わせ　000-0000-0004（平日 9:00〜17:00）`;
+}
+
+/**
+ * 運動会の案内プリントの「仮の読み取り結果」。
+ * 読み取り機能（Claude API）の準備中に、確定までの流れを試すためだけに使う。
+ * Claude の読み取りではないことを画面にも必ず出す。
+ */
+export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
+  return {
+    title: "運動会のご案内",
+    category: "school",
+    fields: [
+      { label: "時間", value: "8:40 開会式、12:00 閉会予定", location: "1. 日時", quote: "8:40 開会式　12:00 閉会予定" },
+      {
+        label: "雨天のとき",
+        value: `${jpShortDate(t.sportsDayReserve)} に順延。実施の有無は当日 6:30 に学校のお知らせアプリで連絡`,
+        location: "2. 雨天の場合",
+        quote: "実施の有無は当日 6:30 に学校のお知らせアプリで連絡します",
+      },
+      { label: "場所", value: "本校 校庭", location: "3. 場所", quote: "本校 校庭" },
+      { label: "持ち物", value: "体操服、赤白帽子、水筒、タオル", location: "4. 持ち物", quote: "体操服、赤白帽子、水筒、タオル" },
+      {
+        label: "観覧",
+        value: "観覧席は校庭の東側。場所取りは 7:30 の開門後。車での来校は控える",
+        location: "5. 保護者の観覧について",
+        quote: "場所取りは 7:30 の開門後にお願いします",
+      },
+    ],
+    deadlines: [
+      {
+        kind: "event",
+        label: "運動会",
+        date: toYmd(t.sportsDay),
+        endDate: "",
+        location: "1. 日時",
+        quote: jpDate(t.sportsDay),
+      },
+    ],
+    contacts: [
+      { label: "問い合わせ先", name: "くろうど第一小学校 職員室", phone: "000-0000-0000", hours: "", location: "末尾" },
+    ],
+    unclear: [],
+  };
 }

@@ -64,8 +64,12 @@ export function buildHome(household: Household, today: Date): HomeSections {
   }
   soon.sort((a, b) => a.daysLeft - b.daysLeft);
 
+  // 届いた書類を登録して「確定」したら、来ていないものから外す
+  const received = new Set(
+    household.documents.filter((d) => d.confirmedAt && d.expectedId).map((d) => d.expectedId),
+  );
   const missing = household.expected.filter(
-    (e) => !e.receivedDocumentId && startOfDay(today) >= parseDate(e.expectedBy),
+    (e) => !e.receivedDocumentId && !received.has(e.id) && startOfDay(today) >= parseDate(e.expectedBy),
   );
 
   return { soon, missing };

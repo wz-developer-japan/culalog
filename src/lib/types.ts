@@ -80,7 +80,12 @@ export interface ExpectedDocument {
   relatedDeadlineId?: string;
   hint?: string;
   /** デモ用: まだ届いていない書類の架空の見本（読み取りを試すため） */
-  sample?: { title: string; text: string };
+  sample?: {
+    title: string;
+    text: string;
+    /** 読み取り機能の準備中に使う、この見本の仮の読み取り結果（Claude は使っていない） */
+    provisionalDraft?: import("./extraction").Extraction;
+  };
 }
 
 export type DocumentCategory =
@@ -108,6 +113,18 @@ export interface DocumentRecord {
   storageLocation?: string;
   /** 原本の文字起こし（デモの架空書類や、読み取った書類の本文） */
   originalText?: string;
+  /** 読み取りに使った写真・PDF（端末の中にだけ置く。見比べるときに表示する） */
+  originalFile?: { mediaType: string; dataUrl: string };
+  /**
+   * 下書きの出どころ。
+   * - claude:      Claude が原本から読み取った
+   * - provisional: 読み取り機能の準備中に使う、決め打ちの仮の結果（Claude は使っていない）
+   */
+  draftSource?: "claude" | "provisional";
+  /** 読み取りで、読めなかった・はっきりしなかった箇所 */
+  unclear?: string[];
+  /** この書類が「来るはずの書類」のどれに当たるか。確定すると「来ていないもの」から消える */
+  expectedId?: string;
   fields: Field[];
   contacts: Contact[];
   deadlines: Deadline[];

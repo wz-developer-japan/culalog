@@ -63,6 +63,11 @@ export default function Home() {
           <div className="card warn" key={e.id}>
             {e.label}がまだ登録されていません
             {e.hint && <div className="meta">{e.hint}</div>}
+            {e.sample && (
+              <Link className="button secondary small" href={`/scan?expected=${e.id}`}>
+                届いた想定で、見本を読み取ってみる
+              </Link>
+            )}
           </div>
         ))
       )}
@@ -108,8 +113,11 @@ export default function Home() {
       )}
 
       <div className="spacer" />
-      <Link className="button" href="/add" style={{ textAlign: "center", textDecoration: "none" }}>
-        書類を登録する
+      <Link className="button" href="/scan" style={{ textAlign: "center", textDecoration: "none" }}>
+        写真・PDF から登録する
+      </Link>
+      <Link className="button secondary" href="/add" style={{ textAlign: "center", textDecoration: "none" }}>
+        手入力で登録する
       </Link>
       <button
         className="button secondary"

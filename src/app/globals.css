@@ -201,3 +201,21 @@ a {
   font-size: 0.9rem;
   margin: 12px 0 0;
 }
+
+.button.small {
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.preview img,
+.original-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 8px 0;
+}

@@ -73,6 +73,43 @@ export default function DocumentDetail() {
         </div>
       )}
 
+      {doc.draftSource === "provisional" && (
+        <div className="card warn">
+          この下書きは、読み取り機能の準備中に用意しておいた<strong>仮の結果</strong>です。Claude の読み取りではありません。
+        </div>
+      )}
+      {doc.draftSource === "claude" && !confirmed && (
+        <div className="card meta">
+          この下書きは Claude が原本から読み取ったものです。読み違いがあり得るので、必ず原本と見比べてください。
+        </div>
+      )}
+
+      {doc.unclear && doc.unclear.length > 0 && !confirmed && (
+        <>
+          <h2>読み取れなかったところ</h2>
+          <div className="card warn">
+            {doc.unclear.map((u, i) => (
+              <div key={i}>・{u}</div>
+            ))}
+            <div className="meta">原本で確かめ、必要なら手入力で足してください。</div>
+          </div>
+        </>
+      )}
+
+      {doc.originalFile && (
+        <details className="original" open={!confirmed}>
+          <summary>原本（読み取った{doc.originalFile.mediaType === "application/pdf" ? " PDF" : "写真"}）</summary>
+          {doc.originalFile.mediaType === "application/pdf" ? (
+            <a href={doc.originalFile.dataUrl} target="_blank" rel="noreferrer">
+              PDF を開く
+            </a>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="original-image" src={doc.originalFile.dataUrl} alt="読み取った書類の写真" />
+          )}
+        </details>
+      )}
+
       {doc.storageLocation && (
         <>
           <h2>しまい場所</h2>
@@ -138,7 +175,11 @@ export default function DocumentDetail() {
             <div className="card" key={i}>
               <div className="meta">{c.label}</div>
               {c.name}
-              {c.phone && <div>{c.phone}</div>}
+              {c.phone && (
+                <div>
+                  <a href={`tel:${c.phone.replace(/[^0-9+]/g, "")}`}>{c.phone}</a>
+                </div>
+              )}
               {c.hours && <div className="meta">{c.hours}</div>}
               {c.source && <div className="meta">原本: {c.source.location}</div>}
             </div>
@@ -146,7 +187,7 @@ export default function DocumentDetail() {
         </>
       )}
 
-      {doc.originalText && (
+      {doc.originalText && !doc.originalFile && (
         <details className="original">
           <summary>原本を見る{doc.origin === "demo" && "（架空の書類）"}</summary>
           <pre>{doc.originalText}</pre>

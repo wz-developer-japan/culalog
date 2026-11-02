@@ -11,6 +11,7 @@ import {
   guaranteeText,
   leaseText,
   schoolAnnualText,
+  sportsDayNoticeProvisionalDraft,
   sportsDayNoticeText,
 } from "./demoDocuments";
 
@@ -272,7 +273,11 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         expectedBy: ymd(today),
         relatedDeadlineId: "dl-sports-day",
         hint: "年間行事予定に「時間・持ち物は案内プリントで知らせる」とあります。ランドセルの中に入ったままかもしれません。",
-        sample: { title: "運動会のご案内（架空）", text: sportsDayNoticeText(t) },
+        sample: {
+          title: "運動会のご案内（架空）",
+          text: sportsDayNoticeText(t),
+          provisionalDraft: sportsDayNoticeProvisionalDraft(t),
+        },
       },
     ],
     timetable: [
