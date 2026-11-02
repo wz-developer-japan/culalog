@@ -7,7 +7,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { type AddResult, addFilesToInbox, addPagesToInbox, addSamplesToInbox, MAX_PAGES } from "@/lib/addToInbox";
+import { type AddResult, addFilesToInbox, addPagesToInbox, addSamplesToInbox, addTextToInbox, MAX_PAGES, MAX_TEXT } from "@/lib/addToInbox";
 import { renderSampleImage } from "@/lib/files";
 import { inboxProgress } from "@/lib/inbox";
 import { useHousehold } from "@/lib/useHousehold";
@@ -25,6 +25,8 @@ function ScanPage() {
   const [preview, setPreview] = useState<string | null>(null);
   // 次に渡す写真を、1つの書類のページとしてまとめるか
   const [asPages, setAsPages] = useState(false);
+  // メールの本文などを文字のまま渡す
+  const [mail, setMail] = useState({ body: "", from: "", subject: "", receivedAt: "" });
   const sample = household?.demoSamples?.find((x) => x.id === sampleId);
   const expected = household?.expected.find((e) => e.id === sample?.expectedId);
 
@@ -60,6 +62,15 @@ function ScanPage() {
     if (files.length === 0 || busy) return;
     setBusy(true);
     setResult(await (asPages ? addPagesToInbox(files, update) : addFilesToInbox(files, update)));
+    setBusy(false);
+  }
+
+  async function giveText() {
+    if (!mail.body.trim() || busy) return;
+    setBusy(true);
+    const r = await addTextToInbox(mail, update);
+    setResult(r);
+    if (r.added > 0) setMail({ body: "", from: "", subject: "", receivedAt: "" });
     setBusy(false);
   }
 
@@ -119,6 +130,44 @@ function ScanPage() {
           <span className="block meta">何ページもある契約書や、同じ封筒に入っていた郵便一式を、1つの書類として読みます。オフなら1枚ずつ別の書類です。</span>
         </span>
       </label>
+
+      <details className="card mail-paste">
+        <summary>
+          メールを貼り付けて渡す
+          <span className="block meta">更新のご案内・解約の受付・注文の確認など、メールで届いた書類は本文をコピーして貼り付けてください</span>
+        </summary>
+        <label className="label">
+          本文
+          <textarea
+            className="input"
+            rows={6}
+            maxLength={MAX_TEXT}
+            value={mail.body}
+            onChange={(e) => setMail({ ...mail, body: e.target.value })}
+            placeholder="メールの本文を貼り付け"
+          />
+        </label>
+        <div className="mail-meta">
+          <label className="label">
+            件名（あれば）
+            <input className="input" value={mail.subject} onChange={(e) => setMail({ ...mail, subject: e.target.value })} />
+          </label>
+          <label className="label">
+            差出人（あれば）
+            <input className="input" value={mail.from} onChange={(e) => setMail({ ...mail, from: e.target.value })} />
+          </label>
+          <label className="label">
+            受信日時（あれば）
+            <input className="input" value={mail.receivedAt} onChange={(e) => setMail({ ...mail, receivedAt: e.target.value })} placeholder="例: 2026年11月7日 9:12" />
+          </label>
+        </div>
+        <button className="button" disabled={busy || !mail.body.trim()} onClick={giveText}>
+          この文字を1件の書類として渡す
+        </button>
+        <p className="meta">
+          原本の場所は、本文の行や段落で示します。スクショや「PDF に保存」したメールは、上からそのまま渡せます。メールのアカウントにはつなぎません（貼り付けた分だけを読みます）。
+        </p>
+      </details>
 
       {result && (
         <div className="card calm">
@@ -203,7 +252,7 @@ function ScanPage() {
       )}
 
       <p className="note">
-        読み取るときだけ、その書類の画像・PDF と家族の呼び名・続柄・メモ（誰の書類かを考えるため）を Claude API に送ります。このアプリのサーバーには残さず、渡した写真と読み取った内容はこの端末の中にだけ保存します。
+        読み取るときだけ、その書類の画像・PDF（貼り付けたメールなら、その文字）と家族の呼び名・続柄・メモ（誰の書類かを考えるため）を Claude API に送ります。このアプリのサーバーには残さず、渡した写真と読み取った内容はこの端末の中にだけ保存します。
         使いすぎを防ぐため、読み取りには1時間あたりの回数の上限があります。上限に当たったら、執事は時間をおいて続きを読みます。
         執事（Claude）の準備中は、見本だけ、用意しておいた「仮の結果」で流れを試せます（画面に「仮」と出ます）。
       </p>

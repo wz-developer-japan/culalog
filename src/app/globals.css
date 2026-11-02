@@ -741,3 +741,10 @@ button.chip {
   font-weight: 700;
   cursor: pointer;
 }
+.mail-paste summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+.mail-paste .button {
+  margin-top: 8px;
+}

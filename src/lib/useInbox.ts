@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toYmd } from "./deadlines";
 import type { Extraction } from "./extraction";
-import { base64Of, MAX_SEND_BYTES } from "./files";
+import { base64Of, MAX_SEND_BYTES, textOfDataUrl } from "./files";
 import { applyExtraction, inboxItems, markItem } from "./inbox";
 import { RELATION_LABELS } from "./labels";
 import { deleteFile, getFile } from "./storage";
@@ -82,7 +82,8 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
               draftSource: "claude",
               dataUrl,
               pages,
-              originalText: sample?.text ?? ((json.extraction as Extraction).transcript || undefined),
+              // 文字で渡したものは、Claude の書き写しではなく、渡した文字そのものを原本にする
+              originalText: sample?.text ?? (item.mediaType === "text/plain" ? textOfDataUrl(dataUrl) : (json.extraction as Extraction).transcript || undefined),
               newId,
             }),
           );

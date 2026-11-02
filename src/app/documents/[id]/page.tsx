@@ -255,7 +255,8 @@ export default function DocumentDetail() {
           onToggle={(e) => setTextOpen((e.currentTarget as HTMLDetailsElement).open)}
         >
           <summary>
-            原本の文字{doc.origin === "demo" && "（架空の書類）"}
+            {doc.origin === "text" ? "原本（貼り付けた文字）" : "原本の文字"}
+            {doc.origin === "demo" && "（架空の書類）"}
             {marks.length > 0 && "・黄色は読み取った場所"}
           </summary>
           <div className="original-text" ref={textRef}>
@@ -273,7 +274,10 @@ export default function DocumentDetail() {
               ),
             )}
           </div>
-          {doc.draftSource === "claude" && (
+          {doc.draftSource === "claude" && doc.origin === "text" && (
+            <div className="meta">貼り付けた文字をそのまま残しています。メールの元の画面とも見比べてください。</div>
+          )}
+          {doc.draftSource === "claude" && doc.origin !== "text" && (
             <div className="meta">文字は Claude が原本から書き写したものです。写真・PDF の原本と見比べてください。</div>
           )}
         </details>

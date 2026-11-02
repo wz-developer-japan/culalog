@@ -189,7 +189,8 @@ export type DocumentCategory =
   | "medical"
   | "other";
 
-export type DocumentOrigin = "manual" | "photo" | "pdf" | "conversation" | "demo";
+/** text: メールの本文などを文字のまま渡したもの（画像は無く、原本は文字だけ） */
+export type DocumentOrigin = "manual" | "photo" | "pdf" | "text" | "conversation" | "demo";
 
 export interface DocumentRecord {
   id: string;

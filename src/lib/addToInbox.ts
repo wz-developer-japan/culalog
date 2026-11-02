@@ -2,7 +2,7 @@
 
 // 受け取り箱に入れる（ファイルの中身は端末の別の場所に置き、家のデータには目録だけを足す）
 
-import { fingerprint, prepareFile, renderSampleImage } from "./files";
+import { fingerprint, prepareFile, renderSampleImage, textToDataUrl } from "./files";
 import { enqueue, type NewInboxEntry } from "./inbox";
 import { putFile } from "./storage";
 import type { DemoSample, Household } from "./types";
@@ -80,6 +80,33 @@ export async function addFilesToInbox(files: File[], update: (change: (h: Househ
     });
   }
   return { ...(await commit(entries, update)), rejected };
+}
+
+/** 文字で渡せる長さの上限（メール1通ぶん。API と同じ） */
+export const MAX_TEXT = 20000;
+
+/**
+ * メールの本文などを、文字のまま1件の書類として受け取り箱に入れる。
+ * 差出人・件名・受信日時が分かれば、本文の前に付けて一緒に読む（原本の文字にもそのまま残る）
+ */
+export async function addTextToInbox(
+  input: { body: string; from?: string; subject?: string; receivedAt?: string },
+  update: (change: (h: Household) => Household) => Promise<void>,
+): Promise<AddResult> {
+  const body = input.body.replace(/\r\n?/g, "\n").trim();
+  const head = [
+    input.from?.trim() && `差出人: ${input.from.trim()}`,
+    input.subject?.trim() && `件名: ${input.subject.trim()}`,
+    input.receivedAt?.trim() && `受信日時: ${input.receivedAt.trim()}`,
+  ].filter(Boolean);
+  const text = head.length ? `${head.join("\n")}\n\n${body}` : body;
+  const name = input.subject?.trim() || body.split("\n").find((l) => l.trim())?.trim().slice(0, 30) || "貼り付けた文字";
+  if (!body) return { added: 0, duplicates: 0, rejected: [{ name, error: "本文が空です。" }] };
+  if (text.length > MAX_TEXT) return { added: 0, duplicates: 0, rejected: [{ name, error: `長すぎます（${MAX_TEXT.toLocaleString()}文字まで）。PDF に保存して渡してください。` }] };
+  const dataUrl = textToDataUrl(text);
+  const id = newId("in");
+  await putFile(id, dataUrl);
+  return { ...(await commit([{ id, name, mediaType: "text/plain", origin: "text", hash: await fingerprint(dataUrl) }], update)), rejected: [] };
 }
 
 export async function addSamplesToInbox(samples: DemoSample[], update: (change: (h: Household) => Household) => Promise<void>): Promise<AddResult> {

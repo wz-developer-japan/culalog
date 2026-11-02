@@ -23,7 +23,7 @@ export interface InboxItem {
   id: string;
   name: string;
   mediaType: string;
-  origin: "photo" | "pdf";
+  origin: "photo" | "pdf" | "text";
   addedAt: string;
   /** ファイルの指紋 */
   hash: string;
@@ -79,7 +79,7 @@ export interface NewInboxEntry {
   id: string;
   name: string;
   mediaType: string;
-  origin: "photo" | "pdf";
+  origin: "photo" | "pdf" | "text";
   hash: string;
   sampleId?: string;
   expectedId?: string;
@@ -214,7 +214,8 @@ export function applyExtraction(
     members: household.members,
     expectedId: item.expectedId,
     originalText: options.originalText,
-    originalFile: { mediaType: item.mediaType, dataUrl: options.dataUrl },
+    // 文字で渡したもの（メールの本文など）は、原本の文字だけを持つ（写真・PDF は無い）
+    originalFile: item.mediaType === "text/plain" ? undefined : { mediaType: item.mediaType, dataUrl: options.dataUrl },
     newId: options.newId,
   });
   const pages = (options.pages ?? []).map((dataUrl) => ({ mediaType: item.mediaType, dataUrl }));

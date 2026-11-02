@@ -67,6 +67,20 @@ export function renderSampleImage(text: string): string {
 
 export const base64Of = (dataUrl: string) => dataUrl.slice(dataUrl.indexOf(",") + 1);
 
+/** 文字（メールの本文など）を、写真と同じように端末に置ける形にする（UTF-8 の base64） */
+export function textToDataUrl(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return `data:text/plain;charset=utf-8;base64,${btoa(bin)}`;
+}
+
+/** textToDataUrl の逆 */
+export function textOfDataUrl(dataUrl: string): string {
+  const bin = atob(base64Of(dataUrl));
+  return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+}
+
 /** ファイルの指紋（SHA-256 の先頭16文字）。同じ写真を2回渡したときに気づくため */
 export async function fingerprint(dataUrl: string): Promise<string> {
   const bytes = new TextEncoder().encode(base64Of(dataUrl));
