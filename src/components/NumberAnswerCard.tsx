@@ -19,6 +19,8 @@ export function NumberAnswerCard({ record, household }: { record: AskRecord; hou
       .filter(Boolean)
       .join("・");
   const found = numbers.length > 0 || docs.length > 0;
+  // 確認待ちの書類（いまの状態で引く。確定したあとなら、もう一度聞けば番号が出る）
+  const waiting = (answer.unconfirmedIds ?? []).map((id) => household.documents.find((d) => d.id === id)).filter((d) => d !== undefined && !d.confirmedAt);
   const asksNumber = /番号|記号|ナンバー/.test(record.question);
   return (
     <div className={`card ${found ? "briefing" : "unknown"}`}>
@@ -27,9 +29,22 @@ export function NumberAnswerCard({ record, household }: { record: AskRecord; hou
       {!found && (
         <>
           <div className="unknown-label">？ 確定した書類には見つかりませんでした</div>
-          <div>
-            「{answer.terms.join("」「")}」が書いてある書類は、まだ登録されていないようです。手帳やカード、届いた通知を撮って渡しておくと、次からここで探せます。
-          </div>
+          {waiting.length > 0 ? (
+            <div>
+              確認待ちの書類にあります:{" "}
+              {waiting.map((d, i) => (
+                <span key={d!.id}>
+                  {i > 0 && "、"}
+                  <Link href={`/documents/${d!.id}`}>{d!.title}</Link>
+                </span>
+              ))}
+              。<Link href="/inbox">まとめて確認</Link>で原本と見比べて確定すると、ここで探せるようになります。
+            </div>
+          ) : (
+            <div>
+              「{answer.terms.join("」「")}」が書いてある書類は、まだ登録されていないようです。手帳やカード、届いた通知を撮って渡しておくと、次からここで探せます。
+            </div>
+          )}
         </>
       )}
       {numbers.map((n, i) => (

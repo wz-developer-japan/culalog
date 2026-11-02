@@ -14,7 +14,7 @@ if (!dir || !existsSync(dir)) {
   process.exit(1);
 }
 const prefixes = process.argv.slice(3);
-const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhi]\d/.test(id));
+const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhitmgpvr]\d/.test(id));
 
 const baseDate = basename(dir);
 const outDir = join("public", "samples", baseDate);
@@ -26,6 +26,24 @@ const CATEGORIES = ["school", "childcare", "housing", "insurance", "vehicle", "m
 const CATEGORY_ALIASES = { utility: "housing" };
 const categoryOf = (c) => (CATEGORIES.includes(c) ? c : (CATEGORY_ALIASES[c] ?? "other"));
 const KINDS = ["expiry", "window", "notice", "cancel_window", "after_event", "event", "due"];
+
+/**
+ * 番号もの（sensitiveNumbers: answerOnDevice・sendToClaude: false）を、項目の番号として入れる。
+ * 正解 JSON の項目では番号が伏せ字（＊）になっているので、同じ名前の項目があれば値を入れ替え、無ければ足す。
+ * 番号は端末の中だけで答える（アプリは聞く・つなぐで Claude に送るとき、番号の名前の項目と、見つけた番号を伏せる）
+ */
+function withNumbers(fields, numbers) {
+  const out = [...fields];
+  for (const n of numbers) {
+    if (n.answerOnDevice === false) continue;
+    const label = str(n.label);
+    const i = out.findIndex((f) => f.label === label || ((label.includes(f.label) || f.label.includes(label)) && /[＊*]/.test(f.value)));
+    const field = { label, value: str(n.value), location: str(n.location), quote: "" };
+    if (i >= 0) out[i] = { ...out[i], ...field, location: field.location || out[i].location };
+    else out.push(field);
+  }
+  return out;
+}
 
 /** 正解の読み取り結果を、アプリの読み取りの形（Extraction）にする */
 function toExtraction(t, text) {
@@ -41,7 +59,10 @@ function toExtraction(t, text) {
     category: categoryOf(str(t.category)),
     who: { memberIds: t.who?.memberIds ?? [], sure: t.who?.sure === true, reason: str(t.who?.reason) },
     period: { label: str(t.period?.label), from: str(t.period?.from), until: str(t.period?.until) },
-    fields: (t.fields ?? []).map((f) => ({ label: str(f.label), value: str(f.value), location: str(f.location), quote: str(f.quote) })),
+    fields: withNumbers(
+      (t.fields ?? []).map((f) => ({ label: str(f.label), value: str(f.value), location: str(f.location), quote: str(f.quote) })),
+      t.sensitiveNumbers ?? [],
+    ),
     deadlines: (t.deadlines ?? [])
       .filter((d) => KINDS.includes(d.kind) && /^\d{4}-\d{2}-\d{2}$/.test(d.date))
       // 比べる用に入っている「この家には当てはまらない」予定（例: ほかのクラスだけの取り消し）は、仮の結果に入れない

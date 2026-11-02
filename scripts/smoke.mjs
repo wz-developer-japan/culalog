@@ -127,6 +127,23 @@ await step("写真の見本をまとめて渡しても、ホームのひとこ�
   if (n > 3) throw new Error(`ひとことが${n}件あります`);
 });
 
+await step("番号を聞くと、Claude に送らずに端末の中で答え、番号は伏せて出す", async () => {
+  await page.goto(BASE + "/ask");
+  const calls = [];
+  const onRequest = (r) => r.url().includes("/api/ask") && calls.push(r.url());
+  page.on("request", onRequest);
+  await page.locator("textarea").fill("火災保険の証券番号は？");
+  await page.getByRole("button", { name: /に頼む$/ }).click();
+  const card = page.locator(".card").filter({ hasText: "火災保険の証券番号は？" }).first();
+  await card.getByText("書類から探しました").waitFor({ timeout: 10000 });
+  if (!(await card.innerText()).includes("●")) throw new Error("番号が伏せられていません");
+  await card.getByRole("button", { name: "見る" }).click();
+  await card.getByText("DEMO-0000-0000").waitFor({ timeout: 5000 });
+  await page.waitForTimeout(1500);
+  page.off("request", onRequest);
+  if (calls.length) throw new Error(`/api/ask が${calls.length}回呼ばれました`);
+});
+
 await browser.close();
 for (const [s, name, why] of results) console.log(`${s}  ${name}${why ? `\n    ${why}` : ""}`);
 console.log(`画面の画像: ${OUT}`);

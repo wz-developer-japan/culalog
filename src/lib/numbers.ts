@@ -25,6 +25,9 @@ const NUMBER_LABEL = /番号|記号|ナンバー|No\.?$|ID$/;
 /** 大事な番号から外すもの（電話・郵便番号・学校の文書番号など。電話番号は問い合わせ先として別に出す） */
 const NOT_IMPORTANT = /電話|TEL|FAX|ファクス|郵便|文書|整理番号|受付番号|お客様番号の照会|部屋|号室|クラス|出席/;
 
+/** 会社・事業者の番号の行 */
+const BUSINESS = /事業者|株式会社|有限会社|登録番号\s*[A-ZＡ-Ｚ]?[0-9０-９]{1,5}（架空）|インボイス|適格請求書/;
+
 /** 番号の値に見えるか（数字が3つ以上あって、日付や金額ではない） */
 function looksLikeNumber(value: string): boolean {
   const digits = (value.match(/[0-9０-９]/g) ?? []).length;
@@ -48,16 +51,31 @@ export function numbersOf(doc: DocumentRecord): ImportantNumber[] {
     seen.add(key(value));
     out.push({ ...base, label: f.label, value, location: f.source?.location || f.label });
   }
-  for (const line of (doc.originalText ?? "").split("\n")) {
+  const lines = (doc.originalText ?? "").split("\n").map((l) => l.trim());
+  lines.forEach((line, i) => {
+    // 名前だけの行の次の行が番号（「基礎年金番号」「0000-000123」）
+    const next = lines[i + 1] ?? "";
+    if (/^[^\s　、。：:]{1,16}(番号|記号)$/.test(line) && !NOT_IMPORTANT.test(line) && /^[A-Za-z0-9０-９][A-Za-z0-9０-９\-－‐ ]{2,}$/.test(next) && looksLikeNumber(next) && !seen.has(key(next))) {
+      seen.add(key(next));
+      out.push({ ...base, label: line, value: next, location: "原本の文字" });
+    }
     for (const m of line.matchAll(LINE_NUMBER)) {
       const label = m[1];
       const value = m[2].trim();
-      if (NOT_IMPORTANT.test(label) || NOT_IMPORTANT.test(line.slice(0, m.index ?? 0)) || !looksLikeNumber(value)) continue;
+      // 会社の登録番号（「小売電気事業者 登録番号」など）は、この家の番号ではない
+      if (NOT_IMPORTANT.test(label) || NOT_IMPORTANT.test(line.slice(0, m.index ?? 0)) || BUSINESS.test(line) || !looksLikeNumber(value)) continue;
       if (seen.has(key(value))) continue;
       seen.add(key(value));
       out.push({ ...base, label, value, location: "原本の文字" });
     }
-  }
+  });
+  return out;
+}
+
+/** 送る前に、この書類で見つけた大事な番号を名指しで伏せる（長さの決まりで伏せる maskText の取りこぼし対策） */
+export function maskKnownNumbers(doc: DocumentRecord, text: string): string {
+  let out = text;
+  for (const n of numbersOf(doc)) out = out.split(n.value).join("（伏せています）");
   return out;
 }
 
@@ -86,6 +104,8 @@ export interface NumberAnswer {
   refs: { documentId: string; label: string }[];
   /** 当てはまる書類はあったが番号が書いていなかったもの（「持ってる？」への答え） */
   documentIds: string[];
+  /** 確認待ち（まだ確定していない）書類に当たったもの。確定すると探せるようになる */
+  unconfirmedIds?: string[];
   /** 探した言葉 */
   terms: string[];
   createdAt: string;
@@ -151,7 +171,15 @@ export function answerNumberQuestion(household: Household, question: string): Nu
   if (!asksNumber && refs.length === 0 && documentIds.length === 0 && !asksThing) return null;
   // 何も言葉が無い（「番号は？」だけ）ときは、全部の番号を並べずに「聞く」へ
   if (terms.length === 0) return null;
-  return { refs: refs.slice(0, 8), documentIds: documentIds.slice(0, 4), terms, createdAt: new Date().toISOString() };
+  // 当たらなかったときは、確認待ちの書類に当たらないかも見る（「まとめて確認で確定すると探せます」と言うため）
+  const unconfirmedIds =
+    refs.length === 0 && documentIds.length === 0
+      ? household.documents
+          .filter((d) => !d.confirmedAt && !d.supersededBy && terms.some((t) => head(d).includes(t) || numbersOf(d).some((n) => n.label.includes(t))))
+          .map((d) => d.id)
+          .slice(0, 4)
+      : [];
+  return { refs: refs.slice(0, 8), documentIds: documentIds.slice(0, 4), unconfirmedIds, terms, createdAt: new Date().toISOString() };
 }
 
 /** 聞いた記録の参照から、いまの書類の番号を引く（書類が消えていたら出さない） */

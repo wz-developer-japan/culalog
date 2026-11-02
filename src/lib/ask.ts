@@ -9,7 +9,7 @@
 import { maskNumbers } from "./connect";
 import { parseDate, toYmd } from "./deadlines";
 import { findQuote } from "./highlight";
-import type { NumberAnswer } from "./numbers";
+import { maskKnownNumbers, type NumberAnswer } from "./numbers";
 import type { Contact, DocumentRecord, Household } from "./types";
 
 export interface AskInput {
@@ -95,7 +95,7 @@ export function buildAskInput(household: Household, question: string, today: str
         label: f.label,
         value: maskNumbers(f.label, f.value),
         location: f.source?.location ?? "",
-        quote: maskText(f.source?.quote ?? ""),
+        quote: maskKnownNumbers(doc, maskText(f.source?.quote ?? "")),
       })),
       deadlines: doc.deadlines.map((d) => ({
         kind: d.kind,
@@ -106,10 +106,10 @@ export function buildAskInput(household: Household, question: string, today: str
         place: d.place ?? "",
         needs: d.needs ?? [],
         location: d.source?.location ?? "",
-        quote: maskText(d.source?.quote ?? ""),
+        quote: maskKnownNumbers(doc, maskText(d.source?.quote ?? "")),
       })),
       contacts: doc.contacts.map((c) => ({ label: c.label, name: c.name, hours: c.hours ?? "", location: c.source?.location ?? "" })),
-      text: maskText(doc.originalText ?? "").slice(0, TEXT_MAX),
+      text: maskKnownNumbers(doc, maskText(doc.originalText ?? "")).slice(0, TEXT_MAX),
     })),
     question: question.trim().slice(0, QUESTION_MAX),
   };
@@ -271,6 +271,9 @@ const RELATED_WORDS: Record<string, string[]> = {
   ペット: ["動物", "飼育"],
   解約: ["解除", "退去"],
   持ち物: ["持参", "準備"],
+  印鑑証明: ["印鑑登録証明書", "印鑑登録証"],
+  要る: ["必要", "持って", "出して"],
+  必要: ["持って", "出して"],
 };
 /** 言い換えでも、元の言葉と同じ重さで探す語（「条件」は書類では「対象」「範囲」と書かれることが多い） */
 const STRONG_RELATED = new Set(["対象", "範囲"]);
