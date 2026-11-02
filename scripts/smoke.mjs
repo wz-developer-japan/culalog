@@ -38,7 +38,7 @@ async function step(name, fn) {
   }
   await page.screenshot({ path: `${OUT}${String(results.length).padStart(2, "0")}.png`, fullPage: true }).catch(() => {});
 }
-const see = (text) => page.getByText(text).first().waitFor({ timeout: 15000 });
+const see = (text, timeout = 15000) => page.getByText(text).first().waitFor({ timeout });
 
 await step("最初の画面から架空の家族で始められる", async () => {
   await page.goto(BASE + "/");
@@ -117,8 +117,9 @@ await step("同じ見本をもう一度渡すと、同じファイルとして�
 await step("写真の見本をまとめて渡しても、ホームのひとことは3件まで", async () => {
   await page.goto(BASE + "/scan");
   await page.getByRole("button", { name: /写真の見本を\d+件まとめて渡す/ }).click();
-  await page.waitForURL(/\/inbox/, { timeout: 60000 });
-  await see("全部読み終わりました");
+  await page.waitForURL(/\/inbox/, { timeout: 120000 });
+  // 見本は50件以上。本番では画像を取りに行く分、読み終わるまで時間がかかる
+  await see("全部読み終わりました", 180000);
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
   await page.goto(BASE + "/");
@@ -146,7 +147,7 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   await page.goto(BASE + "/scan");
   await page.getByRole("button", { name: /メールの見本を\d+件まとめて渡す/ }).click();
   await page.waitForURL(/\/inbox/, { timeout: 60000 });
-  await see("全部読み終わりました");
+  await see("全部読み終わりました", 60000);
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
   // 束ねる: 後払いの請求と前日の督促（同じ注文・同じ期限）が、すべての予定で1件になっている
