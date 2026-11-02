@@ -155,7 +155,7 @@ export default function Inbox() {
           {groups.map(([category, docs]) => (
             <section key={category}>
               <h2>
-                {CATEGORY_LABELS[category as DocumentRecord["category"]]}（{docs.length}）
+                {CATEGORY_LABELS[category as DocumentRecord["category"]] ?? "そのほか"}（{docs.length}）
               </h2>
               {docs.map((d) => {
                 const blocker = blockerOf(d);

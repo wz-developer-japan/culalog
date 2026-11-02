@@ -3,8 +3,9 @@
 // 日付は開いた日から相対的に作るので、いつ開いても同じ流れを試せる。
 // 書類の本文（原本）は demoDocuments.ts にあり、下の項目はそこから読み取って確定した、という扱い。
 
+import photoSamples from "./photoSamples.json";
 import { addDays, toYmd } from "@/lib/deadlines";
-import type { Household } from "@/lib/types";
+import type { DemoSample, Household } from "@/lib/types";
 import {
   demoDates,
   dentalCheckupProvisionalDraft,
@@ -496,6 +497,8 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         text: subscriptionText(t),
         provisionalDraft: subscriptionProvisionalDraft(t),
       },
+      // 写真の見本（本物らしい紙・スクショ・スキャン。撮影日を基準日にした日付で、開いた日に合わせて動かない）
+      ...(photoSamples as DemoSample[]),
     ],
     questions: [],
     rules: [

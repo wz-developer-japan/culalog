@@ -140,6 +140,10 @@ export interface DemoSample {
   expectedId?: string;
   /** 読み取り機能の準備中に使う、この見本の仮の読み取り結果（Claude は使っていない） */
   provisionalDraft: Extraction;
+  /** 写真の見本: 画像の場所（何枚かなら1つの書類のページ）。無ければ text をその場で画像にする */
+  images?: string[];
+  /** 写真の見本の日付の基準日（この日に撮った想定。開いた日に合わせて動かない） */
+  baseDate?: string;
 }
 
 /**

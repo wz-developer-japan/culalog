@@ -208,6 +208,14 @@ function dedupe(items: ActionItem[]): ActionItem[] {
   return items.filter((item) => newest.get(keyOf(item)) === item);
 }
 
+/**
+ * 書類を登録したときには、もう過ぎていた締切か（古いプリントをあとから撮って渡した、など）。
+ * 知らせても間に合わないので、ひとこと・安全網では「期限切れ」として騒がず、すべての予定の画面にだけ残す
+ */
+export function passedBeforeRegistered({ deadline, document }: ActionItem): boolean {
+  return parseDate(deadline.endDate ?? deadline.date) < startOfDay(new Date(document.createdAt));
+}
+
 export function buildHome(household: Household, today: Date): HomeSections {
   const done = household.done ?? {};
   const soon: ActionItem[] = [];
@@ -219,7 +227,12 @@ export function buildHome(household: Household, today: Date): HomeSections {
     const target = parseDate(deadline.endDate ?? deadline.date);
     if (startOfDay(today) >= startDate && startOfDay(today) <= target) {
       soon.push(item);
-    } else if (deadline.kind !== "event" && startOfDay(today) > target && daysBetween(target, today) <= OVERDUE_DAYS) {
+    } else if (
+      deadline.kind !== "event" &&
+      startOfDay(today) > target &&
+      daysBetween(target, today) <= OVERDUE_DAYS &&
+      !passedBeforeRegistered(item)
+    ) {
       overdue.push(item);
     }
   }

@@ -92,7 +92,7 @@ await step("頼んだことがホームの報告に残る", async () => {
 
 await step("見本をまとめて渡すと、受け取り箱で順番に読まれ、まとめて確定できる", async () => {
   await page.goto(BASE + "/scan");
-  await page.getByRole("button", { name: /まとめて渡す/ }).click();
+  await page.getByRole("button", { name: /^見本を\d+件まとめて渡す/ }).click();
   await page.waitForURL(/\/inbox/, { timeout: 15000 });
   await see("全部読み終わりました");
   const button = page.getByRole("button", { name: /まとめて確定する/ });
@@ -110,8 +110,21 @@ await step("聞きたいことに答えると、執事が覚える", async () =>
 
 await step("同じ見本をもう一度渡すと、同じファイルとして読まない", async () => {
   await page.goto(BASE + "/scan");
-  await page.getByRole("button", { name: /まとめて渡す/ }).click();
+  await page.getByRole("button", { name: /^見本を\d+件まとめて渡す/ }).click();
   await see("前に渡したものと同じファイル");
+});
+
+await step("写真の見本をまとめて渡しても、ホームのひとことは3件まで", async () => {
+  await page.goto(BASE + "/scan");
+  await page.getByRole("button", { name: /写真の見本を\d+件まとめて渡す/ }).click();
+  await page.waitForURL(/\/inbox/, { timeout: 60000 });
+  await see("全部読み終わりました");
+  await page.getByRole("button", { name: /まとめて確定する/ }).click();
+  await see("件を確定しました");
+  await page.goto(BASE + "/");
+  await page.locator("h2", { hasText: "のひとこと" }).waitFor({ timeout: 15000 });
+  const n = await page.locator(".briefing-item").count();
+  if (n > 3) throw new Error(`ひとことが${n}件あります`);
 });
 
 await browser.close();

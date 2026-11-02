@@ -92,8 +92,10 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
         if (res.status === 503) {
           // 執事の準備中: 見本なら、用意しておいた仮の結果で流れを試せる。それ以外は準備ができるまで待つ
           if (sample) {
-            await update((h) => applyExtraction(h, item, sample.provisionalDraft, { draftSource: "provisional", dataUrl, originalText: sample.text, newId }));
-            await deleteFile(item.id);
+            await update((h) =>
+              applyExtraction(h, item, sample.provisionalDraft, { draftSource: "provisional", dataUrl, pages, originalText: sample.text, newId }),
+            );
+            await Promise.all([item.id, ...(item.pageIds ?? [])].map(deleteFile));
           } else {
             await update((h) => markItem(h, item.id, { status: "needsKey", error: json.error }));
           }

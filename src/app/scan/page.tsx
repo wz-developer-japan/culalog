@@ -33,7 +33,7 @@ function ScanPage() {
   }, [loaded, household, router]);
 
   useEffect(() => {
-    setPreview(sample ? renderSampleImage(sample.text) : null);
+    setPreview(sample ? (sample.images?.[0] ?? renderSampleImage(sample.text)) : null);
   }, [sample]);
 
   // スクショを貼り付けて渡す（パソコンでの Ctrl+V・スマホの「ペースト」）
@@ -52,6 +52,9 @@ function ScanPage() {
   if (!loaded || !household) return <main />;
   const progress = inboxProgress(household);
   const samples = household.demoSamples ?? [];
+  const printed = samples.filter((x) => !x.images?.length);
+  const photos = samples.filter((x) => x.images?.length);
+  const photoDay = photos[0]?.baseDate?.replace(/^(\d{4})-0?(\d+)-0?(\d+)$/, "$1年$2月$3日");
 
   async function give(files: File[]) {
     if (files.length === 0 || busy) return;
@@ -141,14 +144,37 @@ function ScanPage() {
         </Link>
       )}
 
-      {samples.length > 0 && (
+      {photos.length > 0 && (
+        <>
+          <h2>写真の見本で「まとめて渡す」を試す</h2>
+          <p className="meta">
+            保育園の連絡アプリのスクショ・横向きのスキャン・何ページもある契約書・壁に貼った勤務カレンダーなど、架空の書類 {photos.length}件です。
+            {photoDay}に撮った想定の日付なので、開いた日によっては過ぎた予定もあります。
+          </p>
+          <button className="button secondary" disabled={busy} onClick={() => giveSamples(photos)}>
+            写真の見本を{photos.length}件まとめて渡す
+          </button>
+          <details className="others">
+            <summary>1件ずつ選ぶ</summary>
+            <div className="chips">
+              {photos.map((x) => (
+                <button key={x.id} className={`chip${x.id === sampleId ? " selected" : ""}`} onClick={() => setSampleId(x.id)}>
+                  {x.title}
+                </button>
+              ))}
+            </div>
+          </details>
+        </>
+      )}
+
+      {printed.length > 0 && (
         <>
           <h2>架空の書類の見本で試す</h2>
-          <button className="button secondary" disabled={busy} onClick={() => giveSamples(samples)}>
-            見本を{samples.length}枚まとめて渡す
+          <button className="button secondary" disabled={busy} onClick={() => giveSamples(printed)}>
+            見本を{printed.length}件まとめて渡す
           </button>
           <div className="chips">
-            {samples.map((x) => (
+            {printed.map((x) => (
               <button key={x.id} className={`chip${x.id === sampleId ? " selected" : ""}`} onClick={() => setSampleId(x.id)}>
                 {x.title}
               </button>

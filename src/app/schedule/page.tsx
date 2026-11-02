@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toggleDone } from "@/lib/butler";
-import { type ActionItem, allItems, buildHome, formatYmd } from "@/lib/deadlines";
+import { type ActionItem, allItems, buildHome, formatYmd, passedBeforeRegistered } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { Household } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -59,6 +59,9 @@ export default function Schedule() {
           {d.memberIds.length > 0 && `・${d.memberIds.map(nameOf).join("、")}`}
         </div>
         {d.leadReason && <div className="meta">{d.leadReason}</div>}
+        {item.daysLeft < 0 && passedBeforeRegistered(item) && (
+          <div className="meta">書類を登録したときには、もう過ぎていました（ホームでは知らせていません）</div>
+        )}
         <div className="meta">
           原本: <Link href={`/documents/${item.document.id}`}>{item.document.title}</Link>
           {d.source?.location && `・${d.source.location}`}

@@ -84,7 +84,38 @@ export async function addFilesToInbox(files: File[], update: (change: (h: Househ
 
 export async function addSamplesToInbox(samples: DemoSample[], update: (change: (h: Household) => Household) => Promise<void>): Promise<AddResult> {
   const entries: NewInboxEntry[] = [];
+  const rejected: AddResult["rejected"] = [];
   for (const sample of samples) {
+    if (sample.images?.length) {
+      // 写真の見本: 置いてある画像を、渡された写真と同じように縮めて受け取り箱へ（何枚かなら1つの書類のページ）
+      const ids: string[] = [];
+      const hashes: string[] = [];
+      for (const url of sample.images) {
+        const res = await fetch(url).catch(() => null);
+        const blob = res && res.ok ? await res.blob() : null;
+        const prepared = blob ? await prepareFile(new File([blob], url.split("/").pop() ?? "sample", { type: blob.type })) : null;
+        if (!prepared?.ok) break;
+        const id = newId("in");
+        await putFile(id, prepared.dataUrl);
+        ids.push(id);
+        hashes.push(await fingerprint(prepared.dataUrl));
+      }
+      if (ids.length !== sample.images.length) {
+        rejected.push({ name: sample.title, error: "見本の画像を読み込めませんでした。" });
+        continue;
+      }
+      entries.push({
+        id: ids[0],
+        name: sample.title,
+        mediaType: "image/jpeg",
+        origin: "photo",
+        hash: hashes.length > 1 ? await fingerprint(`data:,${hashes.join("")}`) : hashes[0],
+        sampleId: sample.id,
+        expectedId: sample.expectedId,
+        pageIds: ids.length > 1 ? ids.slice(1) : undefined,
+      });
+      continue;
+    }
     const dataUrl = renderSampleImage(sample.text);
     const id = newId("in");
     await putFile(id, dataUrl);
@@ -98,7 +129,7 @@ export async function addSamplesToInbox(samples: DemoSample[], update: (change: 
       expectedId: sample.expectedId,
     });
   }
-  return { ...(await commit(entries, update)), rejected: [] };
+  return { ...(await commit(entries, update)), rejected };
 }
 
 async function commit(entries: NewInboxEntry[], update: (change: (h: Household) => Household) => Promise<void>) {
