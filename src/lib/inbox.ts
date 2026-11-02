@@ -136,6 +136,8 @@ function applyLearned(
   doc: DocumentRecord,
   questions: ButlerQuestion[],
 ): { doc: DocumentRecord; questions: ButlerQuestion[] } {
+  // 記入例など、この家の書類ではないものには、覚えたことを当てはめない
+  if (doc.notForFamily) return { doc, questions };
   const key = kindKey(doc);
   const learned = (household.learned ?? []).filter((l) => l.kindKey === key);
   if (learned.length === 0) return { doc, questions };
@@ -224,7 +226,7 @@ export function applyExtraction(
     { ...made.document, fileHash: item.hash, originalPages: pages.length ? pages : undefined },
     made.questions,
   );
-  const similar = similarDocument(household, doc);
+  const similar = doc.notForFamily ? undefined : similarDocument(household, doc);
   if (similar) {
     questions.unshift({
       id: options.newId("q"),

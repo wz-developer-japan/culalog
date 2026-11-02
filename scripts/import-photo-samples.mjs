@@ -88,6 +88,8 @@ function toExtraction(t, text) {
     contacts: (t.contacts ?? []).map((c) => ({ label: str(c.label), name: str(c.name), phone: str(c.phone), hours: str(c.hours), location: str(c.location) })),
     questions: [],
     unclear: [],
+    // 書類ごと、この家の書類ではないもの（記入例など）
+    notForFamily: t.appliesToFamily === false ? { is: true, reason: str(t.notApplicableReason) || str(t.who?.reason) } : { is: false, reason: "" },
   };
 }
 

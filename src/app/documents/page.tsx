@@ -104,8 +104,15 @@ export default function Documents() {
           <summary>
             大事な番号（{numbers.length}）<span className="block meta">証券番号・受給者番号など、手続きで急に聞かれる番号。押すと番号が見えます</span>
           </summary>
-          {numbers.map((n, i) => (
-            <NumberRow key={`${n.documentId}-${n.label}-${i}`} item={n} owner={ownerOf(n.memberIds)} />
+          {[...new Set(numbers.map((n) => ownerOf(n.memberIds) || "家族"))].map((owner) => (
+            <div key={owner}>
+              <h3 className="number-owner">{owner}</h3>
+              {numbers
+                .filter((n) => (ownerOf(n.memberIds) || "家族") === owner)
+                .map((n, i) => (
+                  <NumberRow key={`${n.documentId}-${n.label}-${i}`} item={n} />
+                ))}
+            </div>
           ))}
           <p className="meta">確定した書類から、コードで探しています。番号は Claude には送りません。</p>
         </details>
@@ -124,6 +131,7 @@ export default function Documents() {
               {d.memberIds.length > 0 && `・${d.memberIds.map(nameOf).join("、")}`}
             </div>
             {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
+            {d.notForFamily && <div className="meta">家族の情報にしていません（記入例・見本など）</div>}
           </Link>
         ))
       )}

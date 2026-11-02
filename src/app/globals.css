@@ -748,3 +748,8 @@ button.chip {
 .mail-paste .button {
   margin-top: 8px;
 }
+.number-owner {
+  font-size: 0.95rem;
+  margin: 14px 0 0;
+  color: var(--muted);
+}

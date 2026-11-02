@@ -192,6 +192,7 @@ export default function Inbox() {
                             ✓ {n}
                           </div>
                         ))}
+                        {d.notForFamily && <div className="meta">家族の情報にしません: {d.notForFamily}</div>}
                         {blocker && <div className="meta warn-text">⚠ {blocker}</div>}
                       </div>
                     </div>

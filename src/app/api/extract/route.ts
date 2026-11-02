@@ -45,6 +45,7 @@ const SYSTEM_PROMPT = `あなたは、家族の「執事」として、家に届
 - summary.ifIgnored: 「手続きをしないとどうなるか」が原本にはっきり書いてあるときだけ、その内容を text に書き、location に原本の場所、quote に原文をそのまま書く（例: 「更新の手続きをされない場合、満期日をもって契約は終了します」）。書いていなければ text・location・quote をすべて空にする。一般的な知識や推測で埋めない。
 - transcript: 原本の文字を、上から順に書いてある通りに書き写す（改行もなるべく原本どおり）。読めない所は「（読めません）」とする。各項目の quote は、この transcript の中の文字をそのまま抜き出す（言い換えない）。
 - title は書類の題名を短く。docType は書類の種類を短い日本語で（例:「歯科健診のお知らせ」「賃貸借契約書」）。category は大きな分類。
+- notForFamily: 記入例・見本・「（見本）」と書かれた様式・家族ではない別の人あての書類など、この家の人の書類ではないものは is を true にし、reason に見分けた理由を短く書く（例:「右上に『記入例』とある。名前は記入例の架空の人」）。そのときは who.memberIds・deadlines・questions を空にし、書き方の決まり（例:「体温は当日測って書く」）は fields に書き写す。この家の書類なら is を false、reason を空にする。広告やおすすめは、それだけでは notForFamily にしない（締切としては扱わない）。
 - すべて日本語で書く。`;
 
 function clientIdOf(request: NextRequest): string {

@@ -69,7 +69,7 @@ export function documentsForAsk(household: Household): DocumentRecord[] {
   const asking = new Set(
     (household.questions ?? []).filter((q) => q.about === "supersede" && !q.answeredAt).map((q) => q.targetDocumentId),
   );
-  return household.documents.filter((d) => d.confirmedAt && !d.supersededBy && !asking.has(d.id));
+  return household.documents.filter((d) => d.confirmedAt && !d.supersededBy && !d.notForFamily && !asking.has(d.id));
 }
 
 /** 文字の中の長い番号を伏せる（証券番号・受給者番号・電話番号など） */

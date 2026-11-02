@@ -239,6 +239,8 @@ export interface DocumentRecord {
   confirmedAt?: string;
   /** 読み取りに使ったファイルの指紋（同じ写真をもう一度渡したときに気づくため） */
   fileHash?: string;
+  /** この家の書類ではないもの（記入例・見本など）の理由。家族の情報にせず、ひとこと・予定・聞く・つなぐ・大事な番号の根拠に使わない */
+  notForFamily?: string;
   /** 前に本人が答えたことを当てはめたとき、その説明（例: 「前に教えてもらったので、結衣さんの書類にしました」） */
   learnedNotes?: string[];
 }

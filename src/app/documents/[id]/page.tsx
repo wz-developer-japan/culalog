@@ -145,6 +145,11 @@ export default function DocumentDetail() {
         {doc.memberIds.length > 0 && `・${doc.memberIds.map(nameOf).join("、")}`}
         {confirmed ? "・確定済み" : "・確認待ち"}
       </p>
+      {doc.notForFamily && (
+        <div className="card calm">
+          家族の情報にしていません（{doc.notForFamily}）。名前・住所などは家族の誰のものにもせず、予定・ひとこと・執事に聞くの根拠にも使いません。書き方の見本として残しています。
+        </div>
+      )}
 
       {(doc.summary || until) && (
         <div className="card four-lines">

@@ -132,7 +132,7 @@ export function maskNumbers(label: string, value: string): string {
 
 /** 根拠に使う書類（確定した・前のものではない）と、比べるためだけに送る前の書類 */
 function documentsForConnect(household: Household): { doc: DocumentRecord; olderVersionOf: string }[] {
-  const confirmed = household.documents.filter((d) => d.confirmedAt);
+  const confirmed = household.documents.filter((d) => d.confirmedAt && !d.notForFamily);
   const current = confirmed.filter((d) => !d.supersededBy);
   // 前のもの: 「前のものにした」書類と、「前のものにしますか？」とまだ聞いている書類
   const older = new Map<string, string>();

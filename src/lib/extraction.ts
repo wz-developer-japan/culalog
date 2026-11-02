@@ -98,6 +98,11 @@ export interface Extraction {
   questions: ExtractedQuestion[];
   /** 読めなかった・はっきりしなかった箇所（本人に原本で確かめてもらう） */
   unclear: string[];
+  /**
+   * この家の書類ではないもの（記入例・見本・別の人あての書類など）。is が true なら、
+   * 家族の情報にしない（誰の書類か聞かない・予定に入れない・聞く／つなぐの根拠にしない）
+   */
+  notForFamily?: { is: boolean; reason: string };
 }
 
 export const CATEGORY_VALUES: DocumentCategory[] = [
@@ -133,8 +138,14 @@ const strList = { type: "array", items: str } as const;
 export const EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "transcript", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear"],
+  required: ["title", "transcript", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear", "notForFamily"],
   properties: {
+    notForFamily: {
+      type: "object",
+      additionalProperties: false,
+      required: ["is", "reason"],
+      properties: { is: { type: "boolean" }, reason: str },
+    },
     title: str,
     transcript: str,
     summary: {
@@ -247,7 +258,9 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
   const ignored = (summary.ifIgnored ?? {}) as Record<string, unknown>;
   // 放置すると？ は、原本の場所と原文がそろっているときだけ残す（推測で埋めさせない）
   const hasIgnored = Boolean(s(ignored.text) && s(ignored.location) && s(ignored.quote));
+  const nff = (v.notForFamily ?? {}) as Record<string, unknown>;
   return {
+    notForFamily: { is: nff.is === true, reason: s(nff.reason) },
     title: v.title.trim(),
     transcript: isStr(v.transcript) ? v.transcript : "",
     summary: {
@@ -348,7 +361,9 @@ export function extractionToDocument(
   },
 ): { document: DocumentRecord; questions: ButlerQuestion[] } {
   const self = options.members.find((m) => m.relation === "self")?.id;
-  const memberIds = extraction.who.memberIds.length ? extraction.who.memberIds : self ? [self] : [];
+  // 記入例・見本など、この家の書類ではないもの: 誰のものにもせず、予定・質問も作らない（書き方の見本として残すだけ）
+  const notFamily = extraction.notForFamily?.is === true;
+  const memberIds = notFamily ? [] : extraction.who.memberIds.length ? extraction.who.memberIds : self ? [self] : [];
   const { what, todo, ifIgnored } = extraction.summary;
   // 文字起こしがあるときは、放置すると？ の原文が本当に原本にあるかをコードで確かめる
   const squash = (x: string) => x.replace(/\s/g, "");
@@ -368,6 +383,7 @@ export function extractionToDocument(
     originalText: options.originalText,
     originalFile: options.originalFile,
     unclear: extraction.unclear.length ? extraction.unclear : undefined,
+    notForFamily: notFamily ? extraction.notForFamily?.reason || "この家の書類ではありません" : undefined,
     summary:
       what || todo || ifIgnored.text
         ? {
@@ -386,7 +402,7 @@ export function extractionToDocument(
       source: source(f.location, f.quote),
       status: "draft",
     })),
-    deadlines: extraction.deadlines.map((d) => ({
+    deadlines: (notFamily ? [] : extraction.deadlines).map((d) => ({
       id: options.newId("dl"),
       kind: d.kind,
       label: d.label,
@@ -414,6 +430,7 @@ export function extractionToDocument(
   };
 
   const questions: ButlerQuestion[] = [];
+  if (notFamily) return { document, questions };
   if (!extraction.who.sure && options.members.length > 1) {
     questions.push(
       membersQuestion(document.id, options.members, extraction.who.memberIds, extraction.who.reason, options.newId),

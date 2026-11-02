@@ -40,6 +40,10 @@ export function NumberAnswerCard({ record, household }: { record: AskRecord; hou
               ))}
               。<Link href="/inbox">まとめて確認</Link>で原本と見比べて確定すると、ここで探せるようになります。
             </div>
+          ) : /マイナンバー|個人番号/.test(record.question) ? (
+            <div>
+              マイナンバーは登録されていません。写真で渡すと画像ごと読み取りに送ることになるため、残しておくなら手入力での登録をおすすめします（書類の項目の名前を「マイナンバー」にすると、ここで探せます）。
+            </div>
           ) : (
             <div>
               「{answer.terms.join("」「")}」が書いてある書類は、まだ登録されていないようです。手帳やカード、届いた通知を撮って渡しておくと、次からここで探せます。

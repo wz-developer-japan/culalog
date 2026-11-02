@@ -23,7 +23,7 @@ export interface ImportantNumber {
 /** 番号の名前に見えるもの */
 const NUMBER_LABEL = /番号|記号|ナンバー|No\.?$|ID$/;
 /** 大事な番号から外すもの（電話・郵便番号・学校の文書番号など。電話番号は問い合わせ先として別に出す） */
-const NOT_IMPORTANT = /電話|TEL|FAX|ファクス|郵便|文書|整理番号|受付番号|お客様番号の照会|部屋|号室|クラス|出席/;
+const NOT_IMPORTANT = /電話|TEL|FAX|ファクス|郵便|文書|整理番号|受付番号|予約番号|口座|お客様番号の照会|部屋|号室|クラス|出席/;
 
 /** 会社・事業者の番号の行 */
 const BUSINESS = /事業者|株式会社|有限会社|登録番号\s*[A-ZＡ-Ｚ]?[0-9０-９]{1,5}（架空）|インボイス|適格請求書/;
@@ -118,6 +118,14 @@ const ASKS_HAVE = /持って(る|い)|ある[？?か]?$|あります|あった|�
 /** 電話番号・郵便番号を聞いているときは、今までどおりの「聞く」で（問い合わせ先として答える） */
 const ASKS_PHONE = /電話|TEL|FAX|ファクス|郵便|連絡先/;
 
+const NUMBER_ALIASES: Record<string, string[]> = {
+  住民税: ["市民税", "県民税", "区民税"],
+  年金: ["基礎年金番号"],
+  車: ["自動車", "車検"],
+  保険証: ["資格確認", "被保険者"],
+  印鑑証明: ["印鑑登録"],
+};
+
 /** 探す言葉。「年金番号」→「年金」のように、番号・証・手帳などの終わりも落とした形でも探す */
 function termsOf(question: string): string[] {
   const generic = /^(番号|記号|ナンバー|持っ.*|どこ.*|あり.*|ある|手続き|教え.*)$/;
@@ -125,8 +133,11 @@ function termsOf(question: string): string[] {
   const words = keywordsOf(question)
     .map((w) => (/^[\p{Script=Han}]/u.test(w) ? w.replace(/[\p{Script=Hiragana}]+$/u, "") : w))
     .filter((w) => w.length >= 2 && !generic.test(w));
-  const stems = words.map((w) => w.replace(/(の)?(番号|記号|ナンバー|被保険者証|保険者証|証書|証明書|登録証|手帳|証|カード|通知書?|書類)$/, "")).filter((w) => w.length >= 2);
-  return [...new Set([...words, ...stems])];
+  const stems = words.map((w) => w.replace(/(の)?(番号|記号|ナンバー|被保険者証|保険者証|証書|証明書|登録証|手帳|証|カード|通知書?|書類)$/, "")).filter((w) => w.length >= 2 && !/^[\p{Script=Katakana}ー]{1,2}$/u.test(w));
+  // 書類での書き方が違う言葉（「住民税」は通知書では「市民税・県民税」）
+  // 1文字の言葉（「車」）は keywordsOf では拾わないので、質問の文字から直接見る
+  const aliases = [...words, ...stems, ...Object.keys(NUMBER_ALIASES).filter((k) => k.length === 1 && question.includes(k))].flatMap((w) => NUMBER_ALIASES[w] ?? []);
+  return [...new Set([...words, ...stems, ...aliases])];
 }
 
 /**
@@ -139,27 +150,32 @@ export function answerNumberQuestion(household: Household, question: string): Nu
   const asksNumber = ASKS_NUMBER.test(question);
   const asksHave = ASKS_HAVE.test(question);
   if (!asksNumber && !asksHave) return null;
-  const terms = termsOf(question);
   const named = household.members.filter((m) => {
     const first = m.name.split(/\s+/).pop() ?? "";
     return first.length >= 1 && question.includes(first);
   });
+  // 家族の名前は探す言葉にしない（「翔太のマイナンバー」で、翔太の書類の番号を全部並べない）。人で絞るのは下で
+  const names = household.members.flatMap((m) => m.name.split(/\s+/)).filter((n) => n.length >= 1);
+  const terms = termsOf(question).filter((t) => !names.some((n) => t === n || t.startsWith(n + "の")));
   const docs = documentsForAsk(household).filter((d) => named.length === 0 || d.memberIds.length === 0 || d.memberIds.some((id) => named.some((m) => m.id === id)));
   const head = (d: DocumentRecord) => `${d.title} ${d.docType ?? ""}`;
   const refs: NumberAnswer["refs"] = [];
   const documentIds: string[] = [];
-  const labelHit = (n: ImportantNumber) => terms.some((t) => n.label.includes(t));
-  // 書類の名前に当たったら、その書類だけ（「火災保険の証券番号」で傷害保険の証券番号まで出さない）
+  // 番号の名前で絞る言葉（「車のナンバー」の「ナンバー」は、番号の名前の「登録番号（ナンバー）」に当てる）
+  const labelTerms = [...terms, ...(/(?<!マイ)ナンバー/.test(question) ? ["ナンバー"] : [])];
+  const labelHit = (n: ImportantNumber) => labelTerms.some((t) => n.label.includes(t));
   // いちばん長い言葉で当たった書類を選ぶ（「火災保険」と「証券」なら「火災保険」の方）
   const nameScore = (d: DocumentRecord) => Math.max(0, ...terms.filter((t) => head(d).includes(t)).map((t) => t.length));
   const best = Math.max(0, ...docs.map(nameScore));
   const byName = best > 0 ? docs.filter((d) => nameScore(d) === best) : [];
   if (byName.length) {
+    // 番号の名前でも当たるものがあれば、それだけ（「車のナンバー」で証券番号まで並べない）
+    const anyLabel = byName.some((d) => numbersOf(d).some(labelHit));
     for (const d of byName) {
       const numbers = numbersOf(d);
-      const hits = numbers.some(labelHit) ? numbers.filter(labelHit) : numbers;
+      const hits = anyLabel ? numbers.filter(labelHit) : numbers;
       if (hits.length) refs.push(...hits.map((n) => ({ documentId: d.id, label: n.label })));
-      else if (asksHave) documentIds.push(d.id);
+      else if (asksHave && !anyLabel) documentIds.push(d.id);
     }
   } else {
     // 書類の名前に無ければ、番号の名前で（「受給者番号は？」）
