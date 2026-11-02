@@ -219,6 +219,9 @@ export default function DocumentDetail() {
           確定を取り消す
         </button>
       )}
+      <Link className="button secondary" href={`/documents/${doc.id}/edit`} style={{ textAlign: "center", textDecoration: "none" }}>
+        書類を直す
+      </Link>
       <button className="button secondary" onClick={remove}>
         この書類を削除する
       </button>

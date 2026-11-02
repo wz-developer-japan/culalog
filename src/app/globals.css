@@ -219,3 +219,19 @@ a {
   border-radius: 8px;
   margin: 8px 0;
 }
+
+textarea.input {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
