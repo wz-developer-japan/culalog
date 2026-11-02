@@ -64,6 +64,7 @@ export default function DocumentDetail() {
   const quoted: { id: string; quote?: string }[] = [
     ...doc.fields.map((f) => ({ id: f.key, quote: f.source?.quote })),
     ...doc.deadlines.map((d) => ({ id: d.id, quote: d.source?.quote })),
+    ...doc.deadlines.map((d) => ({ id: `${d.id}-reserve`, quote: d.reserve?.source?.quote })),
     { id: "if-ignored", quote: doc.summary?.ifIgnored?.source.quote },
   ];
   const marks: Mark[] = [];
@@ -99,11 +100,16 @@ export default function DocumentDetail() {
   };
 
   /** 予定に「わが家のきまり」を当てはめる／外す（締切は毎回きまりから計算する） */
-  async function toggleRule(deadlineId: string, ruleId: string) {
+  async function toggleRule(deadlineId: string, ruleId: string, reserve = false) {
     await update({
       ...doc!,
       deadlines: doc!.deadlines.map((d) => {
         if (d.id !== deadlineId) return d;
+        if (reserve && d.reserve) {
+          const ids = d.reserve.applyRuleIds ?? [];
+          const next = ids.includes(ruleId) ? ids.filter((x) => x !== ruleId) : [...ids, ruleId];
+          return { ...d, reserve: { ...d.reserve, applyRuleIds: next.length ? next : undefined } };
+        }
         const ids = d.applyRuleIds ?? [];
         const next = ids.includes(ruleId) ? ids.filter((x) => x !== ruleId) : [...ids, ruleId];
         return { ...d, applyRuleIds: next.length ? next : undefined };
@@ -295,6 +301,13 @@ export default function DocumentDetail() {
             {d.time && `・${d.time}`}
             {d.place && <div>場所: {d.place}</div>}
             {d.needs?.length ? <div>必要なもの: {d.needs.join("、")}</div> : null}
+            {d.reserve && (
+              <div className="reserve">
+                予備日: {formatYmd(d.reserve.date)}
+                {d.reserve.condition && `（${d.reserve.condition}）`}
+                <SourceLine id={`${d.id}-reserve`} source={d.reserve.source} />
+              </div>
+            )}
             <div className="meta">
               {DEADLINE_KIND_LABELS[d.kind]}・{d.leadDays}日前からお知らせ
             </div>
@@ -331,6 +344,19 @@ export default function DocumentDetail() {
                 ) : (
                   <button key={rule.id} className="button secondary small" onClick={() => toggleRule(d.id, rule.id)}>
                     この予定に「{rule.label}・{rule.daysBefore}日前まで」を当てはめる
+                  </button>
+                ),
+              )}
+            {d.kind === "event" &&
+              d.reserve &&
+              rules.map((rule) =>
+                d.reserve!.applyRuleIds?.includes(rule.id) ? (
+                  <button key={`r-${rule.id}`} className="link-button" onClick={() => toggleRule(d.id, rule.id, true)}>
+                    予備日の「{rule.label}」を外す
+                  </button>
+                ) : (
+                  <button key={`r-${rule.id}`} className="button secondary small" onClick={() => toggleRule(d.id, rule.id, true)}>
+                    予備日（{formatYmd(d.reserve!.date)}）にも「{rule.label}」を当てはめる
                   </button>
                 ),
               )}

@@ -13,6 +13,8 @@ export interface FamilyMember {
   relation: Relation;
   /** 表示用の補足（例: 「小学3年」「遠方に住む」） */
   note?: string;
+  /** 選択肢に添える短い続柄（例: 「祖父」「叔母」）。無ければ続柄から決める */
+  roleLabel?: string;
 }
 
 /** 原本のどこに書いてあったか */
@@ -80,6 +82,19 @@ export interface Deadline {
   intent?: string;
   source?: SourceRef;
   /** この予定に当てはめる「わが家のきまり」の ID（例: 有給の申請）。締切はきまりから毎回計算する */
+  applyRuleIds?: string[];
+  /** 雨天・延期の予備日や振替日（本番の予定とつながっている） */
+  reserve?: ReserveDay;
+}
+
+/** 予備日・振替日。本番の予定にぶら下がり、きまりも別に当てはめられる */
+export interface ReserveDay {
+  /** YYYY-MM-DD */
+  date: string;
+  /** どんなときか（例: 「雨天の場合」） */
+  condition?: string;
+  source?: SourceRef;
+  /** 予備日にも当てはめる「わが家のきまり」の ID（採用するのは本人） */
   applyRuleIds?: string[];
 }
 

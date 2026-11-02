@@ -3,7 +3,7 @@
 // （いつ・誰の・何を・どこで・何が必要・原本のどこ）で返させる。
 // 判断（補償される・解約してよい・受診すべき等）を書く欄はそもそも用意しない。
 
-import { DEFAULT_LEAD_DAYS } from "./labels";
+import { DEFAULT_LEAD_DAYS, RELATION_LABELS } from "./labels";
 import type {
   ButlerQuestion,
   DeadlineKind,
@@ -37,6 +37,8 @@ export interface ExtractedDeadline {
   repeatMonths: number;
   location: string;
   quote: string;
+  /** 雨天・延期の予備日や振替日（無ければすべて空） */
+  reserve: { date: string; condition: string; location: string; quote: string };
 }
 
 /** いつの分の書類か（年度・保険期間・契約期間など） */
@@ -178,7 +180,7 @@ export const EXTRACTION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "repeatMonths", "location", "quote"],
+        required: ["kind", "label", "date", "endDate", "time", "place", "needs", "repeatMonths", "location", "quote", "reserve"],
         properties: {
           kind: { type: "string", enum: DEADLINE_KIND_VALUES },
           label: str,
@@ -190,6 +192,12 @@ export const EXTRACTION_SCHEMA = {
           repeatMonths: { type: "integer" },
           location: str,
           quote: str,
+          reserve: {
+            type: "object",
+            additionalProperties: false,
+            required: ["date", "condition", "location", "quote"],
+            properties: { date: str, condition: str, location: str, quote: str },
+          },
         },
       },
     },
@@ -268,6 +276,9 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
         repeatMonths: [1, 3, 6, 12, 24, 36].includes(Number(d?.repeatMonths)) ? Number(d.repeatMonths) : 0,
         location: s(d?.location),
         quote: s(d?.quote),
+        reserve: YMD.test(s(d?.reserve?.date))
+          ? { date: s(d.reserve.date), condition: s(d.reserve.condition), location: s(d.reserve.location), quote: s(d.reserve.quote) }
+          : { date: "", condition: "", location: "", quote: "" },
       }))
       .filter((d) => d.label && YMD.test(d.date)),
     contacts: contacts
@@ -309,8 +320,13 @@ export function membersQuestion(
     reason: reason || undefined,
     guess: guess.length ? guess : undefined,
     options: [
-      // メモは短いもの（「2歳・保育園」など）だけ添える
-      ...ordered.map((m) => ({ label: m.note && m.note.length <= 8 ? `${m.name}（${m.note}）` : m.name, value: m.id })),
+      // 短い続柄（祖父・叔母など）と、短いメモ（「2歳・保育園」など）だけ添える
+      ...ordered.map((m) => {
+        const extra = [m.roleLabel ?? RELATION_LABELS[m.relation], m.note && m.note.length <= 8 ? m.note : undefined]
+          .filter(Boolean)
+          .join("・");
+        return { label: `${m.name}（${extra}）`, value: m.id };
+      }),
       { label: "家族みんな", value: "all" },
     ],
     multiple: true,
@@ -380,6 +396,9 @@ export function extractionToDocument(
       place: d.place || undefined,
       needs: d.needs.length ? d.needs : undefined,
       repeatMonths: d.repeatMonths || undefined,
+      reserve: d.reserve.date
+        ? { date: d.reserve.date, condition: d.reserve.condition || undefined, source: source(d.reserve.location, d.reserve.quote) }
+        : undefined,
       leadDays: DEFAULT_LEAD_DAYS[d.kind],
       memberIds,
       source: source(d.location, d.quote),

@@ -239,6 +239,23 @@ export function DocumentForm({
               placeholder={"例: 母子健康手帳\n問診票"}
             />
           </label>
+          {d.kind === "event" && (
+            <label className="label">
+              予備日（雨天・延期のとき。無ければ空）
+              <input
+                className="input"
+                type="date"
+                value={d.reserve?.date ?? ""}
+                onChange={(e) =>
+                  updateDeadline(i, {
+                    reserve: e.target.value
+                      ? { ...(d.reserve ?? { condition: "雨天・延期の場合" }), date: e.target.value }
+                      : undefined,
+                  })
+                }
+              />
+            </label>
+          )}
           {(d.kind === "expiry" || d.kind === "cancel_window" || d.kind === "window" || d.kind === "due") && (
             <label className="label">
               くり返し

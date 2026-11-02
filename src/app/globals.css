@@ -545,3 +545,9 @@ button.chip {
   vertical-align: middle;
   border: 2px solid #ffffff;
 }
+
+.reserve {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--border);
+}

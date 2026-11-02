@@ -235,6 +235,12 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
         repeatMonths: 0,
         location: "1. 日時",
         quote: jpDate(t.sportsDay),
+        reserve: {
+          date: toYmd(t.sportsDayReserve),
+          condition: "雨天の場合",
+          location: "2. 雨天の場合",
+          quote: `${jpShortDate(t.sportsDayReserve)} に順延します`,
+        },
       },
     ],
     contacts: [
@@ -333,6 +339,7 @@ export function dentalCheckupProvisionalDraft(today: Date): Extraction {
         repeatMonths: 0,
         location: "2. 日時",
         quote: jpDate(day),
+        reserve: { date: "", condition: "", location: "", quote: "" },
       },
     ],
     contacts: [

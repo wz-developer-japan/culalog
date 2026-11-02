@@ -11,6 +11,8 @@ import {
   dentalCheckupText,
   fireInsuranceText,
   guaranteeText,
+  jpDate,
+  jpShortDate,
   leaseText,
   schoolAnnualText,
   sportsDayNoticeProvisionalDraft,
@@ -27,13 +29,13 @@ export function createDemoHousehold(today: Date = new Date()): Household {
   return {
     isDemo: true,
     members: [
-      { id: "m-self", name: "日向 翔太", relation: "self", note: "書類の管理をしている。土日も勤務がある変則シフト" },
-      { id: "m-spouse", name: "日向 美咲", relation: "spouse" },
-      { id: "m-son", name: "日向 蓮", relation: "child", note: "小学3年" },
-      { id: "m-daughter", name: "日向 結衣", relation: "child", note: "2歳・保育園" },
-      { id: "m-grandpa", name: "日向 正雄", relation: "parent", note: "翔太の父・遠方に住む" },
-      { id: "m-grandma", name: "日向 和子", relation: "parent", note: "翔太の母・遠方に住む" },
-      { id: "m-aunt", name: "森 由紀", relation: "sibling", note: "翔太の妹・両親の近くに住む" },
+      { id: "m-self", name: "日向 翔太", relation: "self", roleLabel: "本人", note: "書類の管理をしている。土日も勤務がある変則シフト" },
+      { id: "m-spouse", name: "日向 美咲", relation: "spouse", roleLabel: "妻" },
+      { id: "m-son", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
+      { id: "m-daughter", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
+      { id: "m-grandpa", name: "日向 正雄", relation: "parent", roleLabel: "祖父", note: "翔太の父・遠方に住む" },
+      { id: "m-grandma", name: "日向 和子", relation: "parent", roleLabel: "祖母", note: "翔太の母・遠方に住む" },
+      { id: "m-aunt", name: "森 由紀", relation: "sibling", roleLabel: "叔母", note: "翔太の妹・両親の近くに住む" },
     ],
     documents: [
       {
@@ -92,7 +94,12 @@ export function createDemoHousehold(today: Date = new Date()): Household {
             leadDays: 21,
             leadReason: "土日も勤務がある。有給の申請に間に合うよう、案内プリントで日時を確かめたい",
             memberIds: ["m-son", "m-self"],
-            source: { location: "主な行事・運動会", quote: "雨天の場合は翌日に順延" },
+            source: { location: "主な行事・運動会", quote: jpDate(t.sportsDay) },
+            reserve: {
+              date: ymd(t.sportsDayReserve),
+              condition: "雨天の場合",
+              source: { location: "主な行事・運動会", quote: `雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延` },
+            },
           },
           {
             id: "dl-interview",

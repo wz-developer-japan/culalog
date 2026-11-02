@@ -68,7 +68,7 @@ export function QuestionCard({
           </button>
           <details className="others">
             <summary>ほかの人・複数の人</summary>
-            {optionChips()}
+            {optionChips(guess.length === 1 ? guess : [])}
             {selected.length > 0 && (
               <button className="button small" onClick={() => onAnswer(selected)}>
                 これで答える
@@ -91,10 +91,11 @@ export function QuestionCard({
     </div>
   );
 
-  function optionChips() {
+  /** hide: 上の「はい」で選べる人は、畳んだ方に重ねて出さない（候補が複数のときは、一部だけ選べるよう残す） */
+  function optionChips(hide: string[] = []) {
     return (
       <div className="chips">
-        {question.options.map((o) => (
+        {question.options.filter((o) => !hide.includes(o.value)).map((o) => (
           <button
             key={o.value}
             className={`chip${selected.includes(o.value) ? " selected" : ""}`}

@@ -47,6 +47,12 @@ export default function Schedule() {
         </div>
         {d.label}
         {d.place && <div>場所: {d.place}</div>}
+        {d.reserve && (
+          <div>
+            予備日: {formatYmd(d.reserve.date)}
+            {d.reserve.condition && `（${d.reserve.condition}）`}
+          </div>
+        )}
         {d.needs?.length ? <div>必要なもの: {d.needs.join("、")}</div> : null}
         <div className="meta">
           {DEADLINE_KIND_LABELS[d.kind]}

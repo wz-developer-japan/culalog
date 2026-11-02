@@ -76,8 +76,26 @@ export const ruleDeadlineId = (deadlineId: string, ruleId: string) => `${deadlin
  * 知らせ始めるのは、もとの予定を知らせ始める日と同じ日。
  */
 export function ruleDeadlines(deadline: Deadline, rules: HouseRule[]): Deadline[] {
-  if (deadline.kind !== "event" || !deadline.applyRuleIds?.length) return [];
-  return rules
+  if (deadline.kind !== "event") return [];
+  const reserve = deadline.reserve;
+  const forReserve =
+    reserve?.applyRuleIds?.length
+      ? rules
+          .filter((r) => reserve.applyRuleIds!.includes(r.id))
+          .map((r) => ({
+            // ID の先頭は本番の予定の ID（届いた案内に任せて元の予定を出さないとき、一緒に外れるように）
+            id: ruleDeadlineId(deadline.id, `reserve-${r.id}`),
+            kind: "notice" as const,
+            label: `${deadline.label}の予備日（${reserve.condition ?? "予備日"}・${formatYmd(reserve.date)}）の${r.label}`,
+            date: toYmd(addDays(parseDate(reserve.date), -r.daysBefore)),
+            leadDays: Math.max(0, deadline.leadDays - r.daysBefore),
+            leadReason: `予備日の分。${r.note ?? `${r.label}は${r.daysBefore}日前まで`}`,
+            memberIds: [r.memberId],
+            source: reserve.source,
+          }))
+      : [];
+  if (!deadline.applyRuleIds?.length) return forReserve;
+  return [...rules
     .filter((r) => deadline.applyRuleIds!.includes(r.id))
     .map((r) => ({
       id: ruleDeadlineId(deadline.id, r.id),
@@ -87,7 +105,7 @@ export function ruleDeadlines(deadline: Deadline, rules: HouseRule[]): Deadline[
       leadDays: Math.max(0, deadline.leadDays - r.daysBefore),
       leadReason: r.note ?? `${r.label}は${r.daysBefore}日前まで`,
       memberIds: [r.memberId],
-    }));
+    })), ...forReserve];
 }
 
 /** 書類の期限と、そこにきまりを当てはめた締切をまとめて返す（today があれば、くり返す期限は今の回にする） */
