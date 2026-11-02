@@ -68,7 +68,7 @@ export default function Top() {
             読んで、仕分けて、いつ・何を・どこで、を先回りしてお知らせします。
           </div>
         </div>
-        <button className="button" onClick={() => save(createDemoHousehold())}>
+        <button className="button" onClick={async () => save(await createDemoHousehold())}>
           架空の家族で試す
         </button>
         <button className="button secondary" onClick={() => save(createEmptyHousehold())}>

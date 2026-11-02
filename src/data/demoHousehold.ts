@@ -3,7 +3,6 @@
 // 日付は開いた日から相対的に作るので、いつ開いても同じ流れを試せる。
 // 書類の本文（原本）は demoDocuments.ts にあり、下の項目はそこから読み取って確定した、という扱い。
 
-import photoSamples from "./photoSamples.json";
 import { addDays, toYmd } from "@/lib/deadlines";
 import type { DemoSample, Household } from "@/lib/types";
 import {
@@ -29,7 +28,12 @@ import {
   subscriptionText,
 } from "./demoDocuments";
 
-export function createDemoHousehold(today: Date = new Date()): Household {
+/**
+ * 架空の家族を作る。写真・メールの見本（約 700KB）は「架空の家族で試す」を押したときだけ読み込む
+ * （最初の画面の JS に入れない）
+ */
+export async function createDemoHousehold(today: Date = new Date()): Promise<Household> {
+  const photoSamples = (await import("./photoSamples.json")).default as unknown as DemoSample[];
   const t = demoDates(today);
   const ymd = (date: Date) => toYmd(date);
   const createdAt = today.toISOString();
@@ -512,7 +516,7 @@ export function createDemoHousehold(today: Date = new Date()): Household {
         provisionalDraft: subscriptionProvisionalDraft(t),
       },
       // 写真の見本（本物らしい紙・スクショ・スキャン。撮影日を基準日にした日付で、開いた日に合わせて動かない）
-      ...(photoSamples as DemoSample[]),
+      ...photoSamples,
     ],
     questions: [],
     rules: [
