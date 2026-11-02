@@ -45,6 +45,8 @@ export interface ConnectResult {
 
 export interface ConnectInput {
   today: string;
+  /** 架空の家族か（サーバーの設定で、デモの家族だけ Claude を呼ばないようにできる。Claude には送らない） */
+  demo: boolean;
   /** 口調（キャラの種類の説明だけ。名前は入れない） */
   style: string;
   family: { id: string; name: string; relation: string; note: string }[];
@@ -154,6 +156,7 @@ export function buildConnectInput(
     .map(([key]) => key);
   return {
     today,
+    demo: household.isDemo,
     style,
     family: household.members.map((m) => ({
       id: m.id,

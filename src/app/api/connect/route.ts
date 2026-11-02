@@ -83,6 +83,9 @@ export async function POST(request: NextRequest) {
     return fail(400, "送られてきた内容を読めませんでした。");
   }
   if (!looksLikeInput(input)) return fail(400, "送られてきた内容の形が正しくありません。");
+  // 架空の家族では呼ばない設定（CONNECT_DEMO=off）。画面は仮のものに切り替わる
+  const { demo, ...forClaude } = input as Record<string, unknown> & { demo?: unknown };
+  if (demo === true && process.env.CONNECT_DEMO === "off") return fail(503, "デモでは執事（Claude）を呼ばない設定です。");
 
   const limit = checkRateLimit(clientIdOf(request));
   if (!limit.ok) {
@@ -104,7 +107,7 @@ export async function POST(request: NextRequest) {
           content: [
             {
               type: "text",
-              text: `この家のデータです。今日のひとことと、気づいたことを返してください。\n\n${JSON.stringify(input)}`,
+              text: `この家のデータです。今日のひとことと、気づいたことを返してください。\n\n${JSON.stringify(forClaude)}`,
             },
           ],
         },
