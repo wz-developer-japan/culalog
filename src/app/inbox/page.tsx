@@ -197,6 +197,13 @@ export default function Inbox() {
                         {d.completions?.length ? <div className="meta">済んだことのお知らせ: {d.completions.map((c) => c.what).join("、")}</div> : null}
                         {d.notForFamily && <div className="meta">家族の情報にしません: {d.notForFamily}</div>}
                         {blocker && <div className="meta warn-text">⚠ {blocker}</div>}
+                        {blocker && d.unclear?.length
+                          ? d.unclear.map((u, i) => (
+                              <div className="meta" key={i}>
+                                ・{u}
+                              </div>
+                            ))
+                          : null}
                       </div>
                     </div>
                   </div>

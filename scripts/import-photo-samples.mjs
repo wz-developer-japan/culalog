@@ -14,7 +14,7 @@ if (!dir || !existsSync(dir)) {
   process.exit(1);
 }
 const prefixes = process.argv.slice(3);
-const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhitmgpvrxjuzly]\d/.test(id));
+const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhitmgpvrxjuzlyo]\d/.test(id));
 
 const baseDate = basename(dir);
 const outDir = join("public", "samples", baseDate);
@@ -151,7 +151,17 @@ function toExtraction(raw, text) {
       })),
     contacts: (t.contacts ?? []).map((c) => ({ label: str(c.label), name: str(c.name), phone: str(c.phone), hours: str(c.hours), location: str(c.location) })),
     questions: [],
-    unclear: [],
+    // 原本だけでは決められないこと（別紙が無い・写真に写っていない・日付と曜日が合わない）は「読めなかった所」として、
+    // まとめて確定から外し、本人に原本で確かめてもらう（推測で埋めない）
+    unclear: [
+      ...texts(t.missingAttachments).map((item) => `${item}は別紙にあるはずですが、別紙は渡されていません（持ち物などは推測していません）`),
+      ...(Array.isArray(t.notVisible) ? t.notVisible : t.notVisible ? [t.notVisible] : []).map((n) => `${str(n.item)}は写真に写っていません（${str(n.reason)}）。撮り直すか、原本で確かめてください`),
+      ...(t.dateWeekdayMismatch
+        ? [
+            `${str(t.dateWeekdayMismatch.location)}の「${str(t.dateWeekdayMismatch.written)}」は、日付と曜日が合いません（${str(t.dateWeekdayMismatch.dateAsWritten)} は${str(t.dateWeekdayMismatch.weekdayOfThatDate)}曜日。曜日どおりなら ${str(t.dateWeekdayMismatch.nearestDateWithWrittenWeekday)}）。どちらが正しいかは原本からは分からないので、確かめてください`,
+          ]
+        : []),
+    ],
     // 済んだことのお知らせ（closes: { docId, deadlineLabel, date, reason }。つながる予定の名前と、相手の書類の束ねる印）。
     // 「期限の訂正」のように、済んだのではなく前の予定が置き換わるものは corrected
     completions: (Array.isArray(t.closes) ? t.closes : t.closes ? [t.closes] : [])

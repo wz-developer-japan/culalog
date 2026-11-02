@@ -127,6 +127,21 @@ await step("写真の見本をまとめて渡しても、ホームのひとこ�
   if (n > 3) throw new Error(`ひとことが${n}件あります`);
 });
 
+await step("崩れた紙: 写真が切れている・日付と曜日が合わないものは確定から外れて理由が出る、二つの書類で日付が食い違えば両方出る", async () => {
+  // まとめて確定のあと、迷う理由があるものだけが確認待ちに残る
+  await page.goto(BASE + "/inbox");
+  await see("読めなかった所があります");
+  const body = await page.locator("main").innerText();
+  for (const t of ["振替日は写真に写っていません", "日付と曜日が合いません", "別紙は渡されていません"]) {
+    if (!body.includes(t)) throw new Error(`確認待ちに「${t}」がありません`);
+  }
+  // 学校のお知らせ（1/22）と学年だより（1/29）で日付が食い違う学習発表会は、どちらも予定に出る（違いに気づけるように）
+  await page.goto(BASE + "/schedule");
+  await see("これから");
+  const n = await page.locator(".card").filter({ hasText: "学習発表会" }).count();
+  if (n !== 2) throw new Error(`学習発表会が${n}件です（日付が食い違う2件が両方出るはず）`);
+});
+
 await step("メールの見本を貼り付けの形で渡すと、同じ予定のメールは束ねられ、「納付完了」で済んだにするか聞かれる", async () => {
   await page.goto(BASE + "/scan");
   await page.getByRole("button", { name: /メールの見本を\d+件まとめて渡す/ }).click();
@@ -140,6 +155,10 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   const bill = page.locator(".card").filter({ hasText: "後払いの支払期限" });
   if ((await bill.count()) !== 1) throw new Error(`後払いの支払期限が${await bill.count()}件あります（1件に束ねられていません）`);
   await bill.first().getByText("同じ予定のお知らせ").waitFor({ timeout: 10000 });
+  // 家財の保険の継続のご案内（メール2通）は、本体の証券から計算した「申し出の締切」（同じ日）に束なる
+  const fire = page.locator(".card").filter({ hasText: "継続しない場合の" });
+  if ((await fire.count()) !== 1) throw new Error(`継続しない場合の申し出の締切が${await fire.count()}件あります（1件に束ねられていません）`);
+  await fire.first().getByText("同じ予定のお知らせ").waitFor({ timeout: 10000 });
   // 完了で閉じる: 決済結果のお知らせ → 後払いの支払期限は済みましたか？（聞きたいことは1問ずつなので、ほかの質問は「あとで」で送る）
   await page.goto(BASE + "/questions");
   await page.locator("main h1").waitFor({ timeout: 15000 });
