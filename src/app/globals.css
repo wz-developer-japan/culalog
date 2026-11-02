@@ -582,3 +582,106 @@ button.chip {
 .thinking {
   margin-bottom: 8px;
 }
+
+/* ---- まとめて渡す・まとめて確認・聞きたいこと ---- */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px 16px;
+  margin: 12px 0;
+  border: 2px dashed var(--accent, #c2410c);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  cursor: pointer;
+}
+.dropzone.dragging {
+  background: rgba(234, 88, 12, 0.08);
+}
+.dropzone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.dropzone-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.progress-label {
+  font-weight: 700;
+}
+.progress {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent, #c2410c);
+  transition: width 0.3s;
+}
+.card.bulk {
+  opacity: 0.75;
+}
+.card.bulk.checked {
+  opacity: 1;
+}
+.bulk-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-weight: 700;
+}
+.bulk-check input {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-top: 2px;
+}
+.bulk-body {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  margin-left: 32px;
+}
+.thumb {
+  width: 56px;
+  height: 72px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex: none;
+  background: #fff;
+}
+.learned {
+  color: #15803d;
+}
+.warn-text {
+  color: #b91c1c;
+}
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 0;
+  background: linear-gradient(transparent, var(--bg, #fff8f0) 30%);
+}
+.question-corner .chip {
+  font-size: 1.05rem;
+  padding: 12px 16px;
+}
+.question-corner .button.guess {
+  font-size: 1.1rem;
+  padding: 16px;
+}
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}

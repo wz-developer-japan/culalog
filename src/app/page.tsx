@@ -7,7 +7,6 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { createDemoHousehold } from "@/data/demoHousehold";
 import {
   answerLater,
-  answerQuestion,
   type BriefingItem,
   buildCandidates,
   type Candidate,
@@ -21,10 +20,12 @@ import {
 } from "@/lib/butler";
 import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import { adoptInsight, answerInsight } from "@/lib/connect";
+import { answerAndLearn, inboxProgress } from "@/lib/inbox";
 import type { Household } from "@/lib/types";
 import { markAskSeen, pendingAsks, unseenReports, useAskQueue } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
-import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
+import { createEmptyHousehold, newId, useHousehold } from "@/lib/useHousehold";
+import { useInboxQueue } from "@/lib/useInbox";
 import { AskAnswer } from "@/components/AskAnswer";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
@@ -35,6 +36,8 @@ export default function Home() {
   const { result: connect, status } = useConnect(household, update);
   // 頼んで、あとで報告: 答えの無い頼みごとがあれば、この画面を開いているあいだに調べて保存する
   useAskQueue(household, update);
+  // まとめて渡した書類: この画面を開いているあいだに、執事が1枚ずつ読む
+  useInboxQueue(household, update);
 
   // 済むまで追いかける: 念押しの段に入った日を覚える（その日だけ、ひとことの上に出す）
   useEffect(() => {
@@ -79,6 +82,8 @@ export default function Home() {
   const net = safetyNet(candidates, briefing);
   const questions = openQuestions(h, today);
   const unconfirmed = h.documents.filter((d) => !d.confirmedAt);
+  const progress = inboxProgress(h);
+  const reading = progress.waiting + progress.needsKey;
   const reports = unseenReports(h);
   const pending = pendingAsks(h);
   const todayClasses = h.timetable.filter((t) => t.weekday === today.getDay());
@@ -216,20 +221,39 @@ export default function Home() {
         </>
       )}
 
+      {(reading > 0 || unconfirmed.length > 0) && (
+        <>
+          <h2>渡した書類</h2>
+          <Link className="card row-link" href="/inbox">
+            {reading > 0
+              ? `${name}が読んでいます: ${progress.done + progress.duplicate + progress.failed} / ${progress.total}枚`
+              : `読み終わりました: 確認待ち ${unconfirmed.length}件`}
+            {reading > 0 && unconfirmed.length > 0 && <span className="block meta">確認待ち {unconfirmed.length}件</span>}
+            {progress.pausedUntil && reading > 0 && <span className="block meta">読み取りの回数の上限に当たったので、少し時間をおいて続きを読みます</span>}
+            <span className="badge">まとめて確認</span>
+          </Link>
+        </>
+      )}
+
       {questions.length > 0 && (
         <>
-          <h2>{name}から聞きたいこと</h2>
+          <h2>
+            {name}から聞きたいこと（{questions.length}問）
+          </h2>
           <p className="meta">{character.asking}</p>
-          {questions.map((q) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              document={h.documents.find((d) => d.id === q.documentId)}
-              onAnswer={(values) => save(answerQuestion(h, q.id, values))}
-              onLater={() => save(answerLater(h, q.id, today))}
-              members={h.members}
-            />
-          ))}
+          <QuestionCard
+            key={questions[0].id}
+            question={questions[0]}
+            document={h.documents.find((d) => d.id === questions[0].documentId)}
+            onAnswer={(values) => update((current) => answerAndLearn(current, questions[0].id, values, newId).household)}
+            onLater={() => update((current) => answerLater(current, questions[0].id, today))}
+            members={h.members}
+          />
+          {questions.length > 1 && (
+            <Link className="button secondary small" href="/questions" style={{ textAlign: "center", textDecoration: "none" }}>
+              残りの{questions.length - 1}問に答える
+            </Link>
+          )}
         </>
       )}
 
@@ -254,17 +278,6 @@ export default function Home() {
         </>
       )}
 
-      {unconfirmed.length > 0 && (
-        <>
-          <h2>確認待ち</h2>
-          {unconfirmed.map((d) => (
-            <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
-              {d.title}
-              <span className="badge">原本と見比べる</span>
-            </Link>
-          ))}
-        </>
-      )}
 
       <div className="spacer" />
       <Link className="button" href="/scan" style={{ textAlign: "center", textDecoration: "none" }}>

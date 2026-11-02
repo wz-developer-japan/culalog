@@ -4,13 +4,20 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { memberMark } from "@/lib/memberMark";
 import { CATEGORY_LABELS } from "@/lib/labels";
+import type { DocumentCategory, DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
+import { useInboxQueue } from "@/lib/useInbox";
 
 export default function Documents() {
   const router = useRouter();
-  const { household, loaded, clear } = useHousehold();
+  const { household, loaded, clear, update } = useHousehold();
+  useInboxQueue(household, update);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<DocumentCategory | "">("");
+  const [member, setMember] = useState("");
 
   useEffect(() => {
     if (loaded && !household) router.replace("/");
@@ -20,9 +27,19 @@ export default function Documents() {
   const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name ?? "";
   const current = household.documents.filter((d) => !d.supersededBy);
   const old = household.documents.filter((d) => d.supersededBy);
-  const docs = [...current].sort(
-    (a, b) => Number(Boolean(a.confirmedAt)) - Number(Boolean(b.confirmedAt)) || b.createdAt.localeCompare(a.createdAt),
-  );
+  // 探す: 題名・種類・期間・項目・予定・原本の文字のどこかに、空白で区切った言葉が全部あるもの
+  const words = query.trim().split(/\s+/).filter(Boolean);
+  const textOf = (d: DocumentRecord) =>
+    [d.title, d.docType, d.periodLabel, d.storageLocation, ...d.fields.map((f) => `${f.label} ${f.value}`), ...d.deadlines.map((x) => x.label), d.originalText]
+      .filter(Boolean)
+      .join(" ");
+  const categories = [...new Set(current.map((d) => d.category))];
+  const people = household.members.filter((m) => current.some((d) => d.memberIds.includes(m.id)));
+  const docs = current
+    .filter((d) => (!category || d.category === category) && (!member || d.memberIds.includes(member)))
+    .filter((d) => words.every((w) => textOf(d).includes(w)))
+    .sort((a, b) => Number(Boolean(a.confirmedAt)) - Number(Boolean(b.confirmedAt)) || b.createdAt.localeCompare(a.createdAt));
+  const filtered = words.length > 0 || category !== "" || member !== "";
 
   return (
     <main>
@@ -32,8 +49,53 @@ export default function Documents() {
       <h1>書類の一覧</h1>
       <p className="lead">執事に渡した書類です。データはこの端末の中にだけ保存しています。</p>
 
+      {current.length > 4 && (
+        <>
+          <input
+            className="input"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="探す（例: 運動会　保険　更新料）"
+            aria-label="書類を探す"
+          />
+          <div className="chips">
+            <button className={`chip${category === "" ? " selected" : ""}`} onClick={() => setCategory("")}>
+              すべての種類
+            </button>
+            {categories.map((c) => (
+              <button key={c} className={`chip${category === c ? " selected" : ""}`} onClick={() => setCategory(category === c ? "" : c)}>
+                {CATEGORY_LABELS[c]}（{current.filter((d) => d.category === c).length}）
+              </button>
+            ))}
+          </div>
+          {people.length > 1 && (
+            <div className="chips">
+              {people.map((m) => {
+                const mark = memberMark(household.members, m.id);
+                return (
+                  <button key={m.id} className={`chip${member === m.id ? " selected" : ""}`} onClick={() => setMember(member === m.id ? "" : m.id)}>
+                    {mark && (
+                      <span className="member-dot" style={{ background: mark.color }} aria-hidden>
+                        {mark.initial}
+                      </span>
+                    )}
+                    {m.name.split(/\s+/).pop()}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {filtered && (
+            <p className="meta">
+              {docs.length}件 / {current.length}件
+            </p>
+          )}
+        </>
+      )}
+
       {docs.length === 0 ? (
-        <div className="card meta">まだありません。</div>
+        <div className="card meta">{filtered ? "当てはまる書類はありません。" : "まだありません。"}</div>
       ) : (
         docs.map((d) => (
           <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>

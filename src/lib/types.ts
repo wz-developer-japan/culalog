@@ -6,6 +6,7 @@ import type { AskRecord } from "./ask";
 import type { ButlerSettings } from "./character";
 import type { ConnectResult } from "./connect";
 import type { Extraction } from "./extraction";
+import type { InboxItem, Learned } from "./inbox";
 
 export type Relation = "self" | "spouse" | "child" | "parent" | "sibling" | "other";
 
@@ -146,15 +147,16 @@ export interface DemoSample {
  * - members: 誰の書類か。答えは書類の「誰の」に入る
  * - other:   それ以外（例: 何班か）。答えは書類の項目に「本人の答え」として入る
  * - supersede: 同じ種類の新しい書類が来たので、古い方を「前のもの」にするか（答え: replace / keep）
+ * - duplicate: 前に渡した書類と同じもの（写真違い）かもしれないので、今回の分を消すか（答え: same / different）
  */
 export interface ButlerQuestion {
   id: string;
   documentId: string;
-  about: "members" | "other" | "supersede";
+  about: "members" | "other" | "supersede" | "duplicate";
   text: string;
   /** members: いちばんありそうな人（大きく出す） */
   guess?: string[];
-  /** supersede: 「前のもの」にするかを聞いている古い書類 */
+  /** supersede: 「前のもの」にするかを聞いている古い書類。duplicate: 同じかもしれない前の書類 */
   targetDocumentId?: string;
   /** なぜ聞くのか（例: 対象が生まれ月で書かれていて、誕生日が登録されていない） */
   reason?: string;
@@ -228,6 +230,10 @@ export interface DocumentRecord {
   summary?: DocumentSummary;
   /** 本人が原本と見比べて確定した日時。未確定の書類はホームの計算に使わない */
   confirmedAt?: string;
+  /** 読み取りに使ったファイルの指紋（同じ写真をもう一度渡したときに気づくため） */
+  fileHash?: string;
+  /** 前に本人が答えたことを当てはめたとき、その説明（例: 「前に教えてもらったので、結衣さんの書類にしました」） */
+  learnedNotes?: string[];
 }
 
 export interface DocumentSummary {
@@ -271,5 +277,11 @@ export interface Household {
   insightAnswers?: Record<string, "adopted" | "rejected" | "seen">;
   /** 執事に頼んだこと（新しい順・端末に保存）。答えが付くまでは「調べています」。頼んで画面を閉じても、次に開いたときに調べて報告に残る */
   asks?: AskRecord[];
+  /** まとめて渡した写真・PDF の受け取り箱（ファイルの中身は別の場所に置く）。執事が1枚ずつ読む */
+  inbox?: InboxItem[];
+  /** 読み取りの上限に当たったとき、この時刻（ISO）までは次を読まない */
+  inboxPausedUntil?: string;
+  /** 本人が質問に答えて、執事が覚えたこと（同じ種類の書類で二度聞かないため） */
+  learned?: Learned[];
   isDemo: boolean;
 }

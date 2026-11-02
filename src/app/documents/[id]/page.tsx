@@ -8,7 +8,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
-import { answerQuestion, confirmDocument, openQuestions } from "@/lib/butler";
+import { confirmDocument, openQuestions } from "@/lib/butler";
+import { answerAndLearn } from "@/lib/inbox";
 import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
 import { findQuote, type Mark, segments } from "@/lib/highlight";
@@ -203,10 +204,19 @@ export default function DocumentDetail() {
               question={q}
               showDocument={false}
               members={household.members}
-              onAnswer={(values) => save(answerQuestion(household, q.id, values))}
+              onAnswer={(values) => save(answerAndLearn(household, q.id, values, newId).household)}
             />
           ))}
         </>
+      )}
+
+      {doc.learnedNotes && doc.learnedNotes.length > 0 && (
+        <div className="card meta">
+          {doc.learnedNotes.map((n, i) => (
+            <div key={i}>✓ {n}</div>
+          ))}
+          <Link href="/questions">覚えたことを見る・忘れさせる</Link>
+        </div>
       )}
 
       {confirmed && expected && (

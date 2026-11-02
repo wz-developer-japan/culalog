@@ -230,6 +230,7 @@ export function effectOf(q: ButlerQuestion): string {
   if (q.effect) return q.effect;
   if (q.about === "members") return "選んだ人の予定として、ひとことでお知らせします。";
   if (q.about === "supersede") return "前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。";
+  if (q.about === "duplicate") return "同じ書類なら、今回の分は消して前の書類だけを使います。別の書類なら両方残します。";
   return "答えは、この書類の項目に「本人の答え」として残ります。";
 }
 
@@ -243,7 +244,7 @@ export function answerLater(household: Household, questionId: string, today: Dat
 }
 
 /** 同じ種類かどうかを見るために、年・年度・空白・かっこ書きを取り除く */
-const kindKey = (doc: DocumentRecord) =>
+export const kindKey = (doc: Pick<DocumentRecord, "docType" | "title">) =>
   (doc.docType || doc.title)
     .replace(/[（(].*?[)）]/g, "")
     .replace(/(令和|平成)?[0-9０-９]+年度?/g, "")
@@ -303,6 +304,22 @@ export function answerQuestion(household: Household, questionId: string, values:
   const question = household.questions?.find((q) => q.id === questionId);
   if (!question || values.length === 0) return household;
   const now = new Date().toISOString();
+  // 写真違いの同じ書類: 今回の分（documentId）を消して、前の書類だけを使う
+  if (question.about === "duplicate") {
+    const same = values.includes("same");
+    return {
+      ...household,
+      documents: same ? household.documents.filter((d) => d.id !== question.documentId) : household.documents,
+      questions: (household.questions ?? [])
+        .filter((q) => !same || q.id === questionId || q.documentId !== question.documentId)
+        .map((q) => (q.id === questionId ? { ...q, answer: values, answeredAt: now } : q)),
+      inbox: same
+        ? (household.inbox ?? []).map((i) =>
+            i.documentId === question.documentId ? { ...i, status: "duplicate" as const, documentId: undefined, duplicateOf: question.targetDocumentId } : i,
+          )
+        : household.inbox,
+    };
+  }
   const documents = household.documents.map((doc) => {
     if (question.about === "supersede") {
       return doc.id === question.targetDocumentId && values.includes("replace")

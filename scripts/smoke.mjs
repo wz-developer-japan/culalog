@@ -90,6 +90,30 @@ await step("頼んだことがホームの報告に残る", async () => {
   await page.locator("h2", { hasText: "からの報告" }).waitFor({ timeout: 15000 });
 });
 
+await step("見本をまとめて渡すと、受け取り箱で順番に読まれ、まとめて確定できる", async () => {
+  await page.goto(BASE + "/scan");
+  await page.getByRole("button", { name: /まとめて渡す/ }).click();
+  await page.waitForURL(/\/inbox/, { timeout: 15000 });
+  await see("全部読み終わりました");
+  const button = page.getByRole("button", { name: /まとめて確定する/ });
+  await button.click();
+  await see("件を確定しました");
+});
+
+await step("聞きたいことに答えると、執事が覚える", async () => {
+  await page.goto(BASE + "/questions");
+  const yes = page.locator(".button.guess").first();
+  await yes.waitFor({ timeout: 15000 });
+  await yes.click();
+  await see("覚えました");
+});
+
+await step("同じ見本をもう一度渡すと、同じファイルとして読まない", async () => {
+  await page.goto(BASE + "/scan");
+  await page.getByRole("button", { name: /まとめて渡す/ }).click();
+  await see("前に渡したものと同じファイル");
+});
+
 await browser.close();
 for (const [s, name, why] of results) console.log(`${s}  ${name}${why ? `\n    ${why}` : ""}`);
 console.log(`画面の画像: ${OUT}`);
