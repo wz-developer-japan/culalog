@@ -24,13 +24,13 @@ export function createDemoHousehold(today: Date = new Date()): Household {
     documents: [
       {
         id: "doc-school-annual",
-        title: "あおば台小学校 年間行事予定",
+        title: "くろうど第一小学校 年間行事予定",
         category: "school",
         memberIds: ["m-son"],
         origin: "demo",
         storageLocation: "冷蔵庫の扉（磁石）",
         fields: [],
-        contacts: [{ label: "学校", name: "あおば台小学校 職員室", phone: "000-0000-0000" }],
+        contacts: [{ label: "学校", name: "くろうど第一小学校 職員室", phone: "000-0000-0000" }],
         deadlines: [
           {
             id: "dl-sports-day",
