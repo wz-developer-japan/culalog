@@ -697,3 +697,17 @@ button.chip {
   flex: none;
   margin-top: 2px;
 }
+.file-button {
+  position: relative;
+  text-align: center;
+  cursor: pointer;
+}
+.file-button.busy {
+  opacity: 0.6;
+}
+.file-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}

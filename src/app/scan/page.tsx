@@ -122,7 +122,7 @@ function ScanPage() {
 
       {result && (
         <div className="card calm">
-          {result.added > 0 && <div>{result.added}件を受け取りました。執事が順番に読みます。</div>}
+          {result.added > 0 && <div>{result.added}件を受け取りました。執事が順番に読みます。ホームに戻っても、閉じても大丈夫です（次に開いたときに続きから読みます）。</div>}
           {result.duplicates > 0 && <div>{result.duplicates}件は、前に渡したものと同じファイルだったので読みません。</div>}
           {result.rejected.map((r, i) => (
             <div key={i} className="meta">

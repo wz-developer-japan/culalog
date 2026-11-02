@@ -27,6 +27,7 @@ import { useConnect } from "@/lib/useConnect";
 import { createEmptyHousehold, newId, useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
 import { AskAnswer } from "@/components/AskAnswer";
+import { QuickGive } from "@/components/QuickGive";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -280,9 +281,7 @@ export default function Home() {
 
 
       <div className="spacer" />
-      <Link className="button" href="/scan" style={{ textAlign: "center", textDecoration: "none" }}>
-        執事に書類を渡す
-      </Link>
+      <QuickGive update={update} />
       <Link className="button secondary" href="/ask" style={{ textAlign: "center", textDecoration: "none" }}>
         {name}に聞く・調べてもらう（例: 冬休みはいつからいつまで？）
       </Link>
