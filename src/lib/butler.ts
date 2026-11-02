@@ -40,6 +40,8 @@ export interface Candidate {
   location?: string;
   /** 済むまで追いかける: 前から知らせていて、まだ済んでいない締切の念押しの段（7・3・1 日前） */
   followUp?: { stage: number; label: string };
+  /** この候補に関わる日付 YYYY-MM-DD（Claude の文に出てくる日付を、コードで照らし合わせるため） */
+  dates: string[];
 }
 
 function titleOf({ deadline, daysLeft }: ActionItem, overdue: boolean): string {
@@ -75,6 +77,7 @@ function followUpOf(item: ActionItem, overdue: boolean): Candidate["followUp"] {
 function fromItem(item: ActionItem, overdue: boolean): Candidate {
   return {
     followUp: followUpOf(item, overdue),
+    dates: [item.deadline.date, item.deadline.endDate ?? "", item.deadline.reserve?.date ?? ""].filter(Boolean),
     id: item.deadline.id,
     type: "deadline",
     isEvent: item.deadline.kind === "event",
@@ -104,6 +107,7 @@ export function buildCandidates(household: Household, today: Date): Candidate[] 
       overdue: false,
       title: `${e.label}がまだ届いていません`,
       why: e.hint,
+      dates: [],
     })),
   ];
 }
@@ -169,6 +173,37 @@ export function provisionalBriefing(candidates: Candidate[], limit = 3, isFollow
       location: c.location,
     }));
   return { source: "provisional", items };
+}
+
+/**
+ * Claude が選んだひとこと。言い回しは Claude、日付・原本の場所・詳しくは候補（コード）のものを使う。
+ * 済むまで追いかける念押しの日のものは、Claude が選ばなくても上に足す（取りこぼさない）。
+ */
+export function claudeBriefing(
+  chosen: { candidateId: string; text: string }[],
+  candidates: Candidate[],
+  isFollowUp: (c: Candidate) => boolean = () => false,
+): Briefing {
+  const byId = new Map(candidates.map((c) => [c.id, c]));
+  const item = (c: Candidate, text: string): BriefingItem => ({
+    candidateId: c.id,
+    followUpLabel: isFollowUp(c) ? c.followUp?.label : undefined,
+    isEvent: c.isEvent,
+    text,
+    detail: c.detail,
+    why: c.why,
+    documentId: c.documentId,
+    documentTitle: c.documentTitle,
+    location: c.location,
+  });
+  const picked = chosen.flatMap((b) => {
+    const c = byId.get(b.candidateId);
+    return c ? [item(c, b.text)] : []; // 作り直しのあいだに消えた候補は出さない
+  });
+  const forced = candidates
+    .filter((c) => isFollowUp(c) && !picked.some((p) => p.candidateId === c.id))
+    .map((c) => item(c, c.title));
+  return { source: "claude", items: [...forced, ...picked] };
 }
 
 /** 安全網: 締切が近い・過ぎたのに、ひとことに入っていないもの */

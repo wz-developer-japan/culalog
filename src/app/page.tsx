@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { InsightCard } from "@/components/InsightCard";
 import { QuestionCard } from "@/components/QuestionCard";
 import { createDemoHousehold } from "@/data/demoHousehold";
 import {
@@ -10,6 +11,7 @@ import {
   type BriefingItem,
   buildCandidates,
   type Candidate,
+  claudeBriefing,
   followUpToday,
   markFollowUps,
   openQuestions,
@@ -18,13 +20,17 @@ import {
   toggleDone,
 } from "@/lib/butler";
 import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
+import { adoptInsight, answerInsight } from "@/lib/connect";
 import type { Household } from "@/lib/types";
+import { useConnect } from "@/lib/useConnect";
 import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 export default function Home() {
-  const { household, loaded, save } = useHousehold();
+  const { household, loaded, save, update } = useHousehold();
+  // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
+  const { result: connect, status } = useConnect(household, update);
 
   // 済むまで追いかける: 念押しの段に入った日を覚える（その日だけ、ひとことの上に出す）
   useEffect(() => {
@@ -56,8 +62,16 @@ export default function Home() {
   const today = new Date();
   const h = household as Household;
   const candidates = buildCandidates(h, today);
-  // 11/4 から: Claude が選んだひとこと（書類を確定したとき・1日1回だけ作る）。それまではコードで並べた仮のもの
-  const briefing = provisionalBriefing(candidates, 3, (c) => followUpToday(h, c, today));
+  // Claude が選んだひとこと。Claude の準備中・つながらないときは、コードで期日の近い順に並べた仮のもの
+  const isFollowUp = (c: Candidate) => followUpToday(h, c, today);
+  const fromClaude = connect?.source === "claude" ? claudeBriefing(connect.briefing, candidates, isFollowUp) : null;
+  // Claude の選んだものが照らし合わせで全部外れたときは、「急ぐことはない」と言わずに仮の並びに戻す
+  const briefing =
+    fromClaude && (fromClaude.items.length > 0 || !connect?.dropped)
+      ? fromClaude
+      : provisionalBriefing(candidates, 3, isFollowUp);
+  const answers = h.insightAnswers ?? {};
+  const insights = (connect?.insights ?? []).filter((i) => !answers[i.key]);
   const net = safetyNet(candidates, briefing);
   const questions = openQuestions(h, today);
   const pending = h.documents.filter((d) => !d.confirmedAt);
@@ -121,6 +135,7 @@ export default function Home() {
 
       <h2>{name}のひとこと</h2>
       <div className="card briefing">
+        {status === "thinking" && <div className="meta thinking">{name}が、書類とわが家のきまりを見ています…</div>}
         {briefing.items.length === 0 ? (
           <div>{character.calm}</div>
         ) : (
@@ -139,7 +154,19 @@ export default function Home() {
         )}
         {briefing.source === "provisional" && (
           <div className="meta provisional">
-            仮のひとこと: 執事（Claude）の準備中のため、期日の近い順に並べています。話し方は選んだ執事に合わせていますが、中身はコードで作っています。
+            仮のひとこと: 執事（Claude）
+            {connect?.source === "claude"
+              ? "の選んだものが書類と照らし合わせて合わなかった"
+              : status === "error"
+                ? "につながらなかった"
+                : "の準備中の"}
+            ため、期日の近い順に並べています。話し方は選んだ執事に合わせていますが、中身はコードで作っています。
+          </div>
+        )}
+        {briefing.source === "claude" && (
+          <div className="meta provisional">
+            執事（Claude）が、書類とわが家のきまりを見て選びました。日付・原本の場所は、コードで書類と照らし合わせています。
+            {connect && connect.dropped > 0 && ` 照らし合わせで合わなかった${connect.dropped}件は出していません。`}
           </div>
         )}
       </div>
@@ -180,6 +207,27 @@ export default function Home() {
               members={h.members}
             />
           ))}
+        </>
+      )}
+
+      {insights.length > 0 && (
+        <>
+          <h2>{name}が気づいたこと</h2>
+          {insights.map((i) => (
+            <InsightCard
+              key={i.key}
+              insight={i}
+              rules={h.rules ?? []}
+              provisional={connect?.source !== "claude"}
+              onAdopt={() => update((current) => adoptInsight(current, i))}
+              onAnswer={(answer) => update((current) => answerInsight(current, i, answer))}
+            />
+          ))}
+          {connect?.source !== "claude" && (
+            <p className="meta">
+              仮の気づき: 執事（Claude）の準備中のため、新旧の書類の日付の違いはコードで比べています。デモの家族では、運動会の例も用意しておいたものを出しています。
+            </p>
+          )}
         </>
       )}
 

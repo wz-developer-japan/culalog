@@ -551,3 +551,34 @@ button.chip {
   padding: 6px 10px;
   border-left: 3px solid var(--border);
 }
+
+/* 気づいたこと */
+.card.insight {
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+.insight-text {
+  font-weight: 600;
+}
+
+.insight-change {
+  margin: 6px 0;
+  padding: 6px 10px;
+  background: var(--surface);
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.card.insight .row-actions {
+  margin-top: 10px;
+}
+
+.card.insight .button.small {
+  width: auto;
+  margin: 0;
+}
+
+.thinking {
+  margin-bottom: 8px;
+}

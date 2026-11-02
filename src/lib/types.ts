@@ -3,6 +3,7 @@
 // 本人が確認したものだけを「確定」として扱う。アプリは判断（補償される・解約してよい等）を持たない。
 
 import type { ButlerSettings } from "./character";
+import type { ConnectResult } from "./connect";
 import type { Extraction } from "./extraction";
 
 export type Relation = "self" | "spouse" | "child" | "parent" | "sibling" | "other";
@@ -263,5 +264,9 @@ export interface Household {
   followUps?: Record<string, { stage: number; shownOn: string }>;
   /** 執事のキャラと名前（無ければ最初のキャラ） */
   butler?: ButlerSettings;
+  /** つなぐ＋ひとことの結果（書類を確定したとき・1日1回だけ作って端末に保存） */
+  connect?: ConnectResult;
+  /** 気づいたことへの本人の答え（鍵 → 採用・違う・分かった） */
+  insightAnswers?: Record<string, "adopted" | "rejected" | "seen">;
   isDemo: boolean;
 }
