@@ -7,7 +7,7 @@
 // 書類に書いていないことは「書いていません」と色の違うカードで出し、問い合わせ先だけを添える。
 
 import { maskNumbers } from "./connect";
-import { parseDate } from "./deadlines";
+import { parseDate, toYmd } from "./deadlines";
 import { findQuote } from "./highlight";
 import type { Contact, DocumentRecord, Household } from "./types";
 
@@ -123,6 +123,19 @@ export interface Citation {
   quote: string;
 }
 
+/**
+ * 頼んだこと1件。頼んだ瞬間に端末に保存し、答え（result）はあとから付く。
+ * 画面を閉じても残り、次に開いたときに答えが無ければ調べ直す（「頼んで、あとで報告」）
+ */
+export interface AskRecord {
+  id: string;
+  question: string;
+  askedAt: string;
+  result?: AskResult;
+  /** 報告をホームで「見た」にした日時 */
+  seenAt?: string;
+}
+
 export interface AskResult {
   source: "claude" | "provisional";
   question: string;
@@ -136,6 +149,8 @@ export interface AskResult {
   dropped: number;
   /** 答え自体を出さなかった理由（判断の言い回し・日付が合わないなど） */
   withheld?: string;
+  /** 仮の答え（検索）になった理由。Claude の準備中のときは無し */
+  fallbackReason?: string;
   createdAt: string;
 }
 
@@ -234,9 +249,17 @@ export function verifyAsk(raw: unknown, household: Household, question: string):
 export function keywordsOf(question: string): string[] {
   const stop = new Set(["息子", "娘", "うち", "教え", "今年", "今度", "来月", "今月", "書類"]);
   const raw = question.match(/[\p{Script=Han}]+[\p{Script=Hiragana}]{0,2}|[\p{Script=Katakana}ー]{2,}|[A-Za-z0-9]{2,}/gu) ?? [];
+  const particles = "はがをにでとものかへやもね";
   const words = raw
-    .map((w) => w.replace(/[はがをにでとものかへやもね]+$/u, ""))
-    .map((w) => (w.length >= 3 && /[\p{Script=Hiragana}]{2}$/u.test(w) ? w.slice(0, -1) : w)) // 「払う」の「う」などは残し、「飼える」→「飼え」程度に
+    .map((w) => {
+      // 漢字のあとのひらがなに助詞が出てきたら、そこで切る（「学校でけ」→「学校」「冬休みは」→「冬休み」）
+      const m = w.match(/^([\p{Script=Han}]+)([\p{Script=Hiragana}]*)$/u);
+      if (!m) return w;
+      const tail = [...m[2]];
+      const cut = tail.findIndex((c) => particles.includes(c));
+      return cut < 0 ? w : m[1] + tail.slice(0, cut).join("");
+    })
+    .map((w) => (w.length >= 3 && /[\p{Script=Hiragana}]{2}$/u.test(w) ? w.slice(0, -1) : w)) // 「飼える」→「飼え」「調べて」→「調べ」程度に
     .filter((w) => w.length >= 2 || /^[\p{Script=Han}]$/u.test(w) === false)
     .filter((w) => w.length >= 2 && !stop.has(w));
   return [...new Set(words)];
@@ -249,25 +272,48 @@ export function keywordsOf(question: string): string[] {
 export function provisionalAsk(household: Household, question: string): AskResult {
   const docs = documentsForAsk(household);
   const words = keywordsOf(question);
-  const citations: Citation[] = [];
-  const hit = (text: string) => words.some((w) => text.includes(w));
-  for (const doc of docs) {
+  // 質問に家族の名前（下の名前）があれば、その人の書類を先に見る
+  const named = household.members.filter((m) => {
+    const first = m.name.split(/\s+/).pop() ?? "";
+    return first.length >= 2 && question.includes(first);
+  });
+  const count = (text: string) => words.filter((w) => text.includes(w)).length;
+  // 書類ごとの当たり: 当たった言葉の種類の数（＋名前の人の書類）。多い書類から並べる
+  const scored = docs
+    .map((doc) => {
+      const all = `${doc.title} ${doc.docType ?? ""} ${doc.fields.map((f) => `${f.label} ${f.value}`).join(" ")} ${doc.deadlines.map((d) => d.label).join(" ")} ${doc.originalText ?? ""}`;
+      const kinds = words.filter((w) => all.includes(w)).length;
+      const mine = named.length > 0 && doc.memberIds.some((id) => named.some((m) => m.id === id)) ? 2 : 0;
+      return { doc, score: kinds + mine, kinds };
+    })
+    .filter((x) => x.kinds > 0)
+    .sort((a, b) => b.score - a.score);
+  const citations: { c: Citation; score: number; order: number }[] = [];
+  let order = 0;
+  for (const { doc, score } of scored) {
     for (const f of doc.fields) {
-      if (hit(`${f.label} ${f.value}`)) citations.push({ documentId: doc.id, documentTitle: doc.title, location: f.source?.location ?? f.label, quote: f.source?.quote || `${f.label}: ${f.value}` });
+      const n = count(`${f.label} ${f.value}`);
+      if (n) citations.push({ c: { documentId: doc.id, documentTitle: doc.title, location: f.source?.location ?? f.label, quote: f.source?.quote || `${f.label}: ${f.value}` }, score: score * 10 + n + 1, order: order++ });
     }
     for (const d of doc.deadlines) {
-      if (hit(d.label)) citations.push({ documentId: doc.id, documentTitle: doc.title, location: d.source?.location ?? "", quote: d.source?.quote || d.label });
+      const n = count(d.label);
+      if (n) citations.push({ c: { documentId: doc.id, documentTitle: doc.title, location: d.source?.location ?? "", quote: d.source?.quote || d.label }, score: score * 10 + n + 1, order: order++ });
     }
     if (doc.originalText) {
       for (const line of doc.originalText.split("\n")) {
         const t = line.trim();
-        if (t && hit(t) && !citations.some((c) => c.documentId === doc.id && c.quote === t)) {
-          citations.push({ documentId: doc.id, documentTitle: doc.title, location: "原本の文字", quote: t.slice(0, 80) });
+        const n = t ? count(t) : 0;
+        if (n && !citations.some((x) => x.c.documentId === doc.id && (x.c.quote === t || t.includes(x.c.quote)))) {
+          citations.push({ c: { documentId: doc.id, documentTitle: doc.title, location: "原本の文字", quote: t.length > 80 ? `${t.slice(0, 80)}…` : t }, score: score * 10 + n, order: order++ });
         }
       }
     }
   }
-  const picked = citations.slice(0, 6);
+  const picked = citations
+    .sort((a, b) => b.score - a.score || a.order - b.order)
+    .slice(0, 6)
+    .sort((a, b) => a.order - b.order)
+    .map((x) => x.c);
   const citedDocs = [...new Set(picked.map((c) => docs.find((d) => d.id === c.documentId)!))];
   return {
     source: "provisional",
@@ -279,4 +325,37 @@ export function provisionalAsk(household: Household, question: string): AskResul
     dropped: 0,
     createdAt: new Date().toISOString(),
   };
+}
+
+// ---- 頼む・調べる（ブラウザ側） ----
+
+/** 端末に保存してある頼みごと（古い形のものは除く） */
+export function askRecords(household: Household): AskRecord[] {
+  return (household.asks ?? []).filter((a) => a && typeof a.id === "string" && typeof a.question === "string");
+}
+
+/**
+ * 執事に聞いて、確かめた答えを返す。Claude の準備中（503）・上限・つながらないときは検索の仮の答え。
+ * 答えの出どころ（Claude か仮か）と、仮になった理由は result に残す。
+ */
+export async function runAsk(household: Household, question: string, style: string, signal?: AbortSignal): Promise<AskResult> {
+  const input = buildAskInput(household, question, toYmd(new Date()), style);
+  const provisional = (reason?: string) => {
+    const r = provisionalAsk(household, question);
+    return reason ? { ...r, withheld: undefined, fallbackReason: reason } : r;
+  };
+  try {
+    const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input), signal });
+    if (res.status === 503) return provisional();
+    const body = await res.json().catch(() => null);
+    if (res.ok && body?.result) {
+      const verified = verifyAsk(body.result, household, question);
+      if (verified) return verified;
+      return provisional("執事の答えをうまく受け取れなかったため");
+    }
+    return provisional(body?.error ? `執事につながらなかったため（${body.error}）` : "執事につながらなかったため");
+  } catch (e) {
+    if ((e as Error).name === "AbortError") throw e;
+    return provisional("通信できなかったため");
+  }
 }

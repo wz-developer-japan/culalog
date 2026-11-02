@@ -445,7 +445,10 @@ function provisionalInsuranceBeforeLease(household: Household): RawInsight[] {
     const homeEnd = home.deadlines.find((d) => d.kind === "expiry");
     const clause = home.fields.find((f) => /保険/.test(`${f.label}${f.value}`));
     if (!homeEnd || !clause) continue;
+    // 契約書が「火災保険」と言っているなら、火災・家財の保険だけを見る（傷害保険などは別）
+    const kind = /火災|家財/.test(`${clause.label}${clause.value}`) ? /火災|家財/ : null;
     for (const policy of current.filter((d) => d.category === "insurance" && d.memberIds.some((m) => home.memberIds.includes(m)))) {
+      if (kind && !kind.test(`${policy.title}${policy.docType ?? ""}`)) continue;
       const policyEnd = policy.deadlines.find((d) => d.kind === "expiry");
       if (!policyEnd || policyEnd.date >= homeEnd.date) continue;
       out.push({

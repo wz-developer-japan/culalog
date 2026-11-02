@@ -22,8 +22,10 @@ import {
 import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import { adoptInsight, answerInsight } from "@/lib/connect";
 import type { Household } from "@/lib/types";
+import { markAskSeen, pendingAsks, unseenReports, useAskQueue } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
 import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
+import { AskAnswer } from "@/components/AskAnswer";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -31,6 +33,8 @@ export default function Home() {
   const { household, loaded, save, update } = useHousehold();
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
   const { result: connect, status } = useConnect(household, update);
+  // 頼んで、あとで報告: 答えの無い頼みごとがあれば、この画面を開いているあいだに調べて保存する
+  useAskQueue(household, update);
 
   // 済むまで追いかける: 念押しの段に入った日を覚える（その日だけ、ひとことの上に出す）
   useEffect(() => {
@@ -74,7 +78,9 @@ export default function Home() {
   const insights = (connect?.insights ?? []).filter((i) => !answers[i.key]);
   const net = safetyNet(candidates, briefing);
   const questions = openQuestions(h, today);
-  const pending = h.documents.filter((d) => !d.confirmedAt);
+  const unconfirmed = h.documents.filter((d) => !d.confirmedAt);
+  const reports = unseenReports(h);
+  const pending = pendingAsks(h);
   const todayClasses = h.timetable.filter((t) => t.weekday === today.getDay());
   const nameOf = (id: string) => h.members.find((m) => m.id === id)?.name ?? "";
   const sampleFor = (candidateId: string) =>
@@ -193,6 +199,23 @@ export default function Home() {
         </>
       )}
 
+      {(reports.length > 0 || pending.length > 0) && (
+        <>
+          <h2>{name}からの報告</h2>
+          {pending.map((a) => (
+            <AskAnswer key={a.id} record={a} butler={name} compact />
+          ))}
+          {reports.slice(0, 3).map((a) => (
+            <AskAnswer key={a.id} record={a} butler={name} compact onSeen={() => update((current) => markAskSeen(current, a.id))} />
+          ))}
+          {reports.length > 3 && (
+            <p className="meta">
+              ほか{reports.length - 3}件の報告は<Link href="/ask">聞く画面</Link>に。
+            </p>
+          )}
+        </>
+      )}
+
       {questions.length > 0 && (
         <>
           <h2>{name}から聞きたいこと</h2>
@@ -231,10 +254,10 @@ export default function Home() {
         </>
       )}
 
-      {pending.length > 0 && (
+      {unconfirmed.length > 0 && (
         <>
           <h2>確認待ち</h2>
-          {pending.map((d) => (
+          {unconfirmed.map((d) => (
             <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
               {d.title}
               <span className="badge">原本と見比べる</span>
@@ -248,7 +271,7 @@ export default function Home() {
         執事に書類を渡す
       </Link>
       <Link className="button secondary" href="/ask" style={{ textAlign: "center", textDecoration: "none" }}>
-        {name}に聞く（例: 冬休みはいつからいつまで？）
+        {name}に聞く・調べてもらう（例: 冬休みはいつからいつまで？）
       </Link>
       <div className="nav-links">
         <Link className="button secondary" href="/schedule">
