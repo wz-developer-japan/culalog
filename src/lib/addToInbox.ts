@@ -113,6 +113,14 @@ export async function addSamplesToInbox(samples: DemoSample[], update: (change: 
   const entries: NewInboxEntry[] = [];
   const rejected: AddResult["rejected"] = [];
   for (const sample of samples) {
+    if (sample.origin === "text") {
+      // メールの見本: 本文を貼り付けて渡したのと同じ形（文字のまま1件の書類）で受け取り箱へ
+      const dataUrl = textToDataUrl(sample.text);
+      const id = newId("in");
+      await putFile(id, dataUrl);
+      entries.push({ id, name: sample.title, mediaType: "text/plain", origin: "text", hash: await fingerprint(dataUrl), sampleId: sample.id, expectedId: sample.expectedId });
+      continue;
+    }
     if (sample.images?.length) {
       // 写真の見本: 置いてある画像を、渡された写真と同じように縮めて受け取り箱へ（何枚かなら1つの書類のページ）
       const ids: string[] = [];

@@ -35,7 +35,7 @@ function ScanPage() {
   }, [loaded, household, router]);
 
   useEffect(() => {
-    setPreview(sample ? (sample.images?.[0] ?? renderSampleImage(sample.text)) : null);
+    setPreview(sample && sample.origin !== "text" ? (sample.images?.[0] ?? renderSampleImage(sample.text)) : null);
   }, [sample]);
 
   // スクショを貼り付けて渡す（パソコンでの Ctrl+V・スマホの「ペースト」）
@@ -54,7 +54,8 @@ function ScanPage() {
   if (!loaded || !household) return <main />;
   const progress = inboxProgress(household);
   const samples = household.demoSamples ?? [];
-  const printed = samples.filter((x) => !x.images?.length);
+  const mails = samples.filter((x) => x.origin === "text");
+  const printed = samples.filter((x) => !x.images?.length && x.origin !== "text");
   const photos = samples.filter((x) => x.images?.length);
   const photoDay = photos[0]?.baseDate?.replace(/^(\d{4})-0?(\d+)-0?(\d+)$/, "$1年$2月$3日");
 
@@ -216,6 +217,29 @@ function ScanPage() {
         </>
       )}
 
+      {mails.length > 0 && (
+        <>
+          <h2>メールの見本で「貼り付けて渡す」を試す</h2>
+          <p className="meta">
+            請求と督促、継続のご案内、納付完了のお知らせ、期限の訂正、転送されたメールなど、架空のメール {mails.length}通です。本文を貼り付けて渡したのと同じ形で受け取り箱に入ります。
+            同じ予定を知らせるメールは1件に束ね、「納付完了」などは、つながる予定を済んだにするか聞きます。
+          </p>
+          <button className="button secondary" disabled={busy} onClick={() => giveSamples(mails)}>
+            メールの見本を{mails.length}件まとめて渡す
+          </button>
+          <details className="others">
+            <summary>1件ずつ選ぶ</summary>
+            <div className="chips">
+              {mails.map((x) => (
+                <button key={x.id} className={`chip${x.id === sampleId ? " selected" : ""}`} onClick={() => setSampleId(x.id)}>
+                  {x.title}
+                </button>
+              ))}
+            </div>
+          </details>
+        </>
+      )}
+
       {printed.length > 0 && (
         <>
           <h2>架空の書類の見本で試す</h2>
@@ -237,8 +261,15 @@ function ScanPage() {
           <div className="card warn">
             {expected
               ? `${expected.label}の見本（架空）です。実際に届いたプリントを撮った、という想定で試せます。`
-              : "架空の書類の見本です。実際に届いた書類を撮った、という想定で試せます。"}
+              : sample.origin === "text"
+                ? "架空のメールの見本です。届いたメールの本文を貼り付けた、という想定で試せます。"
+                : "架空の書類の見本です。実際に届いた書類を撮った、という想定で試せます。"}
           </div>
+          {sample.origin === "text" && (
+            <div className="original">
+              <pre>{sample.text}</pre>
+            </div>
+          )}
           {preview && (
             <div className="preview">
               {/* eslint-disable-next-line @next/next/no-img-element */}

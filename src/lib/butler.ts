@@ -304,6 +304,10 @@ export function closeQuestions(household: Household, doc: DocumentRecord, newId:
   if (!doc.completions?.length || doc.notForFamily) return [];
   const done = household.done ?? {};
   const asked = new Set((household.questions ?? []).filter((q) => q.about === "close").map((q) => q.targetDeadlineId));
+  // 同じ予定を知らせる別の書類の予定（請求と督促など。束ねる印か、名前と日付が同じ）には、もう一度聞かない
+  const allDeadlines = household.documents.flatMap((d) => d.deadlines);
+  const sameKeys = new Set(allDeadlines.filter((d) => asked.has(d.id)).flatMap((d) => [d.bundleKey && `${d.bundleKey}|${d.date}`, `${d.label}|${d.date}`]).filter(Boolean));
+  const askedAlready = (d: DocumentRecord["deadlines"][number]) => asked.has(d.id) || sameKeys.has(`${d.label}|${d.date}`) || (!!d.bundleKey && sameKeys.has(`${d.bundleKey}|${d.date}`));
   const out: ButlerQuestion[] = [];
   for (const c of doc.completions) {
     const words = closeWords(c.what);
@@ -311,7 +315,7 @@ export function closeQuestions(household: Household, doc: DocumentRecord, newId:
     for (const other of household.documents) {
       if (other.id === doc.id || !other.confirmedAt || other.supersededBy || other.notForFamily) continue;
       for (const d of other.deadlines) {
-        if (done[d.id] || asked.has(d.id) || d.kind === "event") continue;
+        if (done[d.id] || askedAlready(d) || d.kind === "event") continue;
         const text = `${d.label} ${other.title} ${other.docType ?? ""}`;
         const score = c.bundleKey && d.bundleKey === c.bundleKey ? 100 : words.filter((w) => text.includes(w)).length;
         if (score >= 2 && (!best || score > best.score || (score === best.score && d.date < best.deadline.date))) best = { score, target: other, deadline: d };
@@ -319,19 +323,27 @@ export function closeQuestions(household: Household, doc: DocumentRecord, newId:
     }
     if (!best) continue;
     asked.add(best.deadline.id);
+    sameKeys.add(`${best.deadline.label}|${best.deadline.date}`);
+    if (best.deadline.bundleKey) sameKeys.add(`${best.deadline.bundleKey}|${best.deadline.date}`);
+    const corrected = c.kind === "corrected";
     out.push({
       id: newId("q"),
       documentId: doc.id,
       about: "close",
       targetDocumentId: best.target.id,
       targetDeadlineId: best.deadline.id,
-      text: `「${best.deadline.label}」（${best.target.title}）は済みましたか？`,
-      reason: `「${doc.title}」に「${c.what}」とあります（${c.source.location}）。`,
+      text: corrected
+        ? `「${best.deadline.label}」（${best.target.title}）は、この書類で訂正・変更されましたか？`
+        : `「${best.deadline.label}」（${best.target.title}）は済みましたか？`,
+      reason: corrected
+        ? `「${doc.title}」に「${c.what}」の訂正・変更とあります（${c.source.location}）。`
+        : `「${doc.title}」に「${c.what}」とあります（${c.source.location}）。`,
       options: [
-        { label: "済んだにする", value: "done" },
+        { label: corrected ? "訂正された（前の予定を消す）" : "済んだにする", value: "done" },
         { label: "まだ・別のもの", value: "keep" },
       ],
       multiple: false,
+      effect: corrected ? "訂正されたにすると、前の予定はホームで知らせなくなり、この書類の予定だけが残ります（すべての予定の画面で取り消せます）。" : undefined,
     });
   }
   return out;
@@ -421,10 +433,11 @@ export function answerQuestion(household: Household, questionId: string, values:
   };
 }
 
-/** 予定・やることを「済んだ」にする／戻す */
-export function toggleDone(household: Household, id: string): Household {
+/** 予定・やることを「済んだ」にする／戻す（束ねた予定の ID をまとめて渡せば、一緒に扱う） */
+export function toggleDone(household: Household, id: string | string[]): Household {
+  const ids = Array.isArray(id) ? id : [id];
   const done = { ...(household.done ?? {}) };
-  if (done[id]) delete done[id];
-  else done[id] = new Date().toISOString();
+  if (ids.some((x) => done[x])) for (const x of ids) delete done[x];
+  else for (const x of ids) done[x] = new Date().toISOString();
   return { ...household, done };
 }

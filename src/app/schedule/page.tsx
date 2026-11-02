@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toggleDone } from "@/lib/butler";
-import { type ActionItem, allItems, buildHome, formatYmd, passedBeforeRegistered } from "@/lib/deadlines";
+import { type ActionItem, allItems, buildHome, formatYmd, isDone, itemIds, passedBeforeRegistered } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { Household } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -28,10 +28,10 @@ export default function Schedule() {
   const nameOf = (id: string) => h.members.find((m) => m.id === id)?.name ?? "";
   const isPast = (i: ActionItem) => i.daysLeft < 0 && !(i.deadline.endDate && i.deadline.endDate >= formatKey(today));
 
-  const overdue = items.filter((i) => isPast(i) && i.deadline.kind !== "event" && i.deadline.kind !== "after_event" && !i.deadline.awareness && !done[i.deadline.id]);
-  const upcoming = items.filter((i) => !isPast(i) && i.deadline.kind !== "after_event" && !done[i.deadline.id]);
+  const overdue = items.filter((i) => isPast(i) && i.deadline.kind !== "event" && i.deadline.kind !== "after_event" && !i.deadline.awareness && !isDone(done, i));
+  const upcoming = items.filter((i) => !isPast(i) && i.deadline.kind !== "after_event" && !isDone(done, i));
   const afterEvent = items.filter((i) => i.deadline.kind === "after_event");
-  const finished = items.filter((i) => done[i.deadline.id]);
+  const finished = items.filter((i) => isDone(done, i));
   const pendingCount = h.documents.filter((d) => !d.confirmedAt).length;
 
   const Row = ({ item }: { item: ActionItem }) => {
@@ -79,8 +79,8 @@ export default function Schedule() {
           {d.source?.location && `・${d.source.location}`}
         </div>
         {d.kind !== "after_event" && d.kind !== "event" && (
-          <button className="link-button" onClick={() => save(toggleDone(h, d.id))}>
-            {done[d.id] ? "済んだを取り消す" : "済んだ"}
+          <button className="link-button" onClick={() => save(toggleDone(h, itemIds(item)))}>
+            {isDone(done, item) ? "済んだを取り消す" : "済んだ"}
           </button>
         )}
       </div>

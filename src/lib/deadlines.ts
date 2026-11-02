@@ -226,7 +226,7 @@ function bundle(items: ActionItem[]): ActionItem[] {
       continue;
     }
     const head = out[group];
-    const members = [head, ...(head.bundled ?? []), item].map((x) => ({ ...x, bundled: undefined }));
+    const members = [head, ...(head.bundled ?? []), item, ...(item.bundled ?? [])].map((x) => ({ ...x, bundled: undefined }));
     const lead = members.reduce((a, b) => (newer(b, a) ? b : a));
     out[group] = { ...lead, bundled: members.filter((x) => x !== lead) };
   }
@@ -235,7 +235,8 @@ function bundle(items: ActionItem[]): ActionItem[] {
 
 /**
  * 同じ予定（種類・名前・日付・誰の、がすべて同じ）が2つの書類に載っているとき（例: 年間行事予定と、その改訂版を
- * 「前のものにしますか？」と聞いている最中）は、新しい方の書類のものだけ出す。日付が違えば両方出す（違いに気づけるように）。
+ * 「前のものにしますか？」と聞いている最中。請求と、その前日の督促メール）は、新しい方の書類のものを出し、
+ * ほかは bundled に入れる（済んだ・取り消すは一緒に扱う）。日付が違えば両方出す（違いに気づけるように）。
  */
 function dedupe(items: ActionItem[]): ActionItem[] {
   const newest = new Map<string, ActionItem>();
@@ -249,7 +250,22 @@ function dedupe(items: ActionItem[]): ActionItem[] {
       newest.set(key, item);
     }
   }
-  return items.filter((item) => newest.get(keyOf(item)) === item);
+  return items
+    .filter((item) => newest.get(keyOf(item)) === item)
+    .map((item) => {
+      const others = items.filter((x) => x !== item && newest.get(keyOf(x)) === item);
+      return others.length ? { ...item, bundled: others } : item;
+    });
+}
+
+/** この予定と、束ねた予定の ID（済んだにする・取り消すは一緒に） */
+export function itemIds(item: ActionItem): string[] {
+  return [item.deadline.id, ...(item.bundled ?? []).map((b) => b.deadline.id)];
+}
+
+/** 済んだか（束ねたどれかが済んでいれば済んだ） */
+export function isDone(done: Record<string, string> | undefined, item: ActionItem): boolean {
+  return itemIds(item).some((id) => done?.[id]);
 }
 
 /**
@@ -268,7 +284,7 @@ export function buildHome(household: Household, today: Date): HomeSections {
     const { deadline, startDate, daysLeft } = item;
     if (deadline.kind === "after_event") continue; // 何か起きたときに出す
     if (deadline.awareness) continue; // 知っておくだけ（自動の引き落とし・更新など）は、すべての予定の画面でだけ見せる
-    if (done[deadline.id] || item.bundled?.some((b) => done[b.deadline.id])) continue;
+    if (isDone(done, item)) continue;
     const target = parseDate(deadline.endDate ?? deadline.date);
     if (startOfDay(today) >= startDate && startOfDay(today) <= target) {
       soon.push(item);

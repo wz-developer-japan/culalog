@@ -127,6 +127,42 @@ await step("写真の見本をまとめて渡しても、ホームのひとこ�
   if (n > 3) throw new Error(`ひとことが${n}件あります`);
 });
 
+await step("メールの見本を貼り付けの形で渡すと、同じ予定のメールは束ねられ、「納付完了」で済んだにするか聞かれる", async () => {
+  await page.goto(BASE + "/scan");
+  await page.getByRole("button", { name: /メールの見本を\d+件まとめて渡す/ }).click();
+  await page.waitForURL(/\/inbox/, { timeout: 60000 });
+  await see("全部読み終わりました");
+  await page.getByRole("button", { name: /まとめて確定する/ }).click();
+  await see("件を確定しました");
+  // 束ねる: 後払いの請求と前日の督促（同じ注文・同じ期限）が、すべての予定で1件になっている
+  await page.goto(BASE + "/schedule");
+  await see("これから");
+  const bill = page.locator(".card").filter({ hasText: "後払いの支払期限" });
+  if ((await bill.count()) !== 1) throw new Error(`後払いの支払期限が${await bill.count()}件あります（1件に束ねられていません）`);
+  await bill.first().getByText("同じ予定のお知らせ").waitFor({ timeout: 10000 });
+  // 完了で閉じる: 決済結果のお知らせ → 後払いの支払期限は済みましたか？（聞きたいことは1問ずつなので、ほかの質問は「あとで」で送る）
+  await page.goto(BASE + "/questions");
+  await page.locator("main h1").waitFor({ timeout: 15000 });
+  for (let i = 0; i < 60; i++) {
+    // 今の1問だけを見る（「次の質問:」の予告は含めない）
+    const body = (await page.locator("main").innerText()).split("次の質問")[0];
+    if (body.includes("後払いの支払期限") && body.includes("済みましたか？")) break;
+    const later = page.getByRole("button", { name: /あとで答える/ }).first();
+    if (!(await later.count())) throw new Error("「後払いの支払期限は済みましたか？」が聞かれていません");
+    await later.click();
+    await page.waitForTimeout(200);
+  }
+  await page.getByRole("button", { name: "済んだにする" }).click();
+  await see("答えました");
+  // 済んだにしたので、束ねた督促ごと「済んだもの」に移る（ホームでは知らせない）
+  await page.goto(BASE + "/schedule");
+  await see("済んだもの");
+  await page.locator("details").filter({ hasText: "済んだもの" }).locator("summary").click();
+  const finished = page.locator(".card").filter({ hasText: "後払いの支払期限" });
+  if ((await finished.count()) !== 1) throw new Error(`済んだにした後も、後払いの支払期限が${await finished.count()}件あります`);
+  if (!(await finished.first().getByRole("button", { name: "済んだを取り消す" }).count())) throw new Error("後払いの支払期限が「済んだもの」に入っていません");
+});
+
 await step("番号を聞くと、Claude に送らずに端末の中で答え、番号は伏せて出す", async () => {
   await page.goto(BASE + "/ask");
   const calls = [];
@@ -137,8 +173,9 @@ await step("番号を聞くと、Claude に送らずに端末の中で答え、�
   const card = page.locator(".card").filter({ hasText: "火災保険の証券番号は？" }).first();
   await card.getByText("書類から探しました").waitFor({ timeout: 10000 });
   if (!(await card.innerText()).includes("●")) throw new Error("番号が伏せられていません");
-  await card.getByRole("button", { name: "見る" }).click();
-  await card.getByText("DEMO-0000-0000").waitFor({ timeout: 5000 });
+  // 同じ番号が何通かの書類（証券と、継続のご案内のメールなど）にあれば、行が何つか並ぶ。どれも伏せてあるので全部「見る」
+  for (let i = 0; i < 10 && (await card.getByRole("button", { name: "見る" }).count()); i++) await card.getByRole("button", { name: "見る" }).first().click();
+  await card.getByText("DEMO-0000-0000").first().waitFor({ timeout: 5000 });
   await page.waitForTimeout(1500);
   page.off("request", onRequest);
   if (calls.length) throw new Error(`/api/ask が${calls.length}回呼ばれました`);

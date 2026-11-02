@@ -151,6 +151,8 @@ export interface DemoSample {
   images?: string[];
   /** 写真の見本の日付の基準日（この日に撮った想定。開いた日に合わせて動かない） */
   baseDate?: string;
+  /** "text": メールの見本。画像ではなく、text を「貼り付けた文字」として渡す（原本も text そのもの） */
+  origin?: "text";
 }
 
 /**
@@ -159,7 +161,8 @@ export interface DemoSample {
  * - other:   それ以外（例: 何班か）。答えは書類の項目に「本人の答え」として入る
  * - supersede: 同じ種類の新しい書類が来たので、古い方を「前のもの」にするか（答え: replace / keep）
  * - duplicate: 前に渡した書類と同じもの（写真違い）かもしれないので、今回の分を消すか（答え: same / different）
- * - close: 「納付完了」などのお知らせが来たので、つながる予定を済んだにするか（答え: done / keep）
+ * - close: 「納付完了」などのお知らせが来たので、つながる予定を済んだにするか（答え: done / keep）。
+ *          「期限の訂正」などのお知らせなら、前の予定をこの書類の予定に置き換えるか（答えは同じ done / keep）
  */
 export interface ButlerQuestion {
   id: string;
@@ -253,8 +256,11 @@ export interface DocumentRecord {
   notForFamily?: string;
   /** 本文には無く、リンク先にしか書いていないこと（例: 「金額」「満了日」）。アプリはリンクを開かず、本人に確かめてもらう */
   onlyInLink?: string[];
-  /** 何かが済んだことを知らせる記載（納付完了・退会完了など） */
-  completions?: { what: string; source: SourceRef; bundleKey?: string }[];
+  /**
+   * 何かが済んだことを知らせる記載（納付完了・退会完了など）。
+   * kind が corrected なら、済んだのではなく「前のお知らせの予定が訂正・変更で置き換わった」（例: 支払期限の訂正メール）
+   */
+  completions?: { what: string; source: SourceRef; bundleKey?: string; kind?: "done" | "corrected" }[];
   /** 前に本人が答えたことを当てはめたとき、その説明（例: 「前に教えてもらったので、結衣さんの書類にしました」） */
   learnedNotes?: string[];
 }

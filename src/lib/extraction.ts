@@ -56,6 +56,8 @@ export interface ExtractedCompletion {
   quote: string;
   /** つながる予定の束ねる印（見本の取り込みでだけ入る） */
   bundleKey?: string;
+  /** done: 済んだ。corrected: 済んだのではなく、前のお知らせの予定が訂正・変更で置き換わった（例: 支払期限の訂正メール） */
+  kind?: "done" | "corrected";
 }
 
 /** いつの分の書類か（年度・保険期間・契約期間など） */
@@ -239,8 +241,8 @@ export const EXTRACTION_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["what", "location", "quote"],
-        properties: { what: str, location: str, quote: str },
+        required: ["what", "location", "quote", "kind"],
+        properties: { what: str, location: str, quote: str, kind: { type: "string", enum: ["done", "corrected"] } },
       },
     },
     onlyInLink: strList,
@@ -336,7 +338,7 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
       .slice(0, 2),
     unclear: list(v.unclear),
     completions: (arr(v.completions) ?? [])
-      .map((c) => ({ what: s(c?.what), location: s(c?.location), quote: s(c?.quote) }))
+      .map((c) => ({ what: s(c?.what), location: s(c?.location), quote: s(c?.quote), kind: c?.kind === "corrected" ? ("corrected" as const) : ("done" as const) }))
       .filter((c) => c.what)
       .slice(0, 3),
     onlyInLink: list(v.onlyInLink).slice(0, 6),
@@ -424,7 +426,12 @@ export function extractionToDocument(
     notForFamily: notFamily ? extraction.notForFamily?.reason || "この家の書類ではありません" : undefined,
     onlyInLink: extraction.onlyInLink?.length ? extraction.onlyInLink : undefined,
     completions: extraction.completions?.length
-      ? extraction.completions.map((c) => ({ what: c.what, source: source(c.location, c.quote) ?? { location: c.location }, bundleKey: c.bundleKey || undefined }))
+      ? extraction.completions.map((c) => ({
+          what: c.what,
+          source: source(c.location, c.quote) ?? { location: c.location },
+          bundleKey: c.bundleKey || undefined,
+          kind: c.kind === "corrected" ? ("corrected" as const) : undefined,
+        }))
       : undefined,
     summary:
       what || todo || ifIgnored.text

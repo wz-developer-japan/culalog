@@ -21,16 +21,45 @@ const outDir = join("public", "samples", baseDate);
 mkdirSync(outDir, { recursive: true });
 
 const str = (x) => (typeof x === "string" ? x : "");
+/** 知っておくだけ（"awareness" または false）か */
+const isAwareness = (x) => x === "awareness" || x === false;
 /** アプリの書類の分類（types.ts の DocumentCategory と同じ）。無い名前は近いものに寄せる */
 const CATEGORIES = ["school", "childcare", "housing", "insurance", "vehicle", "medical_card", "care", "license", "subscription", "work", "community", "medical", "other"];
 const CATEGORY_ALIASES = { utility: "housing" };
 const categoryOf = (c) => (CATEGORIES.includes(c) ? c : (CATEGORY_ALIASES[c] ?? "other"));
-/** 束ねる印: bundleWith（文字・文字の配列・{id} の配列）を、同じ組でそろう文字にする */
-function bundleKeyOf(ownId, bundleWith) {
-  const list = (Array.isArray(bundleWith) ? bundleWith : bundleWith ? [bundleWith] : []).map((x) => (typeof x === "string" ? x : str(x?.id ?? x?.key ?? x?.label)));
-  const ids = list.filter(Boolean);
-  return ids.length ? [ownId, ...ids].map((x) => x.split(/[#:]/)[0]).sort()[0] : "";
+/** bundleWith（文字・文字の配列・{docId} の配列）から、相手の書類 id を取り出す */
+const bundleIds = (bundleWith) =>
+  (Array.isArray(bundleWith) ? bundleWith : bundleWith ? [bundleWith] : [])
+    .map((x) => (typeof x === "string" ? x : str(x?.docId ?? x?.id ?? x?.key)))
+    .filter(Boolean)
+    .map((x) => x.split(/[#:]/)[0]);
+/**
+ * 束ねる印: 正解 JSON の bundleWith（督促・2回目の案内・再送などが、最初のお知らせを指す）を、組ごとに同じ文字にする。
+ * 最初のお知らせの側には bundleWith が無いので、全部の正解 JSON を見て組を作り、組の中でいちばん小さい id を印にする
+ */
+const bundleGroup = new Map();
+function buildBundleGroups(truths) {
+  const parent = new Map();
+  const find = (x) => {
+    while (parent.has(x) && parent.get(x) !== x) x = parent.get(x);
+    return x;
+  };
+  const union = (a, b) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent.set(ra < rb ? rb : ra, ra < rb ? ra : rb);
+  };
+  for (const t of truths) {
+    for (const other of bundleIds(t.bundleWith)) {
+      parent.set(t.id, parent.get(t.id) ?? t.id);
+      parent.set(other, parent.get(other) ?? other);
+      union(t.id, other);
+    }
+  }
+  for (const id of parent.keys()) bundleGroup.set(id, find(id));
 }
+/** 書類の束ねる印（組に入っていなければ空） */
+const bundleKeyOf = (docId) => bundleGroup.get(docId) ?? "";
 /** 文字・{label}・{what} のどれでも、文字の配列にする */
 const texts = (x) => (Array.isArray(x) ? x : x ? [x] : []).map((y) => (typeof y === "string" ? y : str(y?.what ?? y?.label ?? y?.item))).filter(Boolean);
 const KINDS = ["expiry", "window", "notice", "cancel_window", "after_event", "event", "due"];
@@ -53,8 +82,32 @@ function withNumbers(fields, numbers) {
   return out;
 }
 
+/**
+ * 正解 JSON の文の中の、見本どうしの内部 ID（x1a・x14b など。アプリの画面に出てはいけない）を、普通の言い方にする。
+ * 「あとで届く」のように、その書類だけでは分からないことも落とす
+ */
+function plain(s) {
+  if (typeof s !== "string") return s;
+  const ids = /x\d+[a-z]?(?:・x\d+[a-z]?)*/g;
+  const out = s
+    .replace(/(^|[。\s])[^。]*あとで届く[^。]*。/g, "$1")
+    .replace(new RegExp(`${ids.source}（([^）]*)）の`, "g"), "前に届いた「$1」の")
+    .replace(new RegExp(`${ids.source} ?と同じ`, "g"), "前に届いたのと同じ")
+    .replace(new RegExp(`${ids.source} ?の`, "g"), "前に届いた")
+    .replace(new RegExp(`${ids.source} ?で`, "g"), "前のお知らせで")
+    .replace(/（x\d+[a-z]?(?:・x\d+[a-z]?)*）/g, "");
+  return out.replace(/[^。]*\bx\d+[a-z]?\b[^。]*。?/g, "").trim();
+}
+function plainDeep(v) {
+  if (typeof v === "string") return plain(v);
+  if (Array.isArray(v)) return v.map(plainDeep);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "id" || k === "docId" || k === "files" || k === "bundleWith" || k === "closes" || k === "relatedDocIds" || k === "duplicateOf" ? x : plainDeep(x)]));
+  return v;
+}
+
 /** 正解の読み取り結果を、アプリの読み取りの形（Extraction）にする */
-function toExtraction(t, text) {
+function toExtraction(raw, text) {
+  const t = plainDeep(raw);
   return {
     title: str(t.title),
     transcript: text,
@@ -86,8 +139,9 @@ function toExtraction(t, text) {
         repeatMonths: Number(d.repeatMonths) || 0,
         location: str(d.location),
         quote: str(d.quote),
-        actionNeeded: d.actionNeeded !== false,
-        bundleKey: bundleKeyOf(t.id, d.bundleWith ?? t.bundleWith),
+        // 正解 JSON は書類ごとに actionNeeded（"must"／"awareness"）。予定ごとにあればそちらを使う
+        actionNeeded: !isAwareness(d.actionNeeded ?? t.actionNeeded),
+        bundleKey: bundleKeyOf(t.id),
         reserve: {
           date: str(d.reserve?.date),
           condition: str(d.reserve?.condition),
@@ -98,24 +152,47 @@ function toExtraction(t, text) {
     contacts: (t.contacts ?? []).map((c) => ({ label: str(c.label), name: str(c.name), phone: str(c.phone), hours: str(c.hours), location: str(c.location) })),
     questions: [],
     unclear: [],
-    // 済んだことのお知らせ（closes: 何が済んだか。つながる予定の束ねる印も）
-    completions: (Array.isArray(t.closes) ? t.closes : t.closes ? [t.closes] : []).map((c) => ({
-      what: typeof c === "string" ? c : str(c.what ?? c.label ?? c.deadlineLabel),
-      location: typeof c === "string" ? "" : str(c.location),
-      quote: typeof c === "string" ? "" : str(c.quote),
-      bundleKey: typeof c === "string" ? "" : bundleKeyOf(str(c.docId ?? c.id ?? ""), c.bundleWith ?? c.docId ?? c.id),
-    })).filter((c) => c.what),
+    // 済んだことのお知らせ（closes: { docId, deadlineLabel, date, reason }。つながる予定の名前と、相手の書類の束ねる印）。
+    // 「期限の訂正」のように、済んだのではなく前の予定が置き換わるものは corrected
+    completions: (Array.isArray(t.closes) ? t.closes : t.closes ? [t.closes] : [])
+      .map((c) => ({
+        what: typeof c === "string" ? c : str(c.what ?? c.deadlineLabel ?? c.label),
+        location: typeof c === "string" ? "" : str(c.location) || "件名・本文",
+        quote: typeof c === "string" ? "" : str(c.quote),
+        bundleKey: typeof c === "string" ? "" : bundleKeyOf(str(c.docId ?? c.id ?? "")),
+        kind: typeof c !== "string" && /訂正|置き換え|変更/.test(str(c.reason)) ? "corrected" : "done",
+      }))
+      .filter((c) => c.what),
     onlyInLink: texts(t.onlyInLink),
     // 書類ごと、この家の書類ではないもの（記入例など）
     notForFamily: t.appliesToFamily === false ? { is: true, reason: str(t.notApplicableReason) || str(t.who?.reason) } : { is: false, reason: "" },
   };
 }
 
+const truths = readdirSync(dir)
+  .filter((f) => f.endsWith(".truth.json"))
+  .sort()
+  .map((name) => JSON.parse(readFileSync(join(dir, name), "utf8")));
+buildBundleGroups(truths);
+
 const samples = [];
-for (const name of readdirSync(dir).filter((f) => f.endsWith(".truth.json")).sort()) {
-  const truth = JSON.parse(readFileSync(join(dir, name), "utf8"));
+for (const truth of truths) {
   if (!prefixOk(truth.id)) continue;
   const files = truth.files ?? {};
+  // メールの見本: 画面の画像ではなく、貼り付けて渡す用の素の文字を「貼り付けたメール」として渡す（原本もその文字）
+  if (truth.mail && files.mailText) {
+    const text = readFileSync(join(dir, files.mailText), "utf8").replace(/\r\n?/g, "\n").trim();
+    samples.push({
+      id: `photo-${truth.id}`,
+      title: `${truth.title}（架空）`,
+      baseDate,
+      origin: "text",
+      text,
+      provisionalDraft: toExtraction(truth, text),
+    });
+    console.log(`✓ ${truth.id}: メール（文字）`);
+    continue;
+  }
   // 本物らしさの強い順: 回したスキャン → 何ページか → 写真風 → そのままの画像
   const picked = files.scan ? [files.scan] : files.pages ? files.pages : files.photo ? [files.photo] : files.png ? [files.png] : [];
   if (picked.length === 0) continue;
