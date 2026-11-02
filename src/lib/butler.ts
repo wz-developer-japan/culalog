@@ -177,12 +177,34 @@ export function safetyNet(candidates: Candidate[], briefing: Briefing): Candidat
   return candidates.filter((c) => c.urgent && !said.has(c.id));
 }
 
-/** まだ答えていない質問 */
-export function openQuestions(household: Household): ButlerQuestion[] {
+/** まだ答えていない質問（today を渡すと、「あとで答える」にしたものは翌日まで出さない） */
+export function openQuestions(household: Household, today?: Date): ButlerQuestion[] {
   const ids = new Set(household.documents.map((d) => d.id));
+  const ymd = today ? toYmd(today) : undefined;
   return (household.questions ?? []).filter(
-    (q) => !q.answeredAt && ids.has(q.documentId) && (!q.targetDocumentId || ids.has(q.targetDocumentId)),
+    (q) =>
+      !q.answeredAt &&
+      ids.has(q.documentId) &&
+      (!q.targetDocumentId || ids.has(q.targetDocumentId)) &&
+      !(ymd && q.laterUntil && ymd < q.laterUntil),
   );
+}
+
+/** 答えると、どうなるか（1行） */
+export function effectOf(q: ButlerQuestion): string {
+  if (q.effect) return q.effect;
+  if (q.about === "members") return "選んだ人の予定として、ひとことでお知らせします。";
+  if (q.about === "supersede") return "前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。";
+  return "答えは、この書類の項目に「本人の答え」として残ります。";
+}
+
+/** 「今はわからない・あとで答える」: 明日まではホームに出さない（書類の画面にはいつでも出る） */
+export function answerLater(household: Household, questionId: string, today: Date): Household {
+  const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  return {
+    ...household,
+    questions: (household.questions ?? []).map((q) => (q.id === questionId ? { ...q, laterUntil: toYmd(tomorrow) } : q)),
+  };
 }
 
 /** 同じ種類かどうかを見るために、年・年度・空白・かっこ書きを取り除く */
@@ -220,7 +242,7 @@ export function supersedeQuestions(household: Household, doc: DocumentRecord, ne
       about: "supersede" as const,
       targetDocumentId: old.id,
       text: `前の「${old.title}${old.periodLabel ? `（${old.periodLabel}）` : ""}」は、前のものにしますか？`,
-      reason: `同じ種類の「${doc.title}${doc.periodLabel ? `（${doc.periodLabel}）` : ""}」が新しく届いたためです。前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。`,
+      reason: `同じ種類の「${doc.title}${doc.periodLabel ? `（${doc.periodLabel}）` : ""}」が新しく届いたためです。`,
       options: [
         { label: "前のものにする", value: "replace" },
         { label: "別の書類なので両方使う", value: "keep" },

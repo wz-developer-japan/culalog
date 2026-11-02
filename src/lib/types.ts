@@ -2,6 +2,7 @@
 // 方針: 書類から取り出した値には必ず「原本のどこに書いてあったか」を付け、
 // 本人が確認したものだけを「確定」として扱う。アプリは判断（補償される・解約してよい等）を持たない。
 
+import type { ButlerSettings } from "./character";
 import type { Extraction } from "./extraction";
 
 export type Relation = "self" | "spouse" | "child" | "parent" | "sibling" | "other";
@@ -142,6 +143,10 @@ export interface ButlerQuestion {
   reason?: string;
   options: { label: string; value: string }[];
   multiple: boolean;
+  /** 答えると、どうなるか（1行。無ければ質問の種類から決まった文を出す） */
+  effect?: string;
+  /** 「あとで答える」を押したら、この日（YYYY-MM-DD）まではホームに出さない */
+  laterUntil?: string;
   answer?: string[];
   answeredAt?: string;
 }
@@ -241,5 +246,7 @@ export interface Household {
   done?: Record<string, string>;
   /** 済むまで追いかける: 予定・やることの ID → 何日前の念押しを、いつ最初に出したか（その日だけ、ひとことの上に出す） */
   followUps?: Record<string, { stage: number; shownOn: string }>;
+  /** 執事のキャラと名前（無ければ最初のキャラ） */
+  butler?: ButlerSettings;
   isDemo: boolean;
 }

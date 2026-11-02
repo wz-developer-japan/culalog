@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { createDemoHousehold } from "@/data/demoHousehold";
 import {
+  answerLater,
   answerQuestion,
   type BriefingItem,
   buildCandidates,
@@ -16,6 +17,7 @@ import {
   safetyNet,
   toggleDone,
 } from "@/lib/butler";
+import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import type { Household } from "@/lib/types";
 import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
 
@@ -57,7 +59,7 @@ export default function Home() {
   // 11/4 から: Claude が選んだひとこと（書類を確定したとき・1日1回だけ作る）。それまではコードで並べた仮のもの
   const briefing = provisionalBriefing(candidates, 3, (c) => followUpToday(h, c, today));
   const net = safetyNet(candidates, briefing);
-  const questions = openQuestions(h);
+  const questions = openQuestions(h, today);
   const pending = h.documents.filter((d) => !d.confirmedAt);
   const todayClasses = h.timetable.filter((t) => t.weekday === today.getDay());
   const nameOf = (id: string) => h.members.find((m) => m.id === id)?.name ?? "";
@@ -67,6 +69,8 @@ export default function Home() {
       : undefined;
 
   const done = (id: string) => save(toggleDone(h, id));
+  const character = characterOf(h);
+  const name = butlerName(h);
 
   const Source = ({ item }: { item: Pick<BriefingItem, "documentId" | "documentTitle" | "location"> }) =>
     item.documentId ? (
@@ -95,6 +99,15 @@ export default function Home() {
 
   return (
     <main>
+      <div className="greeting">
+        <Link href="/butler" className="face" aria-label={`${name}（執事を選ぶ）`} style={{ textDecoration: "none" }}>
+          {character.icon}
+        </Link>
+        <div>
+          <div className="greeting-name">執事の{name}</div>
+          <div className="greeting-text">{character.greeting(timeOfDay(today), addressee(h))}</div>
+        </div>
+      </div>
       <h1>今日のこと</h1>
       <p className="lead">
         {today.getMonth() + 1}月{today.getDate()}日（{WEEKDAYS[today.getDay()]}）
@@ -106,10 +119,10 @@ export default function Home() {
         ))}
       </p>
 
-      <h2>執事のひとこと</h2>
+      <h2>{name}のひとこと</h2>
       <div className="card briefing">
         {briefing.items.length === 0 ? (
-          <div>今は急いで動くことはありません。</div>
+          <div>{character.calm}</div>
         ) : (
           briefing.items.map((item) => (
             <div className="briefing-item" key={item.candidateId}>
@@ -126,16 +139,23 @@ export default function Home() {
         )}
         {briefing.source === "provisional" && (
           <div className="meta provisional">
-            仮のひとこと: 執事（Claude）の準備中のため、期日の近い順に並べています。
+            仮のひとこと: 執事（Claude）の準備中のため、期日の近い順に並べています。話し方は選んだ執事に合わせていますが、中身はコードで作っています。
           </div>
         )}
       </div>
 
-      {net.length > 0 && (
+      <h2>期日が近いもの（念のため）</h2>
+      {net.length === 0 ? (
+        <div className="card calm">
+          {candidates.some((c) => c.urgent)
+            ? "3日以内の締切・期限切れのものは、上のひとことにすべて入っています。"
+            : "3日以内の締切・期限切れのものはありません。"}
+        </div>
+      ) : (
         <>
-          <h2>期日が近いもの（念のため）</h2>
           {net.map((c: Candidate) => (
-            <div className="card warn" key={c.id}>
+            <div className="card alert" key={c.id}>
+              <div className="alert-label">⚠ {c.overdue ? "期限切れ" : "締切が近い"}</div>
               {c.title}
               {c.detail && <div>{c.detail}</div>}
               {c.why && <div className="meta">{c.why}</div>}
@@ -148,13 +168,15 @@ export default function Home() {
 
       {questions.length > 0 && (
         <>
-          <h2>執事から聞きたいこと</h2>
+          <h2>{name}から聞きたいこと</h2>
+          <p className="meta">{character.asking}</p>
           {questions.map((q) => (
             <QuestionCard
               key={q.id}
               question={q}
               document={h.documents.find((d) => d.id === q.documentId)}
               onAnswer={(values) => save(answerQuestion(h, q.id, values))}
+              onLater={() => save(answerLater(h, q.id, today))}
             />
           ))}
         </>
@@ -188,6 +210,9 @@ export default function Home() {
         </Link>
         <Link className="button secondary" href="/rules">
           わが家のきまり
+        </Link>
+        <Link className="button secondary" href="/butler">
+          執事を選ぶ
         </Link>
       </div>
     </main>

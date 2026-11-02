@@ -306,7 +306,7 @@ export function dentalCheckupProvisionalDraft(today: Date): Extraction {
     who: {
       memberIds: ["m-daughter"],
       sure: false,
-      reason: "対象が「1. 対象」に生まれ月で書かれていて、家族の誕生日は登録されていないため。2歳の結衣さんの可能性が高い",
+      reason: `対象は${dentalTargetText(today).replace("に生まれたお子さま", "")}生まれの子。うちだと2歳の結衣さんが当てはまりそう`,
     },
     period: { label: "", from: "", until: "" },
     fields: [

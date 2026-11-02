@@ -4,17 +4,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { effectOf } from "@/lib/butler";
 import type { ButlerQuestion, DocumentRecord } from "@/lib/types";
 
 export function QuestionCard({
   question,
   document,
   onAnswer,
+  onLater,
   showDocument = true,
 }: {
   question: ButlerQuestion;
   document?: DocumentRecord;
   onAnswer: (values: string[]) => void;
+  /** 「今はわからない・あとで答える」 */
+  onLater?: () => void;
   showDocument?: boolean;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
@@ -41,6 +45,7 @@ export function QuestionCard({
       )}
       <div className="question-text">{guess.length ? `たぶん${guessNames}の書類？` : question.text}</div>
       {question.reason && <div className="meta">{question.reason}</div>}
+      <div className="effect">答えると、どうなる？ → {effectOf(question)}</div>
       {guess.length > 0 && (
         <>
           <button className="button small guess" onClick={() => onAnswer(guess)}>
@@ -61,6 +66,11 @@ export function QuestionCard({
       {guess.length === 0 && question.multiple && selected.length > 0 && (
         <button className="button small" onClick={() => onAnswer(selected)}>
           これで答える
+        </button>
+      )}
+      {onLater && (
+        <button className="link-button later" onClick={onLater}>
+          今はわからない・あとで答える
         </button>
       )}
     </div>

@@ -1,24 +1,42 @@
 :root {
-  --bg: #f7f5f0;
-  --surface: #ffffff;
-  --text: #22201c;
-  --muted: #6b665d;
-  --accent: #2f6b5a;
+  /* クラログの暖かいオレンジ。クリームの背景に、濃いテラコッタのボタン（白文字でも読める濃さ） */
+  --bg: #fbf6ee;
+  --surface: #fffdf9;
+  --text: #2b2420;
+  --muted: #6e6258;
+  --accent: #a8461f;
   --accent-text: #ffffff;
-  --warn: #9a5b12;
-  --border: #e3ded3;
+  --accent-soft: #f6e3d6;
+  --border: #eadfd1;
+  /* 確認のお願い（原本と見比べる・仮の結果など）。注意の色とは分ける */
+  --note: #7a6a58;
+  --note-bg: #f5eee4;
+  /* 迫った期限・期限切れ。テーマのオレンジと見分けがつく赤＋太い左線＋⚠ */
+  --alert: #b0213f;
+  --alert-bg: #fff1f3;
+  /* 書類に書いていないこと。青の点線＋？ */
+  --unknown: #3d5a80;
+  --unknown-bg: #eef3f9;
+  --warn: var(--note);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161513;
-    --surface: #211f1c;
-    --text: #eeeae2;
-    --muted: #a59f94;
-    --accent: #6fb39d;
-    --accent-text: #10221c;
-    --warn: #e0a95c;
-    --border: #36322c;
+    --bg: #1b1713;
+    --surface: #26201b;
+    --text: #f1e9e0;
+    --muted: #b3a698;
+    --accent: #e58a5f;
+    --accent-text: #1f120b;
+    --accent-soft: #3a2a20;
+    --border: #3d342c;
+    --note: #c9b8a4;
+    --note-bg: #2c251f;
+    --alert: #ff8a9b;
+    --alert-bg: #33202a;
+    --unknown: #9bb8e0;
+    --unknown-bg: #1f2833;
+    --warn: var(--note);
   }
 }
 
@@ -32,7 +50,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.7;
 }
 
 main {
@@ -66,11 +85,41 @@ h2 {
 
 .card .meta {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
+/* 確認のお願い */
 .card.warn {
-  border-color: var(--warn);
+  border: 1px dashed var(--note);
+  background: var(--note-bg);
+}
+
+/* 迫った期限・期限切れ */
+.card.alert {
+  border: 1px solid var(--alert);
+  border-left: 6px solid var(--alert);
+  background: var(--alert-bg);
+}
+
+.alert-label {
+  color: var(--alert);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* 書類に書いていないこと */
+.card.unknown {
+  border: 2px dashed var(--unknown);
+  background: var(--unknown-bg);
+}
+
+.unknown-label {
+  color: var(--unknown);
+  font-weight: 700;
+}
+
+.card.calm {
+  color: var(--muted);
 }
 
 .button {
@@ -96,7 +145,7 @@ h2 {
 
 .note {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   margin-top: 16px;
 }
 
@@ -148,7 +197,8 @@ a {
 }
 
 .error {
-  color: var(--warn);
+  color: var(--alert);
+  font-weight: 600;
 }
 
 .spacer {
@@ -173,12 +223,12 @@ a {
   border-radius: 999px;
   border: 1px solid var(--warn);
   color: var(--warn);
-  font-size: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .meta {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .original {
@@ -231,7 +281,7 @@ textarea.input {
   padding: 4px 0;
   margin-top: 4px;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -328,7 +378,7 @@ button.chip {
 
 .follow-up {
   display: inline-block;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--accent);
   border: 1px solid var(--accent);
   border-radius: 999px;
@@ -350,4 +400,81 @@ button.chip {
 
 .four-lines dd {
   margin: 0;
+}
+
+/* 執事のあいさつと顔 */
+.greeting {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 20px;
+}
+
+.face {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-text);
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.greeting-name {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.greeting-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* キャラ選び */
+.card.character {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.card.character.selected {
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+.character-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.unchanging {
+  border: 2px solid var(--accent);
+}
+
+.unchanging-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.unchanging ul {
+  margin: 0 0 6px;
+  padding-left: 1.2em;
+}
+
+.effect {
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+
+.link-button.later {
+  display: block;
+  margin-top: 10px;
 }
