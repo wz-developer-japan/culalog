@@ -353,12 +353,17 @@ export function provisionalAsk(household: Household, question: string): AskResul
       const all = `${doc.title} ${doc.docType ?? ""} ${doc.fields.map((f) => `${f.label} ${f.value}`).join(" ")} ${doc.deadlines.map((d) => d.label).join(" ")} ${doc.originalText ?? ""}`;
       const hit = terms.filter((t) => all.includes(t.w));
       const mine = doc.memberIds.some((id) => namedIds.has(id)) ? 6 : 0;
-      return { doc, score: hit.reduce((n, t) => n + t.weight, 0) + mine, hits: hit.length };
+      // 質問そのものの言葉（言い換えではなく）に、いくつ当たったか
+      const asked = words.filter((w) => all.includes(w)).length;
+      return { doc, score: hit.reduce((n, t) => n + t.weight, 0) + mine, hits: hit.length, asked };
     })
     .filter((x) => x.hits > 0)
     .sort((a, b) => b.score - a.score);
   const top = scored.length ? scored[0].score : 0;
-  const near = scored.filter((x) => x.score * 2 >= top).slice(0, 3);
+  // 質問の言葉への当たり方が、いちばん当たった書類より3つ以上少ない書類は引かない
+  // （「保険」「連絡先」だけで当たる自動車保険が、けがの頼みごとに混ざらないように）
+  const topAsked = scored.length ? Math.max(...scored.map((x) => x.asked)) : 0;
+  const near = scored.filter((x) => x.score * 2 >= top && x.asked >= topAsked - 2).slice(0, 3);
 
   type Cand = { c: Citation; hit: { w: string; weight: number }[]; extra: number; order: number };
   const scoreOf = (x: Cand, covered: Set<string>) => x.hit.filter((t) => !covered.has(t.w)).reduce((n, t) => n + t.weight, 0) + x.extra;
