@@ -33,7 +33,8 @@ export function renderSampleImage(text: string): string {
   const fontSize = 28;
   const lineHeight = 46;
   const margin = 70;
-  const font = `${fontSize}px "Hiragino Mincho ProN", "Noto Serif JP", "Noto Sans JP", serif`;
+  // 端末にある字体だけを使う（ウェブフォントは読み込みの前後で描かれ方が変わり、同じ見本が別のファイルになるため）
+  const font = `${fontSize}px "Hiragino Mincho ProN", "Noto Serif JP", serif`;
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   ctx.font = font;

@@ -3,7 +3,7 @@
 // Claude が選ばなかったものでも、締切が近いもの・過ぎたものはコードの側で必ず出す。
 
 import { type ActionItem, buildHome, formatYmd, toYmd } from "./deadlines";
-import type { ButlerQuestion, DocumentRecord, Household } from "./types";
+import type { ButlerQuestion, Deadline, DocumentCategory, DocumentRecord, Household } from "./types";
 
 /** 締切が何日以内なら、Claude が選ばなくても必ず出すか */
 export const URGENT_DAYS = 3;
@@ -42,6 +42,22 @@ export interface Candidate {
   followUp?: { stage: number; label: string };
   /** この候補に関わる日付 YYYY-MM-DD（Claude の文に出てくる日付を、コードで照らし合わせるため） */
   dates: string[];
+  /** 画面のカード用（見せ方だけに使う。文は title・detail・why のまま） */
+  card?: {
+    /** 予定の名前（1行で出す） */
+    label: string;
+    date: string;
+    endDate?: string;
+    time?: string;
+    place?: string;
+    needs?: string[];
+    kind: Deadline["kind"];
+    category: DocumentCategory;
+    /** 同じ予定を知らせるほかの書類の数 */
+    bundled: number;
+    /** 何日前から知らせているか（輪の進み具合に使う） */
+    leadDays: number;
+  };
 }
 
 function titleOf({ deadline, daysLeft }: ActionItem, overdue: boolean): string {
@@ -77,6 +93,18 @@ function followUpOf(item: ActionItem, overdue: boolean): Candidate["followUp"] {
 
 function fromItem(item: ActionItem, overdue: boolean): Candidate {
   return {
+    card: {
+      label: item.deadline.label,
+      date: item.deadline.date,
+      endDate: item.deadline.endDate,
+      time: item.deadline.time,
+      place: item.deadline.place,
+      needs: item.deadline.needs,
+      kind: item.deadline.kind,
+      category: item.document.category,
+      bundled: item.bundled?.length ?? 0,
+      leadDays: item.deadline.leadDays,
+    },
     followUp: followUpOf(item, overdue),
     dates: [item.deadline.date, item.deadline.endDate ?? "", item.deadline.reserve?.date ?? ""].filter(Boolean),
     id: item.deadline.id,
