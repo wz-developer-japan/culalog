@@ -849,13 +849,23 @@ svg.l {
   opacity: 0.92;
   margin-top: 4px;
 }
-.hero-src {
-  display: inline-block;
-  margin-top: 6px;
-  font-size: 0.75rem;
+.hero .m {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  align-items: center;
+}
+.hero .tag.src {
   color: var(--accent-text);
-  opacity: 0.85;
-  text-decoration: underline;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.hero .src-detail {
+  color: var(--accent-text);
+  opacity: 0.92;
+}
+.hero .src-detail a {
+  color: var(--accent-text);
 }
 .hero .bag {
   position: absolute;
@@ -1002,6 +1012,20 @@ h2.sec .more {
   font-size: 0.8rem;
   color: var(--muted);
   margin-top: 2px;
+}
+button.sub.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  line-height: 1.5;
+  width: 100%;
+  cursor: pointer;
 }
 .dcard .m {
   display: flex;

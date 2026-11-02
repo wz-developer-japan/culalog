@@ -65,6 +65,17 @@ function Days({ c }: { c: Candidate }) {
   );
 }
 
+/** 理由の文。clamp のときは2行まで、続きはタップで */
+function Why({ text, clamp }: { text: string; clamp?: boolean }) {
+  const [open, setOpen] = useState(false);
+  if (!clamp || open) return <div className="sub">{text}</div>;
+  return (
+    <button className="sub clamp" onClick={() => setOpen(true)} aria-expanded={false}>
+      {text}
+    </button>
+  );
+}
+
 /** 小さな「原本」の札。押すと書類名と場所が出る */
 function Source({ c }: { c: Pick<Candidate, "documentId" | "documentTitle" | "location"> }) {
   const [open, setOpen] = useState(false);
@@ -157,7 +168,9 @@ export default function Home() {
       : provisionalBriefing(candidates, 3, isFollowUp);
   const answers = h.insightAnswers ?? {};
   const insights = (connect?.insights ?? []).filter((i) => !answers[i.key]);
-  const net = safetyNet(candidates, briefing);
+  // いちばん近い締切（期限切れがあればそれ）を、上の大きなカードに。ひとこと・念のための欄には同じものを出さない
+  const nearest = candidates.filter((c) => c.type === "deadline" && c.card).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
+  const net = safetyNet(candidates, briefing).filter((c) => c.id !== nearest?.id);
   const questions = openQuestions(h, today);
   const unconfirmed = h.documents.filter((d) => !d.confirmedAt);
   const progress = inboxProgress(h);
@@ -171,8 +184,6 @@ export default function Home() {
     candidateId.startsWith("missing:")
       ? h.demoSamples?.find((x) => x.expectedId === candidateId.slice("missing:".length))
       : undefined;
-  // いちばん近い締切（期限切れがあればそれ）を、上の大きなカードに
-  const nearest = candidates.filter((c) => c.type === "deadline" && c.card).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
   // 件数: 今月の締切（済んでいないもの）・預かった書類
   const ym = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
   const thisMonth = allItems(h, today).filter(
@@ -202,7 +213,7 @@ export default function Home() {
           </div>
           {voice && <div className="voice">{voice}</div>}
           {c.detail && <div className="sub">{c.detail}</div>}
-          {c.why && <div className="sub">{c.why}</div>}
+          {c.why && <Why text={c.why} clamp={c.type === "missing"} />}
           <div className="m">
             {c.card && (
               <span className="tag mut">
@@ -313,12 +324,14 @@ export default function Home() {
               {nearest.card.place && `・${nearest.card.place}`}
               {nearest.card.needs?.length ? `・${nearest.card.needs.join("・")}` : ""}
             </div>
-            {nearest.documentId && (
-              <Link className="hero-src" href={`/documents/${nearest.documentId}`}>
-                原本: {nearest.documentTitle}
-                {nearest.location && `・${nearest.location}`}
-              </Link>
-            )}
+            <div className="m">
+              <Source c={nearest} />
+              {!nearest.isEvent && (
+                <button className="tag ok act" onClick={() => done(nearest.id)}>
+                  済んだ
+                </button>
+              )}
+            </div>
           </div>
           <div className="bag">
             <Pic kind={nearest.card.category} size={58} />
@@ -380,12 +393,12 @@ export default function Home() {
         </Link>
       </h2>
       {status === "thinking" && <div className="meta thinking">{name}が、書類とわが家のきまりを見ています…</div>}
-      {briefing.items.length === 0 ? (
-        <div className="calm-line">{character.calm}</div>
+      {briefing.items.filter((item) => item.candidateId !== nearest?.id).length === 0 ? (
+        <div className="calm-line">{nearest ? "いちばん近いものは、上の大きなカードに出しています。" : character.calm}</div>
       ) : (
         briefing.items.map((item) => {
           const c = byId.get(item.candidateId);
-          return c ? <Card key={item.candidateId} c={c} item={item} /> : null;
+          return c && c.id !== nearest?.id ? <Card key={item.candidateId} c={c} item={item} /> : null;
         })
       )}
       <p className="meta provisional">
