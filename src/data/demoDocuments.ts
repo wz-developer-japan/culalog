@@ -29,9 +29,18 @@ export function schoolYearOf(today: Date): number {
   return today.getMonth() >= 3 ? today.getFullYear() : today.getFullYear() - 1;
 }
 
+/** 個人面談: 年度の12月の最初の月曜日〜その週の金曜日（デモ書類づくりの側と同じ規則） */
+export function interviewDates(schoolYear: number): { from: Date; to: Date } {
+  let from = new Date(schoolYear, 11, 1);
+  while (from.getDay() !== 1) from = addDays(from, 1);
+  return { from, to: addDays(from, 4) };
+}
+
 export interface DemoDates {
   today: Date;
   schoolYear: number;
+  /** 個人面談の週（月〜金） */
+  interview: { from: Date; to: Date };
   sportsDay: Date;
   sportsDayReserve: Date;
   /** 賃貸の契約期間の満了日 */
@@ -51,6 +60,7 @@ export function demoDates(today: Date): DemoDates {
   return {
     today,
     schoolYear: schoolYearOf(today),
+    interview: interviewDates(schoolYearOf(today)),
     sportsDay,
     sportsDayReserve: addDays(sportsDay, 1),
     excursion: nextWeekday(addDays(today, 1)),
@@ -70,7 +80,7 @@ export function schoolAnnualText(t: DemoDates): string {
 ・夏休み　　　　　${y}年7月18日 〜 8月31日
 ・遠足（3年生）　　${jpDate(t.excursion)}（雨天の場合は校内で学習）
 ・運動会　　　　　${jpDate(t.sportsDay)}（雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延）
-・個人面談　　　　${y}年12月8日 〜 12月12日（日程は別途お知らせします）
+・個人面談　　　　${jpDate(t.interview.from)} 〜 ${jpShortDate(t.interview.to)}（日程は別途お知らせします）
 ・冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日
 ・修了式　　　　　${y + 1}年3月24日
 

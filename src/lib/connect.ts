@@ -316,7 +316,11 @@ export function verifyConnect(
       .map((e) => ({ ...e, doc: docs.find((d) => d.id === e.documentId) }))
       .filter((e) => e.doc)
       .map((e) => ({ documentId: e.documentId, documentTitle: e.doc!.title, location: e.location }));
-    const key = insightKey(kind, deadlineId, ruleId, oldDeadlineId);
+    // other は予定・きまりの ID を持たないので、根拠の書類の組み合わせを鍵にする（同じ書類の組の気づきは1つ）
+    const key =
+      kind === "other"
+        ? insightKey(kind, "", "", [...new Set(evidence.map((e) => e.documentId))].sort().join(","))
+        : insightKey(kind, deadlineId, ruleId, oldDeadlineId);
     const ok = (() => {
       if (!text || JUDGMENT.test(text) || answers[key] || insights.some((i) => i.key === key)) return false;
       if (kind === "apply_rule" || kind === "apply_rule_to_reserve") {
@@ -397,6 +401,7 @@ export function provisionalConnect(household: Household): { briefing: []; insigh
       });
     }
   }
+  insights.push(...provisionalInsuranceBeforeLease(household));
   if (household.isDemo) {
     const rule = household.rules?.find((r) => r.id === "rule-leave");
     const notice = confirmed.find((d) => !d.supersededBy && d.expectedId === "exp-sports-day-notice");
@@ -426,6 +431,37 @@ export function provisionalConnect(household: Household): { briefing: []; insigh
     }
   }
   return { briefing: [], insights };
+}
+
+/**
+ * 住まいの契約（賃貸など）の満了より先に、その契約が「期間中は続ける」と書いている保険の満期が来る、をコードで見つける
+ * （Claude は使っていない。本物の執事は、同じつながりを other の気づきとして自分で見つける）。
+ * 出すのは「先に来る」という事実と原本の場所まで。更新すべきかどうかは言わない。
+ */
+function provisionalInsuranceBeforeLease(household: Household): RawInsight[] {
+  const current = household.documents.filter((d) => d.confirmedAt && !d.supersededBy);
+  const out: RawInsight[] = [];
+  for (const home of current.filter((d) => d.category === "housing")) {
+    const homeEnd = home.deadlines.find((d) => d.kind === "expiry");
+    const clause = home.fields.find((f) => /保険/.test(`${f.label}${f.value}`));
+    if (!homeEnd || !clause) continue;
+    for (const policy of current.filter((d) => d.category === "insurance" && d.memberIds.some((m) => home.memberIds.includes(m)))) {
+      const policyEnd = policy.deadlines.find((d) => d.kind === "expiry");
+      if (!policyEnd || policyEnd.date >= homeEnd.date) continue;
+      out.push({
+        kind: "other",
+        text: `「${policy.title}」の${policyEnd.label}（${formatYmd(policyEnd.date)}）は、「${home.title}」の${homeEnd.label}（${formatYmd(homeEnd.date)}）より先に来ます。契約書には「${clause.value}」とあります。先に保険のほうを確かめておくとよいかもしれません。`,
+        deadlineId: "",
+        ruleId: "",
+        oldDeadlineId: "",
+        evidence: [
+          { documentId: policy.id, location: policyEnd.source?.location ?? "" },
+          { documentId: home.id, location: clause.source?.location ?? "" },
+        ],
+      });
+    }
+  }
+  return out;
 }
 
 /** 気づいたことを採用する（当てはめは決まった操作。日付はきまりから毎回計算する） */

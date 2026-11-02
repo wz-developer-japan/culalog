@@ -2,6 +2,7 @@
 // 方針: 書類から取り出した値には必ず「原本のどこに書いてあったか」を付け、
 // 本人が確認したものだけを「確定」として扱う。アプリは判断（補償される・解約してよい等）を持たない。
 
+import type { AskResult } from "./ask";
 import type { ButlerSettings } from "./character";
 import type { ConnectResult } from "./connect";
 import type { Extraction } from "./extraction";
@@ -268,5 +269,7 @@ export interface Household {
   connect?: ConnectResult;
   /** 気づいたことへの本人の答え（鍵 → 採用・違う・分かった） */
   insightAnswers?: Record<string, "adopted" | "rejected" | "seen">;
+  /** 執事に聞いたことと答え（新しい順・端末に保存。あとで報告として見返せるように） */
+  asks?: AskResult[];
   isDemo: boolean;
 }

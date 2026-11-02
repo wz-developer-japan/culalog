@@ -247,6 +247,9 @@ export default function Home() {
       <Link className="button" href="/scan" style={{ textAlign: "center", textDecoration: "none" }}>
         執事に書類を渡す
       </Link>
+      <Link className="button secondary" href="/ask" style={{ textAlign: "center", textDecoration: "none" }}>
+        {name}に聞く（例: 冬休みはいつからいつまで？）
+      </Link>
       <div className="nav-links">
         <Link className="button secondary" href="/schedule">
           すべての予定
