@@ -180,3 +180,24 @@ a {
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+.original {
+  margin-top: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.original summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.original pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.9rem;
+  margin: 12px 0 0;
+}

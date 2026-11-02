@@ -79,6 +79,8 @@ export interface ExpectedDocument {
   /** どの予定から期待しているか */
   relatedDeadlineId?: string;
   hint?: string;
+  /** デモ用: まだ届いていない書類の架空の見本（読み取りを試すため） */
+  sample?: { title: string; text: string };
 }
 
 export type DocumentCategory =
@@ -104,6 +106,8 @@ export interface DocumentRecord {
   origin: DocumentOrigin;
   /** 現物のしまい場所 */
   storageLocation?: string;
+  /** 原本の文字起こし（デモの架空書類や、読み取った書類の本文） */
+  originalText?: string;
   fields: Field[];
   contacts: Contact[];
   deadlines: Deadline[];

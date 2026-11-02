@@ -139,9 +139,18 @@ export default function DocumentDetail() {
               <div className="meta">{c.label}</div>
               {c.name}
               {c.phone && <div>{c.phone}</div>}
+              {c.hours && <div className="meta">{c.hours}</div>}
+              {c.source && <div className="meta">原本: {c.source.location}</div>}
             </div>
           ))}
         </>
+      )}
+
+      {doc.originalText && (
+        <details className="original">
+          <summary>原本を見る{doc.origin === "demo" && "（架空の書類）"}</summary>
+          <pre>{doc.originalText}</pre>
+        </details>
       )}
 
       <div className="spacer" />
