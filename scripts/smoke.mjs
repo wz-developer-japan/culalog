@@ -162,7 +162,7 @@ await step("崩れた紙: 写真が切れている・日付と曜日が合わな
   // 学校のお知らせ（1/22）と学年だより（1/29）で日付が食い違う学習発表会は、どちらも予定に出る（違いに気づけるように）
   await page.goto(BASE + "/schedule/all");
   await see("これから");
-  const n = await page.locator(".card").filter({ hasText: "学習発表会" }).count();
+  const n = await page.locator(".dcard").filter({ hasText: "学習発表会" }).count();
   if (n !== 2) throw new Error(`学習発表会が${n}件です（日付が食い違う2件が両方出るはず）`);
 });
 
@@ -176,11 +176,11 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   // 束ねる: 後払いの請求と前日の督促（同じ注文・同じ期限）が、すべての予定で1件になっている
   await page.goto(BASE + "/schedule/all");
   await see("これから");
-  const bill = page.locator(".card").filter({ hasText: "後払いの支払期限" });
+  const bill = page.locator(".dcard").filter({ hasText: "後払いの支払期限" });
   if ((await bill.count()) !== 1) throw new Error(`後払いの支払期限が${await bill.count()}件あります（1件に束ねられていません）`);
   await bill.first().getByText("同じ予定のお知らせ").waitFor({ timeout: 10000 });
   // 家財の保険の継続のご案内（メール2通）は、本体の証券から計算した「申し出の締切」（同じ日）に束なる
-  const fire = page.locator(".card").filter({ hasText: "継続しない場合の" });
+  const fire = page.locator(".dcard").filter({ hasText: "継続しない場合の" });
   if ((await fire.count()) !== 1) throw new Error(`継続しない場合の申し出の締切が${await fire.count()}件あります（1件に束ねられていません）`);
   await fire.first().getByText("同じ予定のお知らせ").waitFor({ timeout: 10000 });
   // 完了で閉じる: 決済結果のお知らせ → 後払いの支払期限は済みましたか？（聞きたいことは1問ずつなので、ほかの質問は「あとで」で送る）
@@ -201,7 +201,7 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   await page.goto(BASE + "/schedule/all");
   await see("済んだもの");
   await page.locator("details").filter({ hasText: "済んだもの" }).locator("summary").click();
-  const finished = page.locator(".card").filter({ hasText: "後払いの支払期限" });
+  const finished = page.locator(".dcard").filter({ hasText: "後払いの支払期限" });
   if ((await finished.count()) !== 1) throw new Error(`済んだにした後も、後払いの支払期限が${await finished.count()}件あります`);
   if (!(await finished.first().getByRole("button", { name: "済んだを取り消す" }).count())) throw new Error("後払いの支払期限が「済んだもの」に入っていません");
 });

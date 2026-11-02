@@ -352,7 +352,7 @@ export default function DocumentDetail() {
               </div>
             )}
             <div className="meta">
-              {DEADLINE_KIND_LABELS[d.kind]}・{d.awareness ? "知っておくだけ（自動で進むもの。ホームでは知らせません）" : `${d.leadDays}日前からお知らせ`}
+              {DEADLINE_KIND_LABELS[d.kind]}・{d.awareness ? "知っておくだけ（自動で進むもの。トップ・予定では知らせません）" : `${d.leadDays}日前からお知らせ`}
             </div>
             <SourceLine id={d.id} source={d.source} />
             {d.leadReason && <div className="meta">{d.leadReason}</div>}

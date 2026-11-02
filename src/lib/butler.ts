@@ -93,6 +93,11 @@ function followUpOf(item: ActionItem, overdue: boolean): Candidate["followUp"] {
   return { stage, label: FOLLOW_UP_LABEL[stage] };
 }
 
+/** 予定・やること1件を、カードの形（Candidate）にする（すべての予定・家族ごとのページで、同じ見た目にするため） */
+export function candidateOf(item: ActionItem, overdue: boolean): Candidate {
+  return fromItem(item, overdue);
+}
+
 function fromItem(item: ActionItem, overdue: boolean): Candidate {
   return {
     card: {
@@ -272,7 +277,7 @@ export function effectOf(q: ButlerQuestion): string {
   if (q.about === "members") return "選んだ人の予定として、ひとことでお知らせします。";
   if (q.about === "supersede") return "前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。";
   if (q.about === "duplicate") return "同じ書類なら、今回の分は消して前の書類だけを使います。別の書類なら両方残します。";
-  if (q.about === "close") return "済んだにすると、その予定はホームで知らせなくなります（すべての予定の画面で取り消せます）。";
+  if (q.about === "close") return "済んだにすると、その予定はトップ・予定で知らせなくなります（すべての予定の画面で取り消せます）。";
   return "答えは、この書類の項目に「本人の答え」として残ります。";
 }
 
@@ -383,7 +388,7 @@ export function closeQuestions(household: Household, doc: DocumentRecord, newId:
         { label: "まだ・別のもの", value: "keep" },
       ],
       multiple: false,
-      effect: corrected ? "訂正されたにすると、前の予定はホームで知らせなくなり、この書類の予定だけが残ります（すべての予定の画面で取り消せます）。" : undefined,
+      effect: corrected ? "訂正されたにすると、前の予定はトップ・予定で知らせなくなり、この書類の予定だけが残ります（すべての予定の画面で取り消せます）。" : undefined,
     });
   }
   return out;

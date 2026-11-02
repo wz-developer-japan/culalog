@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { memberMark } from "@/lib/memberMark";
 import { importantNumbers } from "@/lib/numbers";
+import { Pic } from "@/components/Pics";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { DocumentCategory, DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -49,7 +50,7 @@ export default function Documents() {
   return (
     <main>
       <BackToTop />
-      <h1>書類の一覧</h1>
+      <h1 className="pt">書類</h1>
       <p className="lead">執事に渡した書類です。データはこの端末の中にだけ保存しています。</p>
 
       {current.length > 4 && (
@@ -104,19 +105,26 @@ export default function Documents() {
       )}
 
       {docs.length === 0 ? (
-        <div className="card meta">{filtered ? "当てはまる書類はありません。" : "まだありません。"}</div>
+        <div className="calm-line">{filtered ? "当てはまる書類はありません。" : "まだありません。"}</div>
       ) : (
         docs.map((d) => (
-          <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
-            {d.title}
-            {!d.confirmedAt && <span className="badge">確認待ち</span>}
-            <div className="meta">
-              {d.docType ?? CATEGORY_LABELS[d.category]}
-              {d.periodLabel && `・${d.periodLabel}`}
-              ・{d.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, d)}
+          <Link className="dcard row-link" key={d.id} href={`/documents/${d.id}`}>
+            <div className="pic">
+              <Pic kind={d.category} />
             </div>
-            {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
-            {d.notForFamily && <div className="meta">家族の情報にしていません（記入例・見本など）</div>}
+            <div className="body">
+              <div className="t wrap">{d.title}</div>
+              <div className="sub">
+                {d.docType ?? CATEGORY_LABELS[d.category]}
+                {d.periodLabel && `・${d.periodLabel}`}
+              </div>
+              {d.storageLocation && <div className="sub">しまい場所: {d.storageLocation}</div>}
+              {d.notForFamily && <div className="sub">家族の情報にしていません（記入例・見本など）</div>}
+              <div className="m">
+                {!d.confirmedAt && <span className="tag warn">確認待ち</span>}
+                <span className="tag mut">{d.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, d)}</span>
+              </div>
+            </div>
           </Link>
         ))
       )}

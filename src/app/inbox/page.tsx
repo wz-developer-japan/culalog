@@ -86,7 +86,7 @@ export default function Inbox() {
   return (
     <main>
       <BackToTop />
-      <h1>まとめて確認</h1>
+      <h1 className="pt">まとめて確認</h1>
 
       {progress.total > 0 && (
         <div className="card">
@@ -100,7 +100,7 @@ export default function Inbox() {
           {reading && <div className="meta thinking">いま読んでいます: {reading.name}</div>}
           {progress.pausedUntil && progress.waiting > 0 && (
             <div className="meta">
-              読み取りの回数の上限に当たったので、{timeOf(progress.pausedUntil)}ごろから続きを読みます（この画面かホームを開いていれば、自動で続けます）。
+              読み取りの回数の上限に当たったので、{timeOf(progress.pausedUntil)}ごろから続きを読みます（この画面かトップを開いていれば、自動で続けます）。
             </div>
           )}
           {!progress.pausedUntil && progress.waiting > 0 && !reading && <div className="meta">続きを読む準備をしています…</div>}

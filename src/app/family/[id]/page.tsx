@@ -11,6 +11,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { DeadlineCard } from "@/components/DeadlineCard";
 import { FamilyRow } from "@/components/FamilyRow";
 import { NumbersList } from "@/components/NumbersList";
+import { Pic } from "@/components/Pics";
 import { buildCandidates, toggleDone } from "@/lib/butler";
 import { type ActionItem, allItems, formatYmd, isDone, itemIds } from "@/lib/deadlines";
 import { CATEGORY_LABELS, RELATION_LABELS } from "@/lib/labels";
@@ -169,15 +170,23 @@ export default function FamilyPage() {
             <div className="calm-line">まだありません。</div>
           ) : (
             docs.map((d) => (
-              <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
-                {d.title}
-                {!d.confirmedAt && <span className="badge">確認待ち</span>}
-                <div className="meta">
-                  {d.docType ?? CATEGORY_LABELS[d.category]}
-                  {d.periodLabel && `・${d.periodLabel}`}
-                  {whose === "all" && !d.notForFamily && `・${ownersLabel(h.members, d)}`}
+              <Link className="dcard row-link" key={d.id} href={`/documents/${d.id}`}>
+                <div className="pic">
+                  <Pic kind={d.category} />
                 </div>
-                {d.notForFamily && <div className="meta">この家の書類ではないもの（記入例・見本など）。家族の情報にしていません</div>}
+                <div className="body">
+                  <div className="t wrap">{d.title}</div>
+                  <div className="sub">
+                    {d.docType ?? CATEGORY_LABELS[d.category]}
+                    {d.periodLabel && `・${d.periodLabel}`}
+                  </div>
+                  {d.notForFamily && <div className="sub">この家の書類ではないもの（記入例・見本など）。家族の情報にしていません</div>}
+                  <div className="m">
+                    {!d.confirmedAt && <span className="tag warn">確認待ち</span>}
+                    {whose === "all" && !d.notForFamily && <span className="tag mut">{ownersLabel(h.members, d)}</span>}
+                    {d.notForFamily && <span className="tag mut">この家の書類ではない</span>}
+                  </div>
+                </div>
               </Link>
             ))
           )}

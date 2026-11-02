@@ -7,6 +7,7 @@ import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Pic } from "@/components/Pics";
 import type { Household, HouseRule } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
 
@@ -53,29 +54,35 @@ export default function Rules() {
   return (
     <main>
       <BackToTop />
-      <h1>わが家のきまり</h1>
+      <h1 className="pt">わが家のきまり</h1>
       <p className="lead">
         書類には書いていない、家の事情です。書類の予定に当てはめると、その日から逆算した締切をお知らせします。
       </p>
 
       {rules.length === 0 ? (
-        <div className="card meta">まだありません。</div>
+        <div className="calm-line">まだありません。</div>
       ) : (
         rules.map((r) => (
-          <div className="card" key={r.id}>
-            {r.label}: 予定の{r.daysBefore}日前まで
-            <div className="meta">
-              {nameOf(r.memberId)}
-              {r.note && `・${r.note}`}
+          <div className="dcard" key={r.id}>
+            <div className="pic">
+              <Pic kind="work" />
             </div>
-            <button className="link-button" onClick={() => remove(r.id)}>
-              このきまりを消す
-            </button>
+            <div className="body">
+              <div className="t wrap">{r.label}</div>
+              {r.note && <div className="sub">{r.note}</div>}
+              <div className="m">
+                <span className="tag acc">予定の{r.daysBefore}日前まで</span>
+                <span className="tag mut">{nameOf(r.memberId)}</span>
+                <button className="tag act mut" onClick={() => remove(r.id)}>
+                  消す
+                </button>
+              </div>
+            </div>
           </div>
         ))
       )}
 
-      <h2>きまりを足す</h2>
+      <h2 className="sec">きまりを足す</h2>
       <div className="card">
         <label className="label">
           何のきまりか

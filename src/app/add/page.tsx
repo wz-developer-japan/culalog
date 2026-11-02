@@ -38,7 +38,7 @@ export default function AddDocument() {
 
   return (
     <main>
-      <h1>書類を登録</h1>
+      <h1 className="pt">書類を登録</h1>
       <p className="lead">手元の書類を見ながら入れてください。保存したあと、原本と見比べて確定します。</p>
       <DocumentForm
         initial={initial}

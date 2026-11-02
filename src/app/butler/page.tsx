@@ -42,7 +42,7 @@ export default function ButlerSettingsPage() {
   return (
     <main>
       <BackToTop />
-      <h1>執事を選ぶ</h1>
+      <h1 className="pt">執事を選ぶ</h1>
       <p className="lead">話し方と名前を選べます。いつでも変えられます。</p>
 
       <div className="card unchanging">
@@ -92,7 +92,7 @@ export default function ButlerSettingsPage() {
       </button>
       {saved && (
         <p className="note" role="status">
-          {cleanName(currentName) ?? chosen.defaultName}にしました。ホームの呼び名にも反映されます。
+          {cleanName(currentName) ?? chosen.defaultName}にしました。トップ・予定の呼び名にも反映されます。
         </p>
       )}
     </main>

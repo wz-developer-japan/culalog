@@ -6,7 +6,10 @@ import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { toggleDone } from "@/lib/butler";
+import { Days, Source, shortDate } from "@/components/DeadlineCard";
+import { Pic } from "@/components/Pics";
+import { candidateOf, toggleDone } from "@/lib/butler";
+import { givenName } from "@/lib/whose";
 import { type ActionItem, allItems, buildHome, formatYmd, isDone, itemIds, passedBeforeRegistered } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS } from "@/lib/labels";
 import type { Household } from "@/lib/types";
@@ -37,56 +40,61 @@ export default function Schedule() {
 
   const Row = ({ item }: { item: ActionItem }) => {
     const d = item.deadline;
+    const finished = isDone(done, item);
+    const c = candidateOf(item, isPast(i2(item)) && d.kind !== "event" && !finished);
     return (
-      <div className="card">
-        <div className="meta">
-          {formatYmd(d.date)}
-          {d.endDate && ` 〜 ${formatYmd(d.endDate)}`}
-          {d.time && `・${d.time}`}
-          {item.daysLeft > 0 && `（あと${item.daysLeft}日）`}
-          {item.daysLeft === 0 && "（今日）"}
+      <div className={`dcard${c.urgent && !finished && d.kind !== "after_event" ? " hot" : ""}`}>
+        <div className="pic">
+          <Pic kind={item.document.category} />
         </div>
-        {d.label}
-        {d.place && <div>場所: {d.place}</div>}
-        {d.reserve && (
-          <div>
-            予備日: {formatYmd(d.reserve.date)}
-            {d.reserve.condition && `（${d.reserve.condition}）`}
+        <div className="body">
+          <div className="t wrap">{d.label}</div>
+          {d.place && <div className="sub">場所: {d.place}</div>}
+          {d.reserve && (
+            <div className="sub">
+              予備日: {formatYmd(d.reserve.date)}
+              {d.reserve.condition && `（${d.reserve.condition}）`}
+            </div>
+          )}
+          {d.needs?.length ? <div className="sub">必要なもの: {d.needs.join("、")}</div> : null}
+          {d.leadReason && <div className="sub">{d.leadReason}</div>}
+          {d.awareness && <div className="sub">知っておくだけ（自動で進むもの）。トップ・予定では知らせていません</div>}
+          {item.daysLeft < 0 && passedBeforeRegistered(item) && <div className="sub">書類を登録したときには、もう過ぎていました（トップ・予定では知らせていません）</div>}
+          {item.bundled?.length ? (
+            <div className="sub">
+              同じ予定のお知らせ:{" "}
+              {item.bundled.map((b, i) => (
+                <span key={b.deadline.id}>
+                  {i > 0 && "、"}
+                  <Link href={`/documents/${b.document.id}`}>{b.document.title}</Link>
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <div className="m">
+            <span className="tag mut">
+              {shortDate(d.date)}
+              {d.endDate && `〜${shortDate(d.endDate)}`}
+              {d.time && ` ${d.time}`}
+            </span>
+            <span className="tag mut">{DEADLINE_KIND_LABELS[d.kind]}</span>
+            {d.memberIds.length > 0 && <span className="tag mut">{d.memberIds.map((id) => givenName(nameOf(id))).join("・")}</span>}
+            <Source c={c} />
+            {d.kind !== "after_event" && d.kind !== "event" && (
+              <button className={`tag act ${finished ? "mut" : "ok"}`} onClick={() => save(toggleDone(h, itemIds(item)))}>
+                {finished ? "済んだを取り消す" : "済んだ"}
+              </button>
+            )}
           </div>
-        )}
-        {d.needs?.length ? <div>必要なもの: {d.needs.join("、")}</div> : null}
-        <div className="meta">
-          {DEADLINE_KIND_LABELS[d.kind]}
-          {d.memberIds.length > 0 && `・${d.memberIds.map(nameOf).join("、")}`}
         </div>
-        {d.leadReason && <div className="meta">{d.leadReason}</div>}
-        {d.awareness && <div className="meta">知っておくだけ（自動で進むもの）。ホームでは知らせていません</div>}
-        {item.bundled?.length ? (
-          <div className="meta">
-            同じ予定のお知らせ:{" "}
-            {item.bundled.map((b, i) => (
-              <span key={b.deadline.id}>
-                {i > 0 && "、"}
-                <Link href={`/documents/${b.document.id}`}>{b.document.title}</Link>
-              </span>
-            ))}
-          </div>
-        ) : null}
-        {item.daysLeft < 0 && passedBeforeRegistered(item) && (
-          <div className="meta">書類を登録したときには、もう過ぎていました（ホームでは知らせていません）</div>
-        )}
-        <div className="meta">
-          原本: <Link href={`/documents/${item.document.id}`}>{item.document.title}</Link>
-          {d.source?.location && `・${d.source.location}`}
-        </div>
-        {d.kind !== "after_event" && d.kind !== "event" && (
-          <button className="link-button" onClick={() => save(toggleDone(h, itemIds(item)))}>
-            {isDone(done, item) ? "済んだを取り消す" : "済んだ"}
-          </button>
-        )}
+        {!finished && d.kind !== "after_event" && <Days c={c} />}
       </div>
     );
   };
+  // isPast は ActionItem を受けるので、そのまま渡す
+  function i2(item: ActionItem) {
+    return item;
+  }
 
   return (
     <main>
@@ -99,7 +107,7 @@ export default function Schedule() {
 
       {overdue.length > 0 && (
         <>
-          <h2>締切を過ぎたもの</h2>
+          <h2 className="sec">締切を過ぎたもの</h2>
           {overdue.map((i) => (
             <Row key={i.deadline.id} item={i} />
           ))}
@@ -108,26 +116,34 @@ export default function Schedule() {
 
       {missing.length > 0 && (
         <>
-          <h2>来ていないもの</h2>
+          <h2 className="sec">来ていないもの</h2>
           {missing.map((e) => (
-            <div className="card warn" key={e.id}>
-              {e.label}がまだ届いていません
-              {e.hint && <div className="meta">{e.hint}</div>}
+            <div className="dcard" key={e.id}>
+              <div className="pic">
+                <Pic kind="missing" />
+              </div>
+              <div className="body">
+                <div className="t wrap">{e.label}がまだ届いていません</div>
+                {e.hint && <div className="sub">{e.hint}</div>}
+                <div className="m">
+                  <span className="tag warn">まだ届いていない</span>
+                </div>
+              </div>
             </div>
           ))}
         </>
       )}
 
-      <h2>これから</h2>
+      <h2 className="sec">これから</h2>
       {upcoming.length === 0 ? (
-        <div className="card meta">ありません。</div>
+        <div className="calm-line">ありません。</div>
       ) : (
         upcoming.map((i) => <Row key={i.deadline.id} item={i} />)
       )}
 
       {afterEvent.length > 0 && (
         <>
-          <h2>何か起きたときの期限</h2>
+          <h2 className="sec">何か起きたときの期限</h2>
           {afterEvent.map((i) => (
             <Row key={i.deadline.id} item={i} />
           ))}

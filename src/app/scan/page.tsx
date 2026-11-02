@@ -90,7 +90,7 @@ function ScanPage() {
   return (
     <main>
       <BackToTop />
-      <h1>執事に書類を渡す</h1>
+      <h1 className="pt">執事に書類を渡す</h1>
       <p className="lead">
         写真・スクショ・PDF を、何枚でもまとめて渡してください。執事が1枚ずつ順番に読んで、何の書類か・誰の書類かを考えて下書きにします。
         読み終わるのを待たなくて大丈夫です。分からないことは、あとで「聞きたいこと」にまとめて聞きます。
@@ -171,7 +171,7 @@ function ScanPage() {
 
       {result && (
         <div className="card calm">
-          {result.added > 0 && <div>{result.added}件を受け取りました。執事が順番に読みます。ホームに戻っても、閉じても大丈夫です（次に開いたときに続きから読みます）。</div>}
+          {result.added > 0 && <div>{result.added}件を受け取りました。執事が順番に読みます。トップに戻っても、閉じても大丈夫です（次に開いたときに続きから読みます）。</div>}
           {result.duplicates > 0 && <div>{result.duplicates}件は、前に渡したものと同じファイルだったので読みません。</div>}
           {result.rejected.map((r, i) => (
             <div key={i} className="meta">

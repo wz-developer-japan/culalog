@@ -55,12 +55,12 @@ function AskPage() {
   return (
     <main>
       <BackToTop />
-      <h1>{name}に聞く</h1>
+      <h1 className="pt">{name}に聞く</h1>
       <p className="lead">
         今年度の登録書類（確定済み {docs.length}件）からお答えします。
         {older > 0 && `前のものになった${older}件は使いません。`}
         答えには、どの書類のどこに書いてあるかを必ず添えます。書類に書いていないことは「書いていません」と言います。
-        頼んだら画面を閉じても大丈夫です。答えはホームの「{name}からの報告」に残ります。
+        頼んだら画面を閉じても大丈夫です。答えは「予定」の「{name}からの報告」に残ります。
       </p>
 
       <label className="label">

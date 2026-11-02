@@ -58,7 +58,7 @@ export default function Questions() {
   return (
     <main>
       <BackToTop />
-      <h1>{name}から聞きたいこと</h1>
+      <h1 className="pt">{name}から聞きたいこと</h1>
       <p className="lead">
         {now.length > 0 ? `あと ${now.length}問` : "いま聞きたいことはありません"}
         {later > 0 && `（「あとで」にしたもの ${later}問は、明日また聞きます）`}
