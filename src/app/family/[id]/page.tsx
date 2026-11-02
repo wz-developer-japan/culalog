@@ -81,7 +81,7 @@ export default function FamilyPage() {
         </div>
         {d.kind !== "event" && (
           <button className="tag ok act" onClick={() => save(toggleDone(h, itemIds(item)))}>
-            済んだ
+            済んだにする
           </button>
         )}
       </div>

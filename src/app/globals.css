@@ -1249,6 +1249,19 @@ h1.pt {
 .fam::-webkit-scrollbar {
   display: none;
 }
+.fam-wrap {
+  position: relative;
+}
+.fam-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -16px;
+  bottom: 0;
+  width: 40px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff 70%);
+}
 .fam a {
   display: flex;
   flex-direction: column;

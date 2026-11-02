@@ -22,6 +22,9 @@ import { useInboxQueue } from "@/lib/useInbox";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
+/** 「2つ」「10件」 */
+const countOf = (n: number) => (n < 10 ? `${n}つ` : `${n}件`);
+
 export default function Top() {
   const { household, loaded, save, update } = useHousehold();
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
@@ -83,7 +86,7 @@ export default function Top() {
   const h = household as Household;
   const candidates = buildCandidates(h, today);
   // いちばん近い締切（期限切れがあればそれ）を、小さなオレンジのカードに
-  const nearest = candidates.filter((c) => c.type === "deadline" && c.card).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
+  const nearest = candidates.filter((c) => c.type === "deadline" && c.card && !(c.daysLeft < 0 && !c.overdue)).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
   // やること（済んだにする締切・届いていない書類）の数。予定・行事は数えない
   const todo = candidates.filter((c) => c.type === "missing" || !c.isEvent).length;
   const questions = openQuestions(h, today);
@@ -103,7 +106,7 @@ export default function Top() {
     { kind: "documents", href: "/documents", label: "書類", sub: h.documents.length ? `預かった${h.documents.length}通` : "まだありません", dot: unconfirmed.length },
     { kind: "family", href: "/family/all", label: "家族ごと", sub: "人で分けて見る" },
     { kind: "numbers", href: "/numbers", label: "大事な番号", sub: numbers ? `${numbers}件・端末の中だけ` : "端末の中だけ" },
-    { kind: "ask", href: questions.length ? "/questions" : "/ask", label: "聞く", sub: questions.length ? `聞きたいこと${questions.length}つ` : news ? `報告が${news}件` : "原本の場所つきで", dot: questions.length + news },
+    { kind: "ask", href: questions.length ? "/questions" : "/ask", label: "聞く", sub: questions.length ? `聞きたいこと${countOf(questions.length)}` : news ? `報告が${news}件` : "原本の場所つきで", dot: questions.length + news },
     { kind: "rules", href: "/rules", label: "わが家のきまり", sub: rules.length ? `きまり${rules.length}件` : "勤務先のきまりなど" },
   ];
 

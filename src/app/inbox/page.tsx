@@ -72,8 +72,16 @@ export default function Inbox() {
 
   async function confirmSelected() {
     const ids = selected.map((d) => d.id);
-    await update((current) => confirmMany(current, ids, (hh, id) => confirmDocument(hh, id, newId), newId));
-    setMessage(`${ids.length}件を確定しました。ひとこと・予定・聞くの根拠に使います。`);
+    let left = 0;
+    await update((current) => {
+      const next = confirmMany(current, ids, (hh, id) => confirmDocument(hh, id, newId), newId);
+      left = next.documents.filter((d) => !d.confirmedAt).length;
+      return next;
+    });
+    setMessage(
+      `${ids.length}件を確定しました。ひとこと・予定・聞くの根拠に使います。` +
+        (left > 0 ? ` 残りの${left}件は、読めなかった所・誰のか分からないなど迷う理由があるので、原本を確かめてから確定してください。` : ""),
+    );
     setUnchecked(new Set());
     setChecked(new Set());
   }

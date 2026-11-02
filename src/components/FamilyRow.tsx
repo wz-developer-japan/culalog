@@ -9,6 +9,7 @@ import { givenName, type Whose } from "@/lib/whose";
 
 export function FamilyRow({ members, current }: { members: FamilyMember[]; current?: Whose }) {
   return (
+    <div className="fam-wrap">
     <div className="fam" role="navigation" aria-label="家族ごとに見る">
       <Link href="/family/all" className={current === "all" ? "on" : undefined} aria-current={current === "all" ? "page" : undefined}>
         <b className="house">
@@ -28,6 +29,7 @@ export function FamilyRow({ members, current }: { members: FamilyMember[]; curre
           </Link>
         );
       })}
+    </div>
     </div>
   );
 }

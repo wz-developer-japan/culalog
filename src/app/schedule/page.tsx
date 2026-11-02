@@ -69,7 +69,7 @@ export default function Schedule() {
   const answers = h.insightAnswers ?? {};
   const insights = (connect?.insights ?? []).filter((i) => !answers[i.key]);
   // いちばん近い締切（期限切れがあればそれ）を、上の大きなカードに。ひとこと・念のための欄には同じものを出さない
-  const nearest = candidates.filter((c) => c.type === "deadline" && c.card).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
+  const nearest = candidates.filter((c) => c.type === "deadline" && c.card && !(c.daysLeft < 0 && !c.overdue)).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
   const net = safetyNet(candidates, briefing).filter((c) => c.id !== nearest?.id);
   const briefingItems = briefing.items.filter((item) => item.candidateId !== nearest?.id);
   const questions = openQuestions(h, today);
@@ -163,7 +163,7 @@ export default function Schedule() {
               <Source c={nearest} />
               {!nearest.isEvent && (
                 <button className="tag ok act" onClick={() => done(nearest.id)}>
-                  済んだ
+                  済んだにする
                 </button>
               )}
             </div>
@@ -196,7 +196,7 @@ export default function Schedule() {
                 <path d="M5 5h14v10H9l-4 4z" />
               </svg>
               <div className="t">
-                {name}から聞きたいことが{questions.length}つ
+                {name}から聞きたいことが{questions.length < 10 ? `${questions.length}つ` : `${questions.length}件`}
                 <span className="block meta">{character.asking}</span>
               </div>
               <span className="go">答える</span>

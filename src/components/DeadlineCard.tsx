@@ -126,7 +126,7 @@ export function DeadlineCard({
           <Source c={c} />
           {c.type === "deadline" && !c.isEvent && onDone && (
             <button className="tag ok act" onClick={() => onDone(c.id)}>
-              済んだ
+              済んだにする
             </button>
           )}
         </div>

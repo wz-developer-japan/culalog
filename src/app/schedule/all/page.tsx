@@ -82,7 +82,7 @@ export default function Schedule() {
             <Source c={c} />
             {d.kind !== "after_event" && d.kind !== "event" && (
               <button className={`tag act ${finished ? "mut" : "ok"}`} onClick={() => save(toggleDone(h, itemIds(item)))}>
-                {finished ? "済んだを取り消す" : "済んだ"}
+                {finished ? "済んだを取り消す" : "済んだにする"}
               </button>
             )}
           </div>

@@ -211,6 +211,8 @@ function bundle(items: ActionItem[]): ActionItem[] {
     const y = b.deadline;
     if (a.document.id === b.document.id || x.date !== y.date || (x.endDate ?? "") !== (y.endDate ?? "")) return false;
     if (x.bundleKey && y.bundleKey) return x.bundleKey === y.bundleKey;
+    // 書類の種類が違えば別の用事（消防点検の「不在のときの連絡」と宅配の「不在の荷物の保管期限」が、同じ日と「不在」の語で束ならないように）
+    if (a.document.category !== b.document.category) return false;
     // 家全体の予定（誰のが空）は、相手が誰のものでも名前で比べる
     if (x.memberIds.length && y.memberIds.length && !x.memberIds.some((id) => y.memberIds.includes(id))) return false;
     const wa = labelWords(x.label);
