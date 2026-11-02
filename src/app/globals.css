@@ -478,3 +478,70 @@ button.chip {
   display: block;
   margin-top: 10px;
 }
+
+/* 蛍光ペン */
+.original-text {
+  white-space: pre-wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.original-text mark {
+  background: #fff1a8;
+  color: #2b2420;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.original-text mark.flash {
+  background: #ffd84d;
+  outline: 3px solid #e0b400;
+  transition: background 0.3s;
+}
+
+@media (prefers-color-scheme: dark) {
+  .original-text mark {
+    background: #6b5a12;
+    color: #fff8dc;
+  }
+  .original-text mark.flash {
+    background: #a88a0f;
+  }
+}
+
+.source-jump {
+  display: block;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--accent);
+  text-decoration: underline;
+  text-align: left;
+  cursor: pointer;
+}
+
+.not-found {
+  color: var(--unknown);
+}
+
+/* 家族の色の印 */
+.member-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 2px solid #ffffff;
+}

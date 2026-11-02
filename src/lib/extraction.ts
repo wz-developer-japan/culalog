@@ -82,6 +82,8 @@ export interface ExtractedSummary {
 
 export interface Extraction {
   title: string;
+  /** 原本の文字起こし（書いてある通り。蛍光ペンで、読み取った場所に印を付けるため） */
+  transcript: string;
   summary: ExtractedSummary;
   /** 書類の種類の名前（自由。例: 「歯科健診のお知らせ」） */
   docType: string;
@@ -129,9 +131,10 @@ const strList = { type: "array", items: str } as const;
 export const EXTRACTION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear"],
+  required: ["title", "transcript", "summary", "docType", "category", "who", "period", "fields", "deadlines", "contacts", "questions", "unclear"],
   properties: {
     title: str,
+    transcript: str,
     summary: {
       type: "object",
       additionalProperties: false,
@@ -238,6 +241,7 @@ export function parseExtraction(value: unknown, memberIds: string[]): Extraction
   const hasIgnored = Boolean(s(ignored.text) && s(ignored.location) && s(ignored.quote));
   return {
     title: v.title.trim(),
+    transcript: isStr(v.transcript) ? v.transcript : "",
     summary: {
       what: s(summary.what),
       todo: s(summary.todo),

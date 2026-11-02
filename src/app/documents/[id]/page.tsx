@@ -6,12 +6,13 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { answerQuestion, confirmDocument, openQuestions } from "@/lib/butler";
 import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
-import type { DocumentRecord } from "@/lib/types";
+import { findQuote, type Mark, segments } from "@/lib/highlight";
+import type { DocumentRecord, SourceRef } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
 
 export default function DocumentDetail() {
@@ -20,6 +21,17 @@ export default function DocumentDetail() {
   const { household, loaded, save } = useHousehold();
   // 期限は確定前の見比べだけに使う印（保存しない）
   const [checkedDeadlines, setCheckedDeadlines] = useState<string[]>([]);
+  // 蛍光ペン: 原本の文字を開いているか・いま光らせている印
+  const [textOpen, setTextOpen] = useState<boolean | null>(null);
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!flashId) return;
+    textRef.current?.querySelector(`[data-marks~="${flashId}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const timer = setTimeout(() => setFlashId(null), 2000);
+    return () => clearTimeout(timer);
+  }, [flashId]);
 
   if (!loaded) return <main />;
   const doc = household?.documents.find((d) => d.id === id);
@@ -46,6 +58,45 @@ export default function DocumentDetail() {
   const questions = openQuestions(household).filter((q) => q.documentId === doc.id);
   const expected = household.expected.find((e) => e.id === doc.expectedId);
   const until = untilOf(doc);
+
+  // 蛍光ペン: 項目・予定・「放置すると？」の抜き書きを、原本の文字の中から探す（コードで照らし合わせる）
+  const text = doc.originalText;
+  const quoted: { id: string; quote?: string }[] = [
+    ...doc.fields.map((f) => ({ id: f.key, quote: f.source?.quote })),
+    ...doc.deadlines.map((d) => ({ id: d.id, quote: d.source?.quote })),
+    { id: "if-ignored", quote: doc.summary?.ifIgnored?.source.quote },
+  ];
+  const marks: Mark[] = [];
+  for (const q of quoted) {
+    const range = text && q.quote ? findQuote(text, q.quote) : undefined;
+    if (range) marks.push({ id: q.id, ...range });
+  }
+  const found = new Set(marks.map((m) => m.id));
+  const showText = textOpen ?? !confirmed;
+
+  /** 原本のどこか。押すと原本の文字の、蛍光ペンの場所へ寄る */
+  const SourceLine = ({ id, source }: { id: string; source?: SourceRef }) => {
+    if (!source) return null;
+    if (found.has(id)) {
+      return (
+        <button
+          className="source-jump"
+          onClick={() => {
+            setTextOpen(true);
+            setFlashId(id);
+          }}
+        >
+          🖍 原本: {source.location}（押すと原本のその場所へ）
+        </button>
+      );
+    }
+    return (
+      <div className="meta">
+        原本: {source.location}
+        {text && source.quote && <span className="block not-found">※ 抜き書きが原本の文字の中に見つかりませんでした。原本で確かめてください</span>}
+      </div>
+    );
+  };
 
   /** 予定に「わが家のきまり」を当てはめる／外す（締切は毎回きまりから計算する） */
   async function toggleRule(deadlineId: string, ruleId: string) {
@@ -105,9 +156,8 @@ export default function DocumentDetail() {
               {doc.summary?.ifIgnored ? (
                 <>
                   {doc.summary.ifIgnored.text}
-                  <span className="meta block">
-                    原本: {doc.summary.ifIgnored.source.location}「{doc.summary.ifIgnored.source.quote}」
-                  </span>
+                  <span className="meta block">「{doc.summary.ifIgnored.source.quote}」</span>
+                  <SourceLine id="if-ignored" source={doc.summary.ifIgnored.source} />
                 </>
               ) : (
                 <span className="meta">原本には書いてありません</span>
@@ -146,6 +196,7 @@ export default function DocumentDetail() {
               key={q.id}
               question={q}
               showDocument={false}
+              members={household.members}
               onAnswer={(values) => save(answerQuestion(household, q.id, values))}
             />
           ))}
@@ -181,8 +232,39 @@ export default function DocumentDetail() {
         </>
       )}
 
+      {text && (
+        <details
+          className="original"
+          open={showText}
+          onToggle={(e) => setTextOpen((e.currentTarget as HTMLDetailsElement).open)}
+        >
+          <summary>
+            原本の文字{doc.origin === "demo" && "（架空の書類）"}
+            {marks.length > 0 && "・黄色は読み取った場所"}
+          </summary>
+          <div className="original-text" ref={textRef}>
+            {segments(text, marks).map((seg, i) =>
+              seg.markIds.length ? (
+                <mark
+                  key={i}
+                  data-marks={seg.markIds.join(" ")}
+                  className={flashId && seg.markIds.includes(flashId) ? "flash" : undefined}
+                >
+                  {seg.text}
+                </mark>
+              ) : (
+                <span key={i}>{seg.text}</span>
+              ),
+            )}
+          </div>
+          {doc.draftSource === "claude" && (
+            <div className="meta">文字は Claude が原本から書き写したものです。写真・PDF の原本と見比べてください。</div>
+          )}
+        </details>
+      )}
+
       {doc.originalFile && (
-        <details className="original" open={!confirmed}>
+        <details className="original" open={!confirmed && !text}>
           <summary>原本（読み取った{doc.originalFile.mediaType === "application/pdf" ? " PDF" : "写真"}）</summary>
           {doc.originalFile.mediaType === "application/pdf" ? (
             <a href={doc.originalFile.dataUrl} target="_blank" rel="noreferrer">
@@ -215,8 +297,8 @@ export default function DocumentDetail() {
             {d.needs?.length ? <div>必要なもの: {d.needs.join("、")}</div> : null}
             <div className="meta">
               {DEADLINE_KIND_LABELS[d.kind]}・{d.leadDays}日前からお知らせ
-              {d.source && `・原本: ${d.source.location}`}
             </div>
+            <SourceLine id={d.id} source={d.source} />
             {d.leadReason && <div className="meta">{d.leadReason}</div>}
             {d.intent && <div className="meta">そのときしたいこと: {d.intent}</div>}
             {!confirmed && (
@@ -264,7 +346,7 @@ export default function DocumentDetail() {
           <div className="card" key={f.key}>
             <div className="meta">{f.label}</div>
             {f.value}
-            {f.source && <div className="meta">原本: {f.source.location}</div>}
+            <SourceLine id={f.key} source={f.source} />
             {!confirmed && (
               <label className="check">
                 <input type="checkbox" checked={f.status === "confirmed"} onChange={() => toggleField(f.key)} />
@@ -294,12 +376,6 @@ export default function DocumentDetail() {
         </>
       )}
 
-      {doc.originalText && !doc.originalFile && (
-        <details className="original">
-          <summary>原本を見る{doc.origin === "demo" && "（架空の書類）"}</summary>
-          <pre>{doc.originalText}</pre>
-        </details>
-      )}
 
       <div className="spacer" />
       {!confirmed && (

@@ -145,7 +145,8 @@ function ScanPage() {
       draftSource,
       members: current.members,
       expectedId: expected?.id,
-      originalText: sample?.text,
+      // 見本は本文そのもの。写真・PDF は Claude の文字起こし（蛍光ペンの印を付けるため）
+      originalText: sample?.text ?? (extraction.transcript || undefined),
       originalFile: { mediaType: picked!.mediaType, dataUrl: picked!.dataUrl },
       newId,
     });

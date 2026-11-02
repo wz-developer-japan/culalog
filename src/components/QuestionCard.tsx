@@ -5,15 +5,19 @@
 import Link from "next/link";
 import { useState } from "react";
 import { effectOf } from "@/lib/butler";
-import type { ButlerQuestion, DocumentRecord } from "@/lib/types";
+import { memberMark } from "@/lib/memberMark";
+import type { ButlerQuestion, DocumentRecord, FamilyMember } from "@/lib/types";
 
 export function QuestionCard({
   question,
   document,
   onAnswer,
   onLater,
+  members = [],
   showDocument = true,
 }: {
+  /** 誰の書類かを聞くときに、家族の色の印を付ける */
+  members?: FamilyMember[];
   question: ButlerQuestion;
   document?: DocumentRecord;
   onAnswer: (values: string[]) => void;
@@ -27,6 +31,14 @@ export function QuestionCard({
   const nameOf = (value: string) =>
     (question.options.find((o) => o.value === value)?.label ?? "").replace(/（.*）$/, "");
   const guessNames = guess.map((v) => `${nameOf(v)}さん`).join("と");
+  const Dot = ({ value }: { value: string }) => {
+    const mark = question.about === "members" ? memberMark(members, value) : undefined;
+    return mark ? (
+      <span className="member-dot" style={{ background: mark.color }} aria-hidden>
+        {mark.initial}
+      </span>
+    ) : null;
+  };
 
   const press = (value: string) => {
     if (!question.multiple || value === "all") {
@@ -49,6 +61,9 @@ export function QuestionCard({
       {guess.length > 0 && (
         <>
           <button className="button small guess" onClick={() => onAnswer(guess)}>
+            {guess.map((v) => (
+              <Dot key={v} value={v} />
+            ))}
             はい、{guessNames}
           </button>
           <details className="others">
@@ -85,6 +100,7 @@ export function QuestionCard({
             className={`chip${selected.includes(o.value) ? " selected" : ""}`}
             onClick={() => press(o.value)}
           >
+            <Dot value={o.value} />
             {o.label}
           </button>
         ))}

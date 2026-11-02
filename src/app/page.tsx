@@ -177,6 +177,7 @@ export default function Home() {
               document={h.documents.find((d) => d.id === q.documentId)}
               onAnswer={(values) => save(answerQuestion(h, q.id, values))}
               onLater={() => save(answerLater(h, q.id, today))}
+              members={h.members}
             />
           ))}
         </>
