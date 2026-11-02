@@ -1,34 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createDemoHousehold } from "@/data/demoHousehold";
 import { buildHome } from "@/lib/deadlines";
-import { clearHousehold, loadHousehold, saveHousehold } from "@/lib/storage";
-import type { Household } from "@/lib/types";
+import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 export default function Home() {
-  const [household, setHousehold] = useState<Household | null>(null);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    loadHousehold().then((h) => {
-      setHousehold(h);
-      setLoaded(true);
-    });
-  }, []);
-
-  async function startDemo() {
-    const demo = createDemoHousehold();
-    await saveHousehold(demo);
-    setHousehold(demo);
-  }
-
-  async function reset() {
-    await clearHousehold();
-    setHousehold(null);
-  }
+  const { household, loaded, save, clear } = useHousehold();
 
   if (!loaded) return <main />;
 
@@ -37,8 +17,11 @@ export default function Home() {
       <main>
         <h1>CULALOG（クラログ）</h1>
         <p className="lead">家族の書類から、いつ・何を・どこで、を先回りしてお知らせします。</p>
-        <button className="button" onClick={startDemo}>
+        <button className="button" onClick={() => save(createDemoHousehold())}>
           架空の家族で試す
+        </button>
+        <button className="button secondary" onClick={() => save(createEmptyHousehold())}>
+          自分の書類で始める
         </button>
         <p className="note">
           デモの家族・書類はすべて架空です。データはこの端末の中にだけ保存され、いつでも消せます。
@@ -51,6 +34,7 @@ export default function Home() {
   const { soon, missing } = buildHome(household, today);
   const todayClasses = household.timetable.filter((t) => t.weekday === today.getDay());
   const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name ?? "";
+  const pending = household.documents.filter((d) => !d.confirmedAt);
 
   return (
     <main>
@@ -88,18 +72,51 @@ export default function Home() {
         <div className="card meta">ありません。</div>
       ) : (
         soon.map(({ deadline, document, daysLeft }) => (
-          <div className="card" key={deadline.id}>
-            {deadline.label}まで あと{daysLeft}日
+          <Link className="card row-link" key={deadline.id} href={`/documents/${document.id}`}>
+            {daysLeft >= 0 ? `${deadline.label}まで あと${daysLeft}日` : `${deadline.label}（受付中）`}
             <div className="meta">
               {document.title}
               {deadline.source && `（${deadline.source.location}）`}
             </div>
             {deadline.leadReason && <div className="meta">{deadline.leadReason}</div>}
-          </div>
+          </Link>
         ))
       )}
 
-      <button className="button secondary" onClick={reset}>
+      {pending.length > 0 && (
+        <>
+          <h2>確認待ち</h2>
+          {pending.map((d) => (
+            <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
+              {d.title}
+              <span className="badge">原本と見比べる</span>
+            </Link>
+          ))}
+        </>
+      )}
+
+      <h2>登録した書類</h2>
+      {household.documents.length === 0 ? (
+        <div className="card meta">まだありません。</div>
+      ) : (
+        household.documents.map((d) => (
+          <Link className="card row-link" key={d.id} href={`/documents/${d.id}`}>
+            {d.title}
+            {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
+          </Link>
+        ))
+      )}
+
+      <div className="spacer" />
+      <Link className="button" href="/add" style={{ textAlign: "center", textDecoration: "none" }}>
+        書類を登録する
+      </Link>
+      <button
+        className="button secondary"
+        onClick={() => {
+          if (confirm("この端末に保存したデータをすべて消しますか？")) clear();
+        }}
+      >
         この端末のデータをすべて消す
       </button>
     </main>

@@ -108,6 +108,8 @@ export interface DocumentRecord {
   contacts: Contact[];
   deadlines: Deadline[];
   createdAt: string;
+  /** 本人が原本と見比べて確定した日時。未確定の書類はホームの計算に使わない */
+  confirmedAt?: string;
 }
 
 /** 曜日ごとの授業（③今日の時間割） 0=日 … 6=土 */

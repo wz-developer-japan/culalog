@@ -44,6 +44,7 @@ export function createDemoHousehold(today: Date = new Date()): Household {
           },
         ],
         createdAt,
+        confirmedAt: createdAt,
       },
       {
         id: "doc-lease",
@@ -67,6 +68,7 @@ export function createDemoHousehold(today: Date = new Date()): Household {
           },
         ],
         createdAt,
+        confirmedAt: createdAt,
       },
     ],
     expected: [

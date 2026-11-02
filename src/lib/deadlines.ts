@@ -51,6 +51,7 @@ export interface HomeSections {
 export function buildHome(household: Household, today: Date): HomeSections {
   const soon: ActionItem[] = [];
   for (const document of household.documents) {
+    if (!document.confirmedAt) continue; // 確定していない書類の期限では知らせない
     for (const deadline of document.deadlines) {
       if (deadline.kind === "after_event") continue; // 何か起きたときの画面で出す
       const target = parseDate(deadline.endDate ?? deadline.date);
