@@ -108,7 +108,8 @@ async function onCommand(chatId: string, m: TgMessage, cmd: string, arg: string)
     if (!lang) return sendMessage(chatId, "使える言葉: /lang ja ・ /lang vi ・ /lang easy");
     await setUserLang(chatId, String(m.from!.id), { lang, name: m.from!.first_name ?? "" });
     const label = LANGUAGES.find((l) => l.code === lang)!.native;
-    return sendMessage(chatId, `${m.from!.first_name ?? ""}: ${label}`, { replyTo: m.message_id });
+    // 返事は送った人のメッセージへの返信にして、表示名（本名のこともある）は文に入れない
+    return sendMessage(chatId, `✓ ${label}`, { replyTo: m.message_id });
   }
   if (cmd === "pause" || cmd === "resume") {
     await updateChat(chatId, { paused: cmd === "pause" });
