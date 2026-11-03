@@ -4,6 +4,7 @@
 // 🔴 判断しない線: 誰のか書類から分からないものは勝手に誰かに入れず、「みんな」でだけ「家族みんな・誰のか分からない」と添えて出す。
 // 二人に関係する書類は両方の人に出す。この家の書類ではないもの（記入例・見本）は誰の欄にも出さない。
 
+import { ConflictCards } from "@/components/ConflictCard";
 import Link from "next/link";
 import { now } from "@/lib/clock";
 import { useParams, useRouter } from "next/navigation";
@@ -134,6 +135,7 @@ export default function FamilyPage() {
 
       {tab === "deadlines" && (
         <>
+          <ConflictCards household={h} today={today} memberId={whose === "all" ? undefined : whose} />
           <h2 className="sec">
             近いもの <small>{near.length}件</small>
           </h2>

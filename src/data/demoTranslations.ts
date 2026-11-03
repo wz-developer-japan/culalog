@@ -73,7 +73,7 @@ const PREPARED: Prepared[] = [
     what: "Thông báo tiệc Giáng sinh của lớp Risu (lớp của bé Yui). Giờ đến lớp in trên giấy (9:30) đã bị gạch và sửa tay thành 9:15.",
     todo: "Hôm đó đưa bé đến lớp trước 9:15 (giờ đã sửa tay). Mang quần áo thay và khăn. Mũ thì nhà trẻ chuẩn bị.",
     items: [
-      { match: "クリスマス会", label: "Tiệc Giáng sinh lớp Risu (đến lớp trước 9:15 – giờ sửa tay)", text: "Mang: một bộ quần áo thay, khăn." },
+      { match: "クリスマス会", label: "Tiệc Giáng sinh lớp Risu", text: "Đưa bé đến lớp trước 9:15 (giờ đã sửa tay); tiệc từ 10:00 đến 10:45. Mang: một bộ quần áo thay, khăn." },
       { match: "訂正前", label: "Giờ đến lớp in trên giấy (trước khi sửa)", text: "Trước 9:30 (đã bị gạch hai đường)." },
       { match: "帽子", label: "Mũ", text: "Nhà trẻ chuẩn bị (không cần mang)." },
       { match: "来られない", label: "Nếu phụ huynh không đến được", text: "Bé vẫn tham gia. Không cần báo." },

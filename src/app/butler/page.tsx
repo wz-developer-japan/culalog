@@ -103,7 +103,7 @@ export default function ButlerSettingsPage() {
         </p>
       )}
 
-      <h2>家族の読みたい言葉</h2>
+      <h2 id="languages">家族の読みたい言葉</h2>
       <p className="meta">国籍ではなく、その人が読みたい言葉を選びます。共有した書類の説明・締切・持ち物・やることを、その言葉で伝えます（日付・金額・原本の場所は変えません）。</p>
       {household.members.map((m) => (
         <label className="label row-label" key={m.id}>

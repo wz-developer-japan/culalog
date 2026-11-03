@@ -39,6 +39,8 @@ const PRECONFIRMED: Record<string, string> = {
   "photo-i10-kodomo-insurance": "本棚の保険のファイル",
   "photo-n4-photo-sale": "保育園のお便り袋",
   "photo-n3-kondate": "冷蔵庫の扉（磁石）",
+  // 保育園のうんどうかい（11/21 土）。タオさんの勤務カレンダーの出勤日と同じ日（同じ日のぶつかりの気づきが出る）
+  "photo-n5-undokai": "冷蔵庫の扉（磁石）",
   "photo-o7-risu-dayori": "本棚の保育園のファイル",
 };
 

@@ -84,6 +84,13 @@ function AskPage() {
           value={question}
           maxLength={200}
           onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={(e) => {
+            // Enter で頼む（Shift+Enter は改行・変換中の Enter は確定のまま）
+            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing && question.trim()) {
+              e.preventDefault();
+              ask(question);
+            }
+          }}
           placeholder="例: 冬休みはいつからいつまで？"
         />
       </label>

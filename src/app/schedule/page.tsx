@@ -5,6 +5,7 @@
 // 初めの2件だけ見せて残りは畳む。「見に行きますか？」など、あなたの返事を待つものは畳まない）→ すべての予定を見る。
 // 仕組みの説明は ⓘ の中。すべての予定は /schedule/all にいつでも全部ある。
 
+import { ConflictCards } from "@/components/ConflictCard";
 import Link from "next/link";
 import { now } from "@/lib/clock";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -316,6 +317,7 @@ function ScheduleBody() {
               {" 3日以内の締切・期限切れのものは、選ばれなくてもこの欄に必ず出します。"}
             </Info>
           </h2>
+          <ConflictCards household={h} today={today} memberId={who === "all" ? undefined : who} />
           {status === "thinking" && <div className="meta thinking">{name}が、書類とわが家のきまりを見ています…</div>}
           {waiting.map((x) => (
             <div key={x.key} className="from-item">{x.node}</div>

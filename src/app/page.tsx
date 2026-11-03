@@ -13,6 +13,8 @@ import Link from "next/link";
 import { now, useTodayOffset } from "@/lib/clock";
 import { useEffect } from "react";
 import { FamilyRow } from "@/components/FamilyRow";
+import { ConflictCards } from "@/components/ConflictCard";
+import { languageLabel, languageOf } from "@/lib/languages";
 import { ButlerPic, MenuPic, type MenuKind } from "@/components/Pics";
 import { createDemoHousehold } from "@/data/demoHousehold";
 import { upcomingCounts } from "@/lib/tellBuild";
@@ -90,11 +92,11 @@ export default function Top() {
         </div>
         <div className="empty">
           <ButlerPic />
-          <div className="t">書類は、まとめて渡してください</div>
+          <div className="t">家族の中に言葉の壁があっても、書類も会話も、執事がつなぎます</div>
           <div className="s">
-            写真・スクショ・PDF・メールの本文。
+            学校・保育園・役所・地域の書類を、家族それぞれの読みたい言葉で（日本語・ベトナム語・やさしい日本語）。
             <br />
-            読んで、仕分けて、いつ・何を・どこで、を先回りしてお知らせします。
+            Telegram の家族のグループでは、会話も訳します。誰かが翻訳を頑張らなくても、二人とも暮らしに参加できるように。
           </div>
         </div>
         <button className="button" onClick={async () =>
@@ -106,7 +108,7 @@ export default function Top() {
         <button className="button secondary" onClick={() => save(createEmptyHousehold())}>
           自分の書類で始める
         </button>
-        <p className="note">デモの家族・書類はすべて架空です。データはこの端末の中にだけ保存され、いつでも消せます。</p>
+        <p className="note">デモの家族（母のタオさんはベトナム出身・読みたい言葉はベトナム語）・書類はすべて架空です。書類はこの端末の中に保存し、いつでも消せます。</p>
       </main>
     );
   }
@@ -160,6 +162,17 @@ export default function Top() {
       </div>
 
       <FamilyRow members={h.members} />
+      {(() => {
+        // 家族の読みたい言葉（日本語以外の人だけ）を1行で
+        const others = h.members.filter((m) => languageOf(m) !== "ja");
+        return others.length ? (
+          <Link className="lang-line" href="/butler#languages">
+            {others.map((m) => `${givenName(m.name)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}伝えます
+            <span aria-hidden> ›</span>
+          </Link>
+        ) : null;
+      })()}
+      <ConflictCards household={h} today={today} />
 
       {nearest?.card ? (
         <Link className={`mini${nearest.overdue ? " over" : ""}`} href="/schedule" style={{ background: colorOf(h.members, nearest.memberIds) }}>

@@ -88,7 +88,9 @@ export function formatDateIn(ymd: string, lang: LanguageCode): string {
 export function deadlineDateIn(d: Deadline, lang: LanguageCode): string {
   const from = formatDateIn(d.date, lang);
   const to = d.endDate ? ` – ${formatDateIn(d.endDate, lang)}` : "";
-  return `${from}${to}${d.time ? ` ${d.time}` : ""}`;
+  // 時刻に言葉の補足（「までに登園」など）が入っているときは、日本語以外では出さない（補足は訳の文に入れる）
+  const time = d.time && (lang === "ja" || /^[\d:：〜~\-– ]+$/.test(d.time)) ? ` ${d.time}` : "";
+  return `${from}${to}${time}`;
 }
 
 /** 画面の見出し（説明のカードの中だけ。メニューなどは訳さない） */

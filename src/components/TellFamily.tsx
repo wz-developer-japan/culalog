@@ -19,6 +19,9 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
   const [status, setStatus] = useState("");
   const [groupCount, setGroupCount] = useState(0);
   if (!doc.confirmedAt || !doc.sharedWith?.length) return null;
+  const missing = tellLanguages(household, doc)
+    .filter((l) => l !== "ja" && !doc.translations?.[l])
+    .map(languageLabel);
 
   async function prepare() {
     setBusy(true);
@@ -76,11 +79,18 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
   }
 
   return (
-    <div className="tell">
+    <div className="tell" id="tell">
       {!open ? (
-        <button className="button" disabled={busy} onClick={prepare}>
-          {busy ? "用意しています…" : "家族に伝える（それぞれの言葉で）"}
-        </button>
+        <>
+          <button className="button" disabled={busy} onClick={prepare}>
+            {busy ? "用意しています…" : "家族に伝える（それぞれの言葉で）"}
+          </button>
+          {missing.length > 0 && (
+            <p className="meta">
+              {missing.join("・")}の訳がまだありません。押すと先に執事が訳します（執事の準備中は、日本語だけのお知らせになります）。
+            </p>
+          )}
+        </>
       ) : (
         <div className="card tell-preview">
           <div className="meta">

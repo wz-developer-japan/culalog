@@ -69,6 +69,10 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
         origin: "demo",
         storageLocation: "冷蔵庫の扉（磁石）",
         originalText: schoolAnnualText(t),
+        summary: {
+          what: "蓮さんの小学校の、今年度の主な行事（運動会・個人面談・長期休みなど）と3年生の日課表です。",
+          todo: "行事の日を家族で知っておく。時間・持ち物は、その都度配られる案内プリントで確かめる。",
+        },
         fields: [
           {
             key: "f-timetable",
@@ -156,6 +160,10 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
         origin: "demo",
         storageLocation: "冷蔵庫の扉（磁石）",
         originalText: gradeLetterText(t),
+        summary: {
+          what: "蓮さんの学年のおたよりです。2学期の授業参観の日が書いてあります。",
+          todo: "授業参観の時間・教室は、あとで配られる案内プリントで確かめる。上着に名前を書く。欠席の連絡は 8:00 までに連絡アプリで。",
+        },
         fields: [
           {
             key: "f-open-class-notice",
