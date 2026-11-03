@@ -117,7 +117,7 @@ const ERROR_MESSAGES: Record<string, string> = {
  * 終わった認識から遅れて届くイベントは無視する。結果が確定したら自分で stop してマイクを離す。
  * 始めてすぐ aborted・audio-capture になったら、少し待って1回だけやり直す。
  */
-export function startListening(handlers: { onText: (text: string, final: boolean) => void; onEnd: () => void; onError: (message: string) => void }): () => void {
+export function startListening(handlers: { onText: (text: string, final: boolean) => void; onEnd: () => void; onError: (message: string, kind?: "stalled") => void }): () => void {
   const Ctor = recognitionCtor();
   if (!Ctor) {
     handlers.onError("このブラウザーでは声の入力が使えません。");
@@ -163,21 +163,27 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     let errored = false;
     let refreshMic = false;
     let stalled = false;
+    let endedOnce = false;
     const mine = () => active?.recognition === recognition;
     recognition.onstart = () => {
       startedAt = Date.now();
       note(`#${id} 始まった（${attempt}回目の試み）`);
+      arm();
     };
-    // 見張り: 「音が入りはじめた」のあと 6秒たっても結果が1つも来ないとき（iPhone で2回目以降に起きる）。
+    // 見張り: 「音が入りはじめた」のあと 4秒たっても結果が1つも来ないとき（iPhone で2回目以降に起きる）。
     // 1回目の試みなら、マイクを取り直して（getUserMedia）新しい認識でやり直す。2回目の試みでも来なければ止めて案内する
     let watchdog: ReturnType<typeof setTimeout> | undefined;
     const clearWatchdog = () => watchdog && clearTimeout(watchdog);
     recognition.onaudiostart = () => {
       note(`#${id} 音が入りはじめた`);
+      arm();
+    };
+    // 「始まった」だけで音が来ない場合も見張る（必ず案内まで行くように）
+    const arm = () => {
       clearWatchdog();
       watchdog = setTimeout(() => {
         if (gotResult || cancelled || !mine()) return;
-        note(`#${id} 6秒たっても結果が来ない`);
+        note(`#${id} 4秒たっても結果が来ない`);
         if (attempt === 1) {
           retrying = true;
           refreshMic = true;
@@ -189,7 +195,14 @@ export function startListening(handlers: { onText: (text: string, final: boolean
         } catch {
           // すでに止まっている
         }
-      }, 6000);
+        // 止めても「終わった」が来ないときは、こちらで終わったことにする（待てど暮らせど何も出ない、を無くす）
+        setTimeout(() => {
+          if (!endedOnce) {
+            note(`#${id} 終わったが届かないので、こちらで終える`);
+            recognition.onend?.();
+          }
+        }, 1500);
+      }, 4000);
     };
     recognition.onaudioend = () => note(`#${id} 音が止まった`);
     recognition.onresult = (event) => {
@@ -230,6 +243,8 @@ export function startListening(handlers: { onText: (text: string, final: boolean
       handlers.onError(`${ERROR_MESSAGES[event.error] ?? "声の入力がうまくいきませんでした。キーボードの音声入力も使えます。"}（手がかり: ${event.error}）`);
     };
     recognition.onend = () => {
+      if (endedOnce) return;
+      endedOnce = true;
       clearWatchdog();
       note(`#${id} 終わった`);
       resolveEnded();
@@ -249,7 +264,7 @@ export function startListening(handlers: { onText: (text: string, final: boolean
       }
       if (stalled && !errored) {
         errored = true;
-        handlers.onError("声が文字になりませんでした。いまの iPhone では、続けて2回目を聞き取れないことがあります。キーボードのマイク（音声入力）で話してください。");
+        handlers.onError("声が文字になりませんでした。いまの iPhone では、続けて2回目を聞き取れないことがあります。下の「キーボードで話す」を押して、キーボードのマイク🎤で話してください。", "stalled");
       }
       finish();
     };
@@ -268,6 +283,16 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     }
   };
 
+  // 2回目以降は、先にマイクを取り直してから始める（iPhone で2回目に結果が来ないことがあるため。効くときは待たずに入る）
+  const start = () => {
+    if (id > 1) {
+      note(`#${id} 先にマイクを取り直す`);
+      reopenMic().then((ok) => {
+        note(`#${id} マイクの取り直し: ${ok ? "できた" : "できなかった"}`);
+        begin(1);
+      });
+    } else begin(1);
+  };
   // 前の認識が残っていれば止めて、終わるのを待ってから（長くても 800ms）始める
   const previous = active;
   if (previous) {
@@ -278,9 +303,9 @@ export function startListening(handlers: { onText: (text: string, final: boolean
       // すでに止まっている
     }
     active = null;
-    Promise.race([previous.ended, new Promise((r) => setTimeout(r, 800))]).then(() => setTimeout(() => begin(1), 150));
+    Promise.race([previous.ended, new Promise((r) => setTimeout(r, 800))]).then(() => setTimeout(start, 150));
   } else {
-    begin(1);
+    start();
   }
 
   return () => {

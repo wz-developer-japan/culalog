@@ -10,7 +10,7 @@ import { Info } from "@/components/Info";
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
 import { MicButton } from "@/components/MicButton";
 import { voiceNote } from "@/lib/voice";
@@ -35,6 +35,7 @@ function AskPage() {
   const router = useRouter();
   const { household, loaded, update } = useHousehold();
   const [question, setQuestion] = useState("");
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (loaded && !household) router.replace("/");
@@ -77,6 +78,7 @@ function AskPage() {
       <label className="label">
         聞きたいこと・調べておいてほしいこと・覚えておいてほしいこと
         <textarea
+          ref={inputRef}
           className="input"
           rows={2}
           value={question}
@@ -85,7 +87,7 @@ function AskPage() {
           placeholder="例: 冬休みはいつからいつまで？"
         />
       </label>
-      <MicButton value={question} onChange={setQuestion} />
+      <MicButton value={question} onChange={setQuestion} inputRef={inputRef} />
       <button className="button" disabled={!question.trim()} onClick={() => ask(question)}>
         {name}に頼む
       </button>

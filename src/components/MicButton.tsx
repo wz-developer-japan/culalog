@@ -6,11 +6,21 @@
 import { useEffect, useRef, useState } from "react";
 import { markVoiceNoticeSeen, onVoiceLog, speechInputSupported, startListening, VOICE_NOTICE, voiceLog, voiceNote, voiceNoticeSeen } from "@/lib/voice";
 
-export function MicButton({ value, onChange }: { value: string; onChange: (text: string) => void }) {
+export function MicButton({
+  value,
+  onChange,
+  inputRef,
+}: {
+  value: string;
+  onChange: (text: string) => void;
+  /** 声が文字にならなかったとき、「キーボードで話す」で入力欄にフォーカスを当てる（iPhone はボタンを押したときだけキーボードが出る） */
+  inputRef?: React.RefObject<HTMLTextAreaElement | null>;
+}) {
   const [supported, setSupported] = useState<boolean | null>(null);
   const [listening, setListening] = useState(false);
   const [notice, setNotice] = useState(false);
   const [error, setError] = useState("");
+  const [stalled, setStalled] = useState(false);
   const stop = useRef<(() => void) | null>(null);
   const base = useRef("");
   const [log, setLog] = useState<string[]>([]);
@@ -41,6 +51,7 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
 
   function begin() {
     setError("");
+    setStalled(false);
     setCount((c) => c + 1);
     base.current = value.trim() ? `${value.trim()} ` : "";
     setListening(true);
@@ -53,8 +64,11 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
         setListening(false);
         stop.current = null;
       },
-      onError: (message) => {
+      onError: (message, kind) => {
         setError(message);
+        setStalled(kind === "stalled");
+        // 入力欄に寄せておく（キーボードは「キーボードで話す」を押したときに出る）
+        if (kind === "stalled") inputRef?.current?.scrollIntoView({ block: "center", behavior: "smooth" });
         setListening(false);
       },
     });
@@ -110,6 +124,21 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
         </div>
       )}
       {error && <p className="meta" role="status">{error}</p>}
+      {stalled && inputRef && (
+        <button
+          type="button"
+          className="button secondary small"
+          onClick={() => {
+            const el = inputRef.current;
+            if (!el) return;
+            el.focus();
+            el.setSelectionRange(el.value.length, el.value.length);
+            setStalled(false);
+          }}
+        >
+          キーボードで話す（入力欄を開く）
+        </button>
+      )}
       {log.length > 0 && (
         <details className="meta voice-log">
           <summary>声の入力の手がかり（開発用・この画面で{count}回押した）</summary>
