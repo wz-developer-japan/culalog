@@ -18,6 +18,8 @@ import {
   leaseText,
   medicalCardText,
   nurseryGuideText,
+  nurserySportsProvisionalDraft,
+  nurserySportsText,
   openClassNoticeProvisionalDraft,
   openClassNoticeText,
   schoolInjuryBenefitText,
@@ -535,6 +537,12 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
       },
     ],
     demoSamples: [
+      {
+        id: "sample-nursery-sports",
+        title: "保育園のうんどうかいのお知らせ（架空）",
+        text: nurserySportsText(t),
+        provisionalDraft: nurserySportsProvisionalDraft(t),
+      },
       {
         id: "sample-open-class",
         title: "授業参観のご案内（架空）",

@@ -284,6 +284,8 @@ export interface DocumentRecord {
    * 🔴 配偶者だからといって自動で共有しない。登録のとき・書類の画面で、あなたが選ぶ
    */
   sharedWith?: string[];
+  /** 読みたい言葉ごとの説明（訳したもの）。日付は元の予定から出す */
+  translations?: Partial<Record<import("./languages").LanguageCode, import("./translate").DocTranslation>>;
 }
 
 export interface DocumentSummary {

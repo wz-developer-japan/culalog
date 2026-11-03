@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { confirmDocument, openQuestions } from "@/lib/butler";
 import { ShareWith } from "@/components/ShareWith";
+import { TranslationView } from "@/components/TranslationView";
 import { answerAndLearn } from "@/lib/inbox";
 import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS, groupsOf } from "@/lib/labels";
@@ -196,6 +197,10 @@ export default function DocumentDetail() {
             </dd>
           </dl>
         </div>
+      )}
+
+      {confirmed && (
+        <TranslationView household={household} doc={doc} save={update} renderSource={(id, source) => <SourceLine id={id} source={source} />} />
       )}
 
       {!confirmed && (

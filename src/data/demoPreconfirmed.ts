@@ -28,6 +28,8 @@ const PRECONFIRMED: Record<string, string> = {
   "photo-l1-shobo-tenken": "（マンションの掲示板。写真だけ）",
   "photo-v2-shakensho": "車のダッシュボード",
   "photo-v3-jidosha-hoken": "本棚の保険のファイル",
+  // ごみの収集日は毎週のきまりとして項目に入っているので、日ごとの予定にはしない（年末年始の収集休みだけ予定に）
+  "photo-h9-garbage": "冷蔵庫の扉（磁石）",
   // 蓮
   "photo-j1-gakudo": "冷蔵庫の扉（磁石）",
   "photo-j3-swimming": "冷蔵庫の扉（磁石）",
@@ -65,6 +67,7 @@ export function preconfirmedDocuments(
         originalFile: isMail ? undefined : { mediaType: "image/png", dataUrl: s.images![0] },
         newId,
       });
+      if (s.id === "photo-h9-garbage") document.deadlines = document.deadlines.filter((d) => /年末年始/.test(d.label));
       const pages = isMail ? [] : s.images!.slice(1).map((dataUrl) => ({ mediaType: "image/png", dataUrl }));
       // 開いた日より前の予定は、もう済んだ（終わった）ものとして扱う
       for (const d of document.deadlines) if ((d.endDate ?? d.date) < todayYmd) done[d.id] = createdAt;
