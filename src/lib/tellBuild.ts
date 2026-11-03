@@ -26,6 +26,20 @@ export function tellLanguages(household: Household, doc: DocumentRecord, groupLa
 
 export const nameIn = (m: FamilyMember | undefined, lang: LanguageCode) => (m ? (m.names?.[lang] ?? m.name.split(/\s+/).pop() ?? m.name) : "");
 
+/** 勤務の予定の名前（出勤・日勤・早番など）は、決まった言葉なのでコードで言い換える（訳が無いときだけ） */
+const WORK_WORDS: Partial<Record<LanguageCode, [RegExp, string][]>> = {
+  vi: [[/出勤日|出勤/, "đi làm"], [/日勤/, "ca ngày"], [/早番/, "ca sớm"], [/遅番/, "ca muộn"], [/夜勤/, "ca đêm"], [/平日/, "ngày thường"], [/（/, " ("], [/）/, ")"]],
+  "ja-easy": [[/出勤日|出勤/, "しごと"], [/日勤/, "ひるの しごと"], [/早番/, "あさの しごと"], [/遅番/, "おそい しごと"], [/夜勤/, "よるの しごと"], [/平日/, "へいじつ"]],
+};
+function workLabelIn(label: string, lang: LanguageCode): string | undefined {
+  const words = WORK_WORDS[lang];
+  if (!words || !/^出勤/.test(label)) return undefined;
+  let out = label;
+  for (const [re, to] of words) out = out.replace(new RegExp(re.source, "g"), to);
+  // 言い換えられない日本語が残るなら使わない
+  return /[\u3040-\u30ff\u4e00-\u9fff]/.test(out) && lang !== "ja-easy" ? undefined : out;
+}
+
 /** 同じ日の、ほかの書類の家族の予定（行事・出勤日など）。勤務カレンダーのある人の平日の出勤日も添える */
 function sameDayEvents(household: Household, doc: DocumentRecord, d: Deadline): { doc: DocumentRecord; deadline: Deadline }[] {
   const out: { doc: DocumentRecord; deadline: Deadline }[] = [];
@@ -66,7 +80,7 @@ export function buildTell(
       lines.push(`${deadlineDateIn(d, lang)} ${label}${needs ? ` — ${lang === "ja" ? `${tx.needs}: ` : ""}${needs}` : ""}`);
       const same = sameDayEvents(household, doc, d).map((x) => {
         const who = x.deadline.memberIds.map((id) => nameIn(household.members.find((m) => m.id === id), lang)).filter(Boolean).join("・");
-        const other = (lang === "ja" ? x.deadline.label : labelIn(x.doc, x.deadline, lang)) ?? `「${x.deadline.label}」`;
+        const other = (lang === "ja" ? x.deadline.label : (labelIn(x.doc, x.deadline, lang) ?? workLabelIn(x.deadline.label, lang))) ?? `「${x.deadline.label}」`;
         return `${who ? `${who} ` : ""}${other}`;
       });
       if (same.length) {
