@@ -20,7 +20,7 @@ import { findQuote, type Mark, segments } from "@/lib/highlight";
 import type { DocumentRecord, SourceRef } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
 import { DocumentList } from "@/components/DocumentList";
-import { ownersLabel } from "@/lib/whose";
+import { givenName, ownersLabel } from "@/lib/whose";
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -405,30 +405,48 @@ export default function DocumentDetail() {
                 </div>
               ))}
             {d.kind === "event" &&
-              rules.map((rule) =>
-                d.applyRuleIds?.includes(rule.id) ? (
+              rules
+                .filter((rule) => d.applyRuleIds?.includes(rule.id))
+                .map((rule) => (
                   <button key={rule.id} className="link-button" onClick={() => toggleRule(d.id, rule.id)}>
-                    「{rule.label}」を外す
+                    「{rule.label}」の締切を外す
                   </button>
-                ) : (
-                  <button key={rule.id} className="button secondary small" onClick={() => toggleRule(d.id, rule.id)}>
-                    この予定に「{rule.label}・{rule.daysBefore}日前まで」を当てはめる
-                  </button>
-                ),
-              )}
+                ))}
             {d.kind === "event" &&
               d.reserve &&
-              rules.map((rule) =>
-                d.reserve!.applyRuleIds?.includes(rule.id) ? (
+              rules
+                .filter((rule) => d.reserve!.applyRuleIds?.includes(rule.id))
+                .map((rule) => (
                   <button key={`r-${rule.id}`} className="link-button" onClick={() => toggleRule(d.id, rule.id, true)}>
-                    予備日の「{rule.label}」を外す
+                    予備日の「{rule.label}」の締切を外す
                   </button>
-                ) : (
-                  <button key={`r-${rule.id}`} className="button secondary small" onClick={() => toggleRule(d.id, rule.id, true)}>
-                    予備日（{formatYmd(d.reserve!.date)}）にも「{rule.label}」を当てはめる
-                  </button>
-                ),
-              )}
+                ))}
+            {d.kind === "event" &&
+              (() => {
+                // わが家のきまり（休みの申請など）を手で使うボタン。ふだんは1行に畳む（使うかどうかは本人が決める）
+                const unused = rules.filter((rule) => !d.applyRuleIds?.includes(rule.id));
+                const unusedReserve = d.reserve ? rules.filter((rule) => !d.reserve!.applyRuleIds?.includes(rule.id)) : [];
+                if (unused.length + unusedReserve.length === 0) return null;
+                const whose = (memberId: string) => {
+                  const m = household.members.find((x) => x.id === memberId);
+                  return m ? `${givenName(m.name)}さん・` : "";
+                };
+                return (
+                  <details className="rule-use">
+                    <summary>わが家のきまりを、この予定に使う</summary>
+                    {unused.map((rule) => (
+                      <button key={rule.id} className="button secondary small" onClick={() => toggleRule(d.id, rule.id)}>
+                        「{rule.label}」の締切を出す（{whose(rule.memberId)}{rule.daysBefore}日前まで）
+                      </button>
+                    ))}
+                    {unusedReserve.map((rule) => (
+                      <button key={`r-${rule.id}`} className="button secondary small" onClick={() => toggleRule(d.id, rule.id, true)}>
+                        予備日（{formatYmd(d.reserve!.date)}）にも「{rule.label}」の締切を出す（{whose(rule.memberId)}{rule.daysBefore}日前まで）
+                      </button>
+                    ))}
+                  </details>
+                );
+              })()}
           </div>
         ))
       )}

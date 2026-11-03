@@ -2213,6 +2213,27 @@ details.timeshift[open] {
   background: var(--soft);
   padding: 4px 14px 12px;
 }
+/* 書類の予定: 「わが家のきまりを、この予定に使う ▸」1行に畳む */
+details.rule-use {
+  margin-top: 6px;
+}
+details.rule-use > summary {
+  list-style: none;
+  cursor: pointer;
+  color: var(--accent-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 6px 0;
+}
+details.rule-use > summary::-webkit-details-marker {
+  display: none;
+}
+details.rule-use > summary::after {
+  content: " ▸";
+}
+details.rule-use[open] > summary::after {
+  content: " ▾";
+}
 .menu.four {
   grid-template-columns: repeat(2, 1fr);
 }
