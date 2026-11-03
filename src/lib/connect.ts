@@ -8,6 +8,7 @@
 
 import { conflictKey, findConflicts, sameDayTextOk, type Conflict } from "./conflicts";
 import { maskKnownNumbers } from "./numbers";
+import { shortDocName } from "./docName";
 import type { Candidate } from "./butler";
 import { formatYmd, parseDate, ruleDeadlines } from "./deadlines";
 import type { Deadline, DocumentRecord, Household } from "./types";
@@ -507,7 +508,8 @@ export function provisionalConnect(household: Household, today = ""): { briefing
       if (!before || (before.date === d.date && (before.endDate ?? "") === (d.endDate ?? ""))) continue;
       insights.push({
         kind: "date_changed",
-        text: `「${now.title}」で、${d.label}の日付が変わっています（${range(before)} → ${range(d)}）。`,
+        // 「前 → 新」の日付は、カードの下の1行（change）にコードが出すので、文では言わない
+        text: `${/改訂/.test(now.title) ? "改訂版" : `新しい「${shortDocName(now)}」`}で、${d.label}の日付が変わっています。`,
         deadlineId: d.id,
         ruleId: "",
         oldDeadlineId: before.id,
@@ -572,13 +574,15 @@ function provisionalInsuranceBeforeLease(household: Household): RawInsight[] {
     if (!homeEnd || !clause) continue;
     // 契約書が「火災保険」と言っているなら、火災・家財の保険だけを見る（傷害保険などは別）
     const kind = /火災|家財/.test(`${clause.label}${clause.value}`) ? /火災|家財/ : null;
-    for (const policy of current.filter((d) => d.category === "insurance" && d.memberIds.some((m) => home.memberIds.includes(m)))) {
+    // 同じ家の書類か: 同じ家族がいる・どちらかが「家族みんな」（誰の欄も空）
+    const sameHome = (d: DocumentRecord) => !d.memberIds.length || !home.memberIds.length || d.memberIds.some((m) => home.memberIds.includes(m));
+    for (const policy of current.filter((d) => d.category === "insurance" && sameHome(d))) {
       if (kind && !kind.test(`${policy.title}${policy.docType ?? ""}`)) continue;
       const policyEnd = policy.deadlines.find((d) => d.kind === "expiry");
       if (!policyEnd || policyEnd.date >= homeEnd.date) continue;
       out.push({
         kind: "other",
-        text: `「${policy.title}」の${policyEnd.label}（${formatYmd(policyEnd.date)}）は、「${home.title}」の${homeEnd.label}（${formatYmd(homeEnd.date)}）より先に来ます。契約書には「${clause.value}」とあります。先に保険のほうを確かめておくとよいかもしれません。`,
+        text: `${policyEnd.label.replace(/[（(].*$/, "")}（${formatYmd(policyEnd.date)}）は、${homeEnd.label.replace(/[（(].*$/, "")}（${formatYmd(homeEnd.date)}）より先に来ます。契約書には「${clause.value}」とあります。保険のほうを先に確かめておくとよいかもしれません。`,
         deadlineId: "",
         ruleId: "",
         oldDeadlineId: "",
