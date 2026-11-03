@@ -58,8 +58,14 @@ const leaks = (text: string) => secrets.filter((v) => text.replace(/\D/g, "").in
 
 async function post(path: string, body: unknown): Promise<{ status: number; json: any }> {
   const res = await fetch(`${BASE}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  return { status: res.status, json: await res.json().catch(() => ({})) };
+  const json = await res.json().catch(() => ({}));
+  // 本番が返すトークン数（数だけ）を API ごとに足す
+  if (json?.usage) (usageByPath[path] ??= []).push({ input: json.usage.input ?? 0, output: json.usage.output ?? 0 });
+  return { status: res.status, json };
 }
+const usageByPath: Record<string, { input: number; output: number }[]> = {};
+// 料金の見積もり（$/1M トークン。eval-extraction.mts と同じ値）
+const PRICE = { input: 4, output: 20 };
 
 // ---- 1. つなぐ ----
 say("## 1. つなぐ（/api/connect）");
@@ -176,6 +182,16 @@ else {
   });
   check(r.status === 0, `読み取りの採点が終わった（${how.join(" ")}・${EVAL}件。表は scripts/out/eval-check/latest.md）`);
 }
+
+say("");
+say("## 6. 本物のトークン数（本番が返した数・1回あたりの平均）");
+for (const [path, list] of Object.entries(usageByPath)) {
+  const avg = (k: "input" | "output") => Math.round(list.reduce((n, u) => n + u[k], 0) / list.length);
+  const usd = (avg("input") * PRICE.input + avg("output") * PRICE.output) / 1e6;
+  say(`- ${path}: ${list.length}回・入力 ${avg("input")}・出力 ${avg("output")} トークン ≒ $${usd.toFixed(4)}/回`);
+}
+if (!Object.keys(usageByPath).length) say("（本番がトークン数を返さなかった）");
+say("読み取りの1件あたりは scripts/out/eval-check/latest.md（本番の /api/extract が返した数）");
 
 say("");
 const ng = results.filter(([ok]) => !ok);

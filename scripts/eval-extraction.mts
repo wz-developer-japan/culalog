@@ -99,7 +99,7 @@ async function readVia(sample: DemoSample): Promise<{ extraction: Extraction | n
   const res = await fetch(`${via}/api/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const json = (await res.json().catch(() => ({}))) as { extraction?: Extraction; error?: string };
   if (!res.ok) throw new Error(`${res.status} ${json.error ?? ""}`);
-  return { extraction: json.extraction ?? null, usage: { input: 0, output: 0 }, stop: "via" };
+  return { extraction: json.extraction ?? null, usage: { input: json.usage?.input ?? 0, output: json.usage?.output ?? 0 }, stop: "via" };
 }
 
 async function readWithClaude(sample: DemoSample): Promise<{ extraction: Extraction | null; usage: Usage; stop: string }> {

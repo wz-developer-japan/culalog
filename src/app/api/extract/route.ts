@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { EXTRACTION_SCHEMA, type FamilyForReading, parseExtraction } from "@/lib/extraction";
 import { EXTRACT_MODEL as MODEL, EXTRACT_SYSTEM_PROMPT as SYSTEM_PROMPT } from "@/lib/extractPrompt";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { usageOf } from "@/lib/server/usage";
 
 /** 受け付ける本文の上限（画像を含む）。これを超えたら Claude を呼ばずに断る */
 const MAX_BODY_BYTES = 5 * 1024 * 1024;
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
     }
     if (!extraction) return fail(502, "読み取りの結果をうまく受け取れませんでした。もう一度お試しください。");
 
-    return NextResponse.json({ extraction });
+    return NextResponse.json({ extraction, usage: usageOf(response) });
   } catch (error) {
     if (error instanceof Anthropic.RateLimitError) {
       return fail(429, "読み取りが混み合っています。少し時間をおいてからお試しください。");

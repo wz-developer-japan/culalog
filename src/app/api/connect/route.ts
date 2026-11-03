@@ -7,6 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { CONNECT_SCHEMA } from "@/lib/connect";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { usageOf } from "@/lib/server/usage";
 
 /** 受け付ける本文の上限。家の書類の要点だけなので小さい */
 const MAX_BODY_BYTES = 300 * 1024;
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
       result = null;
     }
     if (!result) return fail(502, "執事の答えをうまく受け取れませんでした。");
-    return NextResponse.json({ result });
+    return NextResponse.json({ result, usage: usageOf(response) });
   } catch (error) {
     if (error instanceof Anthropic.RateLimitError) return fail(429, "混み合っています。少し時間をおいてからお試しください。");
     if (error instanceof Anthropic.BadRequestError) {

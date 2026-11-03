@@ -8,6 +8,7 @@ import { EXTRACT_MODEL as MODEL } from "@/lib/extractPrompt";
 import { LANGUAGES } from "@/lib/languages";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { parseTranslation, TRANSLATE_SYSTEM_PROMPT, TRANSLATION_SCHEMA } from "@/lib/translate";
+import { usageOf } from "@/lib/server/usage";
 
 export const maxDuration = 60;
 const MAX_BODY_BYTES = 200 * 1024;
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       parsed = null;
     }
     if (!parsed) return fail(502, "うまく受け取れませんでした。もう一度お試しください。");
-    return NextResponse.json({ translation: parsed });
+    return NextResponse.json({ translation: parsed, usage: usageOf(response) });
   } catch (error) {
     if (error instanceof Anthropic.RateLimitError) return fail(429, "混み合っています。少し時間をおいてからお試しください。");
     console.error("translate: failed", error instanceof Anthropic.APIError ? error.status : error);
