@@ -130,8 +130,10 @@ function supersededDeadlineIds(household: Household): Set<string> {
     if (received.some((d) => d.deadlines.some((x) => x.kind === "event" && x.date === original.date))) {
       ids.add(original.id);
       // 同じ予定が、ほかの書類（例: 年間行事予定の改訂版）に同じ名前・同じ日で載っていれば、それも案内に任せる
+      // （届いた案内そのものの予定は、同じ名前・同じ日でも外さない）
+      const own = new Set(received.flatMap((d) => d.deadlines.map((x) => x.id)));
       for (const d of all) {
-        if (d.id !== original.id && d.kind === "event" && d.label === original.label && d.date === original.date) ids.add(d.id);
+        if (d.id !== original.id && !own.has(d.id) && d.kind === "event" && d.label === original.label && d.date === original.date) ids.add(d.id);
       }
     }
   }

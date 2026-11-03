@@ -380,9 +380,9 @@ export function verifyConnect(
 
 /**
  * 前のものと新しいものの、同じ名前の予定の日付をコードで比べる（Claude は使っていない）。
- * デモの家族では、授業参観（平日）と有給のきまりの例も、用意しておいた仮の気づきとして出す。
+ * デモの家族では、授業参観（平日）に行くかを聞き、行くなら有給のきまりを当てはめる例も出す（provisionalOpenClass）。
  */
-export function provisionalConnect(household: Household): { briefing: []; insights: RawInsight[] } {
+export function provisionalConnect(household: Household, today = ""): { briefing: []; insights: RawInsight[] } {
   const insights: RawInsight[] = [];
   const confirmed = household.documents.filter((d) => d.confirmedAt);
   const pairs = documentsForConnect(household).filter((x) => x.olderVersionOf);
@@ -403,25 +403,43 @@ export function provisionalConnect(household: Household): { briefing: []; insigh
     }
   }
   insights.push(...provisionalInsuranceBeforeLease(household));
-  if (household.isDemo) {
-    // 授業参観は平日なので、働く親は有給を取る。案内プリントを確定したら、わが家のきまり（有給の申請）を当てはめることを提案する
-    const rule = household.rules?.find((r) => r.id === "rule-leave");
-    const notice = confirmed.find((d) => !d.supersededBy && d.expectedId === "exp-open-class-notice");
-    const openClass = notice?.deadlines.find((d) => d.kind === "event");
-    if (rule && notice && openClass && !openClass.applyRuleIds?.includes(rule.id)) {
-      const self = household.members.find((m) => m.id === rule.memberId);
-      const first = self?.name.split(/\s+/).pop() ?? "";
-      insights.push({
-        kind: "apply_rule",
-        text: `${openClass.label}は${formatYmd(openClass.date)}（平日）です。${first}さんが見に行くなら「${rule.label}」が要るかもしれません。`,
-        deadlineId: openClass.id,
-        ruleId: rule.id,
-        oldDeadlineId: "",
-        evidence: [{ documentId: notice.id, location: openClass.source?.location ?? "" }],
-      });
-    }
-  }
+  if (household.isDemo) insights.push(...provisionalOpenClass(household, today));
   return { briefing: [], insights };
+}
+
+/**
+ * デモの家族の仮の気づき: 学年だより・案内プリントなどで拾った授業参観（平日）に「行きますか？」と聞く。
+ * 行くと決めつけない（行くなら有給のきまりを当てはめ、行かないなら何もしない）。
+ * 同じ日の授業参観が二つの書類にあっても（学年だよりと案内プリント）、聞くのは1回だけ。
+ */
+function provisionalOpenClass(household: Household, today: string): RawInsight[] {
+  const rule = household.rules?.find((r) => r.id === "rule-leave");
+  if (!rule) return [];
+  const answers = household.insightAnswers ?? {};
+  const events = household.documents
+    .filter((d) => d.confirmedAt && !d.supersededBy && !d.notForFamily)
+    .flatMap((doc) => doc.deadlines.filter((d) => d.kind === "event" && /授業参観/.test(d.label)).map((d) => ({ doc, d })))
+    .filter(({ d }) => (!today || d.date >= today) && ![0, 6].includes(parseDate(d.date).getDay()));
+  const self = household.members.find((m) => m.id === rule.memberId);
+  const first = self?.name.split(/\s+/).pop() ?? "";
+  const out: RawInsight[] = [];
+  for (const date of [...new Set(events.map((e) => e.d.date))]) {
+    const same = events.filter((e) => e.d.date === date);
+    // もう答えた（行く・行かない・違う）なら、同じ日のものは聞かない
+    if (same.some(({ d }) => d.applyRuleIds?.includes(rule.id) || answers[insightKey("apply_rule", d.id, rule.id, "")])) continue;
+    // 時間まで書いてある方（案内プリント）を優先する
+    const { doc, d } = same.find((e) => e.d.time) ?? same[same.length - 1];
+    const leave = ruleDeadlines({ ...d, applyRuleIds: [rule.id], reserve: undefined }, [rule])[0];
+    out.push({
+      kind: "apply_rule",
+      text: `${formatYmd(d.date)}の${d.label}、${first}さんは見に行きますか？ 平日なので、行くなら「${rule.label}」は${formatYmd(leave.date)}までです。`,
+      deadlineId: d.id,
+      ruleId: rule.id,
+      oldDeadlineId: "",
+      evidence: [{ documentId: doc.id, location: d.source?.location ?? "" }],
+    });
+  }
+  return out;
 }
 
 /**
@@ -477,7 +495,7 @@ export function adoptInsight(household: Household, insight: Insight): Household 
   return { ...household, documents, insightAnswers: answers };
 }
 
-/** 「違う」「分かった」: もう出さない（違うと言ったものは、次から Claude にも伝える） */
-export function answerInsight(household: Household, insight: Insight, answer: "rejected" | "seen"): Household {
+/** 「違う」「分かった」「行かない」: もう出さない（違うと言ったものは、次から Claude にも伝える。行かないは伝えない） */
+export function answerInsight(household: Household, insight: Insight, answer: "rejected" | "seen" | "declined"): Household {
   return { ...household, insightAnswers: { ...(household.insightAnswers ?? {}), [insight.key]: answer } };
 }

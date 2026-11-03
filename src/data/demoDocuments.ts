@@ -66,10 +66,12 @@ export interface DemoDates {
   subscription: { start: Date; end: Date; renewal: Date; windowFrom: Date; windowTo: Date; monthsLeft: number };
   sportsDay: Date;
   sportsDayReserve: Date;
-  /** 授業参観（2学期）。開いた日の17日後以降の最初の金曜日（必ず平日。案内プリントが「まだ届いていない」書類） */
+  /** 授業参観（2学期）。開いた日の17日後以降の最初の金曜日（必ず平日。学年だよりに日だけ書いてあり、案内プリントは「まだ届いていない」書類） */
   openClass: Date;
   /** 授業参観の出欠票の提出日（授業参観の2日前から、さかのぼって最初の平日） */
   openClassReply: Date;
+  /** 学年だより（授業参観の日が書いてある）が配られた日（開いた日の2日前から、さかのぼって最初の平日） */
+  gradeLetterIssued: Date;
   /** 賃貸の契約期間の満了日 */
   leaseEnd: Date;
   /** 賃貸の契約開始日（満了の2年前の翌日） */
@@ -108,6 +110,7 @@ export function demoDates(today: Date): DemoDates {
     sportsDayReserve: addDays(sportsDay, 1),
     openClass,
     openClassReply: weekdayOnOrBefore(addDays(openClass, -2)),
+    gradeLetterIssued: weekdayOnOrBefore(addDays(today, -2)),
     excursion: nextWeekday(addDays(today, 1)),
     leaseEnd,
     leaseStart,
@@ -125,12 +128,12 @@ export function schoolAnnualText(t: DemoDates): string {
 ・夏休み　　　　　${y}年7月18日 〜 8月31日
 ・遠足（3年生）　　${jpDate(t.excursion)}（雨天の場合は校内で学習）
 ・運動会　　　　　${jpDate(t.sportsDay)}（雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延）
-・授業参観（2学期）　${jpDate(t.openClass)}（時間・教室は案内プリントでお知らせします）
 ・個人面談　　　　${jpDate(t.interview.from)} 〜 ${jpShortDate(t.interview.to)}（日程は別途お知らせします）
 ・冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日
 ・修了式　　　　　${y + 1}年3月24日
 
 ※ 行事の詳しい時間・持ち物は、その都度お配りする案内プリントでお知らせします。
+※ 2学期以降の授業参観の日は、各学年の学年だよりでお知らせします。
 ※ 遠足の日は、お弁当・水筒・敷物をご用意ください（給食はありません）。
 
 ■ 日課表（3年生）
@@ -138,6 +141,29 @@ export function schoolAnnualText(t: DemoDates): string {
 ・火・木曜日　　　5時間授業　下校 14:50ごろ
 
 くろうど第一小学校　職員室　000-0000-0000（平日 8:00〜17:00）`;
+}
+
+/**
+ * 3年生の学年だより。授業参観の日は年間行事予定には無く、学年だよりで知らせる（小学校でよくある形）。
+ * デモでは最初から確定してある書類で、ここから授業参観の予定を拾う。時間・教室は、まだ届いていない案内プリントで。
+ */
+export function gradeLetterText(t: DemoDates): string {
+  return `3学年だより（${t.gradeLetterIssued.getMonth() + 1}月号）
+${jpDate(t.gradeLetterIssued)}　くろうど第一小学校 第3学年
+
+■ これからのおもな予定
+・授業参観（2学期）　${jpDate(t.openClass)}
+　※ 時間・教室は、後日お配りする案内プリントでお知らせします。
+
+■ 学習の様子
+算数では「わり算」の練習をしています。ご家庭でも、おやつを同じ数ずつ分けるときなどに声をかけてみてください。
+国語では、身近な人に聞いた話をもとに作文を書いています。
+
+■ お願い
+・朝晩が冷えてきました。上着には名前を書いてください。
+・欠席の連絡は 8:00 までに連絡アプリでお願いします。
+
+担任一同　くろうど第一小学校　000-0000-0000`;
 }
 
 /** 授業参観の案内プリント。デモでは「まだ届いていない書類」で、読み取りを試す1枚（平日の行事なので、働く親は有給を取る） */
@@ -435,12 +461,12 @@ ${jpDate(t.revisedOn)} 改訂
 ・夏休み　　　　　${y}年7月18日 〜 8月31日
 ・遠足（3年生）　　${jpDate(t.excursion)}（雨天の場合は校内で学習）
 ・運動会　　　　　${jpDate(t.sportsDay)}（雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延）
-・授業参観（2学期）　${jpDate(t.openClass)}（時間・教室は案内プリントでお知らせします）
 ・★個人面談　　　${jpDate(t.interviewRevised.from)} 〜 ${jpShortDate(t.interviewRevised.to)}（希望日の調査票を11月中旬に配布します）
 ・冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日
 ・修了式　　　　　${y + 1}年3月24日
 
 ※ 行事の詳しい時間・持ち物は、その都度お配りする案内プリントでお知らせします。
+※ 2学期以降の授業参観の日は、各学年の学年だよりでお知らせします。
 ※ 遠足の日は、お弁当・水筒・敷物をご用意ください（給食はありません）。
 ※ 職員会議・個人面談の日は短縮日課です（5時間授業・14:50ごろ下校）。
 
@@ -491,7 +517,6 @@ export function revisedSchoolAnnualProvisionalDraft(t: DemoDates): Extraction {
       ev("運動会", t.sportsDay, "主な行事・運動会", jpDate(t.sportsDay), {
         reserve: { date: toYmd(t.sportsDayReserve), condition: "雨天の場合", location: "主な行事・運動会", quote: `雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延` },
       }),
-      ev("授業参観（2学期）", t.openClass, "主な行事・授業参観（2学期）", jpDate(t.openClass)),
       ev("個人面談", t.interviewRevised.from, "主な行事・★個人面談", `★個人面談　　　${jpDate(t.interviewRevised.from)} 〜 ${jpShortDate(t.interviewRevised.to)}`, { endDate: toYmd(t.interviewRevised.to) }),
       ev("冬休み", new Date(y, 11, 25), "主な行事・冬休み", `冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日`, { endDate: `${y + 1}-01-07` }),
     ],

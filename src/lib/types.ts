@@ -310,7 +310,7 @@ export interface Household {
   /** つなぐ＋ひとことの結果（書類を確定したとき・1日1回だけ作って端末に保存） */
   connect?: ConnectResult;
   /** 気づいたことへの本人の答え（鍵 → 採用・違う・分かった） */
-  insightAnswers?: Record<string, "adopted" | "rejected" | "seen">;
+  insightAnswers?: Record<string, "adopted" | "rejected" | "seen" | "declined">;
   /** 執事に頼んだこと（新しい順・端末に保存）。答えが付くまでは「調べています」。頼んで画面を閉じても、次に開いたときに調べて報告に残る */
   asks?: AskRecord[];
   /** まとめて渡した写真・PDF の受け取り箱（ファイルの中身は別の場所に置く）。執事が1枚ずつ読む */

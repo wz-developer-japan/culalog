@@ -74,7 +74,7 @@ export function useConnect(
     return { result: stored, status: fresh ? ("claude" as const) : status };
   }
   // 仮: コードで比べた違いと、デモ用に用意した例（Claude は使っていない）
-  const result = verifyConnect(provisionalConnect(household), household, buildCandidates(household, now()), {
+  const result = verifyConnect(provisionalConnect(household, ymd), household, buildCandidates(household, now()), {
     source: "provisional",
     createdOn: ymd,
     basis,
