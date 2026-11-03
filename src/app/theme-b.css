@@ -555,3 +555,51 @@ main {
     box-shadow: inset 0 0 0 1px #333333;
   }
 }
+
+/* ---------- 改行: 1〜2文字だけ次の行に落ちない・単語の途中で折れない ---------- */
+/* 文節で折る（Chrome の auto-phrase。対応していないブラウザーは今までどおり）＋最後の行を短くしない */
+main,
+.tabbar {
+  word-break: auto-phrase;
+}
+h1,
+h2,
+h3,
+.hero .t,
+.mini .t,
+.greet h1 {
+  text-wrap: balance;
+}
+p,
+li,
+.t,
+.s,
+.sub,
+.voice,
+.why,
+.meta,
+.insight-text,
+.chip,
+.button,
+summary,
+.info-body,
+.calm-line {
+  text-wrap: pretty;
+}
+/* 短い札・ボタンの中の言葉は折らない */
+.tag,
+.go,
+.mi b,
+.tab,
+.ptag,
+.hero-label,
+.wday .d,
+.chips.scroll .chip {
+  white-space: nowrap;
+}
+/* 長い英数字（URL・番号）だけは、はみ出さないよう途中で折ってよい */
+.dcard .t,
+.card,
+.info-body {
+  overflow-wrap: anywhere;
+}
