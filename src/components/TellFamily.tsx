@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { translateDocument } from "@/components/TranslationView";
-import { languageLabel } from "@/lib/languages";
+import { languageLabel, type LanguageCode } from "@/lib/languages";
 import { composeTell } from "@/lib/tell";
 import { buildTell, tellLanguages } from "@/lib/tellBuild";
 import type { DocTranslation } from "@/lib/translate";
@@ -17,30 +17,47 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
   const [text, setText] = useState("");
   const [payload, setPayload] = useState<ReturnType<typeof buildTell> | null>(null);
   const [status, setStatus] = useState("");
+  const [groupCount, setGroupCount] = useState(0);
   if (!doc.confirmedAt || !doc.sharedWith?.length) return null;
 
   async function prepare() {
     setBusy(true);
     setStatus("");
-    // 共有した人の言葉の訳が無ければ、先に訳す
+    // グループに送ると、グループの全員が読む。つないでいれば、グループの人の読みたい言葉も入れる
+    let groupLangs: LanguageCode[] = [];
+    if (household.telegram) {
+      const res = await fetch("/api/chat-info", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(household.telegram) }).catch(() => null);
+      const json = res?.ok ? await res.json().catch(() => ({})) : {};
+      groupLangs = Array.isArray(json.langs) ? json.langs : [];
+      setGroupCount(typeof json.count === "number" ? json.count : 0);
+    }
+    // 送る言葉の訳が無ければ、先に訳す。訳せなかった言葉は外して、そう書く
     const translations: Partial<Record<string, DocTranslation>> = { ...doc.translations };
-    for (const lang of tellLanguages(household, doc)) {
-      if (lang === "ja" || translations[lang]) continue;
-      const { translation, error } = await translateDocument(household, doc, lang);
-      if (!translation) {
-        setBusy(false);
-        setStatus(`${languageLabel(lang)}にできませんでした（${error}）`);
-        return;
+    const langs: LanguageCode[] = [];
+    const skipped: string[] = [];
+    for (const lang of tellLanguages(household, doc, groupLangs)) {
+      if (lang !== "ja" && !translations[lang]) {
+        const { translation } = await translateDocument(household, doc, lang);
+        if (!translation) {
+          skipped.push(languageLabel(lang));
+          continue;
+        }
+        translations[lang] = translation;
       }
-      translations[lang] = translation;
+      langs.push(lang);
     }
     if (JSON.stringify(translations) !== JSON.stringify(doc.translations ?? {})) await save({ ...doc, translations });
     const demo = household.isDemo ? await import("@/data/demoTranslations") : undefined;
-    const p = buildTell(household, doc, translations, (other, d, lang) =>
-      other.translations?.[lang]?.items.find((i) => i.ref === `d:${d.id}`)?.label ?? demo?.provisionalLabel(d.label, lang),
+    const p = buildTell(
+      household,
+      doc,
+      translations,
+      (other, d, lang) => other.translations?.[lang]?.items.find((i) => i.ref === `d:${d.id}`)?.label ?? demo?.provisionalLabel(d.label, lang),
+      langs,
     );
     setPayload(p);
     setText(composeTell(p));
+    setStatus(skipped.length ? `${skipped.join("・")}は、執事の準備中のため入れていません。` : "");
     setBusy(false);
     setOpen(true);
   }
@@ -68,7 +85,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
         <div className="card tell-preview">
           <div className="meta">
             {household.telegram
-              ? "下の文を、家族の Telegram グループに送ります。Telegram と通訳（Claude）を通ります。書類の写真・ほかの書類・大事な番号は送りません。"
+              ? `下の文を、家族の Telegram グループに送ります${groupCount ? `（グループの${groupCount}人が読めます）` : ""}。Telegram と通訳（Claude）を通ります。書類の写真・ほかの書類・大事な番号は送りません。`
               : "家族の Telegram とまだつないでいません（設定でつなげます）。下の文をコピーして、いつものアプリに貼ることもできます。"}
           </div>
           <pre className="tell-text">{text}</pre>

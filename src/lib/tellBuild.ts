@@ -16,10 +16,11 @@ const TEXT: Record<LanguageCode, { needs: string; sameDay: string; todo: string;
 };
 
 /** 書類のまとめを送る相手の言葉（共有した人の言葉と、あなたの言葉）。日本語は必ず入れる */
-export function tellLanguages(household: Household, doc: DocumentRecord): LanguageCode[] {
+export function tellLanguages(household: Household, doc: DocumentRecord, groupLangs: LanguageCode[] = []): LanguageCode[] {
   const ids = doc.sharedWith ?? [];
   const langs = household.members.filter((m) => ids.includes(m.id) || m.relation === "self").map(languageOf);
-  return [...new Set<LanguageCode>(["ja", ...langs])];
+  // グループに送ると、グループの全員が読む。だからグループの人の読みたい言葉も入れる
+  return [...new Set<LanguageCode>(["ja", ...langs, ...groupLangs])];
 }
 
 export const nameIn = (m: FamilyMember | undefined, lang: LanguageCode) => (m ? (m.names?.[lang] ?? m.name.split(/\s+/).pop() ?? m.name) : "");
@@ -42,11 +43,12 @@ export function buildTell(
   translations: Partial<Record<LanguageCode, DocTranslation>>,
   /** ほかの書類の予定の名前の訳（無ければ日本語のまま） */
   labelIn: (other: DocumentRecord, deadline: Deadline, lang: LanguageCode) => string | undefined,
+  langs: LanguageCode[] = tellLanguages(household, doc),
 ): TellPayload {
   const mask = (t: string) => maskKnownNumbers(doc, t);
   const self = household.members.find((m) => m.relation === "self");
   const events = doc.deadlines.filter((d) => d.kind === "event" || d.kind === "due" || d.kind === "notice");
-  const blocks: TellBlock[] = tellLanguages(household, doc).map((lang) => {
+  const blocks: TellBlock[] = langs.map((lang) => {
     const t = lang === "ja" ? undefined : translations[lang];
     const tx = TEXT[lang];
     const itemOf = (ref: string) => t?.items.find((i) => i.ref === ref);
@@ -69,11 +71,26 @@ export function buildTell(
     if (t?.background[0]) lines.push(`ℹ ${tx.general}（${t.background[0].title}）: ${t.background[0].text}`);
     return { lang, title: t?.title ?? doc.title, lines };
   });
+  // 原本の場所は、紙の上から順に（原本の文字の中で引用が出てくる順）
+  const squash = (x: string) => x.replace(/\s/g, "");
+  const body = squash(doc.originalText ?? "");
+  const posOf = (quote?: string) => {
+    const i = quote ? body.indexOf(squash(quote)) : -1;
+    return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+  };
   const sources = [
-    ...doc.deadlines.filter((d) => d.source).map((d) => `${d.source!.location}${d.source!.quote ? `「${d.source!.quote}」` : ""}`),
-    ...doc.fields.filter((f) => f.source?.quote).map((f) => `${f.source!.location}「${mask(f.source!.quote!)}」`),
-  ].slice(0, 10);
-  return { blocks, sources, holder: nameIn(self, "ja") };
+    ...doc.deadlines.filter((d) => d.source).map((d) => ({ pos: posOf(d.source!.quote), text: `${d.source!.location}${d.source!.quote ? `「${d.source!.quote}」` : ""}` })),
+    ...doc.fields.filter((f) => f.source?.quote).map((f) => ({ pos: posOf(f.source!.quote), text: `${f.source!.location}「${mask(f.source!.quote!)}」` })),
+  ]
+    .sort((a, b) => a.pos - b.pos)
+    .map((x) => x.text)
+    .filter((x, i, all) => all.indexOf(x) === i)
+    .slice(0, 10);
+  // 担当の候補: あなたと、共有した大人の家族
+  const takers = household.members
+    .filter((m) => m.relation !== "child" && (m.relation === "self" || (doc.sharedWith ?? []).includes(m.id)))
+    .map((m) => Object.fromEntries((["ja", "ja-easy", "vi"] as LanguageCode[]).map((l) => [l, nameIn(m, l)])) as Partial<Record<LanguageCode, string>>);
+  return { blocks, sources, holder: nameIn(self, "ja"), takers };
 }
 
 /** 近い予定の「日付と件数」だけ（通知のために預ける。予定の名前は入れない） */

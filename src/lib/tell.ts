@@ -17,6 +17,31 @@ export interface TellPayload {
   sources: string[];
   /** 書類を持っている人の呼び名（「書類は○○さんの端末の中」） */
   holder: string;
+  /** 担当の候補（大人の家族）。言葉ごとの呼び名。「○○がやる」のボタンになる */
+  takers: Partial<Record<LanguageCode, string>>[];
+}
+
+/** 担当のボタンの印（Telegram の callback_data は 64 バイトまで）: "t:" + 言葉ごとの呼び名を | でつなぐ */
+export function takerData(names: Partial<Record<LanguageCode, string>>): string {
+  const parts = LANGUAGES.map((l) => (names[l.code] ?? "").replace(/[|:]/g, ""));
+  let out = `t:${parts.join("|")}`;
+  while (new TextEncoder().encode(out).length > 64) out = out.slice(0, -1);
+  return out;
+}
+
+export function takerNames(data: string): Partial<Record<LanguageCode, string>> {
+  const parts = data.replace(/^t:/, "").split("|");
+  const out: Partial<Record<LanguageCode, string>> = {};
+  LANGUAGES.forEach((l, i) => {
+    if (parts[i]) out[l.code] = parts[i];
+  });
+  return out;
+}
+
+export function takerButton(names: Partial<Record<LanguageCode, string>>): string {
+  const ja = names.ja ?? "";
+  const vi = names.vi ?? ja;
+  return `${ja}がやる / ${vi} sẽ lo`;
 }
 
 const mark = (c: LanguageCode) => `【${LANGUAGES.find((l) => l.code === c)?.native ?? c}】`;
@@ -46,4 +71,4 @@ export const TAKE_TEXT: Record<LanguageCode, (name: string, title: string) => st
   vi: (name, title) => `${name} sẽ phụ trách: ${title}`,
 };
 
-export const TAKE_BUTTON = "私がやる / Tôi sẽ lo";
+

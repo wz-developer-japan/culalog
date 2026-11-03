@@ -36,7 +36,7 @@ export function TelegramSettings({ household, save }: { household: Household; sa
     }).catch(() => null);
     const json = res ? await res.json().catch(() => ({})) : {};
     setBusy(false);
-    setStatus(res?.ok ? (json.sent ? "通知を送りました。" : "今日とあしたの予定がないので、送りませんでした。") : (json.error ?? "送れませんでした。"));
+    setStatus(res?.ok ? "通知を送りました（7日以内の予定の件数だけ）。" : (json.error ?? "送れませんでした。"));
   }
 
   return (

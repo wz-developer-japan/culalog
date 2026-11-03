@@ -9,7 +9,7 @@ import { LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
 import { createLinkCode, getChat, setUserLang, store, updateChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
-import { TAKE_TEXT, TELL_HEAD, titlesOf } from "@/lib/tell";
+import { TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
 
 export const maxDuration = 60;
 
@@ -106,11 +106,13 @@ async function onCommand(chatId: string, m: TgMessage, cmd: string, arg: string)
 }
 
 async function onCallback(q: { id: string; from: TgUser; data?: string; message?: TgMessage }) {
-  if (q.data !== "take" || !q.message) return tg("answerCallbackQuery", { callback_query_id: q.id });
+  if (!q.data?.startsWith("t:") || !q.message) return tg("answerCallbackQuery", { callback_query_id: q.id });
   const chatId = String(q.message.chat.id);
-  const name = q.from.first_name ?? "";
+  // 担当の名前は、押した人の Telegram の表示名ではなく、ボタンに入れた家族の呼び名（言葉ごと）
+  const names = takerNames(q.data);
+  const name = names.ja ?? q.from.first_name ?? "";
   const titles = titlesOf(q.message.text ?? "");
-  const lines = (Object.keys(titles) as LanguageCode[]).map((l) => `${langMark(l)} ${TAKE_TEXT[l](name, titles[l]!)}`);
+  const lines = (Object.keys(titles) as LanguageCode[]).map((l) => `${langMark(l)} ${TAKE_TEXT[l](names[l] ?? name, titles[l]!)}`);
   await tg("answerCallbackQuery", { callback_query_id: q.id, text: "OK" });
   await tg("editMessageReplyMarkup", {
     chat_id: chatId,

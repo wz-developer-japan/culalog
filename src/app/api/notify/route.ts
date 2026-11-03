@@ -9,10 +9,11 @@ import { langMark } from "@/lib/server/interpret";
 import { chatsToNotify, type ChatDoc, updateChat, verifyChatToken } from "@/lib/server/store";
 import { sendMessage, telegramReady } from "@/lib/server/telegram";
 
-const NOTICE: Record<LanguageCode, (today: number, soon: number) => string> = {
-  ja: (a, b) => `近い予定が${a + b}件あります（今日 ${a}件・あした ${b}件）。CULALOG を見てね`,
-  "ja-easy": (a, b) => `ちかい よていが ${a + b}こ あります（きょう ${a}・あした ${b}）。CULALOG を みてね`,
-  vi: (a, b) => `Có ${a + b} việc sắp tới (hôm nay ${a}, ngày mai ${b}). Hãy mở CULALOG để xem nhé.`,
+// a = 今日の件数、b = 今日から7日以内の件数
+const NOTICE: Record<LanguageCode, (today: number, week: number) => string> = {
+  ja: (a, b) => (b ? `近い予定が${b}件あります（今日 ${a}件・7日以内 ${b}件）。CULALOG を見てね` : "7日以内に、共有している予定はありません。"),
+  "ja-easy": (a, b) => (b ? `ちかい よていが ${b}こ あります（きょう ${a}・7にち いない ${b}）。CULALOG を みてね` : "7にち いない に よていは ありません。"),
+  vi: (a, b) => (b ? `Có ${b} việc sắp tới (hôm nay ${a}, trong 7 ngày ${b}). Hãy mở CULALOG để xem nhé.` : "Trong 7 ngày tới không có việc nào được chia sẻ."),
 };
 
 const jstYmd = (offsetDays = 0) => new Date(Date.now() + 9 * 3600 * 1000 + offsetDays * 86400 * 1000).toISOString().slice(0, 10);
@@ -21,8 +22,10 @@ async function notifyChat(id: string, chat: ChatDoc, force = false): Promise<boo
   const today = jstYmd();
   if (!force && chat.notifiedOn === today) return false;
   const a = chat.upcoming?.[today] ?? 0;
-  const b = chat.upcoming?.[jstYmd(1)] ?? 0;
-  if (a + b === 0) return false;
+  let b = 0;
+  for (let i = 0; i < 7; i++) b += chat.upcoming?.[jstYmd(i)] ?? 0;
+  // 毎朝の通知は、予定があるときだけ。「いま送ってみる」は、0件でも「ありません」を送る
+  if (b === 0 && !force) return false;
   const langs = [...new Set(Object.values(chat.users ?? {}).map((u) => u.lang))];
   const list = (langs.length ? langs : ["ja"]) as LanguageCode[];
   await sendMessage(id, `🔔 ${list.map((l) => `${langMark(l)} ${NOTICE[l](a, b)}`).join("\n")}`);
