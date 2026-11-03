@@ -255,7 +255,10 @@ export function buildConnectInput(
       followUp: c.followUp?.label ?? "",
     })),
     rejected,
-    sameDay: findConflicts(household, parseDate(today)).map((c) => sameDayInput(c)),
+    // 候補日から選ぶ行事（個別懇談会の候補日など）はコードの文だけ（日ごとの組み合わせが多く、照らし合わせが難しいので Claude には渡さない）
+    sameDay: findConflicts(household, parseDate(today))
+      .filter((c) => !c.options)
+      .map((c) => sameDayInput(c)),
   };
 }
 
@@ -290,7 +293,7 @@ function knownLocation(doc: DocumentRecord, location: string): boolean {
 
 /** Claude の書いた同じ日の気づきを、今のぶつかりと照らし合わせる（画面に出す直前にも毎回確かめる） */
 export function verifySameDay(note: SameDayNote, c: Conflict, household: Household): SameDayNote | null {
-  if (note.key !== conflictKey(c) || !sameDayTextOk(note.text, c, household)) return null;
+  if (c.options || note.key !== conflictKey(c) || !sameDayTextOk(note.text, c, household)) return null;
   // 根拠: ぶつかりの書類だけ。場所が書類に無ければコードの原本の場所。言われなかった書類はコードで足す
   const docs = [
     { doc: c.child.doc, fallback: c.child.deadline.source?.location ?? "" },

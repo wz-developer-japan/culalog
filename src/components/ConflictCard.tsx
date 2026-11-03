@@ -6,7 +6,7 @@
 // 細かい根拠はカードに出さず、書類の画面に回す（スマホの1画面に、太字からボタンまで入るように）。
 
 import Link from "next/link";
-import { conflictDate, findConflicts, noticeShort, workNotices, type Conflict } from "@/lib/conflicts";
+import { conflictDate, findConflicts, noticeShort, optionText, topConflict, workNotices, type Conflict } from "@/lib/conflicts";
 import { sameDayNoteFor } from "@/lib/connect";
 import { formatYmd } from "@/lib/deadlines";
 import { shortDocName } from "@/lib/docName";
@@ -14,16 +14,56 @@ import { languageLabel, languageOf } from "@/lib/languages";
 import type { Household } from "@/lib/types";
 
 
-export function ConflictCards({ household, today, memberId }: { household: Household; today: Date; memberId?: string }) {
+/**
+ * top: トップのように1件だけ出す（子どもの行事を先に）。ほかは「ほか○件」で予定の画面へ
+ */
+export function ConflictCards({ household, today, memberId, top }: { household: Household; today: Date; memberId?: string; top?: boolean }) {
   const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name.split(/\s+/).pop() ?? "";
   const names = (ids: string[]) => ids.map(nameOf).join("・");
-  const list = findConflicts(household, today).filter(
+  const all = findConflicts(household, today).filter(
     (c) => !memberId || c.child.deadline.memberIds.includes(memberId) || c.adults.some((a) => a.deadline.memberIds.includes(memberId)),
   );
-  if (list.length === 0) return null;
+  if (all.length === 0) return null;
+  const first = top ? topConflict(all) : undefined;
+  const list = first ? [first] : all;
+  const more = all.length - list.length;
   return (
     <>
       {list.map((c) => {
+        const tellLink = (
+          <Link className="button small" href={`/documents/${c.child.doc.id}#tell`}>
+            家族に伝える
+            {(() => {
+              const shared = household.members.filter((m) => c.child.doc.sharedWith?.includes(m.id) && languageOf(m) !== "ja");
+              return shared.length ? `（${shared.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : "";
+            })()}
+          </Link>
+        );
+        if (c.options) {
+          // 候補日から選ぶ行事: 候補日のうち誰がお仕事の日か（コードの文。どの日を希望するかは家族が決める）
+          const { head, rest } = optionText(c, household);
+          const docs = [c.child.doc, ...c.adults.map((a) => a.doc)].filter((d, i, xs) => xs.findIndex((x) => x.id === d.id) === i);
+          return (
+            <div className="card insight conflict" key={`options-${c.child.deadline.id}`}>
+              <div className="t">{head}</div>
+              {rest.map((r) => (
+                <div className="meta" key={r}>
+                  {r}
+                </div>
+              ))}
+              <div className="meta">
+                原本:{" "}
+                {docs.map((d, i) => (
+                  <span key={d.id}>
+                    {i > 0 && " ／ "}
+                    <Link href={`/documents/${d.id}`}>{shortDocName(d, household.members)}</Link>
+                  </span>
+                ))}
+              </div>
+              {tellLink}
+            </div>
+          );
+        }
         const shared = household.members.filter((m) => c.child.doc.sharedWith?.includes(m.id) && languageOf(m) !== "ja");
         const adultNames = c.adults.map((a) => names(a.deadline.memberIds));
         const notices = workNotices(c);
@@ -84,6 +124,11 @@ export function ConflictCards({ household, today, memberId }: { household: House
           </div>
         );
       })}
+      {more > 0 && (
+        <Link className="meta conflict-more" href="/schedule">
+          同じ日の気づき、ほか{more}件（予定で見る） ›
+        </Link>
+      )}
     </>
   );
 }

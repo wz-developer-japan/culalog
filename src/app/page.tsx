@@ -172,7 +172,7 @@ export default function Top() {
           </Link>
         ) : null;
       })()}
-      <ConflictCards household={h} today={today} />
+      <ConflictCards household={h} today={today} top />
 
       {nearest?.card ? (
         <Link className={`mini${nearest.overdue ? " over" : ""}`} href="/schedule" style={{ background: colorOf(h.members, nearest.memberIds) }}>

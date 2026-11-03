@@ -612,6 +612,15 @@ button.chip {
   margin: 0;
 }
 
+/* トップの同じ日の気づき「ほか○件」 */
+.conflict-more {
+  display: block;
+  margin: -4px 0 12px;
+  text-align: right;
+  color: var(--text);
+  text-decoration: underline;
+}
+
 .thinking {
   margin-bottom: 8px;
 }
