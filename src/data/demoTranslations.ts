@@ -101,12 +101,55 @@ const PREPARED: Prepared[] = [
     items: [
       { match: "クリスマス会", label: "Tiệc Giáng sinh lớp Risu", text: "Đưa bé đến lớp trước 9:15 (giờ đã sửa tay); tiệc từ 10:00 đến 10:45. Mang: một bộ quần áo thay, khăn." },
       { match: "訂正前", label: "Giờ đến lớp in trên giấy (trước khi sửa)", text: "Trước 9:30 (đã bị gạch hai đường)." },
+      { match: "訂正の日", label: "Ai sửa và khi nào", text: "Giáo viên chủ nhiệm lớp Risu sửa (ghi chú tay ở góc trên bên phải, có ghi ngày sửa)." },
       { match: "帽子", label: "Mũ", text: "Nhà trẻ chuẩn bị (không cần mang)." },
       { match: "来られない", label: "Nếu phụ huynh không đến được", text: "Bé vẫn tham gia. Không cần báo." },
       { match: "お迎え", label: "Đón bé", text: "Như mọi ngày." },
     ],
     background: [],
     checks: [],
+  },
+  {
+    titleIncludes: "親子ふれあいデー（保育参加）",
+    lang: "vi",
+    title: "Lớp Risu — Thông báo Ngày phụ huynh cùng con ở nhà trẻ",
+    what: "Thông báo trên ứng dụng liên lạc của nhà trẻ Koguma: ngày phụ huynh cùng bé lớp Risu (lớp của bé Yui) tham gia một phần sinh hoạt ở nhà trẻ.",
+    todo: "Hôm đó, phụ huynh và bé cùng đến nhà trẻ lúc 9:30 (khác giờ thường ngày). Thời khóa biểu và đồ mang theo có trong file đính kèm — hãy lưu file trước khi hết hạn đăng.",
+    items: [
+      { match: "親子ふれあいデー", label: "Ngày phụ huynh cùng con — lớp Risu", text: "Phụ huynh và bé cùng đến lớp (khác giờ thường ngày)." },
+      { match: "添付ファイル", label: "Lưu file đính kèm (thời khóa biểu cho phụ huynh)", text: "Sau ngày này, file không còn trên ứng dụng." },
+      { match: "集合の時刻", label: "Giờ đến", text: "9:30, phụ huynh và bé cùng đến (khác giờ thường ngày)." },
+      { match: "晴れか雨か", label: "Trời nắng hay mưa", text: "Khoảng 7 giờ sáng hôm đó, nhà trẻ báo trên ứng dụng là theo kế hoạch ngày nắng hay ngày mưa." },
+      { match: "添付ファイル", label: "File đính kèm", text: "Thời khóa biểu cho phụ huynh (PDF)." },
+    ],
+    background: [
+      {
+        title: "\"Hoiku sanka\" (phụ huynh tham gia sinh hoạt ở nhà trẻ) là gì?",
+        text: "Ở nhiều nhà trẻ Nhật, phụ huynh được mời vào lớp cùng con trong một buổi để xem và cùng tham gia sinh hoạt hằng ngày.",
+      },
+    ],
+    checks: ["Thông báo không ghi đồ mang theo. Hãy xem file đính kèm (thời khóa biểu)."],
+  },
+  {
+    titleIncludes: "一斉清掃",
+    lang: "vi",
+    title: "Hội khu phố Kuroudodai 1-chōme — Tổng vệ sinh mùa thu và trực điểm tập kết rác",
+    what: "Giấy thông báo luân phiên (kairanban) của hội khu phố: tổng vệ sinh mùa thu, và phiên trực điểm tập kết rác của tổ 4 (tổ 4 là tòa Kuroudodai Heights và 1-chōme số 2).",
+    todo: "Mỗi hộ cử ít nhất 1 người tham gia tổng vệ sinh. Nếu không tham gia được, báo cho tổ trưởng trước 1 ngày (có thể dùng phiếu báo vắng ở cuối giấy).",
+    items: [
+      { match: "一斉清掃", label: "Tổng vệ sinh mùa thu", text: "Tập trung ở công viên Kuroudodai 1-chōme trước 7:55. Mang: găng tay, chổi (túi rác và kẹp gắp do hội chuẩn bị)." },
+      { match: "参加できない", label: "Báo nếu không tham gia được (cho tổ trưởng)", text: "Trước 1 ngày. Có thể dùng phiếu báo vắng ở cuối giấy." },
+      { match: "ごみ集積所の当番", label: "Trực điểm tập kết rác (tổ 4)", text: "Sáng các ngày thu gom (thứ Hai, thứ Năm): dọn lưới và quét điểm tập kết. Thứ tự trực do tổ trưởng quyết định và sẽ báo sau." },
+      { match: "雨天", label: "Nếu trời mưa", text: "Làm vào Chủ nhật tuần sau, cùng giờ." },
+      { match: "4班の担当", label: "Chỗ tổ 4 phụ trách (hôm tổng vệ sinh)", text: "Điểm tập kết rác và rãnh thoát nước." },
+    ],
+    background: [
+      {
+        title: "Hội khu phố (chōnaikai) và giấy luân phiên (kairanban) là gì?",
+        text: "Ở Nhật, nhiều khu dân cư có hội khu phố. Thông báo thường được chuyền từ nhà này sang nhà khác bằng tấm bảng kẹp giấy (kairanban); đọc xong thì đóng dấu hoặc ký vào ô xác nhận rồi chuyển cho nhà tiếp theo.",
+      },
+    ],
+    checks: ["Giấy không ghi ngày cụ thể nhà mình trực rác. Thứ tự trực do tổ trưởng quyết định và sẽ báo sau."],
   },
   {
     titleIncludes: "ごみ",
@@ -164,6 +207,8 @@ const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
   { lang: "vi", match: "授業参観", text: "Dự giờ (phụ huynh đến xem lớp học)" },
   { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
   { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },
+  { lang: "vi", match: "一斉清掃", text: "Tổng vệ sinh khu phố" },
+  { lang: "vi", match: "親子ふれあいデー", text: "Ngày phụ huynh cùng con ở nhà trẻ" },
 ];
 
 export function provisionalLabel(label: string, lang: LanguageCode): string | undefined {

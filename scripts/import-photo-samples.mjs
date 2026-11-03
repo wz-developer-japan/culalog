@@ -14,7 +14,7 @@ if (!dir || !existsSync(dir)) {
   process.exit(1);
 }
 const prefixes = process.argv.slice(3);
-const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^[nkwhitmgpvrxjuzlyoq]\d/.test(id));
+const prefixOk = (id) => (prefixes.length ? prefixes.some((p) => id.startsWith(p)) : /^([nkwhitmgpvrxjuzlyoq]\d|f-)/.test(id));
 
 const baseDate = basename(dir);
 const outDir = join("public", "samples", baseDate);

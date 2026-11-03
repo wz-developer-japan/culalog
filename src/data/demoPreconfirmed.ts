@@ -44,6 +44,10 @@ const PRECONFIRMED: Record<string, string> = {
   // 保育園のうんどうかい（11/21 土）。家族みんなで行く行事なので、ぶつかりの気づきは出さない（書類としては預かっている）
   "photo-n5-undokai": "冷蔵庫の扉（磁石）",
   "photo-o7-risu-dayori": "本棚の保育園のファイル",
+  // 保育園の連絡アプリのお知らせ（11/19 木・親子で登園）。保護者が行くが「保育参加」なので、同じ日のぶつかりの気づきは出さない
+  "photo-n1-app-notice": "（保育園の連絡アプリ。スクショだけ）",
+  // 家族みんな（地域）: 町内会の回覧（一斉清掃 11/29 日・12月のごみ集積所の当番）
+  "photo-f-community-cleanup": "（回覧板。次の家へ回した。写真だけ）",
 };
 
 export const PRECONFIRMED_SAMPLE_IDS = new Set(Object.keys(PRECONFIRMED));
