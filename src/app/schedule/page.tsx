@@ -11,6 +11,7 @@ import { AskAnswer } from "@/components/AskAnswer";
 import { BackToTop } from "@/components/BackToTop";
 import { DeadlineCard, shortDate, Source } from "@/components/DeadlineCard";
 import { InsightCard } from "@/components/InsightCard";
+import { WeekStrip } from "@/components/WeekStrip";
 import { ButlerPic, Pic } from "@/components/Pics";
 import {
   buildCandidates,
@@ -98,6 +99,7 @@ export default function Schedule() {
     <main className="home">
       <BackToTop />
       <h1 className="pt">予定</h1>
+      {!(h.documents.length === 0 && candidates.length === 0) && <WeekStrip household={h} today={today} />}
 
       {empty ? (
         <div className="empty">

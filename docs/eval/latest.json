@@ -1,10 +1,10 @@
 {
-  "at": "2026-11-03 01:37 UTC",
+  "at": "2026-11-03 03:12 UTC",
   "model": "claude-opus-5-5",
   "claude": false,
   "overall": {
-    "hit": 1166,
-    "total": 1166
+    "hit": 1168,
+    "total": 1168
   },
   "perfect": 85,
   "byKey": {
@@ -76,14 +76,14 @@
     },
     "deadlineDate": {
       "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-      "hit": 107,
-      "total": 107,
+      "hit": 108,
+      "total": 108,
       "docs": 45
     },
     "deadlineKind": {
       "label": "予定の種類",
-      "hit": 107,
-      "total": 107,
+      "hit": 108,
+      "total": 108,
       "docs": 45
     },
     "bundle": {
@@ -2626,12 +2626,12 @@
     },
     {
       "id": "photo-o3b-gakunen-dayori",
-      "title": "3学年だより 第8号（11月号）（架空）",
+      "title": "3年生だより なかよし 第8号（11月）（架空）",
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8026,
-        "output": 3928
+        "input": 8824,
+        "output": 5729
       },
       "items": [
         {
@@ -2673,14 +2673,14 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 7,
-          "total": 7
+          "hit": 8,
+          "total": 8
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 7,
-          "total": 7
+          "hit": 8,
+          "total": 8
         },
         {
           "key": "deadlineExtra",

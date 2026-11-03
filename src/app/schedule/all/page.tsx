@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { Days, Source, shortDate } from "@/components/DeadlineCard";
 import { Pic } from "@/components/Pics";
 import { CalendarAll, CalendarButton } from "@/components/CalendarActions";
+import { dayAnchor } from "@/components/WeekStrip";
 import { calendarEventOf } from "@/lib/calendar";
 import { candidateOf, toggleDone } from "@/lib/butler";
 import { givenName } from "@/lib/whose";
@@ -41,12 +42,21 @@ export default function Schedule() {
   const finished = items.filter((i) => isDone(done, i));
   const pendingCount = h.documents.filter((d) => !d.confirmedAt).length;
 
-  const Row = ({ item }: { item: ActionItem }) => {
+  // 「向こう7日」の帯から、その日の最初の予定へ飛べるように
+  const firstOfDay = new Set<string>();
+  const seenDays = new Set<string>();
+  for (const i of upcoming) {
+    if (seenDays.has(i.deadline.date)) continue;
+    seenDays.add(i.deadline.date);
+    firstOfDay.add(i.deadline.id);
+  }
+
+  const Row = ({ item, anchor }: { item: ActionItem; anchor?: boolean }) => {
     const d = item.deadline;
     const finished = isDone(done, item);
     const c = candidateOf(item, isPast(i2(item)) && d.kind !== "event" && !finished);
     return (
-      <div className={`dcard${c.urgent && !finished && d.kind !== "after_event" ? " hot" : ""}`}>
+      <div id={anchor && firstOfDay.has(d.id) ? dayAnchor(d.date) : undefined} className={`dcard${c.urgent && !finished && d.kind !== "after_event" ? " hot" : ""}`}>
         <div className="pic">
           <Pic kind={item.document.category} />
         </div>
@@ -143,7 +153,7 @@ export default function Schedule() {
       {upcoming.length === 0 ? (
         <div className="calm-line">ありません。</div>
       ) : (
-        upcoming.map((i) => <Row key={i.deadline.id} item={i} />)
+        upcoming.map((i) => <Row key={i.deadline.id} item={i} anchor />)
       )}
 
       {afterEvent.length > 0 && (

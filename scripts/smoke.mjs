@@ -61,8 +61,17 @@ await step("Claude の答えでないものには「仮」と出ている（キ�
   if (!/仮/.test(body)) console.log("  （「仮」の表示なし。Claude のキーがある環境なら正常）");
 });
 
-await step("すべての予定に、これからの予定が並び、いつものカレンダーに入れられる（.ics・Google カレンダー。サーバーを通さない）", async () => {
-  await page.goto(BASE + "/schedule/all");
+await step("予定の画面の上に「向こう7日」の帯があり、押すとすべての予定のその日へ。すべての予定は、いつものカレンダーに入れられる（.ics・Google カレンダー。サーバーを通さない）", async () => {
+  await page.goto(BASE + "/schedule");
+  const days = page.locator(".week .wday");
+  await days.first().waitFor({ timeout: 15000 });
+  if ((await days.count()) !== 7) throw new Error(`向こう7日の帯が${await days.count()}日分です`);
+  if (!/今日/.test(await days.first().innerText())) throw new Error("帯の最初が今日になっていません");
+  const excursion = page.locator(".week .wday.has").filter({ hasText: "遠足" }).first();
+  if (!/11\/9[\s\S]*1件[\s\S]*遠足[\s\S]*蓮/.test(await excursion.innerText())) throw new Error(`帯の遠足の日: ${await excursion.innerText()}`);
+  await excursion.click();
+  await page.waitForURL(/\/schedule\/all#day-2026-11-09/, { timeout: 15000 });
+  await page.locator("#day-2026-11-09").filter({ hasText: "遠足" }).waitFor({ timeout: 15000 });
   await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
   const [download] = await Promise.all([
     page.waitForEvent("download", { timeout: 15000 }),
