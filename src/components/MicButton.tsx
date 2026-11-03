@@ -4,7 +4,7 @@
 // 初めて押したときは、声がどこへ行くかの正直な一言を出してから始める。対応していないブラウザーではボタンを出さず、案内だけ。
 
 import { useEffect, useRef, useState } from "react";
-import { markVoiceNoticeSeen, onVoiceLog, speechInputSupported, startListening, VOICE_NOTICE, voiceLog, voiceNoticeSeen } from "@/lib/voice";
+import { markVoiceNoticeSeen, onVoiceLog, speechInputSupported, startListening, VOICE_NOTICE, voiceLog, voiceNote, voiceNoticeSeen } from "@/lib/voice";
 
 export function MicButton({ value, onChange }: { value: string; onChange: (text: string) => void }) {
   const [supported, setSupported] = useState<boolean | null>(null);
@@ -27,6 +27,13 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
     };
   }, []);
 
+  // 手がかり: 入力欄の文字数が変わったら記録（頼んだあとに文字が戻る、の切り分け用。文字そのものは残さない）
+  const lastLength = useRef(-1);
+  useEffect(() => {
+    if (lastLength.current !== -1 && lastLength.current !== value.length && !listening) voiceNote(`入力欄: ${lastLength.current}→${value.length}文字`);
+    lastLength.current = value.length;
+  }, [value, listening]);
+
   if (supported === null) return null;
   if (!supported) {
     return <p className="meta">このブラウザーでは声の入力ボタンが使えません。キーボードの音声入力（マイクの印）で話すこともできます。</p>;
@@ -38,7 +45,10 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
     base.current = value.trim() ? `${value.trim()} ` : "";
     setListening(true);
     stop.current = startListening({
-      onText: (text) => onChange(`${base.current}${text}`.slice(0, 200)),
+      onText: (text) => {
+        voiceNote(`入力欄に書いた（${text.length}文字）`);
+        onChange(`${base.current}${text}`.slice(0, 200));
+      },
       onEnd: () => {
         setListening(false);
         stop.current = null;
