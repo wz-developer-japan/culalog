@@ -16,7 +16,7 @@ import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import { inboxProgress } from "@/lib/inbox";
 import { importantNumbers } from "@/lib/numbers";
 import type { Household } from "@/lib/types";
-import { pendingAsks, unseenReports, useAskQueue } from "@/lib/useAsk";
+import { pendingAsks, unseenReports } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
 import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
@@ -32,7 +32,6 @@ export default function Top() {
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
   useConnect(household, update);
   // 頼んで、あとで報告: 答えの無い頼みごとがあれば、この画面を開いているあいだに調べて保存する
-  useAskQueue(household, update);
   // まとめて渡した書類: この画面を開いているあいだに、執事が1枚ずつ読む
   useInboxQueue(household, update);
 

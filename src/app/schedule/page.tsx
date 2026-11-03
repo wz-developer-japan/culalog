@@ -28,7 +28,7 @@ import { adoptInsight, answerInsight } from "@/lib/connect";
 import { allItems, isDone } from "@/lib/deadlines";
 import { inboxProgress } from "@/lib/inbox";
 import type { Household } from "@/lib/types";
-import { markAskSeen, pendingAsks, unseenReports, useAskQueue } from "@/lib/useAsk";
+import { markAskSeen, pendingAsks, unseenReports } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
 import { useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
@@ -39,7 +39,6 @@ export default function Schedule() {
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
   const { result: connect, status } = useConnect(household, update);
   // 頼んで、あとで報告: 答えの無い頼みごとがあれば、この画面を開いているあいだに調べて保存する
-  useAskQueue(household, update);
   // まとめて渡した書類: この画面を開いているあいだに、執事が1枚ずつ読む
   useInboxQueue(household, update);
 

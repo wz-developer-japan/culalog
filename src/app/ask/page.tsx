@@ -15,7 +15,7 @@ import { NumberAnswerCard } from "@/components/NumberAnswerCard";
 import { askRecords, documentsForAsk } from "@/lib/ask";
 import { butlerName } from "@/lib/character";
 import type { Household } from "@/lib/types";
-import { addAsk, useAskQueue } from "@/lib/useAsk";
+import { addAsk } from "@/lib/useAsk";
 import { useHousehold } from "@/lib/useHousehold";
 
 const SUGGESTIONS = [
@@ -31,7 +31,6 @@ function AskPage() {
   const router = useRouter();
   const { household, loaded, update } = useHousehold();
   const [question, setQuestion] = useState("");
-  useAskQueue(household, update);
 
   useEffect(() => {
     if (loaded && !household) router.replace("/");

@@ -12,6 +12,7 @@ import { parseDate, toYmd } from "./deadlines";
 import { findQuote } from "./highlight";
 import { maskKnownNumbers, type NumberAnswer } from "./numbers";
 import type { Contact, DocumentRecord, Household } from "./types";
+import { interruptedError, wasHiddenSince } from "./visibility";
 
 export interface AskInput {
   today: string;
@@ -454,6 +455,7 @@ export async function runAsk(household: Household, question: string, style: stri
     const r = provisionalAsk(household, question);
     return reason ? { ...r, withheld: undefined, fallbackReason: reason } : r;
   };
+  const started = Date.now();
   try {
     const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input), signal });
     if (res.status === 503) return provisional();
@@ -466,6 +468,8 @@ export async function runAsk(household: Household, question: string, style: stri
     return provisional(body?.error ? `執事につながらなかったため（${body.error}）` : "執事につながらなかったため");
   } catch (e) {
     if ((e as Error).name === "AbortError") throw e;
+    // スマホで裏に回っていた間に通信が止められたときは、仮の答えにせず、戻ったら続きから調べる
+    if (wasHiddenSince(started)) throw interruptedError();
     return provisional("通信できなかったため");
   }
 }

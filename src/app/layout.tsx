@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AskRunner } from "@/components/AskRunner";
 import { TabBar } from "@/components/TabBar";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <TabBar />
+        <AskRunner />
       </body>
     </html>
   );

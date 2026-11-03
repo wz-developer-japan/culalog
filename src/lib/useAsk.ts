@@ -1,15 +1,18 @@
 "use client";
 
 // 「頼んで、あとで報告」。
-// 頼んだことは端末にすぐ保存し、答えはあとから付ける。この hook が付いている画面（ホーム・聞く）を開いているあいだに、
-// 答えの無い頼みごとを1つずつ調べて保存する。画面を閉じると途中の調べは止め、次に開いた画面が調べ直す。
+// 頼んだことは端末にすぐ保存し、答えはあとから付ける。この hook はどの画面にも付いている係（AskRunner）が使い、
+// アプリを開いているあいだは、画面を移っても答えの無い頼みごとを1つずつ調べて保存する。
+// アプリを閉じる・裏に回る（ほかのアプリ・ホーム画面・画面を消す）と途中で止まることがあり、そのときは答えにせず、
+// 戻ったときに続きから調べ直す（「つながらなかった」の仮の答えで埋めない）。
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type AskRecord, askRecords, runAsk } from "./ask";
 import { characterOf } from "./character";
 import { answerNumberQuestion } from "./numbers";
 import type { Household } from "./types";
 import { newId } from "./useHousehold";
+import { isHidden } from "./visibility";
 
 /**
  * 頼みごとを足す（答えはあとで）。
@@ -43,9 +46,18 @@ export function unseenReports(household: Household): AskRecord[] {
 export function useAskQueue(household: Household | null, update: (change: (current: Household) => Household) => Promise<void>) {
   const running = useRef<{ id: string; controller: AbortController } | null>(null);
   const pendingId = household ? (pendingAsks(household)[0]?.id ?? "") : "";
+  // 画面に戻ったら、止まっていた頼みごとを続きから調べる
+  const [visibleTick, setVisibleTick] = useState(0);
+  useEffect(() => {
+    const onChange = () => {
+      if (!isHidden()) setVisibleTick((t) => t + 1);
+    };
+    document.addEventListener("visibilitychange", onChange);
+    return () => document.removeEventListener("visibilitychange", onChange);
+  }, []);
 
   useEffect(() => {
-    if (!household || !pendingId || running.current) return;
+    if (!household || !pendingId || running.current || isHidden()) return;
     const record = pendingAsks(household)[0];
     const controller = new AbortController();
     running.current = { id: record.id, controller };
@@ -57,14 +69,14 @@ export function useAskQueue(household: Household | null, update: (change: (curre
           asks: askRecords(current).map((a) => (a.id === record.id ? { ...a, result } : a)),
         }));
       } catch {
-        // 画面を閉じた（中断）。次に開いた画面が調べ直す
+        // アプリを閉じた・裏に回って止まった。戻ったとき（visibleTick）か、次に開いたときに調べ直す
       } finally {
         if (running.current?.id === record.id) running.current = null;
       }
     })();
     // household は pendingId で代表させる（答えを保存するたびに調べ直さないため）
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingId]);
+  }, [pendingId, visibleTick]);
 
   useEffect(() => () => running.current?.controller.abort(), []);
 }
