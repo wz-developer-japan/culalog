@@ -88,6 +88,25 @@ await step("けがの頼みごとで、学校のお知らせと傷害保険の�
   await card.scrollIntoViewIfNeeded();
 });
 
+await step("「覚えておいて」と話すと予定の案が出て、確定するとすべての予定に入る（原本の場所は「あなたが話したこと」）", async () => {
+  await page.goto(BASE + "/ask");
+  await page.locator("textarea").fill("写真編集ソフトのサブスク、年に1回しか解約できない。次は来年の3月。その前に教えて");
+  await page.getByRole("button", { name: /に頼む$/ }).click();
+  const card = page.locator(".card.remember").first();
+  await card.waitFor({ timeout: 90000 });
+  const text = await card.innerText();
+  if (!/2027年3月1日/.test(text)) throw new Error(`案の日付が来年の3月になっていません: ${text.slice(0, 120)}`);
+  if (!/1か月前/.test(text)) throw new Error("いつから知らせるか（1か月前）が出ていません");
+  await card.getByRole("button", { name: "覚えておく（確定）" }).click();
+  await see("覚えました");
+  await page.goto(BASE + "/schedule/all");
+  await see("これから");
+  const row = page.locator(".dcard").filter({ hasText: "写真編集ソフト" });
+  if ((await row.count()) !== 1) throw new Error(`すべての予定に話した予定が${await row.count()}件あります`);
+  await row.first().getByText("原本").first().click();
+  await see("あなたが話したこと");
+});
+
 await step("頼んだことが予定の画面の報告に残る", async () => {
   await page.goto(BASE + "/schedule");
   await page.locator("h2", { hasText: "からの報告" }).waitFor({ timeout: 15000 });

@@ -25,6 +25,7 @@ const SUGGESTIONS = [
   "蓮が学校でけがをした。保険の条件と連絡先を調べておいて",
   "病院に持っていくものは？",
   "火災保険の証券番号は？",
+  "写真編集ソフトのサブスク、年に1回しか解約できない。次は来年の3月。その前に教えて",
 ];
 
 function AskPage() {
@@ -61,9 +62,12 @@ function AskPage() {
         答えには、どの書類のどこに書いてあるかを必ず添えます。書類に書いていないことは「書いていません」と言います。
         頼んだら画面を閉じても大丈夫です。答えは「予定」の「{name}からの報告」に残ります。
       </p>
+      <p className="lead">
+        書類が無いことも、話すだけで覚えます（例: 「○○のサブスク、次に解約できるのは3月。その前に教えて」）。{name}が予定の案を作り、あなたが確定したら、締切の前からお知らせします。
+      </p>
 
       <label className="label">
-        聞きたいこと・調べておいてほしいこと
+        聞きたいこと・調べておいてほしいこと・覚えておいてほしいこと
         <textarea
           className="input"
           rows={2}
@@ -73,17 +77,17 @@ function AskPage() {
           placeholder="例: 冬休みはいつからいつまで？"
         />
       </label>
-      <button className="button" disabled={!question.trim() || docs.length === 0} onClick={() => ask(question)}>
+      <button className="button" disabled={!question.trim()} onClick={() => ask(question)}>
         {name}に頼む
       </button>
       <div className="chips" style={{ marginTop: 10 }}>
         {SUGGESTIONS.map((s) => (
-          <button key={s} className="chip" disabled={docs.length === 0} onClick={() => ask(s)}>
+          <button key={s} className="chip" onClick={() => ask(s)}>
             {s}
           </button>
         ))}
       </div>
-      {docs.length === 0 && <p className="note">確定した書類がまだありません。書類を登録して、原本と見比べて確定すると聞けるようになります。</p>}
+      {docs.length === 0 && <p className="note">確定した書類がまだありません。書類について聞けるのは、書類を登録して原本と見比べて確定してからです（覚えておいてほしいことは、今でも話せます）。</p>}
       <p className="note">
         聞くときだけ、確定した書類の中身（証券番号などの番号は伏せ、電話番号は送りません）と質問を Claude API に送ります。このアプリのサーバーには残しません。
         「○○の番号は？」「○○持ってる？」は Claude に送らず、この端末の中で確定した書類から探してすぐ答えます。

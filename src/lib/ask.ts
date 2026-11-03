@@ -13,6 +13,7 @@ import { findQuote } from "./highlight";
 import { maskKnownNumbers, type NumberAnswer } from "./numbers";
 import type { Contact, DocumentRecord, Household } from "./types";
 import { interruptedError, wasHiddenSince } from "./visibility";
+import { provisionalRemember, type RememberDraft, rememberMessage, verifyRemember } from "./remember";
 
 export interface AskInput {
   today: string;
@@ -47,8 +48,10 @@ const str = { type: "string" } as const;
 export const ASK_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["found", "answer", "citations", "relatedDocumentIds"],
+  required: ["intent", "found", "answer", "citations", "relatedDocumentIds", "remember"],
   properties: {
+    /** 質問（question）か、覚えておいて・知らせてほしいこと（remember）か */
+    intent: { type: "string", enum: ["question", "remember"] },
     /** 書類に答えが書いてあるか。書いていなければ false（answer には、何が書いていないかだけ） */
     found: { type: "boolean" },
     answer: str,
@@ -63,6 +66,20 @@ export const ASK_SCHEMA = {
     },
     /** 質問に関係する書類（書いていないとき、問い合わせ先を出すため） */
     relatedDocumentIds: { type: "array", items: str },
+    /** intent が remember のときの、覚える予定の案。question のときは中をすべて空にする */
+    remember: {
+      type: "object",
+      additionalProperties: false,
+      required: ["label", "date", "endDate", "kind", "memberIds", "category"],
+      properties: {
+        label: str,
+        date: str,
+        endDate: str,
+        kind: { type: "string", enum: ["", "expiry", "window", "notice", "cancel_window", "after_event", "event", "due"] },
+        memberIds: { type: "array", items: str },
+        category: { type: "string", enum: ["", "school", "childcare", "housing", "insurance", "vehicle", "medical_card", "care", "license", "subscription", "work", "community", "medical", "other"] },
+      },
+    },
   },
 } as const;
 
@@ -139,6 +156,10 @@ export interface AskRecord {
   numberAnswer?: NumberAnswer;
   /** 報告をホームで「見た」にした日時 */
   seenAt?: string;
+  /** 覚える案を確定して作った「話しただけの予定」の書類 */
+  rememberedDocumentId?: string;
+  /** 覚える案を「覚えない」にした */
+  rememberDismissed?: boolean;
 }
 
 export interface AskResult {
@@ -156,6 +177,8 @@ export interface AskResult {
   withheld?: string;
   /** 仮の答え（検索）になった理由。Claude の準備中のときは無し */
   fallbackReason?: string;
+  /** 質問ではなく「覚えておいて」だったとき: 覚える予定の案（確定するまで予定に入らない） */
+  remember?: RememberDraft;
   createdAt: string;
 }
 
@@ -191,7 +214,14 @@ function contactsOf(docs: DocumentRecord[]): AskResult["contacts"] {
 /** Claude の答えを確かめて、画面に出せる形にする（形が違えば null） */
 export function verifyAsk(raw: unknown, household: Household, question: string): AskResult | null {
   if (!raw || typeof raw !== "object") return null;
-  const v = raw as { found?: unknown; answer?: unknown; citations?: unknown; relatedDocumentIds?: unknown };
+  const v = raw as { intent?: unknown; found?: unknown; answer?: unknown; citations?: unknown; relatedDocumentIds?: unknown; remember?: unknown };
+  // 覚えておいて、のとき: 案はコードで確かめ、確認の一言もコードが作る（いつから知らせるかの計算はコード）
+  if (v.intent === "remember") {
+    const draft = verifyRemember(v.remember, household, question, now());
+    const base = { source: "claude" as const, question, citations: [], contacts: [], dropped: 0, createdAt: new Date().toISOString() };
+    if (!draft) return { ...base, found: false, answer: "", withheld: "覚える予定の日付を読み取れませんでした。いつのことか（例: 3月、12月10日）を入れて、もう一度話してください。" };
+    return { ...base, found: true, answer: rememberMessage(draft, now()), remember: draft };
+  }
   if (typeof v.answer !== "string" || !Array.isArray(v.citations)) return null;
   const s = (x: unknown) => (typeof x === "string" ? x.trim() : "");
   const docs = documentsForAsk(household);
@@ -327,6 +357,11 @@ function isEmptyLine(line: string, title: string): boolean {
  * - 抜き書きが短すぎる（「冬休み」だけなど）ときは、原本のそれを含む行を見せる
  */
 export function provisionalAsk(household: Household, question: string): AskResult {
+  // 覚えておいて、のとき（決まった言い回しと「○月（○日）」だけを読む仮の案）
+  const draft = provisionalRemember(household, question, now());
+  if (draft) {
+    return { source: "provisional", question, found: true, answer: rememberMessage(draft, now()), citations: [], contacts: [], dropped: 0, remember: draft, createdAt: new Date().toISOString() };
+  }
   const docs = documentsForAsk(household);
   const words = keywordsOf(question);
   // 書類のどこにも無い言葉（「条件」など）は、言い換えの言葉（「対象」「範囲」）を同じ重さで探す

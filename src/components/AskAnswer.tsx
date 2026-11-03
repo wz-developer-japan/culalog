@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import type { AskRecord } from "@/lib/ask";
+import { RememberCard } from "./RememberCard";
 
 const stampOf = (iso: string) => {
   const d = new Date(iso);
@@ -36,6 +37,8 @@ export function AskAnswer({
       </div>
     );
   }
+  // 「覚えておいて」と話したとき: 予定の案（確定はあなた）
+  if (result.remember) return <RememberCard record={record} butler={butler} compact={compact} />;
   const unknown = !result.found;
   const citations = compact ? result.citations.slice(0, 2) : result.citations;
   const more = result.citations.length - citations.length;

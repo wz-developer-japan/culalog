@@ -278,7 +278,7 @@ export default function DocumentDetail() {
           onToggle={(e) => setTextOpen((e.currentTarget as HTMLDetailsElement).open)}
         >
           <summary>
-            {doc.origin === "text" ? "原本（貼り付けた文字）" : "原本の文字"}
+            {doc.origin === "text" ? "原本（貼り付けた文字）" : doc.origin === "conversation" ? "原本（あなたが話したこと）" : "原本の文字"}
             {doc.origin === "demo" && "（架空の書類）"}
             {marks.length > 0 && "・黄色は読み取った場所"}
           </summary>

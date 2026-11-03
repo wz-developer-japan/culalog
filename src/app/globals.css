@@ -1586,3 +1586,13 @@ h2.sec .more {
   background: var(--accent);
   color: var(--accent-text);
 }
+
+/* 話したことを覚える案: 日付を2つ横に並べる */
+.row-2 {
+  display: flex;
+  gap: 10px;
+}
+.row-2 > .label {
+  flex: 1;
+  min-width: 0;
+}
