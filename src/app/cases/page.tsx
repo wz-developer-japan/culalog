@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BackToTop } from "@/components/BackToTop";
-import { faceBackground, MemberFace } from "@/components/MemberFace";
+import { faceStyle, MemberFace } from "@/components/MemberFace";
 import { type CaseDoc, defaultInjuryMember, runCase, SCENES, type SceneId } from "@/lib/cases";
 import { useHousehold } from "@/lib/useHousehold";
 import { givenName } from "@/lib/whose";
@@ -94,7 +94,7 @@ export default function Cases() {
         <div className="chips" role="group" aria-label="誰のけが？">
           {household.members.map((m) => (
             <button key={m.id} className={`chip${memberId === m.id ? " selected" : ""}`} aria-pressed={memberId === m.id} onClick={() => setMember(m.id)}>
-              <span className="member-dot" style={{ background: faceBackground(household.members, m) }} aria-hidden>
+              <span className="member-dot" style={faceStyle(household.members, m)} aria-hidden>
                 <MemberFace members={household.members} member={m} />
               </span>
               {givenName(m.name)}

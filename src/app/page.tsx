@@ -5,6 +5,9 @@
 // ここから全部の場所に行けて、どの画面からも左上の「‹ トップ」と下のタブで1回で戻れる。
 // 日付の計算はコード（lib/butler・lib/deadlines）。ここは見せ方と入口だけ。
 
+import { MenuIcon } from "@/components/GroupIcon";
+import { givenName } from "@/lib/whose";
+import { colorOf } from "@/lib/personColor";
 import { ButlerFace } from "@/components/ButlerFace";
 import Link from "next/link";
 import { now, useTodayOffset } from "@/lib/clock";
@@ -135,7 +138,7 @@ export default function Top() {
       <FamilyRow members={h.members} />
 
       {nearest?.card ? (
-        <Link className={`mini${nearest.overdue ? " over" : ""}`} href="/schedule">
+        <Link className={`mini${nearest.overdue ? " over" : ""}`} href="/schedule" style={{ background: colorOf(h.members, nearest.memberIds) }}>
           <div className="n">
             {nearest.overdue ? (
               <>
@@ -156,6 +159,7 @@ export default function Top() {
           <div className="body">
             <div className="t">{nearest.card.label}</div>
             <div className="s">
+              {nearest.memberIds.length === 1 ? `${givenName(nameOf(nearest.memberIds[0]))}・` : "みんな・"}
               {nearest.overdue ? "期限切れ・" : "いちばん近い締切・"}
               {nearest.card.date.slice(5).replace("-", "/")}
               {nearest.card.time && ` ${nearest.card.time}`}
@@ -207,7 +211,7 @@ export default function Top() {
         {MENU.map((m) => (
           <Link key={m.kind} className="mi" href={m.href}>
             {m.dot ? <span className="dot">{m.dot}</span> : null}
-            <MenuPic kind={m.kind} />
+            <MenuIcon kind={m.kind as "schedule" | "documents" | "numbers" | "cases"} />
             <b>{m.label}</b>
             <small>{m.sub}</small>
           </Link>

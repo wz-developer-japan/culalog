@@ -86,7 +86,13 @@ export function DeadlineCard({
   voice,
   sample,
   onDone,
+  color,
+  who,
 }: {
+  /** その予定の人の色（色は「誰のことか」だけに使う）。色だけに頼らないよう who も一緒に出す */
+  color?: string;
+  /** 誰の予定か（名前） */
+  who?: string;
   c: Candidate;
   /** ひとことの1件として出すとき */
   item?: BriefingItem;
@@ -100,7 +106,7 @@ export function DeadlineCard({
 }) {
   const kind: PicKind = c.type === "missing" ? "missing" : (c.card?.category ?? "other");
   return (
-    <div className={`dcard${hot ? " hot" : ""}${item ? " briefing-item" : ""}`}>
+    <div className={`dcard${hot ? " hot" : ""}${item ? " briefing-item" : ""}${color ? " colored" : ""}`} style={color ? { background: color } : undefined}>
       <div className="pic">
         <Pic kind={kind} />
       </div>
@@ -114,6 +120,7 @@ export function DeadlineCard({
         {c.detail && <div className="sub">{c.detail}</div>}
         {c.why && <Why text={c.why} clamp={c.type === "missing"} />}
         <div className="m">
+          {who && <span className="tag who">{who}</span>}
           {c.card && (
             <span className="tag mut">
               {shortDate(c.card.date)}

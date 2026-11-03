@@ -43,6 +43,16 @@
   --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.18);
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
   /* 角丸（見た目の作り直しでは、ここを変えれば全体が変わる） */
+  /* 人の色（色は「誰のことか」だけに使う。lib/personColor.ts） */
+  --p-lime: #d9f56b;
+  --p-lavender: #d9d3ff;
+  --p-peach: #ffd5bf;
+  --p-sky: #c9e6ff;
+  --p-mint: #cdf2df;
+  --p-butter: #ffe9a8;
+  --p-butler: var(--p-lavender);
+  --ink: var(--text);
+  --on-ink: #ffffff;
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -2205,3 +2215,5 @@ details.timeshift[open] {
 .card-foot > span:not(.ptag) {
   flex: 1;
 }
+
+.hero-label { display: none; }

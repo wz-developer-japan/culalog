@@ -12,7 +12,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { DeadlineCard } from "@/components/DeadlineCard";
 import { AvatarPicker } from "@/components/AvatarPicker";
 import { FamilyRow } from "@/components/FamilyRow";
-import { faceBackground, MemberFace } from "@/components/MemberFace";
+import { faceStyle, MemberFace } from "@/components/MemberFace";
 import { NumbersList } from "@/components/NumbersList";
 import { Pic } from "@/components/Pics";
 import { buildCandidates, toggleDone } from "@/lib/butler";
@@ -97,7 +97,7 @@ export default function FamilyPage() {
       <div className="who">
         {member ? (
           <button className="av-button" onClick={() => setPicking(!picking)} aria-label="アイコンを変える" aria-expanded={picking}>
-            <b className="av" style={{ background: faceBackground(h.members, member) }}>
+            <b className="av" style={faceStyle(h.members, member)}>
               <MemberFace members={h.members} member={member} />
             </b>
             <span className="pen" aria-hidden>

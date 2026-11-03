@@ -8,10 +8,12 @@ import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Info } from "@/components/Info";
-import { faceBackground, MemberFace } from "@/components/MemberFace";
+import { faceStyle, MemberFace } from "@/components/MemberFace";
 import { inboxProgress } from "@/lib/inbox";
 import { importantNumbers } from "@/lib/numbers";
-import { ButlerPic, Pic } from "@/components/Pics";
+import { ButlerPic } from "@/components/Pics";
+import { GroupIcon } from "@/components/GroupIcon";
+import { WhoDot } from "@/components/WhoDot";
 import { type Group, GROUPS, groupsOf } from "@/lib/labels";
 import type { DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -110,7 +112,7 @@ export default function Documents() {
               {people.map((m) => {
                 return (
                   <button key={m.id} className={`chip${member === m.id ? " selected" : ""}`} onClick={() => setMember(member === m.id ? "" : m.id)}>
-                    <span className="member-dot" style={{ background: faceBackground(household.members, m) }} aria-hidden>
+                    <span className="member-dot" style={faceStyle(household.members, m)} aria-hidden>
                       <MemberFace members={household.members} member={m} />
                     </span>
                     {m.name.split(/\s+/).pop()}
@@ -147,8 +149,8 @@ export default function Documents() {
       ) : (
         docs.map((d) => (
           <Link className="dcard row-link" key={d.id} href={`/documents/${d.id}`}>
-            <div className="pic">
-              <Pic kind={d.category} />
+            <div className="pic gpic">
+              <GroupIcon group={groupsOf(d)[0]} />
             </div>
             <div className="body">
               <div className="t wrap">{d.title}</div>
@@ -158,6 +160,7 @@ export default function Documents() {
                 <span className="tag mut">{d.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, d)}</span>
               </div>
             </div>
+            {!d.notForFamily && <WhoDot members={household.members} ids={d.memberIds} />}
           </Link>
         ))
       )}

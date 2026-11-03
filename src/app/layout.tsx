@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { AskRunner } from "@/components/AskRunner";
 import { TabBar } from "@/components/TabBar";
 import "./globals.css";
+// 見た目 B「Bento Pop」。消すと globals.css のオレンジに戻る
+import "./theme-b.css";
 
 export const metadata: Metadata = {
   title: "CULALOG（クラログ）",
@@ -14,9 +16,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  // 背景は白で固定（ダークモードでも暗くしない）
-  colorScheme: "light",
-  themeColor: "#ffffff",
+  // B「Bento Pop」はダークモードにも合わせる
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&family=Noto+Sans+JP:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Zen+Maru+Gothic:wght@700&family=Noto+Sans+JP:wght@400;700&display=swap"
         />
       </head>
       <body>

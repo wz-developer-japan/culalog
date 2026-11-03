@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { effectOf } from "@/lib/butler";
-import { faceBackground, MemberFace } from "@/components/MemberFace";
+import { faceStyle, MemberFace } from "@/components/MemberFace";
 import type { ButlerQuestion, DocumentRecord, FamilyMember } from "@/lib/types";
 
 export function QuestionCard({
@@ -34,7 +34,7 @@ export function QuestionCard({
   const Dot = ({ value }: { value: string }) => {
     const member = question.about === "members" ? members.find((m) => m.id === value) : undefined;
     return member ? (
-      <span className="member-dot" style={{ background: faceBackground(members, member) }} aria-hidden>
+      <span className="member-dot" style={faceStyle(members, member)} aria-hidden>
         <MemberFace members={members} member={member} />
       </span>
     ) : null;

@@ -1,0 +1,557 @@
+/* ============================================================
+   見た目 B「Bento Pop」（11/3 よしふみが選んだもの）
+   🔴 かたまりごとに境界をはっきり: 白地に白いカードを影で浮かせない。区画は色の面・グレーの面・黒い枠のどれかで囲む
+   🔴 パステルの色は「誰のことか」だけ（lib/personColor.ts）。入口・書類の分類はグレーの面＋黒のアイコン
+   戻すとき: layout.tsx の import "./theme-b.css" を消せば、globals.css のオレンジ（戻す用の値）に戻る
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --surface: #f3f3f1; /* グレーの面 */
+  --soft: #f3f3f1;
+  --text: #111111;
+  --muted: #5e5e5e;
+  --ink: #111111; /* 墨: 文字・線・主ボタン */
+  --on-ink: #ffffff;
+  --accent: var(--ink);
+  --accent-2: var(--ink);
+  --accent-ink: var(--ink);
+  --accent-text: var(--on-ink);
+  --accent-soft: var(--surface);
+  --border: #e2e2de;
+  --border-strong: #cfcfca;
+  --on-pastel: #111111; /* パステルの面の上の文字（ダークでも #111） */
+  --pastel-muted: rgba(17, 17, 17, 0.68);
+  --display: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --body: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --shadow: none;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --gutter: 20px;
+  --pad: 18px;
+  --gap: 10px;
+  --tabbar-bg: #111111;
+  --tabbar-fg: #a8a8a8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --soft: #1e1e1e;
+    --text: #f5f5f5;
+    --muted: #a3a3a3;
+    --ink: #f5f5f5;
+    --on-ink: #111111;
+    --border: #2c2c2c;
+    --border-strong: #3a3a3a;
+    --p-lime: #bfe04a;
+    --p-lavender: #b9aeff;
+    --p-peach: #ffb68f;
+    --p-sky: #9ecbff;
+    --p-mint: #9fe3bf;
+    --p-butter: #ffd970;
+    --tabbar-bg: #000000;
+    --note-bg: #2a2620;
+    --note: #d8c9b3;
+    --alert-bg: #3a1f1a;
+    --ok-bg: #16301f;
+    --unknown-bg: #1b2533;
+    --unknown: #9ec0ea;
+  }
+}
+
+/* ---------- 地・書体 ---------- */
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 700;
+}
+main {
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+h1,
+h2,
+.greet h1 {
+  font-family: var(--display);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+.meta,
+.note,
+.sub,
+.calm-line,
+.lead {
+  font-weight: 500;
+}
+
+/* ---------- かたまり: グレーの面・影なし ---------- */
+.card,
+.dcard {
+  background: var(--surface);
+  box-shadow: none;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--pad);
+  margin-bottom: var(--gap);
+}
+.dcard {
+  padding: 14px;
+}
+.dcard.hot {
+  box-shadow: inset 0 0 0 2.5px var(--alert);
+}
+/* その人の色の面（予定のカード） */
+.dcard.colored,
+.dcard.colored .t,
+.dcard.colored .voice {
+  color: var(--on-pastel);
+}
+.dcard.colored .sub,
+.dcard.colored .meta,
+.dcard.colored .why {
+  color: var(--pastel-muted);
+}
+.dcard .pic {
+  background: color-mix(in srgb, #ffffff 70%, transparent);
+  border-radius: var(--radius-sm);
+}
+.dcard .pic.gpic {
+  background: var(--bg);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+}
+/* 執事の話す面（気づいたこと）は執事の色 */
+.card.insight {
+  background: var(--p-butler);
+  color: var(--on-pastel);
+  border: none;
+}
+.card.insight .meta,
+.card.insight a {
+  color: var(--pastel-muted);
+}
+.insight-text {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---------- ボタン・チップ・札 ---------- */
+.button {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+  font-weight: 700;
+}
+.button.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: none;
+  font-weight: 700;
+}
+.card.insight .button.secondary,
+.dcard.colored .button.secondary {
+  background: color-mix(in srgb, #ffffff 65%, transparent);
+  color: var(--on-pastel);
+}
+.card.insight .button:not(.secondary) {
+  background: #111111;
+  color: #ffffff;
+}
+.chip {
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+.chip.selected {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-color: transparent;
+}
+.tag {
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+.dcard.colored .tag,
+.hero .tag,
+.mini .tag {
+  background: #ffffff;
+  color: #111111;
+}
+/* 原本は枠線のチップ */
+.tag.src,
+.dcard.colored .tag.src,
+.hero .tag.src {
+  background: transparent;
+  color: inherit;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.dcard.colored .tag.warn {
+  background: #ffffff;
+  color: var(--alert);
+}
+.input {
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 2px solid var(--border-strong);
+  color: var(--text);
+}
+label.search .input {
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+}
+label.search svg {
+  stroke: var(--ink);
+}
+
+/* ---------- 押せる印: 右上に黒の丸＋白の斜め矢印 ---------- */
+.go-arrow,
+.mi::after,
+.link-row > span[aria-hidden],
+.ask .go::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ink)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 16 16 8M9.5 8H16v6.5'/%3E%3C/svg%3E")
+    center / 16px no-repeat;
+  flex: none;
+}
+@media (prefers-color-scheme: dark) {
+  .go-arrow,
+  .mi::after,
+  .link-row > span[aria-hidden] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111111' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 16 16 8M9.5 8H16v6.5'/%3E%3C/svg%3E");
+  }
+}
+.link-row > span[aria-hidden] {
+  font-size: 0;
+  color: transparent;
+}
+.link-row {
+  background: var(--surface);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px 14px 14px var(--pad);
+  margin-bottom: var(--gap);
+}
+.link-row.subtle {
+  border: none;
+  margin-top: var(--gap);
+  font-weight: 700;
+}
+
+/* ---------- トップ: 挨拶・入口 ---------- */
+.greet .d {
+  font-weight: 500;
+}
+.menu.four {
+  gap: var(--gap);
+}
+.mi {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  align-items: flex-start;
+  text-align: left;
+  padding: 16px 16px 14px;
+  min-height: 118px;
+}
+.mi::after {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.mi b {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-top: auto;
+}
+.mi small {
+  font-weight: 500;
+}
+.mi .dot {
+  top: auto;
+  bottom: 14px;
+  right: 14px;
+  background: var(--alert);
+  color: #ffffff;
+  border-radius: var(--radius-pill);
+}
+.mi .micon {
+  width: 30px;
+  height: 30px;
+  color: var(--text);
+}
+/* 聞きたいこと・受け取り箱の1行 */
+.ask,
+.ask.soft {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: none;
+  border: none;
+  border-radius: var(--radius-md);
+}
+.ask svg.l {
+  stroke: var(--text);
+}
+.ask .go {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-radius: var(--radius-pill);
+}
+.ask .go::after {
+  display: none;
+}
+
+/* ---------- いちばん近い締切: その人の色の大きな面 ---------- */
+.hero,
+.hero.over,
+.mini,
+.mini.over {
+  color: var(--on-pastel);
+  box-shadow: none;
+  border-radius: var(--radius-lg);
+}
+.hero {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 18px 18px 20px;
+}
+.hero::after {
+  display: none;
+}
+.hero .hero-label {
+  display: inline-block;
+  background: #111111;
+  color: #ffffff;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  padding: 3px 10px;
+}
+.hero.over .hero-label {
+  background: var(--alert);
+}
+.hero .ring {
+  width: auto;
+  height: auto;
+}
+.hero .ring svg {
+  display: none;
+}
+.hero .ring .n {
+  position: static;
+  color: #111111;
+}
+.hero .ring .n b {
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.hero .ring .n b.word {
+  font-size: 48px;
+}
+.hero .ring .n small {
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin-left: 4px;
+}
+.hero .ring .n span {
+  display: flex;
+  align-items: baseline;
+}
+.hero .t {
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+.hero .s {
+  color: var(--pastel-muted);
+}
+.hero .bag {
+  display: none;
+}
+.mini .s,
+.mini .n small {
+  color: var(--pastel-muted);
+}
+.mini svg.go {
+  background: #111111;
+  stroke: #ffffff;
+  border-radius: 50%;
+  padding: 6px;
+  width: 28px;
+  height: 28px;
+}
+
+/* ---------- 家族の丸: その人の色・選んだ人は黒の二重リング・写真はその人の色で縁取る ---------- */
+.fam a {
+  color: var(--muted);
+  font-weight: 700;
+}
+.fam b,
+.who-dot,
+.member-dot {
+  color: #111111;
+}
+.fam b.house {
+  background: var(--p-lime);
+}
+.fam b.house svg {
+  stroke: #111111;
+}
+.fam a.on b {
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5.5px var(--ink);
+}
+.fam a.on {
+  color: var(--text);
+}
+.fam b > img.face,
+.who-dot > img.face {
+  width: calc(100% - 7px);
+  height: calc(100% - 7px);
+  border-radius: 50%;
+  object-fit: cover;
+}
+.fam-wrap::after {
+  background: linear-gradient(90deg, transparent, var(--bg) 70%);
+}
+.who-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  align-self: center;
+}
+.who-dot svg {
+  width: 100%;
+  height: 100%;
+}
+.who-dot.house svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- 向こう7日: 今日は黒の面に白い数字・予定のある日は小さな点 ---------- */
+.wday {
+  background: var(--surface);
+  border: none;
+  box-shadow: none;
+  border-radius: var(--radius-md);
+}
+.wday.has {
+  background: var(--surface);
+  border: none;
+}
+.wday.today {
+  background: var(--ink);
+  color: var(--on-ink);
+  border: none;
+}
+.wday.today .d,
+.wday.today .d small,
+.wday.today .l,
+.wday.today .w,
+.wday.today .none,
+.wday.today .c {
+  color: var(--on-ink);
+}
+.wday.has .d::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ---------- 見出し・ⓘ・畳む ---------- */
+h2.sec {
+  font-size: 1.05rem;
+}
+details.info > summary {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+details.info[open] > summary {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+details.info .info-body {
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  box-shadow: none;
+  color: var(--text);
+  font-weight: 500;
+}
+details.fold > summary {
+  color: var(--text);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+  padding: 10px 0;
+}
+.from-item {
+  margin-bottom: var(--gap);
+}
+
+/* ---------- タブバー: 黒の pill を下に浮かせる・真ん中の＋はライムの丸 ---------- */
+.tabbar {
+  left: 24px;
+  right: 24px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  max-width: 432px;
+  height: 58px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--tabbar-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.tab {
+  color: var(--tabbar-fg);
+  font-weight: 700;
+}
+.tab.on {
+  color: #ffffff;
+}
+.fab {
+  width: 46px;
+  height: 46px;
+  margin-top: 0;
+  border-radius: 50%;
+  background: var(--p-lime);
+  color: #111111;
+  box-shadow: none;
+}
+main {
+  padding-bottom: 120px;
+}
+
+/* ---------- 分類のチップ・書類のカード ---------- */
+.chips.small .chip {
+  padding-left: 3px;
+}
+.dcard .t {
+  font-weight: 900;
+}
+@media (prefers-color-scheme: dark) {
+  .tabbar {
+    box-shadow: inset 0 0 0 1px #333333;
+  }
+}

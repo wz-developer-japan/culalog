@@ -26,7 +26,7 @@ export function ButlerFace({ id, size }: { id: CharacterId; size?: number }) {
     case "kurano":
       return (
         <svg {...common}>
-          <rect width="40" height="40" rx="11" fill="#ffe1cc" />
+          <rect width="40" height="40" rx="11" style={{ fill: "var(--p-butler, #ffe1cc)" }} />
           <path d="M6.5 40c1-5.8 5.8-8.3 13.5-8.3s12.5 2.5 13.5 8.3z" fill={NAVY} />
           <Collar tie={NAVY} />
           <ellipse cx="20" cy="21" rx="9" ry="10" fill={SKIN} />
@@ -48,7 +48,7 @@ export function ButlerFace({ id, size }: { id: CharacterId; size?: number }) {
     case "fusen":
       return (
         <svg {...common}>
-          <rect width="40" height="40" rx="11" fill="#fff0bf" />
+          <rect width="40" height="40" rx="11" style={{ fill: "var(--p-butler, #fff0bf)" }} />
           <circle cx="20" cy="9.2" r="4.4" fill={BROWN} />
           <path d="M7.5 40c1-5.8 5.6-8.3 12.5-8.3s11.5 2.5 12.5 8.3z" fill={NAVY} />
           <Collar tie={ORANGE} />
@@ -68,7 +68,7 @@ export function ButlerFace({ id, size }: { id: CharacterId; size?: number }) {
     case "hako":
       return (
         <svg {...common}>
-          <rect width="40" height="40" rx="11" fill="#dfe8f5" />
+          <rect width="40" height="40" rx="11" style={{ fill: "var(--p-butler, #dfe8f5)" }} />
           <rect x="19.3" y="5.5" width="1.4" height="5" fill={NAVY} />
           <circle cx="20" cy="5.4" r="1.9" fill={ORANGE} />
           <path d="M9.5 40c.4-4.8 4-8 10.5-8s10.1 3.2 10.5 8z" fill="#fff" />

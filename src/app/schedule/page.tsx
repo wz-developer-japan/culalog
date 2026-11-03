@@ -37,6 +37,7 @@ import { markAskSeen, pendingAsks, unseenReports } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
 import { useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
+import { colorOf } from "@/lib/personColor";
 import { givenName, isFor, type Whose } from "@/lib/whose";
 
 function ScheduleBody() {
@@ -97,6 +98,9 @@ function ScheduleBody() {
   const reading = progress.waiting + progress.needsKey;
   const reports = who === "all" ? unseenReports(h) : [];
   const pending = who === "all" ? pendingAsks(h) : [];
+  // 誰の予定か（色と一緒に出す名前）。1人ならその名前、2人以上は並べ、空なら「みんな」
+  const whoOf = (ids: string[]) =>
+    ids.length === 0 ? "みんな" : ids.map((id) => givenName(h.members.find((m) => m.id === id)?.name ?? "")).filter(Boolean).join("・");
   const sampleFor = (candidateId: string) =>
     candidateId.startsWith("missing:")
       ? h.demoSamples?.find((x) => x.expectedId === candidateId.slice("missing:".length))
@@ -163,10 +167,10 @@ function ScheduleBody() {
     if (c)
       telling.push({
         key: item.candidateId,
-        node: <DeadlineCard c={c} item={item} voice={briefing.source === "claude" ? item.text : undefined} sample={sampleFor(c.id)} onDone={done} />,
+        node: <DeadlineCard c={c} color={colorOf(h.members, c.memberIds)} who={whoOf(c.memberIds)} item={item} voice={briefing.source === "claude" ? item.text : undefined} sample={sampleFor(c.id)} onDone={done} />,
       });
   });
-  net.forEach((c) => telling.push({ key: c.id, node: <DeadlineCard c={c} hot sample={sampleFor(c.id)} onDone={done} /> }));
+  net.forEach((c) => telling.push({ key: c.id, node: <DeadlineCard c={c} color={colorOf(h.members, c.memberIds)} who={whoOf(c.memberIds)} hot sample={sampleFor(c.id)} onDone={done} /> }));
   if (showOverlap)
     telling.push({
       key: "overlap",
@@ -220,7 +224,8 @@ function ScheduleBody() {
           </Link>
         </div>
       ) : nearest?.card ? (
-        <div className={`hero${nearest.overdue ? " over" : ""}`}>
+        <div className={`hero${nearest.overdue ? " over" : ""}`} style={{ background: colorOf(h.members, nearest.memberIds) }}>
+          <span className="hero-label">{nearest.overdue ? "期限切れ" : "いちばん近い締切"}</span>
           <div className="ring">
             <svg viewBox="0 0 36 36" aria-hidden>
               <circle cx="18" cy="18" r="15.5" fill="none" style={{ stroke: "color-mix(in srgb, var(--on-color) 30%, transparent)" }} strokeWidth="3" />
@@ -260,6 +265,7 @@ function ScheduleBody() {
           <div className="hero-body">
             <div className="t">{nearest.card.label}</div>
             <div className="s">
+              {whoOf(nearest.memberIds)}・
               {shortDate(nearest.card.date)}
               {nearest.card.endDate && `〜${shortDate(nearest.card.endDate)}`}
               {nearest.card.time && `・${nearest.card.time}`}
