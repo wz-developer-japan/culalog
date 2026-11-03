@@ -135,13 +135,14 @@ const PREPARED: Prepared[] = [
     lang: "vi",
     title: "Hội khu phố Kuroudodai 1-chōme — Tổng vệ sinh mùa thu và trực điểm tập kết rác",
     what: "Giấy thông báo luân phiên (kairanban) của hội khu phố: tổng vệ sinh mùa thu, và phiên trực điểm tập kết rác của tổ 4 (tổ 4 là tòa Kuroudodai Heights và 1-chōme số 2).",
-    todo: "Mỗi hộ cử ít nhất 1 người tham gia tổng vệ sinh. Nếu không tham gia được, báo cho tổ trưởng trước 1 ngày (có thể dùng phiếu báo vắng ở cuối giấy).",
+    todo: "Mỗi hộ cử ít nhất 1 người tham gia tổng vệ sinh. Nếu không tham gia được, báo cho tổ trưởng trước 1 ngày (có thể dùng phiếu báo vắng ở cuối giấy). Nhà mình (cùng nhà Ubayashi) có phiên trực dọn nhà sinh hoạt cộng đồng của tổ 4 — ngày giờ xem ở mục bên dưới.",
     items: [
       { match: "一斉清掃", label: "Tổng vệ sinh mùa thu", text: "Tập trung ở công viên Kuroudodai 1-chōme trước 7:55. Mang: găng tay, chổi (túi rác và kẹp gắp do hội chuẩn bị)." },
       { match: "参加できない", label: "Báo nếu không tham gia được (cho tổ trưởng)", text: "Trước 1 ngày. Có thể dùng phiếu báo vắng ở cuối giấy." },
       { match: "ごみ集積所の当番", label: "Trực điểm tập kết rác (tổ 4)", text: "Sáng các ngày thu gom (thứ Hai, thứ Năm): dọn lưới và quét điểm tập kết. Thứ tự trực do tổ trưởng quyết định và sẽ báo sau." },
       { match: "雨天", label: "Nếu trời mưa", text: "Làm vào Chủ nhật tuần sau, cùng giờ." },
       { match: "4班の担当", label: "Chỗ tổ 4 phụ trách (hôm tổng vệ sinh)", text: "Điểm tập kết rác và rãnh thoát nước." },
+      { match: "集会所の清掃当番", label: "Trực dọn vệ sinh nhà sinh hoạt cộng đồng (tổ 4)", text: "Mỗi lần 2 hộ: nhà Hinata (nhà mình) và nhà Ubayashi. Làm ở nhà sinh hoạt cộng đồng (shūkaisho)." },
     ],
     background: [
       {
@@ -201,13 +202,13 @@ export function provisionalTranslation(
 
 /** ほかの書類の予定の名前の、仮の訳（「家族に伝える」の「同じ日の家族の予定」に使う） */
 const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
-  { lang: "vi", match: "出勤日（平日）", text: "đi làm" },
-  { lang: "vi", match: "出勤日", text: "đi làm" },
-  { lang: "vi", match: "出勤（", text: "đi làm (ca ngày 8:30–17:30)" },
+  // 勤務の予定（出勤日（平日）・出勤（日勤 8:30〜17:30）など）は、ここで訳さずコードで言い換える（tellBuild の WORK_WORDS。早番・遅番も正しく出る）
+  { lang: "vi", match: "出勤日（運動会", text: "đi làm (thứ Bảy)" },
   { lang: "vi", match: "授業参観", text: "Dự giờ (phụ huynh đến xem lớp học)" },
   { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
   { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },
   { lang: "vi", match: "一斉清掃", text: "Tổng vệ sinh khu phố" },
+  { lang: "vi", match: "集会所の清掃当番", text: "Trực dọn nhà sinh hoạt cộng đồng (tổ 4)" },
   { lang: "vi", match: "親子ふれあいデー", text: "Ngày phụ huynh cùng con ở nhà trẻ" },
 ];
 

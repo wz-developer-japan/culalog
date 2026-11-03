@@ -77,7 +77,7 @@ await step("Claude の答えでないものには「仮」と出ている（キ�
   if (!/仮/.test(body)) console.log("  （「仮」の表示なし。Claude のキーがある環境なら正常）");
 });
 
-await step("予定の画面の上に「向こう7日」の帯があり、押すとすべての予定のその日へ。すべての予定は、いつものカレンダーに入れられる（.ics・Google カレンダー。サーバーを通さない）", async () => {
+await step("予定の画面の上に「向こう7日」の帯があり、押すとすべての予定のその日へ。同じ日の気づきは予定に全部（町内会の当番・授業参観）、トップは授業参観の1枚＋「ほか1件」。すべての予定は、いつものカレンダーに入れられる（.ics・Google カレンダー。サーバーを通さない）", async () => {
   await page.goto(BASE + "/schedule");
   const days = page.locator(".week .wday");
   await days.first().waitFor({ timeout: 15000 });
@@ -92,7 +92,8 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   // 案内プリント（写真の見本 o9）はもう預かっているので「まだ届いていません」は出ない。代わりに、同じ日の気づき（授業参観 × タオの出勤日）が予定の「クラノから」に出る
   if (await page.getByText("授業参観の案内プリントがまだ届いていません").count()) throw new Error("案内プリントを預かっているのに「まだ届いていません」が出ています");
   await page.goto(BASE + "/schedule");
-  const conflict = page.locator(".card.insight.conflict").first();
+  // 同じ日の気づきは日付順（11/18 町内会の集会所の清掃当番 → 11/27 授業参観）。授業参観のカードを探して確かめる
+  const conflict = page.locator(".card.insight.conflict").filter({ hasText: "授業参観" }).first();
   await conflict.waitFor({ timeout: 15000 });
   const conflictText = await conflict.innerText();
   if (
@@ -104,7 +105,23 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
     !/原本: 2学期 授業参観のご案内 ／ タオさんの勤務カレンダー ／ 翔太さんのシフト表/.test(conflictText)
   )
     throw new Error(`同じ日の気づきの文: ${conflictText}`);
-  if ((await page.locator(".card.insight.conflict").count()) !== 1) throw new Error("同じ日の気づきが1件ではありません（運動会・面談など、保護者が行く行事で時間が分かっているもの以外が出ています）");
+  // 町内会の回覧の平日の当番（11/18（水）10:00〜11:00）も、二人とも仕事の日として出る。シフト表の「27（金）の分」の期限は添えない
+  const duty = page.locator(".card.insight.conflict").filter({ hasText: "集会所の清掃当番" }).first();
+  await duty.waitFor({ timeout: 15000 });
+  const dutyText = await duty.innerText();
+  if (
+    !/11月18日（水）は、町内会の集会所の清掃当番の日です。この日は、タオさんも翔太さんもお仕事のようです/.test(dutyText) ||
+    !/誰が出るか（出ないか）は、家族で決めてください/.test(dutyText) ||
+    /11月20日|有給/.test(dutyText)
+  )
+    throw new Error(`町内会の当番の気づきの文: ${dutyText}`);
+  if ((await page.locator(".card.insight.conflict").count()) !== 2) throw new Error("同じ日の気づきが2件（町内会の当番・授業参観）ではありません（運動会・面談など、保護者が行く行事で時間が分かっているもの以外が出ています）");
+  // トップは1枚だけ（日が決まった子どもの行事＝授業参観を先に）。ほかは「ほか1件」から予定へ
+  await page.goto(BASE + "/");
+  await page.locator(".card.insight.conflict").first().waitFor({ timeout: 15000 });
+  if ((await page.locator(".card.insight.conflict").count()) !== 1 || !/授業参観/.test(await page.locator(".card.insight.conflict").first().innerText()))
+    throw new Error("トップの同じ日の気づきが、授業参観の1枚ではありません");
+  if (!(await page.getByText("同じ日の気づき、ほか1件").count())) throw new Error("トップに「同じ日の気づき、ほか1件」がありません");
   await page.goto(BASE + "/schedule/all");
   await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
   const [download] = await Promise.all([
