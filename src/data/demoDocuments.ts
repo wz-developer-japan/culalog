@@ -170,7 +170,7 @@ ${jpDate(t.gradeLetterIssued)}　くろうど第一小学校 第3学年
 export function openClassNoticeText(t: DemoDates): string {
   return `保護者の皆様へ
 
-くろうど第一小学校　校長　架空 太郎
+くろうど第一小学校　校長　蔵宇 花子
 
 2学期 授業参観・学級懇談会のご案内
 
@@ -737,7 +737,7 @@ export function schoolInjuryBenefitText(t: DemoDates): string {
 ${fullWidth(`${wareki(y)}年4月10日`)}
 保護者 各位
 くろうど第一小学校
-校長　宮下 千尋
+校長　蔵宇 花子
 （公印省略）
 
 学校でのけがの給付について（お知らせ）
