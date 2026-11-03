@@ -4,6 +4,7 @@
 
 import { adultWorkOn, conflictFor, noticeShort, sameEvent, workNotices } from "./conflicts";
 import { addDays, readableDates, toYmd } from "./deadlines";
+import { googleCalendarUrl, parseTimes } from "./calendar";
 import { maskKnownNumbers } from "./numbers";
 import { languageOf, type LanguageCode } from "./languages";
 import type { TellBlock, TellPayload } from "./tell";
@@ -14,6 +15,13 @@ const TEXT: Record<LanguageCode, { needs: string; sameDay: string; todo: string;
   ja: { needs: "持ち物", sameDay: "同じ日", todo: "やること", general: "一般的な説明", leave: (d) => `休みの申し出は${d}まで` },
   "ja-easy": { needs: "もちもの", sameDay: "おなじ ひ", todo: "すること", general: "せつめい", leave: (d) => `やすみの もうしでは ${d}まで` },
   vi: { needs: "Mang theo", sameDay: "Cùng ngày", todo: "Cần làm", general: "Giải thích chung", leave: (d) => `hạn xin nghỉ ${d}` },
+};
+
+/** 「カレンダーに追加」で入る予定のメモ（その言葉で）。原本へ戻る道（書類の名前・預かる人）と「原本で確かめて」を必ず入れる */
+const CAL_NOTE: Record<LanguageCode, { source: (title: string, holder: string) => string; check: string }> = {
+  ja: { source: (t, h) => `原本: ${t}（書類は${h}さんの端末の中）`, check: "CULALOG から入れた予定です。中身は原本で確かめてください。" },
+  "ja-easy": { source: (t, h) => `もとの かみ: ${t}（${h}さんの スマホの なか）`, check: "CULALOG から いれた よていです。もとの かみで たしかめてね。" },
+  vi: { source: (t, h) => `Bản gốc (tiếng Nhật): ${t} (trong điện thoại của ${h})`, check: "Lịch này được thêm từ CULALOG. Hãy kiểm tra lại với bản gốc." },
 };
 
 /** 書類のまとめを送る相手の言葉（共有した人の言葉と、あなたの言葉）。日本語は必ず入れる */
@@ -150,8 +158,59 @@ export function buildTell(
   // 担当の候補: あなたと、共有した大人の家族
   const takers = household.members
     .filter((m) => m.relation !== "child" && (m.relation === "self" || (doc.sharedWith ?? []).includes(m.id)))
-    .map((m) => Object.fromEntries((["ja", "ja-easy", "vi"] as LanguageCode[]).map((l) => [l, nameIn(m, l)])) as Partial<Record<LanguageCode, string>>);
-  return { blocks, sources, holder: nameIn(self, "ja"), takers };
+    .map((m) => ({ m, names: Object.fromEntries((["ja", "ja-easy", "vi"] as LanguageCode[]).map((l) => [l, nameIn(m, l)])) as Partial<Record<LanguageCode, string>> }));
+  return {
+    blocks,
+    sources,
+    holder: nameIn(self, "ja"),
+    takers: takers.map((x) => x.names),
+    takerLangs: takers.map((x) => languageOf(x.m)),
+    calendar: calendarLinks(household, doc, translations, blocks.map((b) => b.lang), mask),
+  };
+}
+
+/**
+ * 段の言葉ごとの「カレンダーに追加」（Google カレンダーの予定を作る画面）。この書類のいちばん主な行事1件だけ（時間の分かるものを先に）。
+ * 題とメモはその言葉（訳が無い言葉・子どもだけが読む言葉には作らない）。場所は原本のまま（地図で探せるように）。番号は伏せる
+ */
+function calendarLinks(
+  household: Household,
+  doc: DocumentRecord,
+  translations: Partial<Record<LanguageCode, DocTranslation>>,
+  langs: LanguageCode[],
+  mask: (t: string) => string,
+): Partial<Record<LanguageCode, string>> | undefined {
+  const events = doc.deadlines.filter((d) => d.kind === "event" && d.date && !(household.done ?? {})[d.id]);
+  const d = events.find((x) => parseTimes(x.time).start) ?? events[0];
+  if (!d) return undefined;
+  const self = household.members.find((m) => m.relation === "self");
+  const { start, end } = parseTimes(d.time);
+  const out: Partial<Record<LanguageCode, string>> = {};
+  for (const lang of langs) {
+    if (childOnlyLanguage(household, lang)) continue;
+    const t = lang === "ja" ? undefined : translations[lang];
+    const item = t?.items.find((i) => i.ref === `d:${d.id}`);
+    if (lang !== "ja" && !item) continue;
+    const note = CAL_NOTE[lang];
+    const what = lang === "ja" ? (d.needs?.length ? `${TEXT.ja.needs}: ${d.needs.join("、")}` : "") : item!.text;
+    const lines = [what, note.source(doc.title, nameIn(self, lang)), note.check].filter(Boolean);
+    const make = (description: string) =>
+      googleCalendarUrl({
+        uid: `${d.id}@culalog`,
+        title: mask(lang === "ja" ? d.label : item!.label),
+        date: d.date,
+        endDate: d.endDate && d.endDate > d.date ? d.endDate : undefined,
+        start: d.endDate ? undefined : start,
+        end: d.endDate ? undefined : end,
+        place: d.place,
+        description: mask(description),
+      });
+    // リンクが長すぎるとボタンにできないので、メモを後ろから短くする（原本へ戻る行と「確かめて」は残す）
+    let url = make(lines.join("\n"));
+    if (url.length > 1800) url = make(lines.slice(1).join("\n"));
+    if (url.length <= 1800) out[lang] = url;
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 /** 近い予定の「日付と件数」だけ（通知のために預ける。予定の名前は入れない） */

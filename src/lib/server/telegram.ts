@@ -4,10 +4,8 @@ const api = (method: string) => `https://api.telegram.org/bot${process.env.TELEG
 
 export const telegramReady = () => Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_WEBHOOK_SECRET);
 
-export interface InlineButton {
-  text: string;
-  callback_data: string;
-}
+/** ボタン: 押すと執事に知らせるもの（callback_data）か、リンクを開くもの（url） */
+export type InlineButton = { text: string; callback_data: string } | { text: string; url: string };
 
 export async function tg<T = unknown>(method: string, body: Record<string, unknown>): Promise<T | null> {
   try {

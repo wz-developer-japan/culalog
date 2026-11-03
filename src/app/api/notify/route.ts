@@ -1,5 +1,5 @@
 // 通知: アプリを開いたときに「近い予定の日付と件数」だけを預かり、その日の朝に家族の Telegram へ
-// 「近い予定が○件あります。CULALOG を見てね」とそれぞれの言葉で送る。🔴 予定の名前・書類の中身は預からない・送らない。
+// 「近い予定が○件あります。くわしくは CULALOG か、このグループで聞いてね」とそれぞれの言葉で送る。🔴 予定の名前・書類の中身は預からない・送らない。
 // POST（アプリから）: { chatId, token, upcoming: { "YYYY-MM-DD": 件数 }, sendNow? }
 // GET（毎朝の定時実行。Vercel Cron が Authorization: Bearer <CRON_SECRET> を付ける）
 

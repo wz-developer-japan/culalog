@@ -9,7 +9,7 @@ import { LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
 import { createLinkCode, getChat, setUserLang, store, updateChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
-import { TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
+import { afterTake, TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
 
 export const maxDuration = 60;
 
@@ -24,6 +24,7 @@ interface TgMessage {
   from?: TgUser;
   text?: string;
   reply_to_message?: TgMessage;
+  reply_markup?: { inline_keyboard?: { text: string; url?: string; callback_data?: string }[][] };
 }
 
 const HELP = `CULALOG の通訳の執事です。
@@ -127,11 +128,15 @@ async function onCallback(q: { id: string; from: TgUser; data?: string; message?
   const name = names.ja ?? q.from.first_name ?? "";
   const titles = titlesOf(q.message.text ?? "");
   const lines = (Object.keys(titles) as LanguageCode[]).map((l) => `${langMark(l)} ${TAKE_TEXT[l](names[l] ?? name, titles[l]!)}`);
+  // お知らせに付いていた「カレンダーに追加」（言葉ごと）は担当が決まっても残し、担当になった人には、その人の言葉のボタンを返す
+  const { calendarRow: calRow, mine } = afterTake(q.message.reply_markup?.inline_keyboard, q.data);
   await tg("answerCallbackQuery", { callback_query_id: q.id, text: "OK" });
   await tg("editMessageReplyMarkup", {
     chat_id: chatId,
     message_id: q.message.message_id,
-    reply_markup: { inline_keyboard: [[{ text: `✓ ${name}`, callback_data: "noop" }]] },
+    reply_markup: { inline_keyboard: [[{ text: `✓ ${name}`, callback_data: "noop" }], ...(calRow.length ? [calRow] : [])] },
   });
-  await sendMessage(chatId, `✅ ${lines.join("\n")}`, { replyTo: q.message.message_id });
+  const done = `✅ ${lines.join("\n")}`;
+  const sent = await sendMessage(chatId, done, { replyTo: q.message.message_id, buttons: mine ? [[mine]] : undefined });
+  if (!sent && mine) await sendMessage(chatId, done, { replyTo: q.message.message_id });
 }

@@ -19,14 +19,57 @@ export interface TellPayload {
   holder: string;
   /** 担当の候補（大人の家族）。言葉ごとの呼び名。「○○がやる」のボタンになる */
   takers: Partial<Record<LanguageCode, string>>[];
+  /** 担当の候補それぞれの読みたい言葉（takers と同じ順）。担当が決まったら、その人の言葉の「カレンダーに追加」を返す */
+  takerLangs?: (LanguageCode | undefined)[];
+  /**
+   * 段の言葉ごとの「カレンダーに追加」（Google カレンダーの予定を作る画面のリンク。題・メモはその言葉）。
+   * 端末で作る。CULALOG のサーバーには置かない（お知らせと一緒に Telegram へ渡すだけ）
+   */
+  calendar?: Partial<Record<LanguageCode, string>>;
 }
 
-/** 担当のボタンの印（Telegram の callback_data は 64 バイトまで）: "t:" + 言葉ごとの呼び名を | でつなぐ */
-export function takerData(names: Partial<Record<LanguageCode, string>>): string {
+/** 「カレンダーに追加」のボタンの文（言葉ごと） */
+export const CAL_BUTTON: Record<LanguageCode, string> = {
+  ja: "📅 カレンダーに追加",
+  "ja-easy": "📅 カレンダーに いれる",
+  vi: "📅 Thêm vào lịch",
+};
+
+/** Google カレンダーの予定を作る画面のリンクだけを通す（ほかの URL はボタンにしない） */
+export function isCalendarUrl(url: unknown): url is string {
+  return typeof url === "string" && url.length <= 1800 && url.startsWith("https://calendar.google.com/calendar/render?");
+}
+
+/** お知らせの下に付ける「カレンダーに追加」のボタン（段の言葉の順） */
+export function calendarButtons(calendar: TellPayload["calendar"], langs: LanguageCode[]): { text: string; url: string }[] {
+  return langs.filter((l) => isCalendarUrl(calendar?.[l])).map((l) => ({ text: CAL_BUTTON[l], url: calendar![l]! }));
+}
+
+/**
+ * 担当のボタンの印（Telegram の callback_data は 64 バイトまで）: "t:" + 言葉ごとの呼び名を | でつなぐ。
+ * 最後に、その人の読みたい言葉を1つ足す（前の形の印も読めるように、呼び名の後ろに置く）
+ */
+export function takerData(names: Partial<Record<LanguageCode, string>>, lang?: LanguageCode): string {
   const parts = LANGUAGES.map((l) => (names[l.code] ?? "").replace(/[|:]/g, ""));
-  let out = `t:${parts.join("|")}`;
-  while (new TextEncoder().encode(out).length > 64) out = out.slice(0, -1);
-  return out;
+  const tail = lang ? `|${lang}` : "";
+  const bytes = (x: string) => new TextEncoder().encode(x).length;
+  const build = () => `t:${parts.join("|")}${tail}`;
+  while (bytes(build()) > 64) {
+    // いちばん長い呼び名から1文字ずつ削る（区切りの数は変えない＝言葉の並びがずれない）
+    let i = 0;
+    parts.forEach((p, j) => {
+      if (bytes(p) > bytes(parts[i])) i = j;
+    });
+    if (!parts[i]) break;
+    parts[i] = [...parts[i]].slice(0, -1).join("");
+  }
+  return build();
+}
+
+/** 担当のボタンの印から、その人の読みたい言葉（前の形の印なら無し） */
+export function takerLang(data: string): LanguageCode | undefined {
+  const last = data.replace(/^t:/, "").split("|")[LANGUAGES.length];
+  return LANGUAGES.find((l) => l.code === last)?.code;
 }
 
 export function takerNames(data: string): Partial<Record<LanguageCode, string>> {
@@ -42,6 +85,23 @@ export function takerButton(names: Partial<Record<LanguageCode, string>>): strin
   const ja = names.ja ?? "";
   const vi = names.vi ?? ja;
   return `${ja}がやる / ${vi} sẽ lo`;
+}
+
+/** お知らせに付けるボタン: 担当の候補ごとに1行（押した印に、その人の読みたい言葉）＋「カレンダーに追加」の1行（段の言葉ごと） */
+export function tellKeyboard(p: TellPayload): { takerRows: { text: string; callback_data: string }[][]; calendarRow: { text: string; url: string }[] } {
+  return {
+    takerRows: p.takers.map((t, i) => [{ text: takerButton(t), callback_data: takerData(t, p.takerLangs?.[i]) }]),
+    calendarRow: calendarButtons(p.calendar, p.blocks.map((b) => b.lang)),
+  };
+}
+
+type Keyboard = { text: string; url?: string; callback_data?: string }[][] | undefined;
+
+/** 担当が決まったとき: お知らせに残す「カレンダーに追加」の行と、担当になった人の言葉のボタン（前の形の印なら無し） */
+export function afterTake(keyboard: Keyboard, data: string): { calendarRow: { text: string; url: string }[]; mine?: { text: string; url: string } } {
+  const calendarRow = (keyboard ?? []).flat().filter((b): b is { text: string; url: string } => isCalendarUrl(b.url));
+  const lang = takerLang(data);
+  return { calendarRow, mine: lang ? calendarRow.find((b) => b.text === CAL_BUTTON[lang]) : undefined };
 }
 
 /** 原本の見出し（日本語のほかの段の言葉で。原本の引用は日本語のまま） */

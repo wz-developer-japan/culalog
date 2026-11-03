@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { translateDocument } from "@/components/TranslationView";
 import { LANGUAGES, languageLabel, type LanguageCode } from "@/lib/languages";
-import { composeTell } from "@/lib/tell";
+import { calendarButtons, composeTell } from "@/lib/tell";
 import { buildTell, tellLanguages } from "@/lib/tellBuild";
 import type { DocTranslation } from "@/lib/translate";
 import type { DocumentRecord, Household } from "@/lib/types";
@@ -120,6 +120,15 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
             </p>
           )}
           <pre className="tell-text">{text}</pre>
+          {(() => {
+            // Telegram に送るときだけ: お知らせの下に付く「カレンダーに追加」（言葉ごと）
+            const cal = household.telegram && payload ? calendarButtons(payload.calendar, payload.blocks.map((b) => b.lang)) : [];
+            return cal.length > 0 ? (
+              <div className="meta">
+                お知らせの下に「{cal.map((b) => b.text).join("」「")}」のボタンも付けます。押すと、その言葉の題とメモで Google カレンダーの予定を作る画面が開きます（予定は CULALOG のサーバーに置きません）。担当が決まると、その人の言葉のボタンを返します。
+              </div>
+            ) : null;
+          })()}
           <button
             className="button secondary"
             onClick={async () => {

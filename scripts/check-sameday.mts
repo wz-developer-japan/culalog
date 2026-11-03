@@ -22,6 +22,7 @@ import { buildConnectInput, verifyConnect } from "@/lib/connect";
 import type { DemoSample, Household } from "@/lib/types";
 import { provisionalLabel, provisionalTranslation } from "@/data/demoTranslations";
 import { buildTell, childOnlyLanguage } from "@/lib/tellBuild";
+import { afterTake, tellKeyboard, takerData, takerLang, takerNames } from "@/lib/tell";
 
 const today = new Date(2026, 10, 7, 10);
 const results: [boolean, string][] = [];
@@ -159,6 +160,36 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   const warn = (lang: string) => p6.blocks.find((b) => b.lang === lang)!.lines.filter((l) => l.startsWith("⚠")).join(" ");
   check(/Thảo đi làm \(thứ Bảy\)/.test(warn("vi")) && !/「/.test(warn("vi")), "ベトナム語の段: タオさんの土曜の出勤日は「Thảo đi làm (thứ Bảy)」");
   check(/タオ しごと（どようび）/.test(warn("ja-easy")), "やさしい日本語の段: 「タオ しごと（どようび）」");
+}
+
+// 段の言葉ごとの「カレンダーに追加」（Google カレンダーの予定を作る画面）と、担当のボタンの印に入れる言葉
+{
+  const h7 = await createDemoHousehold(today);
+  h7.members = h7.members.map((m) => (m.id === "m-son" ? { ...m, language: "ja-easy" as const } : m));
+  const doc = h7.documents.find((d) => /授業参観.*ご案内/.test(d.title))!;
+  const base = { basis: [], translatedAt: "", draftSource: "provisional" as const };
+  const tr = (l: "vi" | "ja-easy") => ({ ...provisionalTranslation(doc, l)!, ...base, lang: l });
+  const p7 = buildTell(h7, doc, { vi: tr("vi"), "ja-easy": tr("ja-easy") }, () => undefined, ["ja", "vi", "ja-easy"]);
+  const q = (l: "ja" | "vi") => new URL(p7.calendar?.[l] ?? "https://x.invalid/").searchParams;
+  check(q("ja").get("text") === "授業参観（2学期）" && q("ja").get("dates") === "20261127T104500/20261127T121000" && q("ja").get("ctz") === "Asia/Tokyo", "カレンダーに追加（日本語）: 授業参観 11/27 10:45〜12:10");
+  check(/^Dự giờ/.test(q("vi").get("text") ?? "") && !/[\u3040-\u30ff]/.test(q("vi").get("text") ?? "") && /Bản gốc/.test(q("vi").get("details") ?? ""), "カレンダーに追加（ベトナム語）: 題はベトナム語・メモに原本へ戻る行");
+  check(!p7.calendar?.["ja-easy"], "子どもだけが読む言葉（蓮さんのやさしい日本語）には、カレンダーに追加を作らない");
+  check(Object.values(p7.calendar ?? {}).every((u) => (u ?? "").length <= 1800), "カレンダーのリンクはボタンにできる長さ");
+  check(JSON.stringify(p7.takerLangs) === JSON.stringify(["ja", "vi"]), "担当の候補の読みたい言葉（翔太さん ja・タオさん vi）");
+  const d1 = takerData({ ja: "タオ", vi: "Thảo", "ja-easy": "タオ" }, "vi");
+  const long = takerData({ ja: "ながいながいなまえのひと", vi: "Nguyễn Thị Thanh Hương Long", "ja-easy": "ながいながい なまえの ひと" }, "vi");
+  check(takerLang(d1) === "vi" && takerNames(d1).vi === "Thảo" && takerLang("t:翔太|Shōta|しょうた") === undefined, "担当のボタンの印に言葉が入り、前の形の印も読める");
+  check(new TextEncoder().encode(long).length <= 64 && takerLang(long) === "vi" && Object.keys(takerNames(long)).length === 3, "長い呼び名でも 64 バイトに収まり、言葉の並びがずれない");
+  // Telegram に付けるボタン: 担当の候補ごとに1行＋カレンダーの1行（日本語・ベトナム語。子どもだけのやさしい日本語は無し）
+  const kb = tellKeyboard(p7);
+  check(kb.takerRows.length === 2 && kb.calendarRow.map((b) => b.text).join(" ") === "📅 カレンダーに追加 📅 Thêm vào lịch", "お知らせのボタン: 担当2行＋「カレンダーに追加」「Thêm vào lịch」");
+  // タオさんが担当になったら、タオさんの言葉（ベトナム語）のボタンを返す。カレンダーの行は残す
+  const sent = [...kb.takerRows, kb.calendarRow];
+  const taoData = kb.takerRows[1][0].callback_data;
+  const after = afterTake(sent, taoData);
+  check(after.mine?.text === "📅 Thêm vào lịch" && after.mine.url === p7.calendar?.vi && after.calendarRow.length === 2, "タオさんが担当 → ベトナム語の「Thêm vào lịch」を返す（カレンダーの行は残す）");
+  check(afterTake(sent, kb.takerRows[0][0].callback_data).mine?.text === "📅 カレンダーに追加", "翔太さんが担当 → 日本語の「カレンダーに追加」");
+  check(!afterTake(sent, "t:タオ|Thảo|タオ").mine && !afterTake([[{ text: "📅 Thêm vào lịch", url: "https://example.com/" }]], taoData).mine, "前の形の印・Google カレンダー以外のリンクには返さない");
 }
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);
