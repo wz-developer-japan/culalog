@@ -96,9 +96,12 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   await conflict.waitFor({ timeout: 15000 });
   const conflictText = await conflict.innerText();
   if (
-    !/11月27日（金）は、蓮さんの「授業参観（2学期）」の日です。この日は、タオさんも翔太さんもお仕事になっているようです/.test(conflictText) ||
-    !/タオさんの出勤日: 2026年度 年間勤務カレンダー.*有給を取るなら、申請は11月20日（金）まで/.test(conflictText) ||
-    !/翔太さんの出勤日: くろうどロジスティクス 11月 勤務シフト表.*日勤 8:30〜17:30.*休みの希望・シフトの交代の申し出は11月20日（金）まで/.test(conflictText)
+    !/11月27日（金）は、蓮さんの授業参観の日です。この日は、タオさんも翔太さんもお仕事になっているようです/.test(conflictText) ||
+    !/授業参観 → 2学期 授業参観・学級懇談会のご案内/.test(conflictText) ||
+    !/タオさん 出勤 → 2026年度 年間勤務カレンダー/.test(conflictText) ||
+    !/翔太さん 出勤 → くろうどロジスティクス 11月 勤務シフト表/.test(conflictText) ||
+    !/休みを取るなら、どちらも11月20日（金）までに申し出が必要です/.test(conflictText) ||
+    !/どちらが行くかは、家族で決めてください/.test(conflictText)
   )
     throw new Error(`同じ日の気づきの文: ${conflictText}`);
   if ((await page.locator(".card.insight.conflict").count()) !== 1) throw new Error("同じ日の気づきが1件ではありません（運動会・面談など、保護者が行く行事で時間が分かっているもの以外が出ています）");

@@ -18,9 +18,9 @@ export interface WorkDay {
   deadline: Deadline;
   /** 書類の予定ではなく、勤務カレンダーのある人の平日としてコードが補ったもの */
   synthetic: boolean;
-  /** その人に有給のきまり（わが家のきまり）があれば、申請の締切 */
+  /** その人に有給のきまり（わが家のきまり）があれば、申請の締切（勤務の書類に申し出の締切が無いときだけ） */
   leave?: { rule: HouseRule; date: string };
-  /** 同じ勤務の書類にある、その日より前の申し出の締切（休みの希望・シフトの交代など） */
+  /** 同じ勤務の書類にある、その日より前の申し出の締切（休みの希望・シフトの交代など）。あればこちらを使う */
   notice?: Deadline;
 }
 
@@ -118,8 +118,10 @@ export function findConflicts(household: Household, today: Date): Conflict[] {
       // 保護者が行く行事で、時間まで分かっているものだけ。子どもの体のこと（病院・歯科）や、家族みんなで行く行事（運動会など）は出さない
       if (!deadline.memberIds.some(isChild) || !PARENT_ATTENDS.test(deadline.label) || !deadline.time) continue;
       const adults = adultWorkOn(household, deadline.date, doc.id).map((w) => {
-        const rule = leaveRuleOf(household, w.deadline.memberIds);
-        return { ...w, leave: rule ? { rule, date: toYmd(addDays(parseDate(deadline.date), -rule.daysBefore)) } : undefined, notice: noticeBefore(w, deadline.date) };
+        // 勤務の書類にその日の分の申し出の締切が書いてあれば、それを使う（わが家のきまりの有給の申請は、無いときだけ）
+        const notice = noticeBefore(w, deadline.date);
+        const rule = notice ? undefined : leaveRuleOf(household, w.deadline.memberIds);
+        return { ...w, leave: rule ? { rule, date: toYmd(addDays(parseDate(deadline.date), -rule.daysBefore)) } : undefined, notice };
       });
       if (adults.length) out.push({ date: deadline.date, child: { doc, deadline }, adults });
     }
