@@ -1648,3 +1648,9 @@ h2.sec .more {
   accent-color: #c4511a;
   flex: none;
 }
+.voice-log pre {
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}

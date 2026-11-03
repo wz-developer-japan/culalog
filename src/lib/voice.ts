@@ -39,10 +39,14 @@ interface Recognition {
   interimResults: boolean;
   continuous: boolean;
   onresult: ((event: { resultIndex: number; results: RecognitionResultList }) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
+  onerror: ((event: { error: string; message?: string }) => void) | null;
   onend: (() => void) | null;
+  onstart?: (() => void) | null;
+  onaudiostart?: (() => void) | null;
+  onaudioend?: (() => void) | null;
   start: () => void;
   stop: () => void;
+  abort?: () => void;
 }
 type RecognitionCtor = new () => Recognition;
 
@@ -54,9 +58,42 @@ function recognitionCtor(): RecognitionCtor | null {
 
 export const speechInputSupported = () => recognitionCtor() !== null;
 
+/*
+ * 手がかりの記録（開発用）: 声の入力の流れ（何回目・始まった・音が入った・結果・エラーの種類・終わった）を、
+ * 画面（聞く画面の「声の入力の手がかり」）と console に出す。声そのものや話した文字は残さない（文字数だけ）
+ */
+const log: string[] = [];
+const logListeners = new Set<() => void>();
+let session = 0;
+function note(line: string) {
+  const d = new Date();
+  const t = `${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}.${String(d.getMilliseconds()).padStart(3, "0")}`;
+  log.push(`${t} ${line}`);
+  if (log.length > 40) log.shift();
+  console.info(`[声の入力] ${line}`);
+  for (const l of logListeners) l();
+}
+export const voiceLog = () => [...log];
+export function onVoiceLog(listener: () => void): () => void {
+  logListeners.add(listener);
+  return () => logListeners.delete(listener);
+}
+
+/** いま動いている認識（同時に2つ動かさない。前の認識がマイクを離しきる前に次を始めない） */
+let active: { recognition: Recognition; id: number; ended: Promise<void> } | null = null;
+
+const ERROR_MESSAGES: Record<string, string> = {
+  "not-allowed": "マイクが許可されていません。ブラウザーの設定でマイクを許可するか、キーボードの音声入力を使ってください。",
+  "service-not-allowed": "この端末では声の入力が許可されていません。キーボードの音声入力を使ってください。",
+  "no-speech": "声が聞き取れませんでした。もう一度押して話してください。",
+};
+
 /**
  * 話し始める。onText には、これまでに聞き取った文字（途中も含む）を毎回渡す。止めると onEnd。
- * 返す関数で止められる
+ * 返す関数で止められる。
+ * iPhone の Safari で2回目が失敗したため: 毎回 new し、前の認識は止めて終わるのを待ってから始める。
+ * 終わった認識から遅れて届くイベントは無視する。結果が確定したら自分で stop してマイクを離す。
+ * 始めてすぐ aborted・audio-capture になったら、少し待って1回だけやり直す。
  */
 export function startListening(handlers: { onText: (text: string, final: boolean) => void; onEnd: () => void; onError: (message: string) => void }): () => void {
   const Ctor = recognitionCtor();
@@ -64,40 +101,118 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     handlers.onError("このブラウザーでは声の入力が使えません。");
     return () => undefined;
   }
-  const recognition = new Ctor();
-  recognition.lang = "ja-JP";
-  recognition.interimResults = true;
-  recognition.continuous = false;
-  recognition.onresult = (event) => {
-    let text = "";
-    let final = true;
-    for (let i = 0; i < event.results.length; i++) {
-      text += event.results[i][0].transcript;
-      if (!event.results[i].isFinal) final = false;
-    }
-    handlers.onText(text, final);
+  const id = ++session;
+  let cancelled = false;
+  let finished = false;
+  let current: Recognition | null = null;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    handlers.onEnd();
   };
-  recognition.onerror = (event) => {
-    const message =
-      event.error === "not-allowed" || event.error === "service-not-allowed"
-        ? "マイクが許可されていません。ブラウザーの設定でマイクを許可するか、キーボードの音声入力を使ってください。"
-        : event.error === "no-speech"
-          ? "声が聞き取れませんでした。もう一度押して話してください。"
-          : "声の入力がうまくいきませんでした。キーボードの音声入力も使えます。";
-    handlers.onError(message);
-  };
-  recognition.onend = () => handlers.onEnd();
-  try {
-    recognition.start();
-  } catch {
-    handlers.onError("声の入力を始められませんでした。");
-  }
-  return () => {
+
+  const begin = (attempt: number) => {
+    if (cancelled) return finish();
+    const recognition = new Ctor();
+    current = recognition;
+    let resolveEnded: () => void = () => undefined;
+    const ended = new Promise<void>((r) => (resolveEnded = r));
+    active = { recognition, id, ended };
+    recognition.lang = "ja-JP";
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    let gotResult = false;
+    let startedAt = Date.now();
+    let retrying = false;
+    const mine = () => active?.recognition === recognition;
+    recognition.onstart = () => {
+      startedAt = Date.now();
+      note(`#${id} 始まった（${attempt}回目の試み）`);
+    };
+    recognition.onaudiostart = () => note(`#${id} 音が入りはじめた`);
+    recognition.onaudioend = () => note(`#${id} 音が止まった`);
+    recognition.onresult = (event) => {
+      if (!mine()) return note(`#${id} 古い認識の結果を無視`);
+      let text = "";
+      let final = true;
+      for (let i = 0; i < event.results.length; i++) {
+        text += event.results[i][0].transcript;
+        if (!event.results[i].isFinal) final = false;
+      }
+      gotResult = true;
+      note(`#${id} 結果 ${text.length}文字${final ? "（確定）" : ""}`);
+      handlers.onText(text, final);
+      // 確定したら自分で止めてマイクを離す（次に押したときに前の認識が残っていないように）
+      if (final) {
+        try {
+          recognition.stop();
+        } catch {
+          // すでに止まっている
+        }
+      }
+    };
+    recognition.onerror = (event) => {
+      note(`#${id} エラー: ${event.error}${event.message ? `（${event.message}）` : ""}`);
+      if (!mine()) return;
+      // 始めてすぐの aborted・audio-capture は、前の認識がマイクを離しきっていないことが多い → 少し待って1回だけやり直す
+      if (!gotResult && !cancelled && attempt === 1 && (event.error === "aborted" || event.error === "audio-capture") && Date.now() - startedAt < 1500) {
+        retrying = true;
+        return;
+      }
+      if (cancelled && event.error === "aborted") return;
+      if (gotResult && (event.error === "no-speech" || event.error === "aborted")) return;
+      handlers.onError(`${ERROR_MESSAGES[event.error] ?? "声の入力がうまくいきませんでした。キーボードの音声入力も使えます。"}（手がかり: ${event.error}）`);
+    };
+    recognition.onend = () => {
+      note(`#${id} 終わった`);
+      resolveEnded();
+      if (active?.recognition === recognition) active = null;
+      if (retrying) {
+        note(`#${id} 少し待ってやり直す`);
+        setTimeout(() => begin(attempt + 1), 400);
+        return;
+      }
+      finish();
+    };
     try {
-      recognition.stop();
+      recognition.start();
+    } catch (e) {
+      note(`#${id} start で失敗: ${(e as Error).name}`);
+      resolveEnded();
+      if (active?.recognition === recognition) active = null;
+      if (attempt === 1 && !cancelled) {
+        setTimeout(() => begin(attempt + 1), 400);
+        return;
+      }
+      handlers.onError(`声の入力を始められませんでした。（手がかり: start ${(e as Error).name}）`);
+      finish();
+    }
+  };
+
+  // 前の認識が残っていれば止めて、終わるのを待ってから（長くても 800ms）始める
+  const previous = active;
+  if (previous) {
+    note(`#${id} 前の認識 #${previous.id} を止めてから始める`);
+    try {
+      previous.recognition.abort ? previous.recognition.abort() : previous.recognition.stop();
     } catch {
       // すでに止まっている
     }
+    active = null;
+    Promise.race([previous.ended, new Promise((r) => setTimeout(r, 800))]).then(() => setTimeout(() => begin(1), 150));
+  } else {
+    begin(1);
+  }
+
+  return () => {
+    cancelled = true;
+    note(`#${id} 止めるボタン`);
+    try {
+      current?.stop();
+    } catch {
+      // すでに止まっている
+    }
+    if (!current) finish();
   };
 }
 

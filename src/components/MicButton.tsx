@@ -4,7 +4,7 @@
 // 初めて押したときは、声がどこへ行くかの正直な一言を出してから始める。対応していないブラウザーではボタンを出さず、案内だけ。
 
 import { useEffect, useRef, useState } from "react";
-import { markVoiceNoticeSeen, speechInputSupported, startListening, VOICE_NOTICE, voiceNoticeSeen } from "@/lib/voice";
+import { markVoiceNoticeSeen, onVoiceLog, speechInputSupported, startListening, VOICE_NOTICE, voiceLog, voiceNoticeSeen } from "@/lib/voice";
 
 export function MicButton({ value, onChange }: { value: string; onChange: (text: string) => void }) {
   const [supported, setSupported] = useState<boolean | null>(null);
@@ -13,11 +13,18 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
   const [error, setError] = useState("");
   const stop = useRef<(() => void) | null>(null);
   const base = useRef("");
+  const [log, setLog] = useState<string[]>([]);
+  const [count, setCount] = useState(0);
 
   // ブラウザーの機能は画面を作ったあとに確かめる（サーバーでの描画と食い違わないように）
   useEffect(() => {
     setSupported(speechInputSupported());
-    return () => stop.current?.();
+    setLog(voiceLog());
+    const off = onVoiceLog(() => setLog(voiceLog()));
+    return () => {
+      off();
+      stop.current?.();
+    };
   }, []);
 
   if (supported === null) return null;
@@ -27,6 +34,7 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
 
   function begin() {
     setError("");
+    setCount((c) => c + 1);
     base.current = value.trim() ? `${value.trim()} ` : "";
     setListening(true);
     stop.current = startListening({
@@ -92,6 +100,13 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
         </div>
       )}
       {error && <p className="meta" role="status">{error}</p>}
+      {log.length > 0 && (
+        <details className="meta voice-log">
+          <summary>声の入力の手がかり（開発用・この画面で{count}回押した）</summary>
+          <p>試し方: 1回目に話す → 入力欄を消す → 2回目に話す → 3回目に話す。うまくいかなかったら、ここを開いて画面を撮ってください（話した文字は残していません。文字数だけです）。</p>
+          <pre>{log.join("\n")}</pre>
+        </details>
+      )}
     </div>
   );
 }
