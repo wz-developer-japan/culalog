@@ -218,6 +218,8 @@ Telegram の通訳と毎朝の通知には、`.env.example` にある Telegram �
 （無ければ、その部分だけ「準備中」になり、アプリの中の機能は動きます）。
 
 確かめ方: `npx tsc --noEmit -p .` と `node scripts/smoke.mjs [URL]`（スマホ幅のブラウザで、デモの流れを通しで試す19項目）。
+同じ日の気づきの照らし合わせは `npx tsx --tsconfig tsconfig.json scripts/check-sameday.mts`（Claude の答えをまねした文で、「有給」・違う日付・名前の抜けなど外すべきものが全部外れるか。通信なし）。
+本番に API キーを入れたあとは `npx tsx --tsconfig tsconfig.json scripts/after-key.mts` で、見本の家族のつなぐ・訳す・聞く・読み取りを本物の Claude で回し、照らし合わせに通ったか・番号が答えに入っていないかを一覧にします。
 
 ## 技術と構成
 

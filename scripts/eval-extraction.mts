@@ -3,6 +3,8 @@
 // 使い方（リポジトリの直下で）:
 //   npx tsx --tsconfig tsconfig.json scripts/eval-extraction.mts                 … 仮の読み取り（正解そのもの）で、仕組みが動くことを確かめる
 //   npx tsx --tsconfig tsconfig.json scripts/eval-extraction.mts --claude        … 本物の Claude で読む（ANTHROPIC_API_KEY が要る。料金がかかる）
+//   npx tsx --tsconfig tsconfig.json scripts/eval-extraction.mts --via https://culalog.vercel.app --limit 10
+//                                                                              … 手元にキーが無いとき、出してあるアプリの /api/extract で読む（1時間あたりの上限に気をつける）
 //   オプション: --limit N（最初の N 件だけ）・--ids g1,k6（id の一部で選ぶ）・--concurrency 2・--out docs/eval
 //
 // 何をするか:
@@ -28,7 +30,8 @@ const opt = (name: string, def: string) => {
   const i = args.indexOf(name);
   return i >= 0 && args[i + 1] ? args[i + 1] : def;
 };
-const useClaude = flag("--claude");
+const via = opt("--via", "").replace(/\/$/, "");
+const useClaude = flag("--claude") || Boolean(via);
 const limit = Number(opt("--limit", "0")) || 0;
 const idFilter = opt("--ids", "").split(",").filter(Boolean);
 const concurrency = Number(opt("--concurrency", "2")) || 2;
@@ -86,7 +89,21 @@ function estimateTokens(sample: DemoSample): { input: number; output: number } {
 
 // ---------- 読む ----------
 type Usage = { input: number; output: number };
+/** 出してあるアプリの /api/extract で読む（アプリと同じ指示・同じ形。使った量は返らないので 0） */
+async function readVia(sample: DemoSample): Promise<{ extraction: Extraction | null; usage: Usage; stop: string }> {
+  const files =
+    sample.origin === "text"
+      ? [{ mediaType: "text/plain", data: Buffer.from(sample.text ?? "", "utf8").toString("base64") }]
+      : (sample.images ?? []).map((p) => ({ mediaType: p.endsWith(".png") ? "image/png" : "image/jpeg", data: readFileSync(join("public", p)).toString("base64") }));
+  const body = files.length > 1 ? { pages: files, today, family } : { ...files[0], today, family };
+  const res = await fetch(`${via}/api/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const json = (await res.json().catch(() => ({}))) as { extraction?: Extraction; error?: string };
+  if (!res.ok) throw new Error(`${res.status} ${json.error ?? ""}`);
+  return { extraction: json.extraction ?? null, usage: { input: 0, output: 0 }, stop: "via" };
+}
+
 async function readWithClaude(sample: DemoSample): Promise<{ extraction: Extraction | null; usage: Usage; stop: string }> {
+  if (via) return readVia(sample);
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const client = new Anthropic();
   const blocks: any[] =
