@@ -28,13 +28,25 @@ import {
   subscriptionProvisionalDraft,
   subscriptionText,
 } from "./demoDocuments";
+import { PRECONFIRMED_SAMPLE_IDS, preconfirmedDocuments } from "./demoPreconfirmed";
 
 /**
  * 架空の家族を作る。写真・メールの見本（約 700KB）は「架空の家族で試す」を押したときだけ読み込む
  * （最初の画面の JS に入れない）
  */
-export async function createDemoHousehold(today: Date = new Date()): Promise<Household> {
-  const photoSamples = (await import("./photoSamples.json")).default as unknown as DemoSample[];
+export async function createDemoHousehold(today: Date = new Date(), options: { few?: boolean } = {}): Promise<Household> {
+  const allPhotoSamples = (await import("./photoSamples.json")).default as unknown as DemoSample[];
+  const members: Household["members"] = [
+    // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
+    { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" },
+    { id: "m-spouse", icon: "woman-long", name: "日向 美咲", relation: "spouse", roleLabel: "妻", note: "平日は会社勤め" },
+    { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
+    { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
+  ];
+  // ふつうは、写真・メールの見本の一部をもう預かっている（確定済み）ところから始める。
+  // options.few（入口 /?demo=few）は、書類が少ない状態（9件）から始める（「まとめて渡す」の前と後を見せる録画用）
+  const pre = options.few ? { documents: [], done: {} } : preconfirmedDocuments(allPhotoSamples, members, today);
+  const photoSamples = options.few ? allPhotoSamples : allPhotoSamples.filter((s) => !PRECONFIRMED_SAMPLE_IDS.has(s.id));
   const t = demoDates(today);
   const ymd = (date: Date) => toYmd(date);
   const createdAt = today.toISOString();
@@ -43,13 +55,7 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
 
   return {
     isDemo: true,
-    members: [
-      // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
-      { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" },
-      { id: "m-spouse", icon: "woman-long", name: "日向 美咲", relation: "spouse", roleLabel: "妻", note: "平日は会社勤め" },
-      { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
-      { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
-    ],
+    members,
     documents: [
       {
         id: "doc-school-annual",
@@ -515,7 +521,9 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
         createdAt,
         confirmedAt: createdAt,
       },
+      ...pre.documents,
     ],
+    done: Object.keys(pre.done).length ? pre.done : undefined,
     expected: [
       {
         id: "exp-open-class-notice",

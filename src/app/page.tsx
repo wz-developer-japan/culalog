@@ -76,7 +76,10 @@ export default function Top() {
             読んで、仕分けて、いつ・何を・どこで、を先回りしてお知らせします。
           </div>
         </div>
-        <button className="button" onClick={async () => save(await createDemoHousehold())}>
+        <button className="button" onClick={async () =>
+            // 隠しの入口 /?demo=few: 書類が少ない状態（9件）から始める（「まとめて渡す」の前と後の録画用）
+            save(await createDemoHousehold(undefined, { few: new URLSearchParams(window.location.search).get("demo") === "few" }))
+          }>
           架空の家族で試す
         </button>
         <button className="button secondary" onClick={() => save(createEmptyHousehold())}>
