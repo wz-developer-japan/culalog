@@ -40,10 +40,10 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
   const allPhotoSamples = (await import("./photoSamples.json")).default as unknown as DemoSample[];
   const members: Household["members"] = [
     // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
-    { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" },
-    { id: "m-spouse", icon: "woman-long", name: "日向 タオ", relation: "spouse", roleLabel: "妻", note: "ベトナム出身。食品工場に勤務（土曜の出勤あり）", language: "vi" },
-    { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
-    { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
+    { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め", names: { vi: "Shōta" } },
+    { id: "m-spouse", icon: "woman-long", name: "日向 タオ", relation: "spouse", roleLabel: "妻", note: "ベトナム出身。食品工場に勤務（土曜の出勤あり）", language: "vi", names: { vi: "Thảo" } },
+    { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年", names: { vi: "Ren" } },
+    { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園", names: { vi: "Yui" } },
   ];
   // ふつうは、写真・メールの見本の一部をもう預かっている（確定済み）ところから始める。
   // options.few（入口 /?demo=few）は、書類が少ない状態（9件）から始める（「まとめて渡す」の前と後を見せる録画用）

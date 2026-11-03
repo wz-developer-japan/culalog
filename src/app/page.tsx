@@ -15,6 +15,8 @@ import { useEffect } from "react";
 import { FamilyRow } from "@/components/FamilyRow";
 import { ButlerPic, MenuPic, type MenuKind } from "@/components/Pics";
 import { createDemoHousehold } from "@/data/demoHousehold";
+import { upcomingCounts } from "@/lib/tellBuild";
+import { toYmd } from "@/lib/deadlines";
 import { buildCandidates, markFollowUps, openQuestions } from "@/lib/butler";
 import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import { inboxProgress } from "@/lib/inbox";
@@ -45,6 +47,25 @@ export default function Top() {
     const marked = markFollowUps(household, buildCandidates(household, now()), now());
     if (marked !== household) save(marked);
   }, [household, save]);
+
+  // 通知: 家族の Telegram とつないでいれば、1日1回、近い予定の「日付と件数」だけを預ける（予定の名前は送らない）
+  const telegram = household?.telegram;
+  useEffect(() => {
+    if (!telegram || !household) return;
+    const today = toYmd(now());
+    try {
+      if (localStorage.getItem("culalog-notify-upload") === today) return;
+      localStorage.setItem("culalog-notify-upload", today);
+    } catch {
+      return;
+    }
+    fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...telegram, upcoming: upcomingCounts(household, now()) }),
+    }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [telegram?.chatId]);
 
   // はじめて開いたとき（家のデータが無い）は、下のタブを隠す
   const start = loaded && !household;

@@ -12,6 +12,7 @@ import { addressee, butlerName, CHARACTERS, characterOf, cleanName, NAME_MAX, ti
 import type { CharacterId } from "@/lib/character";
 import { useHousehold } from "@/lib/useHousehold";
 import { VoiceSettings } from "@/components/VoiceSettings";
+import { TelegramSettings } from "@/components/TelegramSettings";
 import { LANGUAGES, languageLabel, languageOf, type LanguageCode } from "@/lib/languages";
 
 export default function ButlerSettingsPage() {
@@ -125,6 +126,8 @@ export default function ButlerSettingsPage() {
           </select>
         </label>
       ))}
+
+      <TelegramSettings household={household} save={save} />
 
       <VoiceSettings />
 

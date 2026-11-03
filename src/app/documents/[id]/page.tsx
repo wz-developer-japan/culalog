@@ -12,6 +12,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { confirmDocument, openQuestions } from "@/lib/butler";
 import { ShareWith } from "@/components/ShareWith";
 import { TranslationView } from "@/components/TranslationView";
+import { TellFamily } from "@/components/TellFamily";
 import { answerAndLearn } from "@/lib/inbox";
 import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS, groupsOf } from "@/lib/labels";
@@ -336,6 +337,7 @@ export default function DocumentDetail() {
         <>
           <h2>家族と共有</h2>
           <ShareWith members={household.members} doc={doc} onChange={(sharedWith) => update({ ...doc, sharedWith })} />
+          <TellFamily household={household} doc={doc} save={update} />
         </>
       )}
 

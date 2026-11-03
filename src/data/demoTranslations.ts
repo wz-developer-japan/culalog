@@ -129,3 +129,14 @@ export function provisionalTranslation(
   }
   return { title: p.title, what: p.what, todo: p.todo, items, background: p.background, checks: p.checks };
 }
+
+/** ほかの書類の予定の名前の、仮の訳（「家族に伝える」の「同じ日の家族の予定」に使う） */
+const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
+  { lang: "vi", match: "出勤日", text: "Ngày đi làm (theo lịch làm việc của công ty)" },
+  { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
+  { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },
+];
+
+export function provisionalLabel(label: string, lang: LanguageCode): string | undefined {
+  return LABELS.find((l) => l.lang === lang && label.includes(l.match))?.text;
+}

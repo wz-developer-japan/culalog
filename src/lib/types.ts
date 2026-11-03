@@ -22,6 +22,8 @@ export interface FamilyMember {
   icon?: string;
   /** 読みたい言葉（無ければ日本語）。国籍ではなく、その人が読みたい言葉 */
   language?: import("./languages").LanguageCode;
+  /** ほかの言葉での呼び名（例: ベトナム語では「Thảo」）。無ければ name の下の名前 */
+  names?: Partial<Record<import("./languages").LanguageCode, string>>;
 }
 
 /** 原本のどこに書いてあったか */
@@ -335,5 +337,7 @@ export interface Household {
   inboxPausedUntil?: string;
   /** 本人が質問に答えて、執事が覚えたこと（同じ種類の書類で二度聞かないため） */
   learned?: Learned[];
+  /** 家族の Telegram グループとつないだ（グループの ID と、送るときの合言葉。端末の中だけ） */
+  telegram?: { chatId: string; token: string; linkedAt: string };
   isDemo: boolean;
 }
