@@ -322,7 +322,7 @@ await step("番号を聞くと、Claude に送らずに端末の中で答え、�
   await page.locator("textarea").fill("火災保険の証券番号は？");
   await page.getByRole("button", { name: /に頼む$/ }).click();
   const card = page.locator(".card").filter({ hasText: "火災保険の証券番号は？" }).first();
-  await card.getByText("書類から探しました").waitFor({ timeout: 10000 });
+  await card.getByText("端末の中で答えました").waitFor({ timeout: 10000 });
   if (!(await card.innerText()).includes("●")) throw new Error("番号が伏せられていません");
   // 同じ番号が何通かの書類（証券と、継続のご案内のメールなど）にあれば、行が何つか並ぶ。どれも伏せてあるので全部「見る」
   for (let i = 0; i < 10 && (await card.getByRole("button", { name: "見る" }).count()); i++) await card.getByRole("button", { name: "見る" }).first().click();

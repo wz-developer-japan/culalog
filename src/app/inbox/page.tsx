@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { confirmDocument, openQuestions } from "@/lib/butler";
 import { formatYmd } from "@/lib/deadlines";
 import { bulkConfirmBlocker, confirmMany, inboxItems, inboxProgress, retryInbox, tidyInbox } from "@/lib/inbox";
-import { CATEGORY_LABELS } from "@/lib/labels";
+import { groupsOf } from "@/lib/labels";
 import { deleteFile } from "@/lib/storage";
 import type { DocumentRecord, Household } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
@@ -58,10 +58,10 @@ export default function Inbox() {
   };
   const selected = drafts.filter(isChecked);
 
-  // 種類ごとに並べる（多い種類から）
+  // 分類（6語の先頭）ごとに並べる（多い分類から）
   const groups = Object.entries(
     drafts.reduce<Record<string, DocumentRecord[]>>((acc, d) => {
-      (acc[d.category] ??= []).push(d);
+      (acc[groupsOf(d)[0]] ??= []).push(d);
       return acc;
     }, {}),
   ).sort((a, b) => b[1].length - a[1].length);
@@ -168,7 +168,7 @@ export default function Inbox() {
           {groups.map(([category, docs]) => (
             <section key={category}>
               <h2>
-                {CATEGORY_LABELS[category as DocumentRecord["category"]] ?? "そのほか"}（{docs.length}）
+                {category}（{docs.length}）
               </h2>
               {docs.map((d) => {
                 const blocker = blockerOf(d);

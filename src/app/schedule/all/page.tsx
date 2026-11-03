@@ -2,6 +2,7 @@
 
 // すべての予定・やること。予定の画面には大事なものだけを出すので、ここにはいつでも全部ある。
 
+import { Info } from "@/components/Info";
 import Link from "next/link";
 import { now } from "@/lib/clock";
 import { BackToTop } from "@/components/BackToTop";
@@ -113,11 +114,13 @@ export default function Schedule() {
   return (
     <main>
       <BackToTop />
-      <h1 className="pt">すべての予定</h1>
-      <p className="lead">
-        確定した書類と、わが家のきまりから作った予定・やることのすべてです。
+      <h1 className="pt">
+        すべての予定
+        <Info label="この画面について">
+          確定した書類と、わが家のきまりから作った予定・やることのすべてです。
         {pendingCount > 0 && `確認待ちの書類（${pendingCount}件）の予定は、確定するとここに入ります。`}
-      </p>
+        </Info>
+      </h1>
 
       {overdue.length > 0 && (
         <>

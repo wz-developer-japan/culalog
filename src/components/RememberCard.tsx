@@ -4,6 +4,7 @@
 // 名前と日付は確定の前に直せる。いつから知らせるかは、話の中に無ければ「いつごろお知らせしましょう？」とボタンで聞く
 // （種類ごとのおすすめを最初から選んでおき、押すだけで済むように）。日付の計算はコード。
 
+import { Info, ProvisionalTag } from "@/components/Info";
 import Link from "next/link";
 import { useState } from "react";
 import type { AskRecord } from "@/lib/ask";
@@ -159,11 +160,15 @@ export function RememberCard({ record, butler, compact = false }: { record: AskR
           覚えない
         </button>
       </div>
-      <div className="meta provisional">
-        {provisional
-          ? "仮の案: 執事（Claude）の準備中のため、「覚えて」「その前に教えて」などの決まった言い回しと「○月○日」だけをコードで読んでいます。"
-          : "執事（Claude）が、話したことから予定の案を作りました。日付はコードで確かめています。"}{" "}
-        確定するまで予定には入りません。原本の場所は「あなたが話したこと」として残ります。
+      <div className="card-foot">
+        {provisional && <ProvisionalTag />}
+        <span>確定するまで予定には入りません。</span>
+        <Info label="この案について">
+          {provisional
+            ? "仮の案: 執事（Claude）の準備中のため、「覚えて」「その前に教えて」などの決まった言い回しと「○月○日」だけをコードで読んでいます。"
+            : "執事（Claude）が、話したことから予定の案を作りました。日付はコードで確かめています。"}{" "}
+          確定するまで予定には入りません。原本の場所は「あなたが話したこと」として残ります。
+        </Info>
       </div>
     </div>
   );

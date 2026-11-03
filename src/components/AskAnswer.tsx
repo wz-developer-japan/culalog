@@ -4,6 +4,7 @@
 // 書いてあったときは根拠（原本のどこか）付き、書いていなかったときは色の違うカード＋問い合わせ先。
 // 答えがまだ無いときは「調べています」。
 
+import { Info, ProvisionalTag } from "@/components/Info";
 import Link from "next/link";
 import type { AskRecord } from "@/lib/ask";
 import { readAloudEnabled, speak } from "@/lib/voice";
@@ -90,12 +91,16 @@ export function AskAnswer({
           🔊 読み上げる
         </button>
       )}
-      <div className="meta provisional">
-        {result.source === "provisional"
-          ? `仮の答え: ${result.fallbackReason ?? "執事（Claude）の準備中のため"}、質問の言葉を書類の中からコードで探して並べています。文章の答えは作っていません。`
-          : "執事（Claude）が、確定した書類だけを根拠に答えました。引用はコードで原本と照らし合わせています。"}
-        {result.dropped > 0 && ` 照らし合わせで合わなかった引用${result.dropped}件は出していません。`}
-        {" "}保険・医療・法律の判断はしません。最終の確認は原本と窓口でお願いします。
+      <div className="card-foot">
+        {result.source === "provisional" && <ProvisionalTag />}
+        <span>判断はしません。最終の確認は原本と窓口で。</span>
+        <Info label="この答えについて">
+          {result.source === "provisional"
+            ? `仮の答え: ${result.fallbackReason ?? "執事（Claude）の準備中のため"}、質問の言葉を書類の中からコードで探して並べています。文章の答えは作っていません。`
+            : "執事（Claude）が、確定した書類だけを根拠に答えました。引用はコードで原本と照らし合わせています。"}
+          {result.dropped > 0 && ` 照らし合わせで合わなかった引用${result.dropped}件は出していません。`}
+          {" "}保険・医療・法律の判断はしません。最終の確認は原本と窓口でお願いします。
+        </Info>
       </div>
       {onSeen && (
         <div className="row-actions" style={{ marginTop: 8 }}>

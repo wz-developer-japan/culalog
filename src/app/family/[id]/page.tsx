@@ -17,7 +17,7 @@ import { NumbersList } from "@/components/NumbersList";
 import { Pic } from "@/components/Pics";
 import { buildCandidates, toggleDone } from "@/lib/butler";
 import { type ActionItem, allItems, formatYmd, isDone, itemIds } from "@/lib/deadlines";
-import { CATEGORY_LABELS, RELATION_LABELS } from "@/lib/labels";
+import { groupsOf, RELATION_LABELS } from "@/lib/labels";
 import { importantNumbers } from "@/lib/numbers";
 import type { Household } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -187,7 +187,7 @@ export default function FamilyPage() {
                 <div className="body">
                   <div className="t wrap">{d.title}</div>
                   <div className="sub">
-                    {d.docType ?? CATEGORY_LABELS[d.category]}
+                    {d.docType ?? groupsOf(d)[0]}
                     {d.periodLabel && `・${d.periodLabel}`}
                   </div>
                   {d.notForFamily && <div className="sub">この家の書類ではないもの（記入例・見本など）。家族の情報にしていません</div>}

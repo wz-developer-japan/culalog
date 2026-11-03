@@ -3,6 +3,7 @@
 // わが家のきまり。書類には書いていない、その家の事情（例: 有給の申請は1週間前まで）。
 // 書類の予定に当てはめると、予定の日から逆算した締切がホームに出る。
 
+import { Info } from "@/components/Info";
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
@@ -54,10 +55,12 @@ export default function Rules() {
   return (
     <main>
       <BackToTop />
-      <h1 className="pt">わが家のきまり</h1>
-      <p className="lead">
-        書類には書いていない、家の事情です。書類の予定に当てはめると、その日から逆算した締切をお知らせします。
-      </p>
+      <h1 className="pt">
+        わが家のきまり
+        <Info label="この画面について">
+          書類には書いていない、家の事情です。書類の予定に当てはめると、その日から逆算した締切をお知らせします。
+        </Info>
+      </h1>
 
       {rules.length === 0 ? (
         <div className="calm-line">まだありません。</div>

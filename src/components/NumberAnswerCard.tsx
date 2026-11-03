@@ -3,6 +3,7 @@
 // 「○○の番号は？」「○○持ってる？」への答え。Claude は使わず、端末の中で確定した書類からコードで探したもの。
 // 番号は伏せて出し、「見る」を押したときだけ見せる。判断（この番号で手続きできる等）はしない。
 
+import { Info } from "@/components/Info";
 import Link from "next/link";
 import type { AskRecord } from "@/lib/ask";
 import { resolveNumbers } from "@/lib/numbers";
@@ -62,8 +63,11 @@ export function NumberAnswerCard({ record, household }: { record: AskRecord; hou
           {d.storageLocation && <div className="meta">しまい場所: {d.storageLocation}</div>}
         </div>
       ))}
-      <div className="meta provisional">
-        Claude には送らず、確定した書類の項目と原本の文字からコードで探しました。{numbers.length > 0 && "番号は「見る」を押したときだけ表示します。"}手続きに使えるかなどの判断はしません。最終の確認は原本と窓口でお願いします。
+      <div className="card-foot">
+        <span>端末の中で答えました。最終の確認は原本と窓口で。</span>
+        <Info label="この答えについて">
+          Claude には送らず、確定した書類の項目と原本の文字からコードで探しました。{numbers.length > 0 && "番号は「見る」を押したときだけ表示します。"}手続きに使えるかなどの判断はしません。最終の確認は原本と窓口でお願いします。
+        </Info>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { confirmDocument, openQuestions } from "@/lib/butler";
 import { answerAndLearn } from "@/lib/inbox";
 import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
-import { CATEGORY_LABELS, DEADLINE_KIND_LABELS } from "@/lib/labels";
+import { DEADLINE_KIND_LABELS, groupsOf } from "@/lib/labels";
 import { findQuote, type Mark, segments } from "@/lib/highlight";
 import type { DocumentRecord, SourceRef } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
@@ -140,7 +140,7 @@ export default function DocumentDetail() {
       <BackToTop />
       <h1>{doc.title}</h1>
       <p className="lead">
-        {doc.docType ?? CATEGORY_LABELS[doc.category]}
+        {doc.docType ?? groupsOf(doc)[0]}
         {doc.periodLabel && `・${doc.periodLabel}`}
         ・{doc.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, doc)}
         {confirmed ? "・確定済み" : "・確認待ち"}

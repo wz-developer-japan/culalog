@@ -2193,3 +2193,15 @@ details.timeshift[open] {
   grid-template-columns: repeat(2, 1fr);
 }
 .link-row.subtle { margin-top: var(--space-4); border-top: 1px solid var(--border); font-weight: 400; }
+/* カードの下の小さな1行（仮の札・判断しない一言・ⓘ） */
+.card-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.card-foot > span:not(.ptag) {
+  flex: 1;
+}

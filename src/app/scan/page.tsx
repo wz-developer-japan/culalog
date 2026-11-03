@@ -4,6 +4,7 @@
 // 渡した分は受け取り箱に入り、執事が1枚ずつ順番に読んで「確認待ち」にする。待たなくてよい。
 // 読み取りは登録の入口の一つ。手入力（/add）でも同じように登録できる。
 
+import { Info } from "@/components/Info";
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -90,11 +91,13 @@ function ScanPage() {
   return (
     <main>
       <BackToTop />
-      <h1 className="pt">執事に書類を渡す</h1>
-      <p className="lead">
-        写真・スクショ・PDF を、何枚でもまとめて渡してください。執事が1枚ずつ順番に読んで、何の書類か・誰の書類かを考えて下書きにします。
+      <h1 className="pt">
+        執事に書類を渡す
+        <Info label="この画面について">
+          写真・スクショ・PDF を、何枚でもまとめて渡してください。執事が1枚ずつ順番に読んで、何の書類か・誰の書類かを考えて下書きにします。
         読み終わるのを待たなくて大丈夫です。分からないことは、あとで「聞きたいこと」にまとめて聞きます。
-      </p>
+        </Info>
+      </h1>
 
       <label
         className={`dropzone${dragging ? " dragging" : ""}`}

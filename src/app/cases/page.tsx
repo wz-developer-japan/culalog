@@ -3,6 +3,7 @@
 // こんなとき、こうしてくれる（3つの場面）。何と何が関係するかは lib/cases.ts のコードの決まりで集める。
 // 🔴 判断しない線: 「お金が出ます」「解約しましょう」とは言わない。書類のどこに何と書いてあるかと、問い合わせ先まで。
 
+import { Info } from "@/components/Info";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -71,8 +72,12 @@ export default function Cases() {
   return (
     <main className="cases">
       <BackToTop />
-      <h1 className="pt">こんなとき</h1>
-      <p className="lead">家じゅうの書類をつないで、執事がこうします。何と何が関係するかは決まった計算で集め、書類のどこに何と書いてあるかを並べます。</p>
+      <h1 className="pt">
+        こんなとき
+        <Info label="この画面について">
+          家じゅうの書類をつないで、執事がこうします。何と何が関係するかは決まった計算で集め、書類のどこに何と書いてあるかを並べます。
+        </Info>
+      </h1>
 
       <div className="scenes" role="tablist" aria-label="場面を選ぶ">
         {SCENES.map((s, i) => (
