@@ -332,11 +332,13 @@ await step("番号を聞くと、Claude に送らずに端末の中で答え、�
   if (calls.length) throw new Error(`/api/ask が${calls.length}回呼ばれました`);
 });
 
-await step("こんなとき: けが・引っ越し・補償の重なりを、書類をつないで並べる（判断はしない）。重なりは見つかったときだけ予定の気づきに出し、トップの真ん中には置かない", async () => {
+await step("こんなとき: けが・引っ越し・補償の重なりを、書類をつないで並べる（判断はしない）。重なりは見つかったときだけ予定の気づきに出し、トップのメニューの「こんなとき」から入る", async () => {
   await page.goto(BASE + "/");
   await see("メニュー");
   if (await page.locator(".case-links").count()) throw new Error("トップの真ん中に「こんなとき」が残っています");
-  if (!(await page.locator(".foot-links a", { hasText: "こんなときは？" }).count())) throw new Error("トップの下に「こんなときは？」の入口がありません");
+  const menu = (await page.locator(".menu a b").allInnerTexts()).join("・");
+  if (menu !== "予定・書類・大事な番号・こんなとき") throw new Error(`トップのメニューが「${menu}」です（予定・書類・大事な番号・こんなとき の4つのはず）`);
+  if (await page.locator(".foot-links").count()) throw new Error("トップの下のテキストリンクが残っています");
   await page.goto(BASE + "/schedule");
   await openFolds();
   const overlapCard = page.locator(".card.insight").filter({ hasText: "「個人賠償責任」が3つの書類にあります" });

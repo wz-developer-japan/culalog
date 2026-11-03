@@ -334,6 +334,10 @@ function ScheduleBody() {
       <Link className="button secondary" href={who === "all" ? "/schedule/all" : `/family/${who}`} style={{ textAlign: "center", textDecoration: "none", marginTop: 24 }}>
         {who === "all" ? "すべての予定を見る" : `${whoName}さんの予定と書類をすべて見る`}
       </Link>
+      <Link className="link-row subtle" href="/rules">
+        わが家のきまり<small>勤務先のきまりなど</small>
+        <span aria-hidden>›</span>
+      </Link>
     </main>
   );
 }

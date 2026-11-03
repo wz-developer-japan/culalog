@@ -16,10 +16,19 @@ const C = {
   skin: "#f6d2b8",
   paper: "#fffaf3",
   white: "#ffffff",
+  line: "#eee8e3",
+  lineWarm: "#eadfd6",
+  greenLight: "#cfe6d7",
+  navyLight: "#56668f",
+  shadow: "#000000",
+  hair: "#5a463c",
+  ink: "#2b2420",
+  cheek: "#f3a98e",
+  lineDark: "#d6cbbf",
 };
 
 export type PicKind = DocumentCategory | "missing" | "money";
-export type MenuKind = "schedule" | "documents" | "family" | "numbers" | "ask" | "rules";
+export type MenuKind = "schedule" | "documents" | "family" | "numbers" | "ask" | "rules" | "cases";
 
 /** トップのメニューの挿絵（40×40） */
 export function MenuPic({ kind, size = 40 }: { kind: MenuKind; size?: number }) {
@@ -28,14 +37,14 @@ export function MenuPic({ kind, size = 40 }: { kind: MenuKind; size?: number }) 
     case "schedule":
       return (
         <svg {...common}>
-          <rect x="6" y="9" width="28" height="25" rx="5" fill={C.white} stroke="#eee8e3" strokeWidth="1" />
+          <rect x="6" y="9" width="28" height="25" rx="5" fill={C.white} stroke={C.line} strokeWidth="1" />
           <path d="M6 14a5 5 0 0 1 5-5h18a5 5 0 0 1 5 5v3H6z" fill={C.orange} />
           <rect x="12" y="5" width="3" height="7" rx="1.5" fill={C.navy} />
           <rect x="25" y="5" width="3" height="7" rx="1.5" fill={C.navy} />
           <rect x="11" y="21" width="5" height="4" rx="1" fill={C.yellow} />
-          <rect x="18" y="21" width="5" height="4" rx="1" fill="#eadfd6" />
-          <rect x="25" y="21" width="5" height="4" rx="1" fill="#eadfd6" />
-          <rect x="11" y="27" width="5" height="4" rx="1" fill="#eadfd6" />
+          <rect x="18" y="21" width="5" height="4" rx="1" fill={C.lineWarm} />
+          <rect x="25" y="21" width="5" height="4" rx="1" fill={C.lineWarm} />
+          <rect x="11" y="27" width="5" height="4" rx="1" fill={C.lineWarm} />
           <rect x="18" y="27" width="5" height="4" rx="1" fill={C.red} />
         </svg>
       );
@@ -43,7 +52,7 @@ export function MenuPic({ kind, size = 40 }: { kind: MenuKind; size?: number }) 
       return (
         <svg {...common}>
           <rect x="8" y="7" width="18" height="22" rx="2" fill={C.white} transform="rotate(-8 17 18)" />
-          <rect x="14" y="6" width="18" height="22" rx="2" fill={C.paper} stroke="#eadfd6" transform="rotate(6 23 17)" />
+          <rect x="14" y="6" width="18" height="22" rx="2" fill={C.paper} stroke={C.lineWarm} transform="rotate(6 23 17)" />
           <path d="M5 19h30l-3 15H8z" fill={C.orangeLight} />
           <path d="M5 19h30v4H5z" fill={C.orange} />
         </svg>
@@ -82,8 +91,17 @@ export function MenuPic({ kind, size = 40 }: { kind: MenuKind; size?: number }) 
         <svg {...common}>
           <rect x="9" y="5" width="22" height="30" rx="3" fill={C.green} />
           <rect x="12" y="8" width="16" height="24" rx="1.5" fill={C.white} />
-          <path d="M15 14h10M15 19h10M15 24h6" stroke="#cfe6d7" strokeWidth="2" strokeLinecap="round" />
+          <path d="M15 14h10M15 19h10M15 24h6" stroke={C.greenLight} strokeWidth="2" strokeLinecap="round" />
           <path d="M25 5v10l2.5-2 2.5 2V5" fill={C.red} />
+        </svg>
+      );
+    case "cases":
+      // 道しるべ（こんなとき、どこを見ればいいか）
+      return (
+        <svg {...common}>
+          <rect x="18.5" y="5" width="3" height="31" rx="1.5" fill={C.navy} />
+          <path d="M8 9h21l5 5-5 5H8z" fill={C.orange} />
+          <path d="M32 21H11l-5 5 5 5h21z" fill={C.yellow} />
         </svg>
       );
   }
@@ -126,7 +144,7 @@ export function Pic({ kind, size = 34 }: { kind: PicKind; size?: number }) {
       return (
         <svg {...common}>
           <path d="M20 5l12 4v9c0 8-5 13-12 16-7-3-12-8-12-16V9z" fill={C.navy} />
-          <path d="M20 9l8 2.7V18c0 5.5-3.3 9.5-8 11.8V9z" fill="#56668f" />
+          <path d="M20 9l8 2.7V18c0 5.5-3.3 9.5-8 11.8V9z" fill={C.navyLight} />
           <path d="M14 20l4 4 8-8" fill="none" stroke={C.yellow} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
@@ -181,8 +199,8 @@ export function Pic({ kind, size = 34 }: { kind: PicKind; size?: number }) {
       return (
         <svg {...common}>
           <rect x="5" y="13" width="30" height="20" rx="5" fill={C.navy} />
-          <rect x="14" y="8" width="12" height="6" rx="2" fill="#56668f" />
-          <rect x="5" y="20" width="30" height="3" fill="#56668f" />
+          <rect x="14" y="8" width="12" height="6" rx="2" fill={C.navyLight} />
+          <rect x="5" y="20" width="30" height="3" fill={C.navyLight} />
           <rect x="17" y="19" width="6" height="5" rx="1.5" fill={C.yellow} />
         </svg>
       );
@@ -234,20 +252,20 @@ export function Pic({ kind, size = 34 }: { kind: PicKind; size?: number }) {
 export function ButlerPic({ width = 150 }: { width?: number }) {
   return (
     <svg width={width} height={(width * 110) / 120} viewBox="0 0 120 110" aria-hidden>
-      <ellipse cx="60" cy="104" rx="38" ry="5" fill="#000" opacity=".06" />
+      <ellipse cx="60" cy="104" rx="38" ry="5" fill={C.shadow} opacity=".06" />
       <path d="M28 104c0-22 14-36 32-36s32 14 32 36z" fill={C.navy} />
       <path d="M52 70l8 20 8-20z" fill={C.white} />
       <path d="M53 74l7 5-7 5zM67 74l-7 5 7 5z" fill={C.orange} />
       <circle cx="60" cy="46" r="24" fill={C.skin} />
-      <path d="M36 44c0-16 11-24 24-24s24 8 24 24c-4-8-12-12-24-12s-20 4-24 12z" fill="#5a463c" />
-      <circle cx="51" cy="48" r="2.6" fill="#2b2420" />
-      <circle cx="69" cy="48" r="2.6" fill="#2b2420" />
-      <path d="M50 57c3 3 6.5 4 10 4s7-1 10-4c-3 1-6 1.5-10 1.5S53 58 50 57z" fill="#5a463c" />
-      <circle cx="45" cy="55" r="3.5" fill="#f3a98e" opacity=".6" />
-      <circle cx="75" cy="55" r="3.5" fill="#f3a98e" opacity=".6" />
+      <path d="M36 44c0-16 11-24 24-24s24 8 24 24c-4-8-12-12-24-12s-20 4-24 12z" fill={C.hair} />
+      <circle cx="51" cy="48" r="2.6" fill={C.ink} />
+      <circle cx="69" cy="48" r="2.6" fill={C.ink} />
+      <path d="M50 57c3 3 6.5 4 10 4s7-1 10-4c-3 1-6 1.5-10 1.5S53 58 50 57z" fill={C.hair} />
+      <circle cx="45" cy="55" r="3.5" fill={C.cheek} opacity=".6" />
+      <circle cx="75" cy="55" r="3.5" fill={C.cheek} opacity=".6" />
       <g transform="rotate(12 97 76)">
         <rect x="86" y="62" width="22" height="28" rx="3" fill={C.paper} />
-        <path d="M90 70h12M90 75h12M90 80h8" stroke="#d6cbbf" strokeWidth="2" strokeLinecap="round" />
+        <path d="M90 70h12M90 75h12M90 80h8" stroke={C.lineDark} strokeWidth="2" strokeLinecap="round" />
       </g>
       <g transform="rotate(-10 16 83)">
         <rect x="4" y="74" width="24" height="18" rx="3" fill={C.yellow} />

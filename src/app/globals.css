@@ -2164,3 +2164,32 @@ h1.pt details.info {
 .button.danger {
   color: var(--alert);
 }
+/* トップ: 「デモ: 日付を進める ▸」1行に畳む */
+details.timeshift {
+  background: none;
+  padding: 0;
+}
+details.timeshift > summary {
+  list-style: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 6px 0;
+}
+details.timeshift > summary::-webkit-details-marker {
+  display: none;
+}
+details.timeshift > summary::after {
+  content: " ▸";
+}
+details.timeshift[open] > summary::after {
+  content: " ▾";
+}
+details.timeshift[open] {
+  background: var(--soft);
+  padding: 4px 14px 12px;
+}
+.menu.four {
+  grid-template-columns: repeat(2, 1fr);
+}
+.link-row.subtle { margin-top: var(--space-4); border-top: 1px solid var(--border); font-weight: 400; }

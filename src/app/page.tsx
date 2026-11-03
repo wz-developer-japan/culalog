@@ -97,19 +97,18 @@ export default function Top() {
   const reading = progress.waiting + progress.needsKey;
   const news = unseenReports(h).length + pendingAsks(h).length;
   const numbers = importantNumbers(h).length;
-  const rules = h.rules ?? [];
   const todayClasses = h.timetable.filter((t) => t.weekday === today.getDay());
   const nameOf = (id: string) => h.members.find((m) => m.id === id)?.name ?? "";
   const character = characterOf(h);
   const name = butlerName(h);
 
+  // メニューは4つ。家族ごとは上の丸が入口、聞くは下のタブ、わが家のきまりは予定の画面の下、執事を選ぶは右上のアイコン、
+  // 渡し方・手入力は「＋」の中
   const MENU: { kind: MenuKind; href: string; label: string; sub: string; dot?: number }[] = [
     { kind: "schedule", href: "/schedule", label: "予定", sub: candidates.length ? "締切を近い順に" : "まだありません", dot: todo },
     { kind: "documents", href: "/documents", label: "書類", sub: h.documents.length ? `預かった${h.documents.length}通` : "まだありません", dot: unconfirmed.length },
-    { kind: "family", href: "/family/all", label: "家族ごと", sub: "人で分けて見る" },
     { kind: "numbers", href: "/numbers", label: "大事な番号", sub: numbers ? `${numbers}件・端末の中だけ` : "端末の中だけ" },
-    { kind: "ask", href: questions.length ? "/questions" : "/ask", label: "聞く", sub: questions.length ? `聞きたいこと${countOf(questions.length)}` : news ? `報告が${news}件` : "原本の場所つきで", dot: questions.length + news },
-    { kind: "rules", href: "/rules", label: "わが家のきまり", sub: rules.length ? `きまり${rules.length}件` : "勤務先のきまりなど" },
+    { kind: "cases", href: "/cases", label: "こんなとき", sub: "けが・引っ越しなど" },
   ];
 
   return (
@@ -176,6 +175,16 @@ export default function Top() {
         )
       )}
 
+      {(questions.length > 0 || news > 0) && (
+        <Link className="ask" href={questions.length ? "/questions" : "/ask"} style={{ marginTop: 10 }}>
+          <svg className="l" viewBox="0 0 24 24" aria-hidden>
+            <path d="M5 5h14v10H9l-4 4z" />
+          </svg>
+          <div className="t">{questions.length ? `${name}から聞きたいことが${countOf(questions.length)}` : `${name}からの報告が${news}件`}</div>
+          <span className="go">{questions.length ? "答える" : "見る"}</span>
+        </Link>
+      )}
+
       {(reading > 0 || unconfirmed.length > 0) && (
         <Link className="ask soft" href="/inbox" style={{ marginTop: 10 }}>
           <svg className="l" viewBox="0 0 24 24" aria-hidden>
@@ -194,7 +203,7 @@ export default function Top() {
       )}
 
       <h2 className="sec">メニュー</h2>
-      <nav className="menu" aria-label="メニュー">
+      <nav className="menu four" aria-label="メニュー">
         {MENU.map((m) => (
           <Link key={m.kind} className="mi" href={m.href}>
             {m.dot ? <span className="dot">{m.dot}</span> : null}
@@ -206,8 +215,9 @@ export default function Top() {
       </nav>
 
       {h.isDemo && (
-        <div className="timeshift">
-          <span className="k">日付を進めて、締切が近づく・過ぎる様子を見る</span>
+        <details className="timeshift" open={offset !== 0}>
+          <summary>デモ: 日付を進める</summary>
+          <span className="k">締切が近づく・過ぎる様子を見る</span>
           <div className="row">
             {[0, 1, 3, 7, 14, 30].map((d) => (
               <button key={d} className={`chip${offset === d ? " selected" : ""}`} onClick={() => setOffset(d)} aria-pressed={offset === d}>
@@ -216,15 +226,9 @@ export default function Top() {
             ))}
           </div>
           <span className="meta">架空の家族のときだけ。日付の計算は同じコードで、進めた日を「今日」とみなします。</span>
-        </div>
+        </details>
       )}
 
-      <div className="foot-links">
-        <Link href="/cases">こんなときは？（けが・引っ越し）</Link>
-        <Link href="/scan">渡し方を選ぶ</Link>
-        <Link href="/add">手入力で登録</Link>
-        <Link href="/butler">執事を選ぶ</Link>
-      </div>
       <p className="note">データはこの端末の中にだけ保存しています。読み取る・つなぐ・聞くときだけ、必要な中身を Claude API に送ります。</p>
     </main>
   );
