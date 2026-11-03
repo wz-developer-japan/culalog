@@ -43,11 +43,35 @@ async function run<T>(
 export async function loadHousehold(): Promise<Household | null> {
   try {
     const household = (await run("readonly", (s) => s.get(KEY))) as Household | undefined;
-    // 前に始めた架空の家族にも、既定のアイコンを足す（変えていない人だけ）
-    return household ? withDemoIcons(household) : null;
+    // 前に始めた架空の家族にも、既定のアイコンを足す（変えていない人だけ）。同居の家族だけにそろえる（11/3 より前に始めた架空の家族）
+    return household ? withDemoIcons(withResidentsOnly(household)) : null;
   } catch {
     return null;
   }
+}
+
+/** 架空の家族から、前の版にいた別居の家族（祖父・祖母・叔母）を外す。自分の書類で始めた家には触らない */
+const FORMER_DEMO_MEMBERS = new Set(["m-grandpa", "m-grandma", "m-aunt"]);
+export function withResidentsOnly(household: Household): Household {
+  if (!household.isDemo || !household.members.some((m) => FORMER_DEMO_MEMBERS.has(m.id))) return household;
+  const keep = (ids: string[]) => ids.filter((id) => !FORMER_DEMO_MEMBERS.has(id));
+  return {
+    ...household,
+    members: household.members
+      .filter((m) => !FORMER_DEMO_MEMBERS.has(m.id))
+      .map((m) => (m.id === "m-self" && m.roleLabel === "本人" ? { ...m, roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" } : m)),
+    documents: household.documents.map((d) => {
+      const memberIds = keep(d.memberIds);
+      // 別居の家族だけの書類は、この家の書類ではない扱い（誰の欄にも出さず、予定にもしない）
+      const outsideOnly = d.memberIds.length > 0 && memberIds.length === 0 && !d.householdWide && !d.notForFamily;
+      return {
+        ...d,
+        memberIds,
+        notForFamily: outsideOnly ? "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）" : d.notForFamily,
+        deadlines: outsideOnly ? [] : d.deadlines.map((x) => ({ ...x, memberIds: keep(x.memberIds) })),
+      };
+    }),
+  };
 }
 
 export async function saveHousehold(household: Household): Promise<void> {
