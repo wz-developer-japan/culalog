@@ -10,6 +10,7 @@
 //   - 原本の場所が書類に無いものは、コードの原本の場所に置き換わる
 //   - 候補日から選ぶ行事（個別懇談会の候補日①〜④）は1件にまとまり、Claude には渡さず、Claude の文が来ても使わない
 //   - トップの1件は、町内会の当番が先の日にあっても子どもの行事
+//   - 子どもが読む段（その言葉で読むのが子どもだけ）には、行事と持ち物だけ（同じ日の勤務・提出の締切・やることは入れない）
 // 🔴 本物の Claude の文は毎回違う。ここで確かめるのは、コードの照らし合わせが決まりどおり動くことだけ
 
 import { createDemoHousehold } from "@/data/demoHousehold";
@@ -19,6 +20,8 @@ import { buildCandidates } from "@/lib/butler";
 import { conflictKey, findConflicts, optionText, topConflict, type Conflict } from "@/lib/conflicts";
 import { buildConnectInput, verifyConnect } from "@/lib/connect";
 import type { DemoSample, Household } from "@/lib/types";
+import { provisionalTranslation } from "@/data/demoTranslations";
+import { buildTell, childOnlyLanguage } from "@/lib/tellBuild";
 
 const today = new Date(2026, 10, 7, 10);
 const results: [boolean, string][] = [];
@@ -115,6 +118,24 @@ const list4 = findConflicts(h4, today);
 check(list4.length === 2 && list4[0].community, "町内会の当番 11/18 と授業参観 11/27 の2件（日付順）");
 check(/授業参観/.test(topConflict(list4)?.child.deadline.label ?? ""), "トップの1件は授業参観");
 check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 には「27（金）の分」の申し出の期限を添えない");
+
+// 子どもが読む段（その言葉で読むのが子どもだけ）: 行事と持ち物だけ。同じ日の勤務・提出の締切・やることは入れない
+{
+  const h5 = await createDemoHousehold(today);
+  h5.members = h5.members.map((m) => (m.id === "m-son" ? { ...m, language: "ja-easy" as const } : m));
+  const doc = h5.documents.find((d) => /授業参観.*ご案内/.test(d.title))!;
+  const vi = provisionalTranslation(doc, "vi")!;
+  const base = { basis: [], translatedAt: "", draftSource: "provisional" as const };
+  // やさしい日本語の訳は仮の訳が無いので、ベトナム語の仮の訳の形を借りる（中身の言葉は試験に関係ない）
+  const payload = buildTell(h5, doc, { vi: { ...vi, ...base, lang: "vi" }, "ja-easy": { ...vi, ...base, lang: "ja-easy" } }, () => undefined, ["ja", "vi", "ja-easy"]);
+  const easy = payload.blocks.find((b) => b.lang === "ja-easy")!;
+  const viBlock = payload.blocks.find((b) => b.lang === "vi")!;
+  check(childOnlyLanguage(h5, "ja-easy") && !childOnlyLanguage(h5, "vi"), "やさしい日本語で読むのが蓮さんだけなら、その段は子どもが読む段");
+  check(!easy.lines.some((l) => l.startsWith("⚠")) && viBlock.lines.some((l) => l.startsWith("⚠")), "子どもが読む段に、同じ日の勤務の行が無い（タオさんの段にはある）");
+  check(easy.lines.length >= 1 && /11がつ 27にち/.test(easy.lines[0]), "子どもが読む段にも、行事（日付つき）は入る");
+  check(!easy.lines.some((l) => /11がつ 25にち/.test(l)) && viBlock.lines.some((l) => /25\/11/.test(l)), "子どもが読む段に、出欠票の提出の締切が無い（タオさんの段にはある）");
+  check(!easy.lines.some((l) => l.startsWith("すること")), "子どもが読む段に、やること（大人の手続き）が無い");
+}
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);
 const ng = results.filter(([ok]) => !ok).length;

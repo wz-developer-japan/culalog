@@ -24,6 +24,19 @@ export function tellLanguages(household: Household, doc: DocumentRecord, groupLa
   return [...new Set<LanguageCode>(["ja", ...langs, ...groupLangs])];
 }
 
+/**
+ * その言葉の段を読むのが子どもだけか（家族の設定で、その言葉で読む人が全員子ども）。
+ * 子どもが読む段には、子どもに関係する行事・持ち物だけを入れる（勤務の話・提出や申し出の締切・やること・お金の項目は大人の段に）
+ */
+export function childOnlyLanguage(household: Household, lang: LanguageCode): boolean {
+  if (lang === "ja") return false;
+  const readers = household.members.filter((m) => languageOf(m) === lang);
+  return readers.length > 0 && readers.every((m) => m.relation === "child");
+}
+
+/** 子どもが読む段に入れない項目（お金・締切・提出・勤務） */
+const ADULT_FIELD = /料金|金額|費用|口座|支払|振込|引き落とし|期限|締切|提出|申込|申し込み|申し出|勤務|保険/;
+
 export const nameIn = (m: FamilyMember | undefined, lang: LanguageCode) => (m ? (m.names?.[lang] ?? m.name.split(/\s+/).pop() ?? m.name) : "");
 
 /** 勤務の予定の名前（出勤・日勤・早番など）は、決まった言葉なのでコードで言い換える（訳が無いときだけ） */
@@ -72,8 +85,12 @@ export function buildTell(
     const tx = TEXT[lang];
     const itemOf = (ref: string) => t?.items.find((i) => i.ref === ref);
     const lines: string[] = [];
+    const forChild = childOnlyLanguage(household, lang);
+    const isChild = (id: string) => household.members.find((m) => m.id === id)?.relation === "child";
     // スマホの通知の最初の数行に要点が入るように: 日付のある予定 → 同じ日の家族の予定（1行）→ やること → 項目
     for (const d of events) {
+      // 子どもが読む段: 行事だけ（提出・申し出の締切は大人の段）。ほかの人だけの行事も入れない
+      if (forChild && (d.kind !== "event" || (d.memberIds.length > 0 && !d.memberIds.some(isChild)))) continue;
       const item = itemOf(`d:${d.id}`);
       const label = item?.label ?? d.label;
       const needs = lang === "ja" ? d.needs?.join("、") : item?.text;
@@ -83,7 +100,8 @@ export function buildTell(
         const other = (lang === "ja" ? x.deadline.label : (labelIn(x.doc, x.deadline, lang) ?? workLabelIn(x.deadline.label, lang))) ?? `「${x.deadline.label}」`;
         return `${who ? `${who} ` : ""}${other}`;
       });
-      if (same.length) {
+      // 子どもが読む段には、同じ日の勤務の話を入れない
+      if (same.length && !forChild) {
         // 同じ日のぶつかり（大人が仕事）で、勤務の書類そのものに申し出の期限が書いてあれば、書いてある人の分だけ名前つきで同じ行に
         // （返信で「いつまで？」と聞かれても、送った範囲で答えられる）。わが家のきまりからは作らない
         const conflict = conflictFor(household, d);
@@ -94,11 +112,11 @@ export function buildTell(
       }
     }
     const todo = t ? t.todo : doc.summary?.todo && readableDates(doc.summary.todo);
-    if (todo) lines.push(`${tx.todo}: ${todo}`);
+    if (todo && !forChild) lines.push(`${tx.todo}: ${todo}`);
     // 予定の行と同じこと（時間・日時・持ち物）は、項目から外す
     const repeated = new Set(doc.fields.filter((f) => /時間|日時|持ち物|持参|場所/.test(f.label) && events.some((d) => d.time || d.place || d.needs?.length)).map((f) => `f:${f.key}`));
     const fields = (t ? t.items.filter((i) => i.ref.startsWith("f:")) : doc.fields.map((f) => ({ ref: `f:${f.key}`, label: f.label, text: f.value }))).filter((f) => !repeated.has(f.ref));
-    for (const f of fields.slice(0, 3)) lines.push(`${f.label}: ${mask(f.text)}`);
+    for (const f of fields.filter((x) => !forChild || !ADULT_FIELD.test(x.label)).slice(0, 3)) lines.push(`${f.label}: ${mask(f.text)}`);
     if (t?.background[0]) lines.push(`ℹ ${tx.general}（${t.background[0].title}）: ${t.background[0].text}`);
     return { lang, title: t?.title ?? doc.title, lines };
   });

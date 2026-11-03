@@ -127,6 +127,39 @@ export default function ButlerSettingsPage() {
         </label>
       ))}
 
+      {(() => {
+        // ほかの言葉で読む家族へのお知らせ（Telegram）では、名前もその言葉の呼び名で書く（漢字の名前が読めない人がいるため）
+        const others = [...new Set(household.members.map(languageOf))].filter((c) => c !== "ja");
+        if (others.length === 0) return null;
+        return (
+          <>
+            <h3>ほかの言葉での呼び名</h3>
+            <p className="meta">ほかの言葉で読む家族へのお知らせでは、名前をこの呼び名で書きます（空なら日本語の名前のまま）。</p>
+            {household.members.map((m) =>
+              others.map((lang) => (
+                <label className="label row-label" key={`${m.id}-${lang}`}>
+                  <span>
+                    {m.name}（{LANGUAGES.find((l) => l.code === lang)?.label}）
+                  </span>
+                  <input
+                    className="input"
+                    value={m.names?.[lang] ?? ""}
+                    placeholder={lang === "vi" ? "例: Thảo" : "例: しょうた"}
+                    lang={lang === "vi" ? "vi" : "ja"}
+                    onChange={(e) =>
+                      save({
+                        ...household,
+                        members: household.members.map((x) => (x.id === m.id ? { ...x, names: { ...x.names, [lang]: e.target.value.trim() ? e.target.value : undefined } } : x)),
+                      })
+                    }
+                  />
+                </label>
+              )),
+            )}
+          </>
+        );
+      })()}
+
       <TelegramSettings household={household} save={save} />
 
       <VoiceSettings />

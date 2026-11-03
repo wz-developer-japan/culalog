@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { translateDocument } from "@/components/TranslationView";
-import { languageLabel, type LanguageCode } from "@/lib/languages";
+import { LANGUAGES, languageLabel, type LanguageCode } from "@/lib/languages";
 import { composeTell } from "@/lib/tell";
 import { buildTell, tellLanguages } from "@/lib/tellBuild";
 import type { DocTranslation } from "@/lib/translate";
@@ -100,6 +100,15 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
               ? `下の文を、家族の Telegram グループに送ります${groupCount ? `（グループの${groupCount}人が読めます）` : ""}。Telegram と通訳（Claude）を通ります。書類の写真・ほかの書類・大事な番号は送りません。`
               : "家族の Telegram とまだつないでいません（設定でつなげます）。下の文をコピーして、いつものアプリに貼ることもできます。"}
           </div>
+          {(() => {
+            // 夫も妻も、相手に何が届くかを自分の言葉で確かめられるように: ほかの言葉の段が、日本語の段と同じ中身だと一言
+            const others = LANGUAGES.filter((l) => l.code !== "ja" && text.includes(`【${l.native}】`)).map((l) => l.label);
+            return others.length > 0 && text.includes("【日本語】") ? (
+              <div className="meta">
+                {others.join("・")}の段は、日本語の段と同じ予定・やることを訳したものです（ℹ の行は、その言葉で読む人への一般的な説明）。
+              </div>
+            ) : null;
+          })()}
           {household.telegram && (
             <button className="button" disabled={busy || status.startsWith("家族の")} onClick={send}>
               {busy ? "送っています…" : "Telegram のグループに送る"}
