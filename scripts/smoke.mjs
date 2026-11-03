@@ -267,6 +267,21 @@ await step("番号を聞くと、Claude に送らずに端末の中で答え、�
   if (calls.length) throw new Error(`/api/ask が${calls.length}回呼ばれました`);
 });
 
+await step("こんなとき: けが・引っ越し・補償の重なりを、書類をつないで並べる（判断はしない）", async () => {
+  await page.goto(BASE + "/cases?s=injury");
+  await see("けがのときに見る所");
+  let body = await page.locator("main").innerText();
+  for (const t of ["学校でのけがの給付について", "家族傷害保険", "子ども医療費受給者証"]) if (!body.includes(t)) throw new Error(`けがの場面に「${t}」がありません`);
+  await page.goto(BASE + "/cases?s=move");
+  await see("住所や「住所が変わったとき」");
+  body = await page.locator("main").innerText();
+  for (const t of ["くもまど光ネット", "自動車検査証", "書類の送付先（旧住所）"]) if (!body.includes(t)) throw new Error(`引っ越しの場面に「${t}」がありません`);
+  await page.goto(BASE + "/cases?s=overlap");
+  await see("「個人賠償責任」が3つの書類にあります");
+  body = await page.locator("main").innerText();
+  if (/解約しましょう|払いすぎ|保険金が出ます/.test(body)) throw new Error("判断の言い回しが出ています");
+});
+
 await browser.close();
 for (const [s, name, why] of results) console.log(`${s}  ${name}${why ? `\n    ${why}` : ""}`);
 console.log(`画面の画像: ${OUT}`);

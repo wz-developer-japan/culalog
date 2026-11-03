@@ -1762,3 +1762,94 @@ h2.sec .more {
 .lead-choice .label {
   margin-top: 8px;
 }
+
+/* こんなとき（3つの場面） */
+.scenes {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+.scene {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  column-gap: 10px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 2px solid transparent;
+  background: var(--soft);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.scene .n {
+  grid-row: span 3;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.scene .lead-s {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.scene b {
+  font-size: 1.05rem;
+}
+.scene .does {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.scene.on {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+.case-doc .t {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.case-doc .contacts {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #eadfd6;
+}
+.case-links {
+  display: grid;
+  gap: 8px;
+}
+.case-links a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--soft);
+  color: var(--text);
+  text-decoration: none;
+}
+.case-links .n {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.case-links b {
+  display: block;
+  font-size: 0.95rem;
+}
+.case-links small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}

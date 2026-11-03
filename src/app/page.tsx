@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { FamilyRow } from "@/components/FamilyRow";
 import { ButlerPic, MenuPic, type MenuKind } from "@/components/Pics";
 import { createDemoHousehold } from "@/data/demoHousehold";
+import { SCENES } from "@/lib/cases";
 import { buildCandidates, markFollowUps, openQuestions } from "@/lib/butler";
 import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import { inboxProgress } from "@/lib/inbox";
@@ -203,6 +204,25 @@ export default function Top() {
           </Link>
         ))}
       </nav>
+
+      {h.documents.length > 0 && (
+        <>
+          <h2 className="sec">
+            こんなとき <Link className="more" href="/cases">ぜんぶ見る</Link>
+          </h2>
+          <nav className="case-links" aria-label="こんなとき">
+            {SCENES.map((s, i) => (
+              <Link key={s.id} href={`/cases?s=${s.id}`}>
+                <span className="n">{i + 1}</span>
+                <span>
+                  <b>{s.title}</b>
+                  <small>{s.lead}</small>
+                </span>
+              </Link>
+            ))}
+          </nav>
+        </>
+      )}
 
       {h.isDemo && (
         <div className="timeshift">
