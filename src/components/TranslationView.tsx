@@ -34,7 +34,12 @@ export async function translateDocument(
     const { provisionalTranslation } = await import("@/data/demoTranslations");
     const t = provisionalTranslation(doc, lang);
     if (t) return { translation: { ...t, ...base, draftSource: "provisional" } };
-    return { error: "訳す機能は準備中です（見本の書類のうち、いくつかだけ仮の訳を用意しています）。" };
+    return {
+      error:
+        lang === "ja-easy"
+          ? "やさしい日本語の仮の訳は用意していません（執事（Claude）の準備ができると作れます）。"
+          : "訳す機能は準備中です（見本の書類のうち、いくつかだけ仮の訳を用意しています）。",
+    };
   }
   return { error: json.error ?? "訳せませんでした。" };
 }

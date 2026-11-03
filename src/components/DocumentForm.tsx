@@ -4,7 +4,7 @@
 // 読み取りの下書きを直すときも、原本のどこに書いてあったか（場所と抜き書き）はそのまま残す。
 
 import { type ReactNode, useState } from "react";
-import { CATEGORY_LABELS, DEADLINE_KIND_LABELS, DEFAULT_LEAD_DAYS, RANGE_KINDS } from "@/lib/labels";
+import { CATEGORY_GROUPS, CATEGORY_LABELS, DEADLINE_KIND_LABELS, DEFAULT_LEAD_DAYS, RANGE_KINDS } from "@/lib/labels";
 import type {
   Contact,
   Deadline,
@@ -136,18 +136,18 @@ export function DocumentForm({
       </label>
 
       <label className="label">
-        種類
+        分類（かっこの中は、書類の一覧で並ぶ所）
         <select className="input" value={category} onChange={(e) => setCategory(e.target.value as DocumentCategory)}>
           {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
-              {label}
+              {label}（{CATEGORY_GROUPS[value as DocumentCategory].join("・")}）
             </option>
           ))}
         </select>
       </label>
 
       <label className="label">
-        書類の種類（任意）
+        書類の名前の種類（任意）
         <input className="input" value={docType} onChange={(e) => setDocType(e.target.value)} placeholder="例: 歯科健診のお知らせ" />
       </label>
 
@@ -186,7 +186,7 @@ export function DocumentForm({
       {deadlines.map((d, i) => (
         <div className="card" key={d.id}>
           <label className="label">
-            種類
+            予定の種類
             <select
               className="input"
               value={d.kind}
