@@ -6,7 +6,7 @@ import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { memberMark } from "@/lib/memberMark";
+import { faceBackground, MemberFace } from "@/components/MemberFace";
 import { importantNumbers } from "@/lib/numbers";
 import { ButlerPic, Pic } from "@/components/Pics";
 import { CATEGORY_LABELS } from "@/lib/labels";
@@ -76,14 +76,11 @@ export default function Documents() {
           {people.length > 1 && (
             <div className="chips">
               {people.map((m) => {
-                const mark = memberMark(household.members, m.id);
                 return (
                   <button key={m.id} className={`chip${member === m.id ? " selected" : ""}`} onClick={() => setMember(member === m.id ? "" : m.id)}>
-                    {mark && (
-                      <span className="member-dot" style={{ background: mark.color }} aria-hidden>
-                        {mark.initial}
-                      </span>
-                    )}
+                    <span className="member-dot" style={{ background: faceBackground(household.members, m) }} aria-hidden>
+                      <MemberFace members={household.members} member={m} />
+                    </span>
                     {m.name.split(/\s+/).pop()}
                   </button>
                 );

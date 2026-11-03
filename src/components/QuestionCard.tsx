@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { effectOf } from "@/lib/butler";
-import { memberMark } from "@/lib/memberMark";
+import { faceBackground, MemberFace } from "@/components/MemberFace";
 import type { ButlerQuestion, DocumentRecord, FamilyMember } from "@/lib/types";
 
 export function QuestionCard({
@@ -32,10 +32,10 @@ export function QuestionCard({
     (question.options.find((o) => o.value === value)?.label ?? "").replace(/（.*）$/, "");
   const guessNames = guess.map((v) => `${nameOf(v)}さん`).join("と");
   const Dot = ({ value }: { value: string }) => {
-    const mark = question.about === "members" ? memberMark(members, value) : undefined;
-    return mark ? (
-      <span className="member-dot" style={{ background: mark.color }} aria-hidden>
-        {mark.initial}
+    const member = question.about === "members" ? members.find((m) => m.id === value) : undefined;
+    return member ? (
+      <span className="member-dot" style={{ background: faceBackground(members, member) }} aria-hidden>
+        <MemberFace members={members} member={member} />
       </span>
     ) : null;
   };

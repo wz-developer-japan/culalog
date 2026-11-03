@@ -44,10 +44,10 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
     isDemo: true,
     members: [
       // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
-      { id: "m-self", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" },
-      { id: "m-spouse", name: "日向 美咲", relation: "spouse", roleLabel: "妻", note: "平日は会社勤め" },
-      { id: "m-son", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
-      { id: "m-daughter", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
+      { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" },
+      { id: "m-spouse", icon: "woman-long", name: "日向 美咲", relation: "spouse", roleLabel: "妻", note: "平日は会社勤め" },
+      { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
+      { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
     ],
     documents: [
       {

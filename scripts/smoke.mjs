@@ -46,8 +46,10 @@ await step("最初の画面から架空の家族で始められる", async () =>
   await see("架空の家族で試しています");
 });
 
-await step("トップに家族の丸とメニューがあり、予定の画面に執事のひとことと安全網がある", async () => {
+await step("トップに家族の丸（4人ともキャラクターのアイコン）とメニューがあり、予定の画面に執事のひとことと安全網がある", async () => {
   await page.locator(".fam a", { hasText: "みんな" }).waitFor({ timeout: 15000 });
+  const faces = await page.locator(".fam a svg.face").count();
+  if (faces !== 4) throw new Error(`家族の丸のキャラクターが ${faces} 人分です（4人分のはず）`);
   await page.locator(".menu a", { hasText: "予定" }).click();
   await page.waitForURL(/\/schedule$/, { timeout: 15000 });
   await page.locator("h2", { hasText: "のひとこと" }).waitFor({ timeout: 15000 });

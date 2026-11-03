@@ -18,6 +18,8 @@ export interface FamilyMember {
   note?: string;
   /** 選択肢に添える短い続柄（例: 「祖父」「叔母」）。無ければ続柄から決める */
   roleLabel?: string;
+  /** 家族の丸: キャラクターの id（"man" など）か "photo"（写真は端末の files に置く。サーバーにも Claude にも送らない）。無ければ色と頭文字 */
+  icon?: string;
 }
 
 /** 原本のどこに書いてあったか */

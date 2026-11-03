@@ -1,6 +1,7 @@
 // 書類のデータは端末の中（IndexedDB）にだけ保存する。サーバーには送らない。
 // （書類の読み取りのときだけ、その書類の画像・PDF を Claude API に送る）
 
+import { withDemoIcons } from "./avatars";
 import type { Household } from "./types";
 
 const DB_NAME = "culalog";
@@ -41,7 +42,9 @@ async function run<T>(
 
 export async function loadHousehold(): Promise<Household | null> {
   try {
-    return ((await run("readonly", (s) => s.get(KEY))) as Household | undefined) ?? null;
+    const household = (await run("readonly", (s) => s.get(KEY))) as Household | undefined;
+    // 前に始めた架空の家族にも、既定のアイコンを足す（変えていない人だけ）
+    return household ? withDemoIcons(household) : null;
   } catch {
     return null;
   }

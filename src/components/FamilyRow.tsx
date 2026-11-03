@@ -3,7 +3,7 @@
 // 家族の丸いアイコンを横に並べる（みんな・翔太・美咲…）。押すとその人のページへ。トップと家族ごとのページで使う。
 
 import Link from "next/link";
-import { memberMark } from "@/lib/memberMark";
+import { faceBackground, MemberFace } from "@/components/MemberFace";
 import type { FamilyMember } from "@/lib/types";
 import { givenName, type Whose } from "@/lib/whose";
 
@@ -21,10 +21,11 @@ export function FamilyRow({ members, current }: { members: FamilyMember[]; curre
         みんな
       </Link>
       {members.map((m) => {
-        const mark = memberMark(members, m.id);
         return (
           <Link key={m.id} href={`/family/${m.id}`} className={current === m.id ? "on" : undefined} aria-current={current === m.id ? "page" : undefined}>
-            <b style={{ background: mark?.color }}>{mark?.initial}</b>
+            <b style={{ background: faceBackground(members, m) }}>
+              <MemberFace members={members} member={m} />
+            </b>
             {givenName(m.name)}
           </Link>
         );

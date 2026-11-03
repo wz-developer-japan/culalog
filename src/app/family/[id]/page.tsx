@@ -10,13 +10,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BackToTop } from "@/components/BackToTop";
 import { DeadlineCard } from "@/components/DeadlineCard";
+import { AvatarPicker } from "@/components/AvatarPicker";
 import { FamilyRow } from "@/components/FamilyRow";
+import { faceBackground, MemberFace } from "@/components/MemberFace";
 import { NumbersList } from "@/components/NumbersList";
 import { Pic } from "@/components/Pics";
 import { buildCandidates, toggleDone } from "@/lib/butler";
 import { type ActionItem, allItems, formatYmd, isDone, itemIds } from "@/lib/deadlines";
 import { CATEGORY_LABELS, RELATION_LABELS } from "@/lib/labels";
-import { memberMark } from "@/lib/memberMark";
 import { importantNumbers } from "@/lib/numbers";
 import type { Household } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -35,6 +36,7 @@ export default function FamilyPage() {
   const whose: Whose = params?.id ?? "all";
   const { household, loaded, save } = useHousehold();
   const [tab, setTab] = useState<Tab>("deadlines");
+  const [picking, setPicking] = useState(false);
 
   useEffect(() => {
     if (loaded && !household) router.replace("/");
@@ -52,7 +54,6 @@ export default function FamilyPage() {
     );
   }
   const today = now();
-  const mark = member ? memberMark(h.members, member.id) : undefined;
 
   // 書類（前のもの・この家の書類ではないものは、その人のページには出さない）
   const docs = h.documents.filter((d) => !d.supersededBy && isFor(whose, d.memberIds, d.notForFamily));
@@ -95,9 +96,16 @@ export default function FamilyPage() {
       <FamilyRow members={h.members} current={whose} />
       <div className="who">
         {member ? (
-          <b className="av" style={{ background: mark?.color }}>
-            {mark?.initial}
-          </b>
+          <button className="av-button" onClick={() => setPicking(!picking)} aria-label="アイコンを変える" aria-expanded={picking}>
+            <b className="av" style={{ background: faceBackground(h.members, member) }}>
+              <MemberFace members={h.members} member={member} />
+            </b>
+            <span className="pen" aria-hidden>
+              <svg viewBox="0 0 24 24">
+                <path d="M4 20l1-4L16 5l3 3L8 19z" />
+              </svg>
+            </span>
+          </button>
         ) : (
           <b className="av house">
             <svg className="l" viewBox="0 0 24 24" aria-hidden>
@@ -114,6 +122,7 @@ export default function FamilyPage() {
           </div>
         </div>
       </div>
+      {member && picking && <AvatarPicker household={h} member={member} save={save} onClose={() => setPicking(false)} />}
 
       <div className="seg" role="tablist">
         {TABS.map((t) => (
