@@ -187,7 +187,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
             label: "授業参観（2学期）",
             date: ymd(t.openClass),
             leadDays: 21,
-            leadReason: "平日の行事。有給の申請に間に合うよう、案内プリントで時間を確かめたい",
+            leadReason: "平日の行事。行くかどうかを家族で決められるよう、案内プリントで時間を確かめたい",
             memberIds: ["m-son", "m-self"],
             source: { location: "これからのおもな予定・授業参観（2学期）", quote: `授業参観（2学期）　${jpDate(t.openClass)}` },
           },
@@ -644,17 +644,17 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
     rules: [
       {
         id: "rule-leave",
-        label: "有給の申請（勤務先）",
+        label: "休みの申請（勤務先）",
         daysBefore: 7,
         memberId: "m-self",
-        note: "勤務先のきまりで、有給の申請は遅くとも1週間前まで",
+        note: "勤務先のきまりで、休みの申請は遅くとも1週間前まで",
       },
       {
         id: "rule-leave-spouse",
-        label: "有給の申請（タオの勤務先）",
+        label: "休みの申請（タオの勤務先）",
         daysBefore: 7,
         memberId: "m-spouse",
-        note: "タオの勤務先のきまりで、有給の申請は遅くとも1週間前まで",
+        note: "タオの勤務先のきまりで、休みの申請は遅くとも1週間前まで",
       },
     ],
     timetable: [

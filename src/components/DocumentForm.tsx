@@ -288,7 +288,7 @@ export function DocumentForm({
               className="input"
               value={d.leadReason ?? ""}
               onChange={(e) => updateDeadline(i, { leadReason: e.target.value || undefined })}
-              placeholder="例: 有給の申請は1週間前まで"
+              placeholder="例: 休みの申請は1週間前まで"
             />
           </label>
           {d.kind === "cancel_window" && (

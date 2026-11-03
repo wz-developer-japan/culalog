@@ -96,10 +96,12 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   await conflict.waitFor({ timeout: 15000 });
   const conflictText = await conflict.innerText();
   if (
-    !/11月27日（金）は、蓮さんの授業参観の日です。この日は、タオさんも翔太さんもお仕事になっているようです/.test(conflictText) ||
-    !/原本: 2学期 授業参観のご案内 ／ タオさんの勤務カレンダー ／ 翔太さんのシフト表/.test(conflictText) ||
-    !/休みを取るなら、どちらも11月20日（金）までに申し出が必要です/.test(conflictText) ||
-    !/どちらが行くかは、家族で決めてください/.test(conflictText)
+    !/11月27日（金）は、蓮さんの授業参観の日です。この日は、タオさんも翔太さんもお仕事のようです/.test(conflictText) ||
+    !/どちらが行くか（行かないか）は、家族で決めてください。行くと決まったら、勤務先への連絡も忘れずに/.test(conflictText) ||
+    // 期限は勤務の書類に書いてある人の分だけ（翔太さんのシフト表）。タオさんのきまりから作った期限は出さない
+    !/翔太さんのシフト表: 休みの希望・シフトの交代は11月20日（金）まで/.test(conflictText) ||
+    /有給|タオさんの勤務カレンダー: /.test(conflictText) ||
+    !/原本: 2学期 授業参観のご案内 ／ タオさんの勤務カレンダー ／ 翔太さんのシフト表/.test(conflictText)
   )
     throw new Error(`同じ日の気づきの文: ${conflictText}`);
   if ((await page.locator(".card.insight.conflict").count()) !== 1) throw new Error("同じ日の気づきが1件ではありません（運動会・面談など、保護者が行く行事で時間が分かっているもの以外が出ています）");
@@ -195,7 +197,7 @@ await step("見本をまとめて渡すと、受け取り箱で順番に読ま�
   await see("件を確定しました");
 });
 
-await step("学年だより・案内プリントの授業参観に、執事が「見に行きますか？」と聞く →「行く」で有給の申請の締切が予定に入る（行くと決めつけない）", async () => {
+await step("学年だより・案内プリントの授業参観に、執事が「見に行きますか？」と聞く →「行く」で休みの申請（わが家のきまり）の締切が予定に入る（行くと決めつけない・「有給」と言わない・期限を押し出さない）", async () => {
   await page.goto(BASE + "/schedule");
   await page.locator("h2.sec.from").waitFor({ timeout: 15000 });
   // 「見に行きますか？」は、返事を待つので畳まない
@@ -206,13 +208,14 @@ await step("学年だより・案内プリントの授業参観に、執事が�
   // 学年だよりと案内プリントの両方にあっても、聞くのは1回
   if ((await cards.count()) !== 1) throw new Error(`授業参観に行くかを聞くカードが${await cards.count()}枚あります`);
   const text = await cards.first().innerText();
-  if (!/有給の申請/.test(text)) throw new Error(`行くなら有給の申請、が出ていません: ${text.slice(0, 120)}`);
+  if (!/休みの申請の締切を予定に/.test(text)) throw new Error(`「行く（休みの申請の締切を予定に）」が出ていません: ${text.slice(0, 120)}`);
+  if (/有給|までです/.test(text)) throw new Error(`見に行きますか？ のカードに「有給」か期限の押し出しが残っています: ${text.slice(0, 120)}`);
   if (!(await cards.first().getByRole("button", { name: "行かない" }).count())) throw new Error("「行かない」のボタンがありません");
   await cards.first().getByRole("button", { name: /^行く/ }).click();
   await page.waitForTimeout(500);
   if (await page.locator(".card.insight").filter({ hasText: /見に行きますか/ }).count()) throw new Error("「行く」を押しても、まだ聞いています");
   await page.goto(BASE + "/schedule/all");
-  await see("授業参観（2学期）の日の有給の申請");
+  await see("授業参観（2学期）の日の休みの申請");
 });
 
 await step("聞きたいことに答えると、執事が覚える", async () => {

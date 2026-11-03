@@ -1,6 +1,6 @@
 "use client";
 
-// わが家のきまり。書類には書いていない、その家の事情（例: 有給の申請は1週間前まで）。
+// わが家のきまり。書類には書いていない、その家の事情（例: 勤務先への休みの申請は1週間前まで）。
 // 書類の予定に当てはめると、予定の日から逆算した締切がホームに出る。
 
 import { Info } from "@/components/Info";
@@ -89,7 +89,7 @@ export default function Rules() {
       <div className="card">
         <label className="label">
           何のきまりか
-          <input className="input" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="例: 有給の申請（勤務先）" />
+          <input className="input" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="例: 休みの申請（勤務先）" />
         </label>
         <label className="label">
           予定の何日前までか

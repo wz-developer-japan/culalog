@@ -2,7 +2,7 @@
 // 日付はコードが元の予定から、その言葉の形で入れる。同じ日の家族の予定（例: 勤務カレンダーの出勤日）も添える。
 // 🔴 大事な番号は入れない（伏せる）。送る前に画面で全部見せる。
 
-import { adultWorkOn, conflictFor, leaveLimits, sameEvent } from "./conflicts";
+import { adultWorkOn, conflictFor, noticeShort, sameEvent, workNotices } from "./conflicts";
 import { addDays, readableDates, toYmd } from "./deadlines";
 import { maskKnownNumbers } from "./numbers";
 import { languageOf, type LanguageCode } from "./languages";
@@ -13,7 +13,7 @@ import type { Deadline, DocumentRecord, FamilyMember, Household } from "./types"
 const TEXT: Record<LanguageCode, { needs: string; sameDay: string; todo: string; general: string; leave: (date: string) => string }> = {
   ja: { needs: "持ち物", sameDay: "同じ日", todo: "やること", general: "一般的な説明", leave: (d) => `休みの申し出は${d}まで` },
   "ja-easy": { needs: "もちもの", sameDay: "おなじ ひ", todo: "すること", general: "せつめい", leave: (d) => `やすみの もうしでは ${d}まで` },
-  vi: { needs: "Mang theo", sameDay: "Cùng ngày", todo: "Cần làm", general: "Giải thích chung", leave: (d) => `hạn xin nghỉ: ${d}` },
+  vi: { needs: "Mang theo", sameDay: "Cùng ngày", todo: "Cần làm", general: "Giải thích chung", leave: (d) => `hạn xin nghỉ ${d}` },
 };
 
 /** 書類のまとめを送る相手の言葉（共有した人の言葉と、あなたの言葉）。日本語は必ず入れる */
@@ -84,15 +84,12 @@ export function buildTell(
         return `${who ? `${who} ` : ""}${other}`;
       });
       if (same.length) {
-        // 同じ日のぶつかり（大人が仕事）なら、休みの申し出の締切も同じ行に（返信で「いつまで？」と聞かれても、送った範囲で答えられる）
+        // 同じ日のぶつかり（大人が仕事）で、勤務の書類そのものに申し出の期限が書いてあれば、書いてある人の分だけ名前つきで同じ行に
+        // （返信で「いつまで？」と聞かれても、送った範囲で答えられる）。わが家のきまりからは作らない
         const conflict = conflictFor(household, d);
-        const limits = conflict ? leaveLimits(conflict) : [];
-        const allSame = limits.every((x) => x.date === limits[0]?.date);
-        const leave = !limits.length
-          ? ""
-          : allSame
-            ? tx.leave(formatDateIn(limits[0].date, lang))
-            : limits.map((x) => `${x.memberIds.map((id) => nameIn(household.members.find((m) => m.id === id), lang)).join("・")} ${tx.leave(formatDateIn(x.date, lang))}`).join("、");
+        const leave = (conflict ? workNotices(conflict) : [])
+          .map((x) => `${x.memberIds.map((id) => nameIn(household.members.find((m) => m.id === id), lang)).join("・")}: ${lang === "ja" ? `${noticeShort(x.label)}は${formatDateIn(x.date, lang)}まで` : tx.leave(formatDateIn(x.date, lang))}`)
+          .join("、");
         lines.push(`⚠ ${tx.sameDay}: ${same.join(" ／ ")}${leave ? ` — ${leave}` : ""}`);
       }
     }

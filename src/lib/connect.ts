@@ -89,16 +89,17 @@ export interface ConnectInput {
   candidates: { id: string; title: string; detail: string; why: string; urgent: boolean; followUp: string }[];
   /** 本人が「違う」と言った気づき（同じことを言わない） */
   rejected: string[];
-  /** コードが見つけた同じ日のぶつかり（子どもの行事の日に、大人の家族が仕事）。文は Claude が書く */
+  /** コードが見つけた同じ日のぶつかり（子どもの行事・町内会の清掃や当番の日に、大人の家族が仕事）。文は Claude が書く */
   sameDay: {
     id: string;
     date: string;
-    event: { documentId: string; deadlineId: string; label: string; time: string; childIds: string[]; location: string };
+    /** kind: child（保護者が行く子どもの行事）か community（町内会・自治会の、家から誰かが出る行事） */
+    event: { kind: "child" | "community"; documentId: string; documentTitle: string; deadlineId: string; label: string; time: string; childIds: string[]; location: string };
     adults: {
       memberIds: string[];
       work: { documentId: string; label: string; location: string; quote: string };
-      /** 休みの申し出の締切（勤務の書類の申し出の締切か、わが家のきまりの有給の申請）。分からなければ null */
-      limit: { date: string; what: string; documentId: string; ruleId: string; location: string } | null;
+      /** 勤務の書類そのものに書いてある、休みの申し出の期限。書いていなければ null（きまりからは作らない） */
+      limit: { date: string; what: string; documentId: string; location: string } | null;
     }[];
   }[];
 }
@@ -263,7 +264,9 @@ function sameDayInput(c: Conflict): ConnectInput["sameDay"][number] {
     id: conflictKey(c),
     date: c.date,
     event: {
+      kind: c.community ? "community" : "child",
       documentId: c.child.doc.id,
+      documentTitle: c.child.doc.title,
       deadlineId: c.child.deadline.id,
       label: c.child.deadline.label,
       time: c.child.deadline.time ?? "",
@@ -273,11 +276,7 @@ function sameDayInput(c: Conflict): ConnectInput["sameDay"][number] {
     adults: c.adults.map((a) => ({
       memberIds: a.deadline.memberIds,
       work: { documentId: a.doc.id, label: a.deadline.label, location: a.deadline.source?.location ?? "", quote: a.deadline.source?.quote ?? "" },
-      limit: a.notice
-        ? { date: a.notice.date, what: a.notice.label, documentId: a.doc.id, ruleId: "", location: a.notice.source?.location ?? "" }
-        : a.leave
-          ? { date: a.leave.date, what: a.leave.rule.label, documentId: "", ruleId: a.leave.rule.id, location: "わが家のきまり" }
-          : null,
+      limit: a.notice ? { date: a.notice.date, what: a.notice.label, documentId: a.doc.id, location: a.notice.source?.location ?? "" } : null,
     })),
   };
 }
@@ -494,7 +493,7 @@ export function verifyConnect(
 
 /**
  * 前のものと新しいものの、同じ名前の予定の日付をコードで比べる（Claude は使っていない）。
- * デモの家族では、授業参観（平日）に行くかを聞き、行くなら有給のきまりを当てはめる例も出す（provisionalOpenClass）。
+ * デモの家族では、授業参観（平日）に行くかを聞き、行くならわが家のきまりを当てはめる例も出す（provisionalOpenClass）。
  */
 export function provisionalConnect(household: Household, today = ""): { briefing: []; insights: RawInsight[] } {
   const insights: RawInsight[] = [];
@@ -524,7 +523,7 @@ export function provisionalConnect(household: Household, today = ""): { briefing
 
 /**
  * デモの家族の仮の気づき: 学年だより・案内プリントなどで拾った授業参観（平日）に「行きますか？」と聞く。
- * 行くと決めつけない（行くなら有給のきまりを当てはめ、行かないなら何もしない）。
+ * 行くと決めつけない（行くならわが家のきまり（休みの申請）を当てはめ、行かないなら何もしない）。期限は文に出さない。
  * 同じ日の授業参観が二つの書類にあっても（学年だよりと案内プリント）、聞くのは1回だけ。
  */
 function provisionalOpenClass(household: Household, today: string): RawInsight[] {
@@ -544,13 +543,10 @@ function provisionalOpenClass(household: Household, today: string): RawInsight[]
     if (same.some(({ d }) => d.applyRuleIds?.includes(rule.id) || answers[insightKey("apply_rule", d.id, rule.id, "")])) continue;
     // 時間まで書いてある方（案内プリント）を優先する
     const { doc, d } = same.find((e) => e.d.time) ?? same[same.length - 1];
-    const leave = ruleDeadlines({ ...d, applyRuleIds: [rule.id], reserve: undefined }, [rule])[0];
     out.push({
       kind: "apply_rule",
-      // 同じ日の気づき（親が仕事の日）が出ているなら、申請の締切はそちらで言っているので重ねない
-      text: findConflicts(household, parseDate(today || d.date)).some((c) => c.date === d.date)
-        ? `${formatYmd(d.date)}の${d.label.replace(/[（(].*$/, "")}、${first}さんは見に行きますか？`
-        : `${formatYmd(d.date)}の${d.label}、${first}さんは見に行きますか？ 平日なので、行くなら「${rule.label}」は${formatYmd(leave.date)}までです。`,
+      // 期限は押し出さない（休み方はその家が決める）。「行く」を押したときだけ、わが家のきまりの締切を予定に入れる
+      text: `${formatYmd(d.date)}の${d.label.replace(/[（(].*$/, "")}、${first}さんは見に行きますか？`,
       deadlineId: d.id,
       ruleId: rule.id,
       oldDeadlineId: "",

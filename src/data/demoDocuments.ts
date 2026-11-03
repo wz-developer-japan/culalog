@@ -24,7 +24,7 @@ export function nextSaturdayAfter(today: Date, minDays: number): Date {
   return date;
 }
 
-/** 今日から minDays 日以上先の、最初の金曜日（授業参観は平日。働く親は有給を取る日） */
+/** 今日から minDays 日以上先の、最初の金曜日（授業参観は平日。働く親は仕事とぶつかる日） */
 export function nextFridayAfter(today: Date, minDays: number): Date {
   let date = addDays(today, minDays);
   while (date.getDay() !== 5) date = addDays(date, 1);
@@ -204,7 +204,7 @@ ${jpDate(t.gradeLetterIssued)}　くろうど第一小学校 第3学年
 担任一同　くろうど第一小学校　000-0000-0000`;
 }
 
-/** 授業参観の案内プリント。デモでは「まだ届いていない書類」で、読み取りを試す1枚（平日の行事なので、働く親は有給を取る） */
+/** 授業参観の案内プリント。デモでは「まだ届いていない書類」で、読み取りを試す1枚（平日の行事なので、働く親は仕事とぶつかる） */
 export function openClassNoticeText(t: DemoDates): string {
   return `保護者の皆様へ
 
