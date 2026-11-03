@@ -33,6 +33,15 @@ export default function DocumentDetail() {
   const [flashId, setFlashId] = useState<string | null>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
+  // 「家族に伝える」「家族と共有して伝える」から来たとき（#tell・#share）: 書類を読み終わってから、その欄へ（読む前は欄がまだ無い）
+  const docReady = loaded && Boolean(household?.documents.some((d) => d.id === id));
+  useEffect(() => {
+    if (!docReady) return;
+    const hash = window.location.hash.slice(1);
+    if (!/^(tell|share)$/.test(hash)) return;
+    requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView({ block: "start" }));
+  }, [docReady, id]);
+
   useEffect(() => {
     if (!flashId) return;
     textRef.current?.querySelector(`[data-marks~="${flashId}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -337,7 +346,7 @@ export default function DocumentDetail() {
 
       {!doc.notForFamily && (
         <>
-          <h2>家族と共有</h2>
+          <h2 id="share">家族と共有</h2>
           <ShareWith members={household.members} doc={doc} onChange={(sharedWith) => update({ ...doc, sharedWith })} />
           <TellFamily household={household} doc={doc} save={update} />
         </>

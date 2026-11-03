@@ -31,7 +31,21 @@ const HELP = `CULALOG の通訳の執事です。
 ・読みたい言葉を決める: /lang ja（日本語）・/lang vi（Tiếng Việt）・/lang easy（やさしい にほんご）
 ・止める /pause ・再開 /resume
 ・アプリとつなぐ: /link（出てきた6文字をアプリの設定に入れる）
-🔴 番号（保険証・口座など）は、ここに書かないでください。`;
+🔴 番号（保険証・口座など）は、ここに書かないでください。
+
+【Tiếng Việt】
+Mình là quản gia phiên dịch của CULALOG.
+・Mình dịch tin nhắn trong nhóm sang ngôn ngữ mà mỗi người muốn đọc (tin nhắn được gửi tới Claude để dịch, không lưu lại).
+・Chọn ngôn ngữ muốn đọc: /lang vi (Tiếng Việt)・/lang ja (日本語)・/lang easy (やさしい にほんご)
+・Tạm dừng /pause ・Tiếp tục /resume
+🔴 Đừng viết các con số quan trọng (thẻ bảo hiểm, tài khoản ngân hàng…) ở đây.`;
+
+/** 決まった短い知らせ（日本語とベトナム語を並べる。グループの誰が読んでも分かるように） */
+const SAY = {
+  preparing: "（執事の準備中です。キーが届いたら答えられるようになります）\n(Quản gia đang được chuẩn bị, hiện chưa trả lời được.)",
+  paused: "通訳を止めました（/resume で再開）\nĐã tạm dừng phiên dịch (/resume để tiếp tục).",
+  resumed: "通訳を再開しました\nĐã tiếp tục phiên dịch.",
+};
 
 const LANG_ALIASES: Record<string, LanguageCode> = { ja: "ja", jp: "ja", vi: "vi", vn: "vi", easy: "ja-easy", "ja-easy": "ja-easy" };
 
@@ -72,7 +86,7 @@ async function onMessage(m: TgMessage) {
   if (notice) {
     const langs = [...new Set([senderLang ?? "ja", ...chatLangs])] as LanguageCode[];
     const out = await answerFromNotice(text, notice, langs);
-    if (!out) return sendMessage(chatId, "（執事の準備中です。キーが届いたら答えられるようになります）", { replyTo: m.message_id });
+    if (!out) return sendMessage(chatId, SAY.preparing, { replyTo: m.message_id });
     return sendMessage(chatId, out.texts.map((t) => `${langMark(t.lang)}\n${t.text}`).join("\n\n"), { replyTo: m.message_id });
   }
 
@@ -97,7 +111,7 @@ async function onCommand(chatId: string, m: TgMessage, cmd: string, arg: string)
   }
   if (cmd === "pause" || cmd === "resume") {
     await updateChat(chatId, { paused: cmd === "pause" });
-    return sendMessage(chatId, cmd === "pause" ? "通訳を止めました（/resume で再開）" : "通訳を再開しました");
+    return sendMessage(chatId, cmd === "pause" ? SAY.paused : SAY.resumed);
   }
   if (cmd === "link") {
     const code = await createLinkCode(chatId);

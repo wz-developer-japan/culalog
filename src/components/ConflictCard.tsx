@@ -30,15 +30,7 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
   return (
     <>
       {list.map((c) => {
-        const tellLink = (
-          <Link className="button small" href={`/documents/${c.child.doc.id}#tell`}>
-            家族に伝える
-            {(() => {
-              const shared = household.members.filter((m) => c.child.doc.sharedWith?.includes(m.id) && languageOf(m) !== "ja");
-              return shared.length ? `（${shared.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : "";
-            })()}
-          </Link>
-        );
+        const tellLink = <TellButton household={household} docId={c.child.doc.id} />;
         if (c.options) {
           // 候補日から選ぶ行事: 候補日のうち誰がお仕事の日か（コードの文。どの日を希望するかは家族が決める）
           const { head, rest } = optionText(c, household);
@@ -64,7 +56,6 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
             </div>
           );
         }
-        const shared = household.members.filter((m) => c.child.doc.sharedWith?.includes(m.id) && languageOf(m) !== "ja");
         const adultNames = c.adults.map((a) => names(a.deadline.memberIds));
         const notices = workNotices(c);
         // キーがあるとき: Claude が書類の行から書いた文（コードが日付・名前・期限を照らし合わせて合ったものだけ）。無ければコードの文
@@ -91,9 +82,7 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
                 ))}
               </div>
               <div className="meta small-note">Claude が照らし合わせました</div>
-              <Link className="button small" href={`/documents/${c.child.doc.id}#tell`}>
-                家族に伝える{shared.length ? `（${shared.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : ""}
-              </Link>
+              {tellLink}
             </div>
           );
         }
@@ -118,9 +107,7 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
                 </span>
               ))}
             </div>
-            <Link className="button small" href={`/documents/${c.child.doc.id}#tell`}>
-              家族に伝える{shared.length ? `（${shared.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : ""}
-            </Link>
+            {tellLink}
           </div>
         );
       })}
@@ -130,6 +117,28 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
         </Link>
       )}
     </>
+  );
+}
+
+/**
+ * 家族に伝えるボタン。伝える欄は、家族と共有した書類だけにある。
+ * まだ共有していない書類は「家族と共有して伝える」にして、書類の画面の共有の欄へ（押しても何も出ない、を作らない）
+ */
+function TellButton({ household, docId }: { household: Household; docId: string }) {
+  const doc = household.documents.find((d) => d.id === docId);
+  const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name.split(/\s+/).pop() ?? "";
+  if (!doc?.sharedWith?.length) {
+    return (
+      <Link className="button small" href={`/documents/${docId}#share`}>
+        家族と共有して伝える
+      </Link>
+    );
+  }
+  const others = household.members.filter((m) => doc.sharedWith!.includes(m.id) && languageOf(m) !== "ja");
+  return (
+    <Link className="button small" href={`/documents/${docId}#tell`}>
+      家族に伝える{others.length ? `（${others.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : ""}
+    </Link>
   );
 }
 

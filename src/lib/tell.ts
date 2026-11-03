@@ -44,6 +44,20 @@ export function takerButton(names: Partial<Record<LanguageCode, string>>): strin
   return `${ja}がやる / ${vi} sẽ lo`;
 }
 
+/** 原本の見出し（日本語のほかの段の言葉で。原本の引用は日本語のまま） */
+const SOURCE_HEAD: Record<LanguageCode, string> = {
+  ja: "原本",
+  "ja-easy": "もとの かみ（にほんご）",
+  vi: "Bản gốc (tiếng Nhật)",
+};
+
+/** お知らせの終わりの一言（返信で聞ける・担当はボタンで） */
+const FOOTER: Record<LanguageCode, string> = {
+  ja: "質問は、このメッセージに返信してください。担当を決めたら下のボタンを。",
+  "ja-easy": "しつもんは、この メッセージに へんしん してね。だれが するか きまったら、したの ボタンを おしてね。",
+  vi: "Muốn hỏi gì thì trả lời (reply) tin nhắn này. Khi đã quyết định ai lo, hãy bấm nút bên dưới.",
+};
+
 const mark = (c: LanguageCode) => `【${LANGUAGES.find((l) => l.code === c)?.native ?? c}】`;
 
 export function composeTell(p: TellPayload): string {
@@ -51,8 +65,13 @@ export function composeTell(p: TellPayload): string {
   // 受け取る家族の言葉（日本語以外）を先に: スマホの通知の最初の数行に、その人の言葉で要点が入る
   const blocks = [...p.blocks].sort((a, b) => (a.lang === "ja" ? 1 : 0) - (b.lang === "ja" ? 1 : 0));
   blocks.forEach((b, i) => parts.push(...(i ? [""] : []), mark(b.lang), b.title, ...b.lines.map((l) => `・${l}`)));
-  if (p.sources.length) parts.push("", `— 原本（書類は${p.holder}さんの端末の中）`, ...p.sources.map((s) => `・${s}`));
-  parts.push("", "質問は、このメッセージに返信してください。担当を決めたら下のボタンを。");
+  // 末尾の決まった文も、送る段の言葉ごとに（段と同じ順。原本の引用は日本語のまま＝原本へ戻る道）
+  const langs = blocks.map((b) => b.lang);
+  if (p.sources.length) {
+    const heads = langs.filter((l) => l !== "ja").map((l) => SOURCE_HEAD[l]);
+    parts.push("", [`— 原本（書類は${p.holder}さんの端末の中）`, ...heads].join(" ／ "), ...p.sources.map((s) => `・${s}`));
+  }
+  parts.push("", ...langs.map((l) => FOOTER[l]));
   return parts.join("\n");
 }
 
