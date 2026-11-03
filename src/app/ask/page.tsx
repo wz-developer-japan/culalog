@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
 import { MicButton } from "@/components/MicButton";
+import { voiceNote } from "@/lib/voice";
 import { NumberAnswerCard } from "@/components/NumberAnswerCard";
 import { askRecords, documentsForAsk } from "@/lib/ask";
 import { butlerName } from "@/lib/character";
@@ -51,6 +52,7 @@ function AskPage() {
     const text = q.trim();
     if (!text) return;
     setQuestion("");
+    voiceNote(`頼んだ（入力欄を空にした・${text.length}文字）`);
     await update((current) => addAsk(current, text).household);
   }
 

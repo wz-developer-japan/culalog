@@ -88,6 +88,9 @@ function note(line: string) {
   console.info(`[声の入力] ${line}`);
   for (const l of logListeners) l();
 }
+/** 画面から手がかりに1行足す（開発用） */
+export const voiceNote = (line: string) => note(line);
+
 export const voiceLog = () => {
   noteLoad();
   return [...log];
@@ -158,12 +161,36 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     let retrying = false;
     // 1回の試みで出す知らせは最初のエラーだけ（audio-capture のあとに届く aborted で上書きしない）
     let errored = false;
+    let refreshMic = false;
+    let stalled = false;
     const mine = () => active?.recognition === recognition;
     recognition.onstart = () => {
       startedAt = Date.now();
       note(`#${id} 始まった（${attempt}回目の試み）`);
     };
-    recognition.onaudiostart = () => note(`#${id} 音が入りはじめた`);
+    // 見張り: 「音が入りはじめた」のあと 6秒たっても結果が1つも来ないとき（iPhone で2回目以降に起きる）。
+    // 1回目の試みなら、マイクを取り直して（getUserMedia）新しい認識でやり直す。2回目の試みでも来なければ止めて案内する
+    let watchdog: ReturnType<typeof setTimeout> | undefined;
+    const clearWatchdog = () => watchdog && clearTimeout(watchdog);
+    recognition.onaudiostart = () => {
+      note(`#${id} 音が入りはじめた`);
+      clearWatchdog();
+      watchdog = setTimeout(() => {
+        if (gotResult || cancelled || !mine()) return;
+        note(`#${id} 6秒たっても結果が来ない`);
+        if (attempt === 1) {
+          retrying = true;
+          refreshMic = true;
+        } else {
+          stalled = true;
+        }
+        try {
+          recognition.abort ? recognition.abort() : recognition.stop();
+        } catch {
+          // すでに止まっている
+        }
+      }, 6000);
+    };
     recognition.onaudioend = () => note(`#${id} 音が止まった`);
     recognition.onresult = (event) => {
       if (!mine()) return note(`#${id} 古い認識の結果を無視`);
@@ -174,6 +201,7 @@ export function startListening(handlers: { onText: (text: string, final: boolean
         if (!event.results[i].isFinal) final = false;
       }
       gotResult = true;
+      clearWatchdog();
       note(`#${id} 結果 ${text.length}文字${final ? "（確定）" : ""}`);
       handlers.onText(text, final);
       // 確定したら自分で止めてマイクを離す（次に押したときに前の認識が残っていないように）
@@ -187,7 +215,7 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     };
     recognition.onerror = (event) => {
       note(`#${id} エラー: ${event.error}${event.message ? `（${event.message}）` : ""}`);
-      if (!mine() || retrying) return;
+      if (!mine() || retrying || stalled) return;
       // 始めてすぐの aborted・audio-capture は、前の認識がマイクを離しきっていないことが多い → 少し待って1回だけやり直す。
       // iPhone の audio-capture（Source is muted: マイクは開いたが無音が来る）は、時間に関係なく1回だけ新しい認識でやり直す
       const muted = event.error === "audio-capture";
@@ -202,13 +230,26 @@ export function startListening(handlers: { onText: (text: string, final: boolean
       handlers.onError(`${ERROR_MESSAGES[event.error] ?? "声の入力がうまくいきませんでした。キーボードの音声入力も使えます。"}（手がかり: ${event.error}）`);
     };
     recognition.onend = () => {
+      clearWatchdog();
       note(`#${id} 終わった`);
       resolveEnded();
       if (active?.recognition === recognition) active = null;
-      if (retrying) {
-        note(`#${id} 少し待ってやり直す`);
-        setTimeout(() => begin(attempt + 1), 600);
+      if (retrying && !cancelled) {
+        if (refreshMic) {
+          note(`#${id} マイクを取り直してからやり直す`);
+          reopenMic().then((ok) => {
+            note(`#${id} マイクの取り直し: ${ok ? "できた" : "できなかった"}`);
+            setTimeout(() => begin(attempt + 1), 300);
+          });
+        } else {
+          note(`#${id} 少し待ってやり直す`);
+          setTimeout(() => begin(attempt + 1), 600);
+        }
         return;
+      }
+      if (stalled && !errored) {
+        errored = true;
+        handlers.onError("声が文字になりませんでした。いまの iPhone では、続けて2回目を聞き取れないことがあります。キーボードのマイク（音声入力）で話してください。");
       }
       finish();
     };
@@ -252,6 +293,19 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     }
     if (!current) finish();
   };
+}
+
+/** マイクを開いてすぐ閉じる（iPhone で、前の認識が残した音の経路を作り直すため）。許可が無ければ false */
+async function reopenMic(): Promise<boolean> {
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) return false;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((t) => t.stop());
+    await new Promise((r) => setTimeout(r, 200));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export const speechOutputSupported = () => typeof window !== "undefined" && "speechSynthesis" in window;
