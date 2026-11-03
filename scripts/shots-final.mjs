@@ -41,7 +41,7 @@ await page.getByRole("button", { name: "架空の家族で試す" }).click();
 await see("架空の家族で試しています");
 
 // トップ: 家族の丸・読みたい言葉の1行・同じ日のぶつかりの気づき
-await see("同じ日です");
+await see("お仕事になっているようです");
 await shot("02-top");
 await shot("02b-top-long", true);
 
