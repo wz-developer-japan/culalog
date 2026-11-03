@@ -1,7 +1,8 @@
 "use client";
 
 // 「覚えておいて」と話したことの案。🔴 予定に入れるかは、あなたが確定ボタンで決める（書類の確定と同じ線）。
-// 名前と日付は確定の前に直せる。いつから知らせるかはコードが計算して見せる。
+// 名前と日付は確定の前に直せる。いつから知らせるかは、話の中に無ければ「いつごろお知らせしましょう？」とボタンで聞く
+// （種類ごとのおすすめを最初から選んでおき、押すだけで済むように）。日付の計算はコード。
 
 import Link from "next/link";
 import { useState } from "react";
@@ -9,13 +10,27 @@ import type { AskRecord } from "@/lib/ask";
 import { askRecords } from "@/lib/ask";
 import { now } from "@/lib/clock";
 import { DEADLINE_KIND_LABELS } from "@/lib/labels";
-import { dateText, leadPhrase, noticeStartOf, rememberedDocument, type RememberDraft, withChecks } from "@/lib/remember";
+import { daysBetween, parseDate } from "@/lib/deadlines";
+import {
+  dateText,
+  defaultLeadDays,
+  LEAD_CHOICES,
+  leadPhrase,
+  noticeStartOf,
+  noticeText,
+  rememberedDocument,
+  type RememberDraft,
+  withChecks,
+} from "@/lib/remember";
 import { newId, useHousehold } from "@/lib/useHousehold";
 
 export function RememberCard({ record, butler, compact = false }: { record: AskRecord; butler: string; compact?: boolean }) {
-  const { update } = useHousehold();
+  const { household, update } = useHousehold();
   const original = record.result!.remember!;
   const [draft, setDraft] = useState<RememberDraft>(original);
+  // 話に知らせる時期が無かったときの選び方（日数のボタンか、日付を自分で決めるか）
+  const recommended = defaultLeadDays(original.kind);
+  const [customLead, setCustomLead] = useState(false);
   const today = now();
   const checked = withChecks(draft, record.question, today);
   const valid = Boolean(draft.label.trim()) && /^\d{4}-\d{2}-\d{2}$/.test(draft.date) && (!draft.endDate || draft.endDate >= draft.date);
@@ -44,12 +59,15 @@ export function RememberCard({ record, butler, compact = false }: { record: AskR
   );
 
   if (record.rememberedDocumentId) {
+    // 確定したあとは、保存した予定の中身を出す（画面を開き直しても、選んだ時期のまま）
+    const saved = household?.documents.find((d) => d.id === record.rememberedDocumentId)?.deadlines[0];
+    const shown = saved ? { label: saved.label, date: saved.date, endDate: saved.endDate ?? "", leadDays: saved.leadDays } : draft;
     return (
       <div className="card briefing">
         {head}
         <div className="briefing-text">
-          覚えました。「{draft.label}」は {dateText(draft.date, today)}{draft.endDate && `〜${dateText(draft.endDate, today)}`}、{leadPhrase(draft.leadDays)}の{" "}
-          {dateText(noticeStartOf(draft), today)} からお知らせします。
+          覚えました。「{shown.label}」は {dateText(shown.date, today)}
+          {shown.endDate && `〜${dateText(shown.endDate, today)}`}、{noticeText(shown, today)}お知らせします。
         </div>
         <div className="meta">
           原本: <Link href={`/documents/${record.rememberedDocumentId}`}>あなたが話したこと</Link>（書類は無く、話した言葉を原本として残しています）
@@ -85,8 +103,52 @@ export function RememberCard({ record, butler, compact = false }: { record: AskR
           </label>
         )}
       </div>
+      {original.leadSpoken === false && (
+        <div className="lead-choice" role="group" aria-label="いつごろお知らせするか">
+          <div className="label">いつごろお知らせしましょう？</div>
+          <div className="chips">
+            {LEAD_CHOICES.map((days) => {
+              const on = !customLead && draft.leadDays === days;
+              return (
+                <button
+                  key={days}
+                  className={`chip${on ? " selected" : ""}${days === recommended ? " recommended" : ""}`}
+                  aria-pressed={on}
+                  onClick={() => {
+                    setCustomLead(false);
+                    setDraft({ ...draft, leadDays: days });
+                  }}
+                >
+                  {leadPhrase(days)}
+                  {days === recommended && <small>おすすめ</small>}
+                </button>
+              );
+            })}
+            <button className={`chip${customLead ? " selected" : ""}`} aria-pressed={customLead} onClick={() => setCustomLead(true)}>
+              日付を自分で決める
+            </button>
+          </div>
+          {customLead && valid && (
+            <label className="label">
+              この日からお知らせする
+              <input
+                className="input"
+                type="date"
+                value={noticeStartOf(draft)}
+                max={draft.date}
+                onChange={(e) => {
+                  if (!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
+                  const lead = daysBetween(parseDate(e.target.value), parseDate(draft.date));
+                  setDraft({ ...draft, leadDays: Math.max(0, lead) });
+                }}
+              />
+            </label>
+          )}
+        </div>
+      )}
       <div className="meta">
-        種類: {DEADLINE_KIND_LABELS[draft.kind]}・{valid ? `${leadPhrase(draft.leadDays)}の ${dateText(noticeStartOf(draft), today)} からお知らせします（日付の計算はコード）` : "日付を入れてください"}
+        種類: {DEADLINE_KIND_LABELS[draft.kind]}・
+        {valid ? `${noticeText(draft, today)}お知らせします（日付の計算はコード）` : "日付を入れてください"}
       </div>
       {checked.check && <div className="unknown-label" style={{ marginTop: 6 }}>⚠ {checked.check}</div>}
       <div className="row-actions" style={{ marginTop: 10 }}>

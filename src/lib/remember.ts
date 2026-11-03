@@ -14,8 +14,10 @@ export interface RememberDraft {
   /** 期間の終わりの日（無ければ空） */
   endDate: string;
   kind: DeadlineKind;
-  /** 何日前から知らせるか（コードが決める。話の中に「1週間前に」などがあればその日数） */
+  /** 何日前から知らせるか（話の中に「1週間前に」などがあればその日数。無ければ種類ごとのおすすめを入れ、案のカードで選んでもらう） */
   leadDays: number;
+  /** 知らせる時期を話の中で言っていたか（言っていなければ、案のカードで「いつごろお知らせしましょう？」と聞く） */
+  leadSpoken?: boolean;
   memberIds: string[];
   category: DocumentCategory;
   /** コードが確かめて気になったこと（例: 話した月と日付の月が違う）。確定の前に、あなたに見てもらう */
@@ -32,11 +34,15 @@ export function defaultLeadDays(kind: DeadlineKind): number {
   return 7;
 }
 
-/** 30 →「1か月前」、7 →「1週間前」、それ以外は「○日前」 */
+/** 話に知らせる時期が無いとき、案のカードに並べるボタン（日数）。このほかに「日付を自分で決める」 */
+export const LEAD_CHOICES = [30, 14, 7, 1] as const;
+
+/** 30 →「1か月前」、7 →「1週間前」、1 →「前日」、それ以外は「○日前」 */
 export function leadPhrase(days: number): string {
   if (days === 30 || days === 31) return "1か月前";
   if (days === 14) return "2週間前";
   if (days === 7) return "1週間前";
+  if (days === 1) return "前日";
   if (days === 0) return "当日";
   return `${days}日前`;
 }
@@ -71,9 +77,9 @@ export function verifyRemember(raw: unknown, household: Household, question: str
   const category = CATEGORIES.includes(v.category as DocumentCategory) ? (v.category as DocumentCategory) : "other";
   const known = new Set(household.members.map((m) => m.id));
   const memberIds = (Array.isArray(v.memberIds) ? v.memberIds : []).map(s).filter((id) => known.has(id));
-  // いつから知らせるかはコードが決める（話の中に日数があればそれ）
-  const leadDays = leadDaysSpoken(question) ?? defaultLeadDays(kind);
-  return withChecks({ label, date, endDate, kind, leadDays, memberIds, category }, question, today);
+  // いつから知らせるか: 話の中に日数があればそれ。無ければ種類ごとのおすすめを入れておき、案のカードで聞く
+  const spoken = leadDaysSpoken(question);
+  return withChecks({ label, date, endDate, kind, leadDays: spoken ?? defaultLeadDays(kind), leadSpoken: spoken !== null, memberIds, category }, question, today);
 }
 
 /** 日付を確かめて、気になることがあれば check に書く（確定の前に、あなたに見てもらう） */
@@ -113,8 +119,9 @@ export function provisionalRemember(household: Household, question: string, toda
   const subject = question.split(/[、。,.\n]/)[0].trim().slice(0, 30) || "話したこと";
   const label = cancel && !/解約/.test(subject) ? `${subject}の解約` : subject;
   const category: DocumentCategory = /サブスク|契約|プラン|会員|アプリ/.test(question) ? "subscription" : "other";
+  const spoken = leadDaysSpoken(question);
   return withChecks(
-    { label, date: toYmd(from), endDate: to ? toYmd(to) : "", kind, leadDays: leadDaysSpoken(question) ?? defaultLeadDays(kind), memberIds: [], category },
+    { label, date: toYmd(from), endDate: to ? toYmd(to) : "", kind, leadDays: spoken ?? defaultLeadDays(kind), leadSpoken: spoken !== null, memberIds: [], category },
     question,
     today,
   );
@@ -162,10 +169,19 @@ export function noticeStartOf(draft: Pick<RememberDraft, "date" | "leadDays">): 
   return toYmd(addDays(parseDate(draft.date), -draft.leadDays));
 }
 
+/** 「1か月前の 2027年2月1日（月）から」。始まりが今日より前なら「今日から」 */
+export function noticeText(draft: Pick<RememberDraft, "date" | "leadDays">, today: Date = new Date()): string {
+  const start = noticeStartOf(draft);
+  return start <= toYmd(today) ? "今日から" : `${leadPhrase(draft.leadDays)}の ${dateText(start, today)} から`;
+}
+
 /** 確認の一言（コードが作る。日付・いつから知らせるかもコードの計算） */
 export function rememberMessage(draft: RememberDraft, today: Date = new Date()): string {
   const when = draft.endDate ? `${dateText(draft.date, today)}〜${dateText(draft.endDate, today)}` : dateText(draft.date, today);
-  return `「${draft.label}」（${when}）ですね。確定すると、${leadPhrase(draft.leadDays)}の ${dateText(noticeStartOf(draft), today)} からお知らせします。`;
+  if (draft.leadSpoken === false) {
+    return `「${draft.label}」（${when}）ですね。いつごろお知らせしましょう？ おすすめは${leadPhrase(defaultLeadDays(draft.kind))}です。`;
+  }
+  return `「${draft.label}」（${when}）ですね。確定すると、${noticeText(draft, today)}お知らせします。`;
 }
 
 /** 今年なら「3月1日（月）」、ほかの年なら「2027年3月1日（月）」 */

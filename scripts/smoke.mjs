@@ -90,7 +90,7 @@ await step("けがの頼みごとで、学校のお知らせと傷害保険の�
   await card.scrollIntoViewIfNeeded();
 });
 
-await step("「覚えておいて」と話すと予定の案が出て、確定するとすべての予定に入る（原本の場所は「あなたが話したこと」）", async () => {
+await step("「覚えておいて」と話すと予定の案が出て、知らせる時期をボタンで選び（おすすめは1か月前）、確定するとすべての予定に入る（原本の場所は「あなたが話したこと」）", async () => {
   await page.goto(BASE + "/ask");
   await page.locator("textarea").fill("写真編集ソフトのサブスク、年に1回しか解約できない。次は来年の3月。その前に教えて");
   await page.getByRole("button", { name: /に頼む$/ }).click();
@@ -98,9 +98,15 @@ await step("「覚えておいて」と話すと予定の案が出て、確定�
   await card.waitFor({ timeout: 90000 });
   const text = await card.innerText();
   if (!/2027年3月1日/.test(text)) throw new Error(`案の日付が来年の3月になっていません: ${text.slice(0, 120)}`);
-  if (!/1か月前/.test(text)) throw new Error("いつから知らせるか（1か月前）が出ていません");
+  // 話に知らせる時期が無いので、ボタンで聞く。解約なのでおすすめは1か月前（最初から選んである）
+  if (!/いつごろお知らせしましょう/.test(text)) throw new Error("知らせる時期を聞いていません");
+  const picked = card.locator(".lead-choice .chip.selected");
+  if (!/1か月前\s*おすすめ/.test(await picked.innerText())) throw new Error(`おすすめの1か月前が選ばれていません: ${await picked.innerText()}`);
+  await card.getByRole("button", { name: "2週間前", exact: true }).click();
+  if (!/2週間前の 2027年2月15日/.test(await card.innerText())) throw new Error("2週間前を選んでも、知らせ始めの日が変わっていません");
   await card.getByRole("button", { name: "覚えておく（確定）" }).click();
   await see("覚えました");
+  if (!/2週間前の 2027年2月15日（月） から/.test(await page.locator(".card", { hasText: "覚えました" }).first().innerText())) throw new Error("確定した文に、選んだ時期（2週間前）が出ていません");
   await page.goto(BASE + "/schedule/all");
   await see("これから");
   const row = page.locator(".dcard").filter({ hasText: "写真編集ソフト" });
