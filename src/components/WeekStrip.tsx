@@ -18,7 +18,12 @@ export function weekDays(h: Household, today: Date): { ymd: string; date: Date; 
   return Array.from({ length: 7 }, (_, n) => {
     const date = addDays(today, n);
     const ymd = toYmd(date);
-    return { ymd, date, items: items.filter((i) => i.deadline.date <= ymd && (i.deadline.endDate ?? i.deadline.date) >= ymd) };
+    // 何日も続く期間の予定が毎日の先頭を占めないよう、その日だけ・その日に始まる予定を先に並べる
+    const ongoing = (i: ActionItem) => (i.deadline.date < ymd ? 1 : 0);
+    const dayItems = items
+      .filter((i) => i.deadline.date <= ymd && (i.deadline.endDate ?? i.deadline.date) >= ymd)
+      .sort((a, b) => ongoing(a) - ongoing(b));
+    return { ymd, date, items: dayItems };
   });
 }
 

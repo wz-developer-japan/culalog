@@ -1895,6 +1895,7 @@ h2.sec .more {
 }
 .wday {
   flex: 0 0 108px;
+  min-width: 0; /* 長い予定名（折り返さない）で枠が伸びないように */
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--soft);

@@ -1,7 +1,8 @@
 // README・提出用の画面の画像を、ひととおりの流れで撮る（スマホ幅 390・時計 2026-11-07 10:00 固定・架空の家族）。
 // 使い方: node scripts/shots-final.mjs <出力フォルダ> [BASE_URL]
 // 流れ: はじめて開いたとき → 架空の家族 → 写真・メールの見本をまとめて渡す（読んでいる途中・読み終わり・確定）→
-//       トップ・蓮のページ・予定・聞きたいこと・大事な番号・聞く（けがの頼みごと）・すべての予定（束ねたメール）
+//       トップ・蓮のページ・予定（向こう7日・見に行きますか？）・聞きたいこと・大事な番号・聞く（けがの頼みごと）・
+//       すべての予定（束ねたメール・カレンダーに入れる）・こんなとき
 import { mkdirSync } from "node:fs";
 
 async function loadPlaywright() {
@@ -71,6 +72,11 @@ await page.goto(base + "/schedule");
 await page.locator("h2", { hasText: "のひとこと" }).waitFor();
 await shot("06-schedule");
 await shot("06b-schedule-long", true);
+// 授業参観に「見に行きますか？」
+const openClass = page.locator(".card.insight").filter({ hasText: /見に行きますか/ }).first();
+await openClass.waitFor({ timeout: 30000 });
+await openClass.evaluate((el) => el.scrollIntoView({ block: "center" }));
+await shot("06c-open-class");
 await page.goto(base + "/questions");
 await page.waitForTimeout(1500);
 await shot("07-questions");
@@ -89,4 +95,17 @@ await see("これから");
 const bill = page.locator(".dcard").filter({ hasText: "後払いの支払期限" }).first();
 await bill.scrollIntoViewIfNeeded();
 await shot("10-schedule-all-bundled");
+// いつものカレンダーに入れる（遠足）
+const excursion = page.locator(".dcard").filter({ hasText: "遠足" }).first();
+await excursion.getByRole("button", { name: "カレンダーに入れる" }).click();
+await excursion.getByRole("link", { name: "Google カレンダー" }).waitFor();
+await excursion.evaluate((el) => el.scrollIntoView({ block: "center" }));
+await shot("11-calendar");
+// こんなとき
+await page.goto(base + "/cases");
+await page.waitForTimeout(1000);
+await shot("12-cases");
+await page.goto(base + "/cases?s=injury");
+await see("けがのときに見る所");
+await shot("12b-cases-injury");
 await browser.close();
