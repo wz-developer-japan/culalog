@@ -77,6 +77,12 @@ const openClass = page.locator(".card.insight").filter({ hasText: /見に行き�
 await openClass.waitFor({ timeout: 30000 });
 await openClass.evaluate((el) => el.scrollIntoView({ block: "center" }));
 await shot("06c-open-class");
+// 保険の補償の重なり（見つかったときだけの気づき）
+const overlapCard = page.locator(".card.insight").filter({ hasText: "個人賠償責任" }).first();
+if (await overlapCard.count()) {
+  await overlapCard.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await shot("06d-overlap");
+}
 await page.goto(base + "/questions");
 await page.waitForTimeout(1500);
 await shot("07-questions");
