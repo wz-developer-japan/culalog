@@ -103,6 +103,14 @@ await step("見本をまとめて渡すと、受け取り箱で順番に読ま�
   await see("件を確定しました");
 });
 
+await step("授業参観の案内を確定すると、執事が「平日なので有給の申請が要るかも」とわが家のきまりをつないで提案する（採用は本人）", async () => {
+  await page.goto(BASE + "/schedule");
+  await page.locator("h2", { hasText: "気づいたこと" }).waitFor({ timeout: 15000 });
+  const body = await page.locator("main").innerText();
+  if (!/授業参観[\s\S]*平日[\s\S]*有給の申請/.test(body)) throw new Error("授業参観と有給の申請をつないだ気づきが出ていません");
+  if (/土日も勤務/.test(body)) throw new Error("「土日も勤務がある」の前提が残っています");
+});
+
 await step("聞きたいことに答えると、執事が覚える", async () => {
   await page.goto(BASE + "/questions");
   const yes = page.locator(".button.guess").first();
@@ -149,6 +157,9 @@ await step("「誰の」で分ける: 翔太のページに電気・記入例は
   if (!/電気需給契約[\s\S]*家全体/.test(all)) throw new Error("みんなのページで電気が「家全体」になっていません");
   if (!/印鑑登録証[\s\S]*誰のか分からない/.test(all)) throw new Error("券面に名前の無い印鑑登録証が「誰のか分からない」になっていません");
   if (!/記入例[\s\S]*この家の書類ではない/.test(all)) throw new Error("記入例が「この家の書類ではない」になっていません");
+  // 一緒に住んでいない家族（翔太の母）あての書類は、この家の書類ではない扱い（同居の翔太が当事者の介護休業の承認は、メールの段で翔太に出ることを見る）
+  if (!/介護保険被保険者証[\s\S]*この家の書類ではない/.test(all)) throw new Error("別居の親あての介護保険被保険者証が「この家の書類ではない」になっていません");
+  if (/正雄|和子|由紀/.test(await page.locator(".fam").innerText())) throw new Error("家族の丸に別居の家族が残っています");
 });
 
 await step("崩れた紙: 写真が切れている・日付と曜日が合わないものは確定から外れて理由が出る、二つの書類で日付が食い違えば両方出る", async () => {
@@ -173,6 +184,11 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   await see("全部読み終わりました", 60000);
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
+  // 同居の翔太が当事者（介護休業の承認）は翔太のページに。転送メールの付き添いは美咲に。別居の母の分（和子の検査）は和子の名前では出さない
+  await page.goto(BASE + "/family/m-self");
+  await page.getByRole("tab", { name: "書類" }).click();
+  await page.locator("h2", { hasText: "書類" }).waitFor({ timeout: 15000 });
+  if (!/介護休業/.test(await page.locator("main").innerText())) throw new Error("翔太のページに介護休業の承認が出ていません");
   // 束ねる: 後払いの請求と前日の督促（同じ注文・同じ期限）が、すべての予定で1件になっている
   await page.goto(BASE + "/schedule/all");
   await see("これから");

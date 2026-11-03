@@ -21,6 +21,12 @@ const outDir = join("public", "samples", baseDate);
 mkdirSync(outDir, { recursive: true });
 
 const str = (x) => (typeof x === "string" ? x : "");
+/**
+ * 一緒に住んでいる家族（アプリの架空の家族と同じ id）。CULALOG が扱うのはこの家の人の書類だけなので、
+ * 正解 JSON の scope に離れて暮らす親などの id があっても、その人は「誰の」に入れない。
+ * その人だけの書類（親あての年金・介護・通院の書類など）は「この家の書類ではない」と同じ扱い（誰の欄にも出さず、予定にもしない）
+ */
+const RESIDENTS = new Set(["m-self", "m-spouse", "m-son", "m-daughter"]);
 /** 知っておくだけ（"awareness" または false）か */
 const isAwareness = (x) => x === "awareness" || x === false;
 /** アプリの書類の分類（types.ts の DocumentCategory と同じ）。無い名前は近いものに寄せる */
@@ -108,6 +114,16 @@ function plainDeep(v) {
 /** 正解の読み取り結果を、アプリの読み取りの形（Extraction）にする */
 function toExtraction(raw, text) {
   const t = plainDeep(raw);
+  const concernsAll = t.scope?.concerns ?? t.who?.memberIds ?? [];
+  const concerns = concernsAll.filter((id) => RESIDENTS.has(id));
+  // 同居していない人だけの書類（concerns に同居の人がおらず、家全体でもない）は、この家の書類ではない
+  const outsideOnly = concernsAll.length > 0 && concerns.length === 0 && t.scope?.household !== true;
+  const notForFamily =
+    t.appliesToFamily === false
+      ? { is: true, reason: str(t.notApplicableReason) || str(t.who?.reason) }
+      : outsideOnly
+        ? { is: true, reason: "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）" }
+        : { is: false, reason: "" };
   return {
     title: str(t.title),
     transcript: text,
@@ -120,23 +136,26 @@ function toExtraction(raw, text) {
     category: categoryOf(str(t.category)),
     // 「誰の」は 2号の正解 scope を写す: concerns＝誰のことか（二人以上なら全員）、household＝家全体。
     // concerns が空で household でもないものは「誰のか分からない」（sure を false にして執事が聞く。推測で入れない）
-    who: t.scope
-      ? {
-          memberIds: t.scope.concerns ?? [],
-          sure: (t.scope.concerns ?? []).length > 0 || t.scope.household === true,
-          reason:
-            (t.scope.concerns ?? []).length === 0 && t.scope.household !== true
-              ? (str(t.scope.note) || str(t.who?.reason)).replace(/（[^）]*\bwho\b[^）]*）/g, "").replace(/→\s*聞いて決める/g, "").trim()
-              : str(t.who?.reason),
-          household: t.scope.household === true,
-        }
-      : { memberIds: t.who?.memberIds ?? [], sure: t.who?.sure === true, reason: str(t.who?.reason), household: false },
+    who: notForFamily.is
+      ? { memberIds: [], sure: false, reason: notForFamily.reason, household: false }
+      : t.scope
+        ? {
+            memberIds: concerns,
+            sure: concerns.length > 0 || t.scope.household === true,
+            reason:
+              concerns.length === 0 && t.scope.household !== true
+                ? (str(t.scope.note) || str(t.who?.reason)).replace(/（[^）]*\bwho\b[^）]*）/g, "").replace(/→\s*聞いて決める/g, "").trim()
+                : str(t.who?.reason),
+            household: t.scope.household === true,
+          }
+        : { memberIds: concerns, sure: t.who?.sure === true, reason: str(t.who?.reason), household: false },
     period: { label: str(t.period?.label), from: str(t.period?.from), until: str(t.period?.until) },
     fields: withNumbers(
       (t.fields ?? []).map((f) => ({ label: str(f.label), value: str(f.value), location: str(f.location), quote: str(f.quote) })),
       t.sensitiveNumbers ?? [],
     ),
-    deadlines: (t.deadlines ?? [])
+    // この家の書類ではないものは予定にしない（読み取りの指示と同じ）
+    deadlines: (notForFamily.is ? [] : (t.deadlines ?? []))
       .filter((d) => KINDS.includes(d.kind) && /^\d{4}-\d{2}-\d{2}$/.test(d.date))
       // 比べる用に入っている「この家には当てはまらない」予定（例: ほかのクラスだけの取り消し）は、仮の結果に入れない
       .filter((d) => d.appliesToFamily !== false && !/当てはまらない/.test(str(d.label)))
@@ -186,8 +205,8 @@ function toExtraction(raw, text) {
       }))
       .filter((c) => c.what),
     onlyInLink: texts(t.onlyInLink),
-    // 書類ごと、この家の書類ではないもの（記入例など）
-    notForFamily: t.appliesToFamily === false ? { is: true, reason: str(t.notApplicableReason) || str(t.who?.reason) } : { is: false, reason: "" },
+    // 書類ごと、この家の書類ではないもの（記入例・一緒に住んでいない家族あての書類）
+    notForFamily,
   };
 }
 

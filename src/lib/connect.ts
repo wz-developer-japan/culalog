@@ -380,7 +380,7 @@ export function verifyConnect(
 
 /**
  * 前のものと新しいものの、同じ名前の予定の日付をコードで比べる（Claude は使っていない）。
- * デモの家族では、運動会の予備日ときまりの例も、用意しておいた仮の気づきとして出す。
+ * デモの家族では、授業参観（平日）と有給のきまりの例も、用意しておいた仮の気づきとして出す。
  */
 export function provisionalConnect(household: Household): { briefing: []; insights: RawInsight[] } {
   const insights: RawInsight[] = [];
@@ -404,31 +404,21 @@ export function provisionalConnect(household: Household): { briefing: []; insigh
   }
   insights.push(...provisionalInsuranceBeforeLease(household));
   if (household.isDemo) {
+    // 授業参観は平日なので、働く親は有給を取る。案内プリントを確定したら、わが家のきまり（有給の申請）を当てはめることを提案する
     const rule = household.rules?.find((r) => r.id === "rule-leave");
-    const notice = confirmed.find((d) => !d.supersededBy && d.expectedId === "exp-sports-day-notice");
-    const sports = notice?.deadlines.find((d) => d.kind === "event" && d.reserve);
-    if (rule && notice && sports) {
+    const notice = confirmed.find((d) => !d.supersededBy && d.expectedId === "exp-open-class-notice");
+    const openClass = notice?.deadlines.find((d) => d.kind === "event");
+    if (rule && notice && openClass && !openClass.applyRuleIds?.includes(rule.id)) {
       const self = household.members.find((m) => m.id === rule.memberId);
       const first = self?.name.split(/\s+/).pop() ?? "";
-      if (!sports.applyRuleIds?.includes(rule.id)) {
-        insights.push({
-          kind: "apply_rule",
-          text: `運動会は${formatYmd(sports.date)}です。${first}さんは土日も勤務があるので、この日もお仕事なら「${rule.label}」が要るかもしれません。`,
-          deadlineId: sports.id,
-          ruleId: rule.id,
-          oldDeadlineId: "",
-          evidence: [{ documentId: notice.id, location: sports.source?.location ?? "" }],
-        });
-      } else {
-        insights.push({
-          kind: "apply_rule_to_reserve",
-          text: `雨なら${formatYmd(sports.reserve!.date)}に順延です。日曜もお仕事なら、そちらの休みも要るかもしれません。`,
-          deadlineId: sports.id,
-          ruleId: rule.id,
-          oldDeadlineId: "",
-          evidence: [{ documentId: notice.id, location: sports.reserve!.source?.location ?? "" }],
-        });
-      }
+      insights.push({
+        kind: "apply_rule",
+        text: `${openClass.label}は${formatYmd(openClass.date)}（平日）です。${first}さんが見に行くなら「${rule.label}」が要るかもしれません。`,
+        deadlineId: openClass.id,
+        ruleId: rule.id,
+        oldDeadlineId: "",
+        evidence: [{ documentId: notice.id, location: openClass.source?.location ?? "" }],
+      });
     }
   }
   return { briefing: [], insights };

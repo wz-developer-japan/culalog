@@ -24,6 +24,13 @@ export function nextSaturdayAfter(today: Date, minDays: number): Date {
   return date;
 }
 
+/** 今日から minDays 日以上先の、最初の金曜日（授業参観は平日。働く親は有給を取る日） */
+export function nextFridayAfter(today: Date, minDays: number): Date {
+  let date = addDays(today, minDays);
+  while (date.getDay() !== 5) date = addDays(date, 1);
+  return date;
+}
+
 /** 今日が属する年度（4月始まり）の西暦 */
 export function schoolYearOf(today: Date): number {
   return today.getMonth() >= 3 ? today.getFullYear() : today.getFullYear() - 1;
@@ -59,6 +66,10 @@ export interface DemoDates {
   subscription: { start: Date; end: Date; renewal: Date; windowFrom: Date; windowTo: Date; monthsLeft: number };
   sportsDay: Date;
   sportsDayReserve: Date;
+  /** 授業参観（2学期）。開いた日の17日後以降の最初の金曜日（必ず平日。案内プリントが「まだ届いていない」書類） */
+  openClass: Date;
+  /** 授業参観の出欠票の提出日（授業参観の2日前から、さかのぼって最初の平日） */
+  openClassReply: Date;
   /** 賃貸の契約期間の満了日 */
   leaseEnd: Date;
   /** 賃貸の契約開始日（満了の2年前の翌日） */
@@ -71,6 +82,7 @@ export interface DemoDates {
 
 export function demoDates(today: Date): DemoDates {
   const sportsDay = nextSaturdayAfter(today, 10);
+  const openClass = nextFridayAfter(today, 17);
   const leaseEnd = addDays(today, 75);
   const leaseStart = addDays(new Date(leaseEnd.getFullYear() - 2, leaseEnd.getMonth(), leaseEnd.getDate()), 1);
   const interview = interviewDates(schoolYearOf(today));
@@ -94,6 +106,8 @@ export function demoDates(today: Date): DemoDates {
     },
     sportsDay,
     sportsDayReserve: addDays(sportsDay, 1),
+    openClass,
+    openClassReply: weekdayOnOrBefore(addDays(openClass, -2)),
     excursion: nextWeekday(addDays(today, 1)),
     leaseEnd,
     leaseStart,
@@ -107,10 +121,11 @@ export function schoolAnnualText(t: DemoDates): string {
 
 ■ 主な行事
 ・始業式　　　　　${y}年4月7日
-・授業参観・懇談会　${y}年4月24日
+・授業参観・懇談会　${y}年4月24日（1学期）
 ・夏休み　　　　　${y}年7月18日 〜 8月31日
 ・遠足（3年生）　　${jpDate(t.excursion)}（雨天の場合は校内で学習）
 ・運動会　　　　　${jpDate(t.sportsDay)}（雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延）
+・授業参観（2学期）　${jpDate(t.openClass)}（時間・教室は案内プリントでお知らせします）
 ・個人面談　　　　${jpDate(t.interview.from)} 〜 ${jpShortDate(t.interview.to)}（日程は別途お知らせします）
 ・冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日
 ・修了式　　　　　${y + 1}年3月24日
@@ -125,27 +140,28 @@ export function schoolAnnualText(t: DemoDates): string {
 くろうど第一小学校　職員室　000-0000-0000（平日 8:00〜17:00）`;
 }
 
-/** 運動会の案内プリント。デモでは「まだ届いていない書類」で、読み取りを試す1枚 */
-export function sportsDayNoticeText(t: DemoDates): string {
+/** 授業参観の案内プリント。デモでは「まだ届いていない書類」で、読み取りを試す1枚（平日の行事なので、働く親は有給を取る） */
+export function openClassNoticeText(t: DemoDates): string {
   return `保護者の皆様へ
 
 くろうど第一小学校　校長　架空 太郎
 
-運動会のご案内
+2学期 授業参観・学級懇談会のご案内
 
 日頃より本校の教育活動にご理解とご協力をいただき、ありがとうございます。
-下記のとおり運動会を行います。お子様の成長した姿をぜひご覧ください。
+下記のとおり授業参観と学級懇談会を行います。お子様の学習の様子をぜひご覧ください。
 
 記
 
-1. 日時　${jpDate(t.sportsDay)}　8:40 開会式　12:00 閉会予定
-2. 雨天の場合　${jpShortDate(t.sportsDayReserve)} に順延します。
-　　実施の有無は当日 6:30 に学校のお知らせアプリで連絡します。
-3. 場所　本校 校庭
-4. 持ち物　体操服、赤白帽子、水筒、タオル
-5. 保護者の観覧について
-　・観覧席は校庭の東側です。場所取りは 7:30 の開門後にお願いします。
+1. 日時　${jpDate(t.openClass)}
+　　授業参観　3校時　10:45 〜 11:30
+　　学級懇談会　11:40 〜 12:10（各教室）
+2. 場所　各学級の教室（3年2組は 2階 東側）
+3. 持ち物　上履き（スリッパ）、名札（来校者用）
+4. 出欠　同封の出欠票に記入し、${jpShortDate(t.openClassReply)} までに担任へご提出ください。
+5. お願い
 　・お車での来校はご遠慮ください。
+　・授業中の写真・動画の撮影はご遠慮ください。
 
 お問い合わせ　くろうど第一小学校　職員室　000-0000-0000`;
 }
@@ -227,17 +243,18 @@ export function fireInsuranceText(t: DemoDates): string {
 }
 
 /**
- * 運動会の案内プリントの「仮の読み取り結果」。
+ * 授業参観の案内プリントの「仮の読み取り結果」。
  * 読み取り機能（Claude API）の準備中に、確定までの流れを試すためだけに使う。
  * Claude の読み取りではないことを画面にも必ず出す。
  */
-export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
+export function openClassNoticeProvisionalDraft(t: DemoDates): Extraction {
+  const noReserve = { date: "", condition: "", location: "", quote: "" };
   return {
-    title: "運動会のご案内",
+    title: "2学期 授業参観・学級懇談会のご案内",
     transcript: "",
     summary: {
-      what: "くろうど第一小学校の運動会の、時間・場所・持ち物の案内です。",
-      todo: "持ち物（体操服・赤白帽子・水筒・タオル）を用意する。雨のときは当日 6:30 の連絡を見る。",
+      what: "くろうど第一小学校の2学期の授業参観と学級懇談会の、時間・場所・持ち物の案内です。",
+      todo: `出欠票に記入して ${jpShortDate(t.openClassReply)} までに担任へ出す。当日は上履きと名札を持っていく。`,
       ifIgnored: { text: "", location: "", quote: "" },
     },
     docType: "学校行事の案内",
@@ -250,40 +267,37 @@ export function sportsDayNoticeProvisionalDraft(t: DemoDates): Extraction {
     },
     period: { label: "", from: "", until: "" },
     fields: [
-      { label: "時間", value: "8:40 開会式、12:00 閉会予定", location: "1. 日時", quote: "8:40 開会式　12:00 閉会予定" },
-      {
-        label: "雨天のとき",
-        value: `${jpShortDate(t.sportsDayReserve)} に順延。実施の有無は当日 6:30 に学校のお知らせアプリで連絡`,
-        location: "2. 雨天の場合",
-        quote: "実施の有無は当日 6:30 に学校のお知らせアプリで連絡します",
-      },
-      { label: "場所", value: "本校 校庭", location: "3. 場所", quote: "本校 校庭" },
-      { label: "持ち物", value: "体操服、赤白帽子、水筒、タオル", location: "4. 持ち物", quote: "体操服、赤白帽子、水筒、タオル" },
-      {
-        label: "観覧",
-        value: "観覧席は校庭の東側。場所取りは 7:30 の開門後。車での来校は控える",
-        location: "5. 保護者の観覧について",
-        quote: "場所取りは 7:30 の開門後にお願いします",
-      },
+      { label: "時間", value: "授業参観 3校時 10:45〜11:30、学級懇談会 11:40〜12:10", location: "1. 日時", quote: "授業参観　3校時　10:45 〜 11:30" },
+      { label: "場所", value: "各学級の教室（3年2組は 2階 東側）", location: "2. 場所", quote: "3年2組は 2階 東側" },
+      { label: "持ち物", value: "上履き（スリッパ）、名札（来校者用）", location: "3. 持ち物", quote: "上履き（スリッパ）、名札（来校者用）" },
+      { label: "お願い", value: "車での来校は控える。授業中の写真・動画の撮影は控える", location: "5. お願い", quote: "お車での来校はご遠慮ください" },
     ],
     deadlines: [
       {
         kind: "event",
-        label: "運動会",
-        date: toYmd(t.sportsDay),
+        label: "授業参観（2学期）",
+        date: toYmd(t.openClass),
         endDate: "",
-        time: "8:40〜12:00",
-        place: "くろうど第一小学校 校庭",
-        needs: ["体操服", "赤白帽子", "水筒", "タオル"],
+        time: "10:45〜12:10",
+        place: "くろうど第一小学校 3年2組の教室（2階 東側）",
+        needs: ["上履き（スリッパ）", "名札（来校者用）"],
         repeatMonths: 0,
         location: "1. 日時",
-        quote: jpDate(t.sportsDay),
-        reserve: {
-          date: toYmd(t.sportsDayReserve),
-          condition: "雨天の場合",
-          location: "2. 雨天の場合",
-          quote: `${jpShortDate(t.sportsDayReserve)} に順延します`,
-        },
+        quote: jpDate(t.openClass),
+        reserve: noReserve,
+      },
+      {
+        kind: "due",
+        label: "授業参観の出欠票の提出（担任へ）",
+        date: toYmd(t.openClassReply),
+        endDate: "",
+        time: "",
+        place: "",
+        needs: ["出欠票（同封）"],
+        repeatMonths: 0,
+        location: "4. 出欠",
+        quote: `${jpShortDate(t.openClassReply)} までに担任へご提出ください`,
+        reserve: noReserve,
       },
     ],
     contacts: [
@@ -417,10 +431,11 @@ ${jpDate(t.revisedOn)} 改訂
 
 ■ 主な行事
 ・始業式　　　　　${y}年4月7日
-・授業参観・懇談会　${y}年4月24日
+・授業参観・懇談会　${y}年4月24日（1学期）
 ・夏休み　　　　　${y}年7月18日 〜 8月31日
 ・遠足（3年生）　　${jpDate(t.excursion)}（雨天の場合は校内で学習）
 ・運動会　　　　　${jpDate(t.sportsDay)}（雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延）
+・授業参観（2学期）　${jpDate(t.openClass)}（時間・教室は案内プリントでお知らせします）
 ・★個人面談　　　${jpDate(t.interviewRevised.from)} 〜 ${jpShortDate(t.interviewRevised.to)}（希望日の調査票を11月中旬に配布します）
 ・冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日
 ・修了式　　　　　${y + 1}年3月24日
@@ -476,6 +491,7 @@ export function revisedSchoolAnnualProvisionalDraft(t: DemoDates): Extraction {
       ev("運動会", t.sportsDay, "主な行事・運動会", jpDate(t.sportsDay), {
         reserve: { date: toYmd(t.sportsDayReserve), condition: "雨天の場合", location: "主な行事・運動会", quote: `雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延` },
       }),
+      ev("授業参観（2学期）", t.openClass, "主な行事・授業参観（2学期）", jpDate(t.openClass)),
       ev("個人面談", t.interviewRevised.from, "主な行事・★個人面談", `★個人面談　　　${jpDate(t.interviewRevised.from)} 〜 ${jpShortDate(t.interviewRevised.to)}`, { endDate: toYmd(t.interviewRevised.to) }),
       ev("冬休み", new Date(y, 11, 25), "主な行事・冬休み", `冬休み　　　　　${y}年12月25日 〜 ${y + 1}年1月7日`, { endDate: `${y + 1}-01-07` }),
     ],

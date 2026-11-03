@@ -17,13 +17,13 @@ import {
   leaseText,
   medicalCardText,
   nurseryGuideText,
+  openClassNoticeProvisionalDraft,
+  openClassNoticeText,
   schoolInjuryBenefitText,
   wareki,
   revisedSchoolAnnualProvisionalDraft,
   revisedSchoolAnnualText,
   schoolAnnualText,
-  sportsDayNoticeProvisionalDraft,
-  sportsDayNoticeText,
   subscriptionProvisionalDraft,
   subscriptionText,
 } from "./demoDocuments";
@@ -43,13 +43,11 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
   return {
     isDemo: true,
     members: [
-      { id: "m-self", name: "日向 翔太", relation: "self", roleLabel: "本人", note: "書類の管理をしている。土日も勤務がある変則シフト" },
-      { id: "m-spouse", name: "日向 美咲", relation: "spouse", roleLabel: "妻" },
+      // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
+      { id: "m-self", name: "日向 翔太", relation: "self", roleLabel: "本人", note: "書類の管理をしている。平日は会社勤め" },
+      { id: "m-spouse", name: "日向 美咲", relation: "spouse", roleLabel: "妻", note: "平日は会社勤め" },
       { id: "m-son", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
       { id: "m-daughter", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
-      { id: "m-grandpa", name: "日向 正雄", relation: "parent", roleLabel: "祖父", note: "翔太の父・遠方に住む" },
-      { id: "m-grandma", name: "日向 和子", relation: "parent", roleLabel: "祖母", note: "翔太の母・遠方に住む" },
-      { id: "m-aunt", name: "森 由紀", relation: "sibling", roleLabel: "叔母", note: "翔太の妹・両親の近くに住む" },
     ],
     documents: [
       {
@@ -75,8 +73,8 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
           {
             key: "f-notice",
             label: "行事の詳細",
-            value: "時間・持ち物は、その都度配られる案内プリントで知らせる",
-            source: { location: "主な行事の下の※" },
+            value: "時間・持ち物は、その都度配られる案内プリントで知らせる（授業参観の時間・教室も案内プリントで）",
+            source: { location: "主な行事の下の※ ／ 主な行事・授業参観（2学期）" },
             status: "confirmed",
           },
         ],
@@ -105,15 +103,25 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
             kind: "event",
             label: "運動会",
             date: ymd(t.sportsDay),
-            leadDays: 21,
-            leadReason: "土日も勤務がある。有給の申請に間に合うよう、案内プリントで日時を確かめたい",
-            memberIds: ["m-son", "m-self"],
+            leadDays: 14,
+            leadReason: "持ち物は案内プリントで知らせると書いてある",
+            memberIds: ["m-son"],
             source: { location: "主な行事・運動会", quote: jpDate(t.sportsDay) },
             reserve: {
               date: ymd(t.sportsDayReserve),
               condition: "雨天の場合",
               source: { location: "主な行事・運動会", quote: `雨天の場合は ${jpShortDate(t.sportsDayReserve)} に順延` },
             },
+          },
+          {
+            id: "dl-open-class",
+            kind: "event",
+            label: "授業参観（2学期）",
+            date: ymd(t.openClass),
+            leadDays: 21,
+            leadReason: "平日の行事。有給の申請に間に合うよう、案内プリントで時間を確かめたい",
+            memberIds: ["m-son", "m-self"],
+            source: { location: "主な行事・授業参観（2学期）", quote: jpDate(t.openClass) },
           },
           {
             id: "dl-interview",
@@ -482,20 +490,20 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
     ],
     expected: [
       {
-        id: "exp-sports-day-notice",
-        label: "運動会の案内プリント",
+        id: "exp-open-class-notice",
+        label: "授業参観の案内プリント",
         expectedBy: ymd(today),
-        relatedDeadlineId: "dl-sports-day",
-        hint: "年間行事予定に「時間・持ち物は案内プリントで知らせる」とあります。ランドセルの中に入ったままかもしれません。",
+        relatedDeadlineId: "dl-open-class",
+        hint: "年間行事予定に「時間・教室は案内プリントで知らせる」とあります。ランドセルの中に入ったままかもしれません。",
       },
     ],
     demoSamples: [
       {
-        id: "sample-sports-day",
-        title: "運動会のご案内（架空）",
-        text: sportsDayNoticeText(t),
-        expectedId: "exp-sports-day-notice",
-        provisionalDraft: sportsDayNoticeProvisionalDraft(t),
+        id: "sample-open-class",
+        title: "授業参観のご案内（架空）",
+        text: openClassNoticeText(t),
+        expectedId: "exp-open-class-notice",
+        provisionalDraft: openClassNoticeProvisionalDraft(t),
       },
       {
         id: "sample-dental",

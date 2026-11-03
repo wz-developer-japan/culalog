@@ -2602,7 +2602,7 @@
    "who": {
     "memberIds": [],
     "sure": false,
-    "reason": "記入例（架空の別人）。この家の書類ではないので誰にも出さない",
+    "reason": "記入の見本。名前・住所・生年月日は例として書かれたもので、家族の情報ではない",
     "household": false
    },
    "period": {
@@ -4919,11 +4919,9 @@
    "docType": "年金の振込通知",
    "category": "other",
    "who": {
-    "memberIds": [
-     "m-grandpa"
-    ],
-    "sure": true,
-    "reason": "宛名が 日向 正雄 様（翔太の父・別居）",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -4990,8 +4988,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -5018,11 +5016,9 @@
    "docType": "医療機器の保証書と点検の案内",
    "category": "medical",
    "who": {
-    "memberIds": [
-     "m-grandma"
-    ],
-    "sure": true,
-    "reason": "保証書のお名前が 日向 和子 様（翔太の母・別居）",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -5056,52 +5052,7 @@
      "quote": ""
     }
    ],
-   "deadlines": [
-    {
-     "kind": "due",
-     "label": "補聴器の無料の定期点検（和子・予約制）",
-     "date": "2026-12-09",
-     "endDate": "",
-     "time": "",
-     "place": "やまびこ補聴器 ゆずりは店（架空）",
-     "needs": [
-      "補聴器（両耳）",
-      "この保証書",
-      "使っている電池"
-     ],
-     "repeatMonths": 0,
-     "location": "定期点検のご案内の下線",
-     "quote": "令和8年12月9日（水） まで",
-     "actionNeeded": true,
-     "bundleKey": "",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    },
-    {
-     "kind": "expiry",
-     "label": "補聴器の保証期間の終わり（和子）",
-     "date": "2027-09-17",
-     "endDate": "",
-     "time": "",
-     "place": "",
-     "needs": [],
-     "repeatMonths": 0,
-     "location": "表・保証期間",
-     "quote": "お買い上げ日から2年",
-     "actionNeeded": true,
-     "bundleKey": "",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    }
-   ],
+   "deadlines": [],
    "contacts": [
     {
      "label": "予約・修理",
@@ -5116,8 +5067,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -5144,12 +5095,9 @@
    "docType": "見守りつき配食サービスの契約内容",
    "category": "care",
    "who": {
-    "memberIds": [
-     "m-grandpa",
-     "m-grandma"
-    ],
-    "sure": true,
-    "reason": "ご利用者が 日向 正雄 様・日向 和子 様。連絡先として翔太の名前がある",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -5195,28 +5143,7 @@
      "quote": "やわらか食・塩分控えめ"
     }
    ],
-   "deadlines": [
-    {
-     "kind": "due",
-     "label": "配食の料金の口座振替（初回・翌月27日）",
-     "date": "2026-12-27",
-     "endDate": "",
-     "time": "",
-     "place": "",
-     "needs": [],
-     "repeatMonths": 0,
-     "location": "表・料金",
-     "quote": "翌月27日に口座振替",
-     "actionNeeded": true,
-     "bundleKey": "",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    }
-   ],
+   "deadlines": [],
    "contacts": [
     {
      "label": "お休み・変更・問い合わせ",
@@ -5231,8 +5158,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -5259,11 +5186,9 @@
    "docType": "互助会の掛金完納通知",
    "category": "other",
    "who": {
-    "memberIds": [
-     "m-grandpa"
-    ],
-    "sure": true,
-    "reason": "宛名・契約者が 日向 正雄 様（翔太の父・別居）",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -5324,8 +5249,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -5352,12 +5277,9 @@
    "docType": "介護予防サービスの利用票",
    "category": "care",
    "who": {
-    "memberIds": [
-     "m-grandma",
-     "m-aunt"
-    ],
-    "sure": true,
-    "reason": "利用者が 日向 和子 様（要支援1・翔太の母・別居）。手書きのメモは由紀",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -5403,48 +5325,7 @@
      "quote": ""
     }
    ],
-   "deadlines": [
-    {
-     "kind": "due",
-     "label": "来月の介護予防サービスの計画を変える場合の連絡（担当へ）",
-     "date": "2026-11-20",
-     "endDate": "",
-     "time": "",
-     "place": "",
-     "needs": [],
-     "repeatMonths": 0,
-     "location": "下の※2つ目の下線",
-     "quote": "11月20日（金） まで",
-     "actionNeeded": true,
-     "bundleKey": "",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    },
-    {
-     "kind": "expiry",
-     "label": "要支援の認定の有効期間の終わり（和子）",
-     "date": "2027-04-30",
-     "endDate": "",
-     "time": "",
-     "place": "",
-     "needs": [],
-     "repeatMonths": 0,
-     "location": "上の表・認定の有効期間",
-     "quote": "令和9年4月30日",
-     "actionNeeded": true,
-     "bundleKey": "",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    }
-   ],
+   "deadlines": [],
    "contacts": [
     {
      "label": "計画の変更・相談",
@@ -5459,8 +5340,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -8327,7 +8208,6 @@
    "category": "other",
    "who": {
     "memberIds": [
-     "m-grandma",
      "m-spouse"
     ],
     "sure": true,
@@ -8527,8 +8407,7 @@
    "category": "work",
    "who": {
     "memberIds": [
-     "m-self",
-     "m-grandpa"
+     "m-self"
     ],
     "sure": true,
     "reason": "宛名が日向 翔太（休業するのは翔太。介護の対象は父 正雄）",
@@ -9942,12 +9821,9 @@
    "docType": "通院の予約票",
    "category": "medical",
    "who": {
-    "memberIds": [
-     "m-grandma",
-     "m-aunt"
-    ],
-    "sure": true,
-    "reason": "お名前に「日向 和子 様」。翔太の母。付き添いは翔太の妹 由紀（手書き）",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -10002,8 +9878,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -10030,11 +9906,9 @@
    "docType": "介護保険被保険者証",
    "category": "care",
    "who": {
-    "memberIds": [
-     "m-grandma"
-    ],
-    "sure": true,
-    "reason": "氏名「日向 和子」・生年月日 昭和31年3月8日。翔太の母（遠方・ゆずりは市）",
+    "memberIds": [],
+    "sure": false,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）",
     "household": false
    },
    "period": {
@@ -10098,28 +9972,7 @@
      "quote": "令和8年5月7日"
     }
    ],
-   "deadlines": [
-    {
-     "kind": "expiry",
-     "label": "介護保険の認定の有効期間の終わり（和子）",
-     "date": "2027-04-30",
-     "endDate": "",
-     "time": "",
-     "place": "",
-     "needs": [],
-     "repeatMonths": 0,
-     "location": "まん中の面・認定の有効期間",
-     "quote": "令和9年4月30日 まで",
-     "actionNeeded": true,
-     "bundleKey": "",
-     "reserve": {
-      "date": "",
-      "condition": "",
-      "location": "",
-      "quote": ""
-     }
-    }
-   ],
+   "deadlines": [],
    "contacts": [
     {
      "label": "介護保険の問い合わせ",
@@ -10141,8 +9994,8 @@
    "completions": [],
    "onlyInLink": [],
    "notForFamily": {
-    "is": false,
-    "reason": ""
+    "is": true,
+    "reason": "一緒に住んでいない家族あての書類（この家の人の書類として扱わない）"
    }
   }
  },
@@ -10171,7 +10024,7 @@
    "who": {
     "memberIds": [],
     "sure": false,
-    "reason": "ひよこ組だけ。この家の書類ではない",
+    "reason": "ひよこ組（0歳児）だけの行事と参加票。結衣は りす組（2歳）なので当てはまらない（ほかのクラスは別の日にお知らせ、と書いてある）",
     "household": false
    },
    "period": {
@@ -10230,7 +10083,7 @@
    "who": {
     "memberIds": [],
     "sure": false,
-    "reason": "広告チラシ。この家の書類ではない",
+    "reason": "家族あての書類ではなく、塾の広告。「○日まで限定」は申込みのお得の期限で、家族の締切ではない",
     "household": false
    },
    "period": {
