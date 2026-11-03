@@ -1,8 +1,8 @@
 // README・提出用の画面の画像を、ひととおりの流れで撮る（スマホ幅 390・時計 2026-11-07 10:00 固定・架空の家族）。
 // 使い方: node scripts/shots-final.mjs <出力フォルダ> [BASE_URL]
-// 流れ: はじめて開いたとき → 架空の家族 → 写真・メールの見本をまとめて渡す（読んでいる途中・読み終わり・確定）→
-//       トップ・蓮のページ・予定（向こう7日・見に行きますか？）・聞きたいこと・大事な番号・聞く（けがの頼みごと）・
-//       すべての予定（束ねたメール・カレンダーに入れる）・こんなとき
+// 流れ: はじめて開いたとき → 架空の家族 → トップ（読みたい言葉の1行・同じ日のぶつかり）→
+//       保育園のうんどうかいの書類（日本語 → Tiếng Việt・原本の行が光る）→ 家族に伝える（送る前の画面）→
+//       設定（家族の読みたい言葉・家族の Telegram）→ 予定 → 写真の見本をまとめて渡す（読んでいる途中）→ 大事な番号 → 聞く
 import { mkdirSync } from "node:fs";
 
 async function loadPlaywright() {
@@ -24,7 +24,7 @@ mkdirSync(outDir, { recursive: true });
 const base = BASE.replace(/\/$/, "");
 const { chromium } = await loadPlaywright();
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: "ja-JP", timezoneId: "Asia/Tokyo" });
+const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: "ja-JP", timezoneId: "Asia/Tokyo", colorScheme: "light" });
 const page = await context.newPage();
 await page.clock.setFixedTime(new Date("2026-11-07T10:00:00+09:00"));
 const shot = async (name, fullPage = false) => {
@@ -40,78 +40,75 @@ await shot("01-start");
 await page.getByRole("button", { name: "架空の家族で試す" }).click();
 await see("架空の家族で試しています");
 
+// トップ: 家族の丸・読みたい言葉の1行・同じ日のぶつかりの気づき
+await see("同じ日です");
+await shot("02-top");
+await shot("02b-top-long", true);
+
+// 保育園のうんどうかいの書類: 日本語 → Tiếng Việt
+await page.goto(base + "/documents");
+await page.getByText("うんどうかいのお知らせ").first().click();
+await page.waitForURL(/\/documents\//);
+await page.getByRole("group", { name: "読む言葉" }).waitFor();
+await shot("03-doc-ja");
+await page.getByRole("group", { name: "読む言葉" }).getByRole("button", { name: "Tiếng Việt" }).click();
+await page.getByRole("button", { name: /にする（執事が訳す）/ }).click();
+await page.locator(".card.translated").waitFor({ timeout: 120000 });
+await page.waitForTimeout(800);
+await shot("04-doc-vi");
+// 原本の場所を押すと、原本の行が光る
+const ref = page.locator(".card.translated .link-button, .card.translated button").filter({ hasText: /原本|Bản gốc/ }).first();
+if (await ref.count()) {
+  await ref.click();
+  await page.waitForTimeout(800);
+  await shot("04b-doc-vi-highlight");
+}
+await shot("04c-doc-vi-long", true);
+
+// 家族に伝える（送る前の画面）
+const tell = page.getByRole("button", { name: /家族に伝える/ });
+await tell.scrollIntoViewIfNeeded();
+await tell.click();
+await page.locator(".tell-preview").waitFor({ timeout: 60000 });
+await page.waitForTimeout(800);
+await shot("05-tell-preview");
+await shot("05b-tell-preview-long", true);
+// 文の箱の中を、ベトナム語の段までスクロール
+await page.locator("pre.tell-text").evaluate((el) => {
+  const i = el.textContent.indexOf("【Tiếng Việt】");
+  if (i < 0) return;
+  const lines = el.textContent.slice(0, i).split("\n").length - 1;
+  el.scrollTop = lines * parseFloat(getComputedStyle(el).lineHeight);
+});
+await shot("05c-tell-preview-vi");
+
+// 設定: 家族の読みたい言葉・家族の Telegram
+await page.goto(base + "/butler");
+await see("家族の読みたい言葉");
+await page.locator("#languages").evaluate((el) => el.scrollIntoView({ block: "start" }));
+await shot("06-settings-languages");
+
+// 予定
+await page.goto(base + "/schedule");
+await page.locator("h2", { hasText: "のひとこと" }).waitFor();
+await shot("07-schedule");
+await shot("07b-schedule-long", true);
+
 // 渡す: 写真の見本をまとめて → 読んでいる途中
 await page.goto(base + "/scan");
-await shot("04a-scan", true);
+await shot("08-scan", true);
 await page.getByRole("button", { name: /写真の見本を\d+件まとめて渡す/ }).click();
 await page.waitForURL(/\/inbox/, { timeout: 30000 });
 await page.waitForTimeout(2500);
-await shot("04b-inbox-reading");
-await see("全部読み終わりました", 240000);
-await shot("05-inbox-done", true);
-await page.getByRole("button", { name: /まとめて確定する/ }).click();
-await see("件を確定しました");
-await shot("05b-inbox-after-confirm");
-// メールの見本
-await page.goto(base + "/scan");
-await page.getByRole("button", { name: /メールの見本を\d+件まとめて渡す/ }).click();
-await page.waitForURL(/\/inbox/, { timeout: 30000 });
-await see("全部読み終わりました", 240000);
-await page.getByRole("button", { name: /まとめて確定する/ }).click();
-await see("件を確定しました");
+await shot("09-inbox-reading");
 
-// トップ・蓮のページ・予定
-await page.goto(base + "/");
-await see("メニュー");
-await shot("02-top");
-await page.goto(base + "/family/m-son");
-await see("近いもの");
-await shot("03-family-son");
-await shot("03b-family-son-long", true);
-await page.goto(base + "/schedule");
-await page.locator("h2", { hasText: "のひとこと" }).waitFor();
-await shot("06-schedule");
-await shot("06b-schedule-long", true);
-// 授業参観に「見に行きますか？」
-const openClass = page.locator(".card.insight").filter({ hasText: /見に行きますか/ }).first();
-await openClass.waitFor({ timeout: 30000 });
-await openClass.evaluate((el) => el.scrollIntoView({ block: "center" }));
-await shot("06c-open-class");
-// 保険の補償の重なり（見つかったときだけの気づき）
-const overlapCard = page.locator(".card.insight").filter({ hasText: "個人賠償責任" }).first();
-if (await overlapCard.count()) {
-  await overlapCard.evaluate((el) => el.scrollIntoView({ block: "center" }));
-  await shot("06d-overlap");
-}
-await page.goto(base + "/questions");
-await page.waitForTimeout(1500);
-await shot("07-questions");
+// 大事な番号
 await page.goto(base + "/numbers");
 await see("大事な番号");
-await shot("08-numbers");
-// 聞く: けがの頼みごと
+await shot("10-numbers");
+
+// 聞く
 await page.goto(base + "/ask");
-await page.getByPlaceholder("例: 冬休みはいつからいつまで？").fill("蓮が学校でけがをした。保険の条件と連絡先を調べておいて");
-await page.getByRole("button", { name: /に頼む$/ }).click();
-await page.locator(".card", { hasText: "保険の条件と連絡先" }).first().locator("text=家族傷害保険").first().waitFor({ timeout: 120000 });
-await shot("09-ask-injury", true);
-// すべての予定: 束ねたメール
-await page.goto(base + "/schedule/all");
-await see("これから");
-const bill = page.locator(".dcard").filter({ hasText: "後払いの支払期限" }).first();
-await bill.scrollIntoViewIfNeeded();
-await shot("10-schedule-all-bundled");
-// いつものカレンダーに入れる（遠足）
-const excursion = page.locator(".dcard").filter({ hasText: "遠足" }).first();
-await excursion.getByRole("button", { name: "カレンダーに入れる" }).click();
-await excursion.getByRole("link", { name: "Google カレンダー" }).waitFor();
-await excursion.evaluate((el) => el.scrollIntoView({ block: "center" }));
-await shot("11-calendar");
-// こんなとき
-await page.goto(base + "/cases");
-await page.waitForTimeout(1000);
-await shot("12-cases");
-await page.goto(base + "/cases?s=injury");
-await see("けがのときに見る所");
-await shot("12b-cases-injury");
+await page.getByPlaceholder("例: 冬休みはいつからいつまで？").waitFor();
+await shot("11-ask");
 await browser.close();
