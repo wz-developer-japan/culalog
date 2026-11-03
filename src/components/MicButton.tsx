@@ -103,7 +103,7 @@ export function MicButton({ value, onChange }: { value: string; onChange: (text:
       {log.length > 0 && (
         <details className="meta voice-log">
           <summary>声の入力の手がかり（開発用・この画面で{count}回押した）</summary>
-          <p>試し方: 1回目に話す → 入力欄を消す → 2回目に話す → 3回目に話す。うまくいかなかったら、ここを開いて画面を撮ってください（話した文字は残していません。文字数だけです）。</p>
+          <p>試し方: 1回目に話す → 頼む → そのまま2回目に話す → 頼む → 3回目に話す。「画面を読み込んだ」が途中に出ていたら、読み込み直しが起きています。うまくいかなかったら、ここを開いて画面を撮ってください（話した文字は残していません。文字数だけです）。</p>
           <pre>{log.join("\n")}</pre>
         </details>
       )}

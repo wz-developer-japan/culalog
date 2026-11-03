@@ -65,6 +65,21 @@ export const speechInputSupported = () => recognitionCtor() !== null;
 const log: string[] = [];
 const logListeners = new Set<() => void>();
 let session = 0;
+// 画面の読み込み直しを見分ける印（同じタブのあいだだけ数える）。ログの #番号 が戻ったら、読み込み直しが起きている
+let loadNo = 0;
+let loadNoted = false;
+function noteLoad() {
+  if (loadNoted || typeof window === "undefined") return;
+  loadNoted = true;
+  try {
+    loadNo = Number(sessionStorage.getItem("culalog.voiceLoads") ?? "0") + 1;
+    sessionStorage.setItem("culalog.voiceLoads", String(loadNo));
+  } catch {
+    loadNo = 1;
+  }
+  note(`画面を読み込んだ（このタブで${loadNo}回目）`);
+  document.addEventListener("visibilitychange", () => note(`画面が${document.visibilityState === "visible" ? "前に出た" : "裏に回った"}`));
+}
 function note(line: string) {
   const d = new Date();
   const t = `${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}.${String(d.getMilliseconds()).padStart(3, "0")}`;
@@ -73,7 +88,10 @@ function note(line: string) {
   console.info(`[声の入力] ${line}`);
   for (const l of logListeners) l();
 }
-export const voiceLog = () => [...log];
+export const voiceLog = () => {
+  noteLoad();
+  return [...log];
+};
 export function onVoiceLog(listener: () => void): () => void {
   logListeners.add(listener);
   return () => logListeners.delete(listener);
@@ -86,6 +104,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "not-allowed": "マイクが許可されていません。ブラウザーの設定でマイクを許可するか、キーボードの音声入力を使ってください。",
   "service-not-allowed": "この端末では声の入力が許可されていません。キーボードの音声入力を使ってください。",
   "no-speech": "声が聞き取れませんでした。もう一度押して話してください。",
+  "audio-capture": "マイクの音が届きませんでした。もう一度押すか、キーボードのマイク（音声入力）で話してください。",
 };
 
 /**
@@ -101,7 +120,20 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     handlers.onError("このブラウザーでは声の入力が使えません。");
     return () => undefined;
   }
+  noteLoad();
   const id = ++session;
+  // iPhone: 音の経路を読み上げに取られないよう止める。入力欄・ボタンのフォーカス（キーボード）も外す
+  try {
+    if (speechOutputSupported() && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) note(`#${id} 読み上げ中だったので止めた`);
+    window.speechSynthesis?.cancel();
+  } catch {
+    // 読み上げの機能が無い
+  }
+  try {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+  } catch {
+    // フォーカスが無い
+  }
   let cancelled = false;
   let finished = false;
   let current: Recognition | null = null;
@@ -124,6 +156,8 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     let gotResult = false;
     let startedAt = Date.now();
     let retrying = false;
+    // 1回の試みで出す知らせは最初のエラーだけ（audio-capture のあとに届く aborted で上書きしない）
+    let errored = false;
     const mine = () => active?.recognition === recognition;
     recognition.onstart = () => {
       startedAt = Date.now();
@@ -153,14 +187,18 @@ export function startListening(handlers: { onText: (text: string, final: boolean
     };
     recognition.onerror = (event) => {
       note(`#${id} エラー: ${event.error}${event.message ? `（${event.message}）` : ""}`);
-      if (!mine()) return;
-      // 始めてすぐの aborted・audio-capture は、前の認識がマイクを離しきっていないことが多い → 少し待って1回だけやり直す
-      if (!gotResult && !cancelled && attempt === 1 && (event.error === "aborted" || event.error === "audio-capture") && Date.now() - startedAt < 1500) {
+      if (!mine() || retrying) return;
+      // 始めてすぐの aborted・audio-capture は、前の認識がマイクを離しきっていないことが多い → 少し待って1回だけやり直す。
+      // iPhone の audio-capture（Source is muted: マイクは開いたが無音が来る）は、時間に関係なく1回だけ新しい認識でやり直す
+      const muted = event.error === "audio-capture";
+      if (!gotResult && !cancelled && attempt === 1 && (muted || (event.error === "aborted" && Date.now() - startedAt < 1500))) {
         retrying = true;
         return;
       }
       if (cancelled && event.error === "aborted") return;
       if (gotResult && (event.error === "no-speech" || event.error === "aborted")) return;
+      if (errored) return;
+      errored = true;
       handlers.onError(`${ERROR_MESSAGES[event.error] ?? "声の入力がうまくいきませんでした。キーボードの音声入力も使えます。"}（手がかり: ${event.error}）`);
     };
     recognition.onend = () => {
@@ -169,7 +207,7 @@ export function startListening(handlers: { onText: (text: string, final: boolean
       if (active?.recognition === recognition) active = null;
       if (retrying) {
         note(`#${id} 少し待ってやり直す`);
-        setTimeout(() => begin(attempt + 1), 400);
+        setTimeout(() => begin(attempt + 1), 600);
         return;
       }
       finish();
