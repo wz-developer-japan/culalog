@@ -170,7 +170,8 @@ export function buildTell(
 }
 
 /**
- * 段の言葉ごとの「カレンダーに追加」（Google カレンダーの予定を作る画面）。この書類のいちばん主な行事1件だけ（時間の分かるものを先に）。
+ * 段の言葉ごとの「カレンダーに追加」（Google カレンダーの予定を作る画面）。行事が1件だけの書類（案内プリントなど）のときだけ
+ * （年間行事予定・回覧のように行事がいくつもあると、どれが入るか分からないので付けない）。
  * 題とメモはその言葉（訳が無い言葉・子どもだけが読む言葉には作らない）。場所は原本のまま（地図で探せるように）。番号は伏せる
  */
 function calendarLinks(
@@ -181,8 +182,8 @@ function calendarLinks(
   mask: (t: string) => string,
 ): Partial<Record<LanguageCode, string>> | undefined {
   const events = doc.deadlines.filter((d) => d.kind === "event" && d.date && !(household.done ?? {})[d.id]);
-  const d = events.find((x) => parseTimes(x.time).start) ?? events[0];
-  if (!d) return undefined;
+  if (events.length !== 1) return undefined;
+  const d = events[0];
   const self = household.members.find((m) => m.relation === "self");
   const { start, end } = parseTimes(d.time);
   const out: Partial<Record<LanguageCode, string>> = {};

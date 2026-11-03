@@ -174,6 +174,8 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   check(q("ja").get("text") === "授業参観（2学期）" && q("ja").get("dates") === "20261127T104500/20261127T121000" && q("ja").get("ctz") === "Asia/Tokyo", "カレンダーに追加（日本語）: 授業参観 11/27 10:45〜12:10");
   check(/^Dự giờ/.test(q("vi").get("text") ?? "") && !/[\u3040-\u30ff]/.test(q("vi").get("text") ?? "") && /Bản gốc/.test(q("vi").get("details") ?? ""), "カレンダーに追加（ベトナム語）: 題はベトナム語・メモに原本へ戻る行");
   check(!p7.calendar?.["ja-easy"], "子どもだけが読む言葉（蓮さんのやさしい日本語）には、カレンダーに追加を作らない");
+  const yearly = h7.documents.find((d) => /年間行事予定/.test(d.title) && d.confirmedAt && !d.supersededBy)!;
+  check(!buildTell(h7, yearly, {}, () => undefined, ["ja"]).calendar, "行事がいくつもある書類（年間行事予定）には、カレンダーに追加を付けない");
   check(Object.values(p7.calendar ?? {}).every((u) => (u ?? "").length <= 1800), "カレンダーのリンクはボタンにできる長さ");
   check(JSON.stringify(p7.takerLangs) === JSON.stringify(["ja", "vi"]), "担当の候補の読みたい言葉（翔太さん ja・タオさん vi）");
   const d1 = takerData({ ja: "タオ", vi: "Thảo", "ja-easy": "タオ" }, "vi");
