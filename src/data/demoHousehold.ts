@@ -378,7 +378,7 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
           { key: "f-slip", label: "けがの連絡票", value: "きりとり線の下。年・組・名前、けがをした日、場所・様子、医療機関、保護者の連絡先を書いて担任か保健室へ", source: { location: "きりとり線の下", quote: "けがの連絡票（受診したら、担任または保健室へお出しください）" }, status: "confirmed" },
         ],
         contacts: [
-          { label: "最初の連絡", name: "くろうど第一小学校 保健室（養護教諭 青木）", phone: "000-0000-0000", hours: "平日 8:00〜17:00", source: { location: "５．問い合わせ" } },
+          { label: "最初の連絡", name: "くろうど第一小学校 保健室（養護教諭 葉見）", phone: "000-0000-0000", hours: "平日 8:00〜17:00", source: { location: "５．問い合わせ" } },
           { label: "互助会", name: "くろうど市 学校安全互助会 事務局（架空）", phone: "000-0000-0013", hours: "平日 9:00〜16:00", source: { location: "５．問い合わせ" } },
         ],
         deadlines: [],

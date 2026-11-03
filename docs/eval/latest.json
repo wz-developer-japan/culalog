@@ -1,90 +1,90 @@
 {
-  "at": "2026-11-03 03:12 UTC",
+  "at": "2026-11-03 06:05 UTC",
   "model": "claude-opus-5-5",
   "claude": false,
   "overall": {
-    "hit": 1168,
-    "total": 1168
+    "hit": 1183,
+    "total": 1183
   },
-  "perfect": 85,
+  "perfect": 86,
   "byKey": {
     "parsed": {
       "label": "返す形で受け取れた",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "category": {
       "label": "書類の種類",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "who": {
       "label": "誰の（人）",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "household": {
       "label": "家全体かどうか",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "notForFamily": {
       "label": "この家の書類ではない",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "deadlineExtra": {
       "label": "正解に無い日付を締切にしない",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "ifIgnored": {
       "label": "放置すると？（推測で書かない）",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "phone": {
       "label": "問い合わせ先の電話番号",
-      "hit": 98,
-      "total": 98,
-      "docs": 76
+      "hit": 99,
+      "total": 99,
+      "docs": 77
     },
     "unclear": {
       "label": "読めなかった所を推測で埋めない",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "noJudging": {
       "label": "判断の言い回しが無い",
-      "hit": 85,
-      "total": 85,
-      "docs": 85
+      "hit": 86,
+      "total": 86,
+      "docs": 86
     },
     "period": {
       "label": "期間（いつの分か）",
-      "hit": 68,
-      "total": 68,
-      "docs": 68
+      "hit": 69,
+      "total": 69,
+      "docs": 69
     },
     "deadlineDate": {
       "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-      "hit": 108,
-      "total": 108,
-      "docs": 45
+      "hit": 110,
+      "total": 110,
+      "docs": 46
     },
     "deadlineKind": {
       "label": "予定の種類",
-      "hit": 108,
-      "total": 108,
-      "docs": 45
+      "hit": 110,
+      "total": 110,
+      "docs": 46
     },
     "bundle": {
       "label": "束ねる印",
@@ -935,7 +935,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8480,
-        "output": 4411
+        "output": 4410
       },
       "items": [
         {
@@ -1909,7 +1909,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8676,
-        "output": 3001
+        "output": 3003
       },
       "items": [
         {
@@ -2003,7 +2003,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8676,
-        "output": 3038
+        "output": 3039
       },
       "items": [
         {
@@ -2343,7 +2343,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8824,
-        "output": 3049
+        "output": 3048
       },
       "items": [
         {
@@ -2437,7 +2437,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8360,
-        "output": 2674
+        "output": 2675
       },
       "items": [
         {
@@ -2631,7 +2631,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8824,
-        "output": 5729
+        "output": 5727
       },
       "items": [
         {
@@ -2977,7 +2977,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8069,
-        "output": 2261
+        "output": 2262
       },
       "items": [
         {
@@ -3149,6 +3149,100 @@
         {
           "key": "completions",
           "label": "済んだ・訂正のお知らせ",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0
+      }
+    },
+    {
+      "id": "photo-o9-sankan-annai",
+      "title": "2学期 授業参観・学級懇談会のご案内（架空）",
+      "category": "school",
+      "origin": "photo",
+      "estimate": {
+        "input": 8824,
+        "output": 2412
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "period",
+          "label": "期間（いつの分か）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 2
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
           "hit": 1,
           "total": 1
         },
@@ -3511,7 +3605,7 @@
       "origin": "photo",
       "estimate": {
         "input": 8265,
-        "output": 1962
+        "output": 1965
       },
       "items": [
         {
