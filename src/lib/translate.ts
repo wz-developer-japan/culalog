@@ -173,6 +173,9 @@ export const TRANSLATION_SCHEMA = {
   },
 } as const;
 
+/** 一般的な説明に書かせない、休み方を決めつける言葉（休み方は家族が決める） */
+const BACKGROUND_HOW_TO_REST = /有給|有休|年休|nghỉ\s*phép/i;
+
 export function parseTranslation(value: unknown, refs: string[]): Omit<DocTranslation, "lang" | "draftSource" | "basis" | "translatedAt"> | null {
   if (!value || typeof value !== "object") return null;
   const v = value as Record<string, unknown>;
@@ -188,9 +191,10 @@ export function parseTranslation(value: unknown, refs: string[]): Omit<DocTransl
     items: arr(v.items)
       .map((i) => ({ ref: s(i?.ref, 80), label: s(i?.label, 200), text: s(i?.text) }))
       .filter((i) => refs.includes(i.ref) && i.label),
+    // 一般的な説明で休み方（有給など）を決めつけたものは出さない（項目の訳は原本どおりなので対象外）
     background: arr(v.background)
       .map((b) => ({ title: s(b?.title, 120), text: s(b?.text, 1200) }))
-      .filter((b) => b.title && b.text)
+      .filter((b) => b.title && b.text && !BACKGROUND_HOW_TO_REST.test(`${b.title} ${b.text}`.normalize("NFC")))
       .slice(0, 4),
     checks: arr(v.checks).map((c) => s(c, 300)).filter(Boolean).slice(0, 5),
   };
@@ -204,6 +208,7 @@ export const TRANSLATE_SYSTEM_PROMPT = `あなたは、家族の書類を家族�
 - 日付・曜日・時刻は書かないでください（アプリが元の予定から、その言葉で入れます）。金額・個数・持ち物の数はそのまま。
 - items には、送られた fields と deadlines の ref をそのまま使い、label（項目や予定の名前）と text（値・持ち物・場所など）を訳してください。
 - background には、理解を助ける「日本で一般的なこと」の説明を0〜3件（例:「日本の運動会とは」「おやつは300円まで、とは」「土曜保育とは」）。🔴 その学校・園の決まりとして書かない。原本に書いていないことを、原本に書いてあるように書かない。
+- background で休み方を決めつけない（「有給」「有休」「年休」、ベトナム語の「nghỉ phép」などは書かない。休み方は家族が決める。書くなら「休みを取る」「xin nghỉ」のような一般的な言い方まで）。
 - checks には、原本からは分からないので確かめることを0〜3件（例:「雨の日にどうなるかは書いていません。園に確かめてください」）。
 - 保険・医療・法律・在留資格の手続きについて、対象になるか・どうすべきかは判断しない。書いてあることと問い合わせ先だけ。
 - やさしい日本語（ja-easy）のときは、短い文・ひらがな多め・むずかしい言葉は言い換える。

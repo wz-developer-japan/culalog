@@ -65,7 +65,7 @@ const PREPARED: Prepared[] = [
     background: [
       {
         title: "Dự giờ (jugyō sankan) là gì?",
-        text: "Ở Nhật, phụ huynh được mời đến trường xem con học trong lớp vài lần mỗi năm. Thường tổ chức vào ngày thường, nên nhiều phụ huynh đi làm xin nghỉ phép để đến. Không bắt buộc cả bố và mẹ cùng đi.",
+        text: "Ở Nhật, phụ huynh được mời đến trường xem con học trong lớp vài lần mỗi năm. Thường tổ chức vào ngày thường, nên nhiều phụ huynh đi làm xin nghỉ để đến. Không bắt buộc cả bố và mẹ cùng đi.",
       },
       {
         title: "Họp phụ huynh lớp (gakkyū kondankai) là gì?",
@@ -87,7 +87,7 @@ const PREPARED: Prepared[] = [
     background: [
       {
         title: "Dự giờ (jugyō sankan) là gì?",
-        text: "Ở Nhật, phụ huynh được mời đến trường xem con học trong lớp vài lần mỗi năm. Thường tổ chức vào ngày thường, nên nhiều phụ huynh đi làm xin nghỉ phép để đến.",
+        text: "Ở Nhật, phụ huynh được mời đến trường xem con học trong lớp vài lần mỗi năm. Thường tổ chức vào ngày thường, nên nhiều phụ huynh đi làm xin nghỉ để đến.",
       },
     ],
     checks: ["Giờ và phòng học chưa có. Hãy xem tờ thông báo phát sau (có thể nằm trong cặp của Ren)."],
