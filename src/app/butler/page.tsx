@@ -2,6 +2,7 @@
 
 // 執事のキャラと名前を選ぶ。変わるのは口調だけで、知らせる中身はどのキャラでも同じ。
 
+import { ButlerFace } from "@/components/ButlerFace";
 import Link from "next/link";
 import { now } from "@/lib/clock";
 import { BackToTop } from "@/components/BackToTop";
@@ -65,7 +66,9 @@ export default function ButlerSettingsPage() {
           aria-pressed={c.id === current}
           onClick={() => pick(c.id)}
         >
-          <span className="face">{c.icon}</span>
+          <span className="face butler">
+            <ButlerFace id={c.id} />
+          </span>
           <span>
             <span className="character-name">{c.defaultName}</span>
             <span className="block meta">{c.style}</span>

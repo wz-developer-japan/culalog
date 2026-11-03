@@ -12,7 +12,7 @@ import { Pic } from "@/components/Pics";
 import { CalendarAll, CalendarButton } from "@/components/CalendarActions";
 import { dayAnchor } from "@/components/WeekStrip";
 import { calendarEventOf } from "@/lib/calendar";
-import { candidateOf, toggleDone } from "@/lib/butler";
+import { candidateOf, expectedNote, toggleDone } from "@/lib/butler";
 import { givenName } from "@/lib/whose";
 import { type ActionItem, allItems, buildHome, formatYmd, isDone, itemIds, passedBeforeRegistered } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS } from "@/lib/labels";
@@ -131,20 +131,24 @@ export default function Schedule() {
       {missing.length > 0 && (
         <>
           <h2 className="sec">来ていないもの</h2>
-          {missing.map((e) => (
-            <div className="dcard" key={e.id}>
-              <div className="pic">
-                <Pic kind="missing" />
-              </div>
-              <div className="body">
-                <div className="t wrap">{e.label}がまだ届いていません</div>
-                {e.hint && <div className="sub">{e.hint}</div>}
-                <div className="m">
-                  <span className="tag warn">まだ届いていない</span>
+          {missing.map((e) => {
+            const note = expectedNote(h, e);
+            return (
+              <div className="dcard" key={e.id}>
+                <div className="pic">
+                  <Pic kind="missing" />
+                </div>
+                <div className="body">
+                  <div className="t wrap">{e.label}がまだ届いていません</div>
+                  {note.why && <div className="sub">{note.why}</div>}
+                  <div className="m">
+                    <span className="tag warn">まだ届いていない</span>
+                    <Source c={note} />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </>
       )}
 

@@ -18,8 +18,6 @@ export interface Character {
   defaultName: string;
   /** 口調の説明（設定画面に出す） */
   style: string;
-  /** 小さなアイコン（顔の代わりの1文字） */
-  icon: string;
   /** あいさつ（呼びかける相手は「翔太さん、」の形か空。名前は画面で差し込む） */
   greeting: (time: "morning" | "day" | "evening", who: string) => string;
   /** 急いで動くことが無いとき */
@@ -35,7 +33,6 @@ export const CHARACTERS: Character[] = [
     id: "kurano",
     defaultName: "クラノ",
     style: "落ち着いた、ていねいな口調（男性的）",
-    icon: "蔵",
     greeting: (t, who) => `${who}${hello[t]}。本日のことをお伝えいたします。`,
     calm: "今は、急いで動くことはございません。",
     asking: "お手すきのときに、お聞かせください。",
@@ -44,7 +41,6 @@ export const CHARACTERS: Character[] = [
     id: "fusen",
     defaultName: "フセン",
     style: "明るく、やわらかい口調（女性的）",
-    icon: "付",
     greeting: (t, who) => `${who}${hello[t]}！ 今日のこと、まとめておきましたよ。`,
     calm: "今は、急ぐことはありませんよ。",
     asking: "分かるときに、教えてくださいね。",
@@ -53,7 +49,6 @@ export const CHARACTERS: Character[] = [
     id: "hako",
     defaultName: "ハコ",
     style: "短く、さっぱりした口調（中性的）",
-    icon: "箱",
     greeting: (t, who) => `${who}${hello[t]}。今日のことです。`,
     calm: "今は、急ぐことはありません。",
     asking: "分かれば、選んでください。",

@@ -26,6 +26,7 @@ import {
 } from "@/lib/butler";
 import { butlerName, characterOf } from "@/lib/character";
 import { adoptInsight, answerInsight } from "@/lib/connect";
+import { overlapCase } from "@/lib/cases";
 import { allItems, isDone } from "@/lib/deadlines";
 import { inboxProgress } from "@/lib/inbox";
 import type { Household } from "@/lib/types";
@@ -69,6 +70,10 @@ export default function Schedule() {
       : provisionalBriefing(candidates, 3, isFollowUp);
   const answers = h.insightAnswers ?? {};
   const insights = (connect?.insights ?? []).filter((i) => !answers[i.key]);
+  // 保険の補償の重なりは、いま確定している書類で実際に見つかったときだけ気づきに出す（見つからなければ出さない）
+  const overlap = overlapCase(h);
+  const overlapKey = `overlap:${overlap.groups.map((g) => `${g.title}=${g.docs.map((d) => d.doc.id).join(",")}`).join("|")}`;
+  const showOverlap = overlap.groups.length > 0 && !answers[overlapKey];
   // いちばん近い締切（期限切れがあればそれ）を、上の大きなカードに。ひとこと・念のための欄には同じものを出さない
   const nearest = candidates.filter((c) => c.type === "deadline" && c.card && !(c.daysLeft < 0 && !c.overdue)).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
   const net = safetyNet(candidates, briefing).filter((c) => c.id !== nearest?.id);
@@ -294,9 +299,28 @@ export default function Schedule() {
         </>
       )}
 
-      {insights.length > 0 && (
+      {(insights.length > 0 || showOverlap) && (
         <>
           <h2 className="sec">{name}が気づいたこと</h2>
+          {showOverlap && (
+            <div className="card insight">
+              <div className="insight-text">
+                書類を見比べたら、{overlap.groups.map((g) => g.title).join("。")}。同じ種類の補償が重なっているかもしれません。
+              </div>
+              <div className="meta">{overlap.groups[0].note}</div>
+              <div className="row-actions">
+                <Link className="button small" href="/cases?s=overlap" style={{ textDecoration: "none" }}>
+                  原本の行を並べて見る
+                </Link>
+                <button
+                  className="button small secondary"
+                  onClick={() => update((current) => ({ ...current, insightAnswers: { ...(current.insightAnswers ?? {}), [overlapKey]: "seen" } }))}
+                >
+                  わかった
+                </button>
+              </div>
+            </div>
+          )}
           {insights.map((i) => (
             <InsightCard
               key={i.key}

@@ -3,7 +3,7 @@
 // Claude が選ばなかったものでも、締切が近いもの・過ぎたものはコードの側で必ず出す。
 
 import { type ActionItem, buildHome, formatYmd, toYmd } from "./deadlines";
-import type { ButlerQuestion, Deadline, DocumentCategory, DocumentRecord, Household } from "./types";
+import type { ButlerQuestion, Deadline, DocumentCategory, DocumentRecord, ExpectedDocument, Household } from "./types";
 
 /** 締切が何日以内なら、Claude が選ばなくても必ず出すか */
 export const URGENT_DAYS = 3;
@@ -17,6 +17,30 @@ const FOLLOW_UP_LABEL: Record<number, string> = { 7: "1週間前", 3: "3日前",
 export function followUpStage(daysLeft: number): number | undefined {
   if (daysLeft < 0) return undefined;
   return [...FOLLOW_UP_DAYS].reverse().find((s) => daysLeft <= s);
+}
+
+/**
+ * 来るはずの書類が届いていないときの文。主役は「この日は○○」→「詳しいことがまだ無い」→「どこかに紛れていませんか」。
+ * 日付と名前は、つながっている予定からその場で作る（固定の文にしない）。根拠の注記は文の主語にせず、原本の場所に回す。
+ */
+export function expectedNote(
+  h: Household,
+  e: ExpectedDocument,
+): { why?: string; documentId?: string; documentTitle?: string; location?: string } {
+  const doc = e.relatedDeadlineId ? h.documents.find((d) => d.deadlines.some((x) => x.id === e.relatedDeadlineId)) : undefined;
+  const dl = doc?.deadlines.find((x) => x.id === e.relatedDeadlineId);
+  if (!doc || !dl) return { why: e.hint };
+  const lookIn = e.lookIn ?? (/プリント|おたより|たより/.test(e.label) ? "ランドセルの中" : "届いた郵便物の中");
+  const verb = lookIn === "ランドセルの中" ? "に入ったままになっていませんか？" : "に紛れていませんか？";
+  const thing = /プリント/.test(e.label) ? "プリント" : e.label;
+  return {
+    why:
+      `${doc.title}では、${formatYmd(dl.date)}は${dl.label}です。` +
+      `でも、${e.missingWhat ?? "時間や持ち物"}が書かれた案内がまだありません。${thing}が${lookIn}${verb}`,
+    documentId: doc.id,
+    documentTitle: doc.title,
+    location: e.basisLocation ?? dl.source?.location,
+  };
 }
 
 export interface Candidate {
@@ -151,7 +175,7 @@ export function buildCandidates(household: Household, today: Date): Candidate[] 
       urgent: false,
       overdue: false,
       title: `${e.label}がまだ届いていません`,
-      why: e.hint,
+      ...expectedNote(household, e),
       dates: [],
       memberIds: ownersOfExpected(e.relatedDeadlineId),
     })),

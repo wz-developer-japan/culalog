@@ -522,7 +522,8 @@ export async function createDemoHousehold(today: Date = new Date()): Promise<Hou
         label: "授業参観の案内プリント",
         expectedBy: ymd(today),
         relatedDeadlineId: "dl-open-class",
-        hint: "学年だよりに「時間・教室は後日お配りする案内プリントで」とあります。ランドセルの中に入ったままかもしれません。",
+        missingWhat: "時間や教室",
+        basisLocation: "これからのおもな予定・授業参観（2学期）の※",
       },
     ],
     demoSamples: [

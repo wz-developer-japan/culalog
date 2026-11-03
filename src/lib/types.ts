@@ -137,6 +137,13 @@ export interface ExpectedDocument {
   receivedDocumentId?: string;
   /** どの予定から期待しているか */
   relatedDeadlineId?: string;
+  /** まだ無いもの（例: 「時間や教室」）。無ければ「時間や持ち物」 */
+  missingWhat?: string;
+  /** どこに紛れていそうか（例: 「ランドセルの中」）。無ければ名前から（プリントならランドセルの中、ほかは郵便物の中） */
+  lookIn?: string;
+  /** 「後日お知らせします」と書いてある原本の場所（予定と同じ書類の中）。無ければ予定の原本の場所 */
+  basisLocation?: string;
+  /** 古い形の説明文（予定が見つからないときだけ使う） */
   hint?: string;
 }
 

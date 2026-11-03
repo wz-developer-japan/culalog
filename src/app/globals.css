@@ -1950,3 +1950,17 @@ h2.sec .more {
 .dcard[id] {
   scroll-margin-top: 16px;
 }
+
+/* 執事のアイコン（角丸の四角。家族の丸と区別する） */
+.face.butler,
+.greet .face.butler {
+  border-radius: 12px;
+  background: none;
+  overflow: hidden;
+  padding: 0;
+}
+.face.butler .bface {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

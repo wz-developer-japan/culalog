@@ -73,6 +73,10 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   await page.waitForURL(/\/schedule\/all#day-2026-11-09/, { timeout: 15000 });
   await page.locator("#day-2026-11-09").filter({ hasText: "遠足" }).waitFor({ timeout: 15000 });
   await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
+  // まだ届いていない案内プリント: 「この日は○○」→「詳しいことがまだ無い」→「ランドセルの中かも」の順で、日付は予定から
+  const missingText = await page.locator(".dcard").filter({ hasText: "授業参観の案内プリントがまだ届いていません" }).first().innerText();
+  if (!/3学年だより（11月号）では、\d+月\d+日（.）は授業参観（2学期）です。でも、時間や教室が書かれた案内がまだありません。プリントがランドセルの中に入ったままになっていませんか？/.test(missingText))
+    throw new Error(`まだ届いていない案内プリントの文: ${missingText}`);
   const [download] = await Promise.all([
     page.waitForEvent("download", { timeout: 15000 }),
     page.getByRole("button", { name: /まとめてカレンダーに入れる/ }).click(),
@@ -297,7 +301,16 @@ await step("番号を聞くと、Claude に送らずに端末の中で答え、�
   if (calls.length) throw new Error(`/api/ask が${calls.length}回呼ばれました`);
 });
 
-await step("こんなとき: けが・引っ越し・補償の重なりを、書類をつないで並べる（判断はしない）", async () => {
+await step("こんなとき: けが・引っ越し・補償の重なりを、書類をつないで並べる（判断はしない）。重なりは見つかったときだけ予定の気づきに出し、トップの真ん中には置かない", async () => {
+  await page.goto(BASE + "/");
+  await see("メニュー");
+  if (await page.locator(".case-links").count()) throw new Error("トップの真ん中に「こんなとき」が残っています");
+  if (!(await page.locator(".foot-links a", { hasText: "こんなときは？" }).count())) throw new Error("トップの下に「こんなときは？」の入口がありません");
+  await page.goto(BASE + "/schedule");
+  const overlapCard = page.locator(".card.insight").filter({ hasText: "「個人賠償責任」が3つの書類にあります" });
+  await overlapCard.first().waitFor({ timeout: 15000 });
+  await overlapCard.first().getByRole("link", { name: "原本の行を並べて見る" }).click();
+  await page.waitForURL(/\/cases\?s=overlap/, { timeout: 15000 });
   await page.goto(BASE + "/cases?s=injury");
   await see("けがのときに見る所");
   let body = await page.locator("main").innerText();

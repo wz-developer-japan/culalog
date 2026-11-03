@@ -5,13 +5,13 @@
 // ここから全部の場所に行けて、どの画面からも左上の「‹ トップ」と下のタブで1回で戻れる。
 // 日付の計算はコード（lib/butler・lib/deadlines）。ここは見せ方と入口だけ。
 
+import { ButlerFace } from "@/components/ButlerFace";
 import Link from "next/link";
 import { now, useTodayOffset } from "@/lib/clock";
 import { useEffect } from "react";
 import { FamilyRow } from "@/components/FamilyRow";
 import { ButlerPic, MenuPic, type MenuKind } from "@/components/Pics";
 import { createDemoHousehold } from "@/data/demoHousehold";
-import { SCENES } from "@/lib/cases";
 import { buildCandidates, markFollowUps, openQuestions } from "@/lib/butler";
 import { addressee, butlerName, characterOf, timeOfDay } from "@/lib/character";
 import { inboxProgress } from "@/lib/inbox";
@@ -128,8 +128,8 @@ export default function Top() {
             ))}
           </div>
         </div>
-        <Link href="/butler" className="face" aria-label={`${name}（執事を選ぶ）`}>
-          {character.icon}
+        <Link href="/butler" className="face butler" aria-label={`${name}（執事を選ぶ）`}>
+          <ButlerFace id={character.id} />
         </Link>
       </div>
 
@@ -205,25 +205,6 @@ export default function Top() {
         ))}
       </nav>
 
-      {h.documents.length > 0 && (
-        <>
-          <h2 className="sec">
-            こんなとき <Link className="more" href="/cases">ぜんぶ見る</Link>
-          </h2>
-          <nav className="case-links" aria-label="こんなとき">
-            {SCENES.map((s, i) => (
-              <Link key={s.id} href={`/cases?s=${s.id}`}>
-                <span className="n">{i + 1}</span>
-                <span>
-                  <b>{s.title}</b>
-                  <small>{s.lead}</small>
-                </span>
-              </Link>
-            ))}
-          </nav>
-        </>
-      )}
-
       {h.isDemo && (
         <div className="timeshift">
           <span className="k">日付を進めて、締切が近づく・過ぎる様子を見る</span>
@@ -239,6 +220,7 @@ export default function Top() {
       )}
 
       <div className="foot-links">
+        <Link href="/cases">こんなときは？（けが・引っ越し）</Link>
         <Link href="/scan">渡し方を選ぶ</Link>
         <Link href="/add">手入力で登録</Link>
         <Link href="/butler">執事を選ぶ</Link>
