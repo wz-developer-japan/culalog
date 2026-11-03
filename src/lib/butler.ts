@@ -278,7 +278,7 @@ export function effectOf(q: ButlerQuestion): string {
   if (q.about === "supersede") return "前のものにすると、ひとこと・予定の根拠に使わなくなります（書類は残ります）。";
   if (q.about === "duplicate") return "同じ書類なら、今回の分は消して前の書類だけを使います。別の書類なら両方残します。";
   if (q.about === "close") return "済んだにすると、その予定はトップ・予定で知らせなくなります（すべての予定の画面で取り消せます）。";
-  return "答えは、この書類の項目に「本人の答え」として残ります。";
+  return "答えは、この書類の項目に「あなたの答え」として残ります。";
 }
 
 /** 「今はわからない・あとで答える」: 明日まではホームに出さない（書類の画面にはいつでも出る） */
@@ -466,7 +466,7 @@ export function answerQuestion(household: Household, questionId: string, values:
           key: `answer-${question.id}`,
           label: question.text,
           value: labels.join("、"),
-          source: { location: "本人の答え（執事の質問）" },
+          source: { location: "あなたの答え（執事の質問）" },
           status: "confirmed" as const,
         },
       ],

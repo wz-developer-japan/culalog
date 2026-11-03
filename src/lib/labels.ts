@@ -41,7 +41,7 @@ export const DEFAULT_LEAD_DAYS: Record<DeadlineKind, number> = {
 export const RANGE_KINDS: DeadlineKind[] = ["window", "cancel_window"];
 
 export const RELATION_LABELS: Record<import("./types").Relation, string> = {
-  self: "本人",
+  self: "あなた",
   spouse: "配偶者",
   child: "子",
   parent: "親",

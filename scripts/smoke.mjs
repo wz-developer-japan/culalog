@@ -103,7 +103,7 @@ await step("見本をまとめて渡すと、受け取り箱で順番に読ま�
   await see("件を確定しました");
 });
 
-await step("授業参観の案内を確定すると、執事が「平日なので有給の申請が要るかも」とわが家のきまりをつないで提案する（採用は本人）", async () => {
+await step("授業参観の案内を確定すると、執事が「平日なので有給の申請が要るかも」とわが家のきまりをつないで提案する（採用はあなた）", async () => {
   await page.goto(BASE + "/schedule");
   await page.locator("h2", { hasText: "気づいたこと" }).waitFor({ timeout: 15000 });
   const body = await page.locator("main").innerText();

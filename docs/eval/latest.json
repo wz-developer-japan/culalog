@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-03 01:08 UTC",
+  "at": "2026-11-03 01:37 UTC",
   "model": "claude-opus-5-5",
   "claude": false,
   "overall": {
@@ -112,7 +112,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 9925,
+        "input": 10005,
         "output": 3374
       },
       "items": [
@@ -188,7 +188,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 7982,
+        "input": 8062,
         "output": 3351
       },
       "items": [
@@ -282,7 +282,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 8621,
+        "input": 8701,
         "output": 4167
       },
       "items": [
@@ -376,7 +376,7 @@
       "category": "subscription",
       "origin": "photo",
       "estimate": {
-        "input": 13230,
+        "input": 13310,
         "output": 6997
       },
       "items": [
@@ -470,7 +470,7 @@
       "category": "community",
       "origin": "photo",
       "estimate": {
-        "input": 10915,
+        "input": 10995,
         "output": 10009
       },
       "items": [
@@ -564,7 +564,7 @@
       "category": "insurance",
       "origin": "photo",
       "estimate": {
-        "input": 10913,
+        "input": 10993,
         "output": 8308
       },
       "items": [
@@ -658,7 +658,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 10913,
+        "input": 10993,
         "output": 5697
       },
       "items": [
@@ -752,7 +752,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 13230,
+        "input": 13310,
         "output": 5826
       },
       "items": [
@@ -840,7 +840,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 10913,
+        "input": 10993,
         "output": 5352
       },
       "items": [
@@ -934,7 +934,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8400,
+        "input": 8480,
         "output": 4411
       },
       "items": [
@@ -1028,7 +1028,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8704,
+        "input": 8784,
         "output": 2379
       },
       "items": [
@@ -1110,7 +1110,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 8638,
+        "input": 8718,
         "output": 2967
       },
       "items": [
@@ -1204,7 +1204,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7590,
+        "input": 7670,
         "output": 2068
       },
       "items": [
@@ -1298,7 +1298,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 7516,
+        "input": 7596,
         "output": 1855
       },
       "items": [
@@ -1380,7 +1380,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7569,
+        "input": 7649,
         "output": 2316
       },
       "items": [
@@ -1474,7 +1474,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 10913,
+        "input": 10993,
         "output": 5369
       },
       "items": [
@@ -1568,7 +1568,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 8465,
+        "input": 8545,
         "output": 2624
       },
       "items": [
@@ -1638,7 +1638,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7779,
+        "input": 7859,
         "output": 2189
       },
       "items": [
@@ -1726,7 +1726,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 8744,
+        "input": 8824,
         "output": 3337
       },
       "items": [
@@ -1814,7 +1814,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7794,
+        "input": 7874,
         "output": 2223
       },
       "items": [
@@ -1908,7 +1908,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8596,
+        "input": 8676,
         "output": 3001
       },
       "items": [
@@ -2002,7 +2002,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8596,
+        "input": 8676,
         "output": 3038
       },
       "items": [
@@ -2096,7 +2096,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7794,
+        "input": 7874,
         "output": 1526
       },
       "items": [
@@ -2172,7 +2172,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8597,
+        "input": 8677,
         "output": 5546
       },
       "items": [
@@ -2248,7 +2248,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8596,
+        "input": 8676,
         "output": 3014
       },
       "items": [
@@ -2342,7 +2342,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8744,
+        "input": 8824,
         "output": 3049
       },
       "items": [
@@ -2436,7 +2436,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8280,
+        "input": 8360,
         "output": 2674
       },
       "items": [
@@ -2536,7 +2536,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8222,
+        "input": 8302,
         "output": 2100
       },
       "items": [
@@ -2630,7 +2630,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 7946,
+        "input": 8026,
         "output": 3928
       },
       "items": [
@@ -2724,7 +2724,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7376,
+        "input": 7456,
         "output": 2292
       },
       "items": [
@@ -2818,7 +2818,7 @@
       "category": "insurance",
       "origin": "photo",
       "estimate": {
-        "input": 10913,
+        "input": 10993,
         "output": 2908
       },
       "items": [
@@ -2900,7 +2900,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 7757,
+        "input": 7837,
         "output": 1739
       },
       "items": [
@@ -2976,7 +2976,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7989,
+        "input": 8069,
         "output": 2261
       },
       "items": [
@@ -3070,7 +3070,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8423,
+        "input": 8503,
         "output": 2574
       },
       "items": [
@@ -3170,7 +3170,7 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8288,
+        "input": 8368,
         "output": 3665
       },
       "items": [
@@ -3264,7 +3264,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7376,
+        "input": 7456,
         "output": 1845
       },
       "items": [
@@ -3346,7 +3346,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7920,
+        "input": 8000,
         "output": 1860
       },
       "items": [
@@ -3428,7 +3428,7 @@
       "category": "care",
       "origin": "photo",
       "estimate": {
-        "input": 8167,
+        "input": 8247,
         "output": 2476
       },
       "items": [
@@ -3510,7 +3510,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8185,
+        "input": 8265,
         "output": 1962
       },
       "items": [
@@ -3592,7 +3592,7 @@
       "category": "care",
       "origin": "photo",
       "estimate": {
-        "input": 7563,
+        "input": 7643,
         "output": 2130
       },
       "items": [
@@ -3674,7 +3674,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 10677,
+        "input": 10757,
         "output": 1681
       },
       "items": [
@@ -3756,7 +3756,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8270,
+        "input": 8350,
         "output": 1711
       },
       "items": [
@@ -3838,7 +3838,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8373,
+        "input": 8453,
         "output": 2015
       },
       "items": [
@@ -3920,7 +3920,7 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8379,
+        "input": 8459,
         "output": 1918
       },
       "items": [
@@ -4002,7 +4002,7 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8172,
+        "input": 8252,
         "output": 2142
       },
       "items": [
@@ -4084,7 +4084,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 10883,
+        "input": 10963,
         "output": 7234
       },
       "items": [
@@ -4178,7 +4178,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8465,
+        "input": 8545,
         "output": 4093
       },
       "items": [
@@ -4260,7 +4260,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8744,
+        "input": 8824,
         "output": 4013
       },
       "items": [
@@ -4348,7 +4348,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8042,
+        "input": 8122,
         "output": 3653
       },
       "items": [
@@ -4442,7 +4442,7 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8034,
+        "input": 8114,
         "output": 1902
       },
       "items": [
@@ -4524,7 +4524,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7994,
+        "input": 8074,
         "output": 1737
       },
       "items": [
@@ -4606,7 +4606,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 9309,
+        "input": 9389,
         "output": 3047
       },
       "items": [
@@ -4688,7 +4688,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 9329,
+        "input": 9409,
         "output": 3336
       },
       "items": [
@@ -4782,7 +4782,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 8596,
+        "input": 8676,
         "output": 2537
       },
       "items": [
@@ -4870,8 +4870,8 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 10913,
-        "output": 5630
+        "input": 10993,
+        "output": 5632
       },
       "items": [
         {
@@ -4964,7 +4964,7 @@
       "category": "license",
       "origin": "photo",
       "estimate": {
-        "input": 7615,
+        "input": 7695,
         "output": 2850
       },
       "items": [
@@ -5058,7 +5058,7 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8557,
+        "input": 8637,
         "output": 5249
       },
       "items": [
@@ -5152,7 +5152,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 7270,
+        "input": 7350,
         "output": 2459
       },
       "items": [
@@ -5228,7 +5228,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 7283,
+        "input": 7363,
         "output": 3539
       },
       "items": [
@@ -5322,7 +5322,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 6916,
+        "input": 6996,
         "output": 1772
       },
       "items": [
@@ -5404,7 +5404,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 6815,
+        "input": 6895,
         "output": 1757
       },
       "items": [
@@ -5486,7 +5486,7 @@
       "category": "housing",
       "origin": "text",
       "estimate": {
-        "input": 6871,
+        "input": 6951,
         "output": 2064
       },
       "items": [
@@ -5586,7 +5586,7 @@
       "category": "housing",
       "origin": "text",
       "estimate": {
-        "input": 6899,
+        "input": 6979,
         "output": 2369
       },
       "items": [
@@ -5692,8 +5692,8 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6953,
-        "output": 2393
+        "input": 7033,
+        "output": 2390
       },
       "items": [
         {
@@ -5774,7 +5774,7 @@
       "category": "childcare",
       "origin": "text",
       "estimate": {
-        "input": 6688,
+        "input": 6768,
         "output": 1205
       },
       "items": [
@@ -5844,7 +5844,7 @@
       "category": "work",
       "origin": "text",
       "estimate": {
-        "input": 6946,
+        "input": 7026,
         "output": 2628
       },
       "items": [
@@ -5938,7 +5938,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6968,
+        "input": 7048,
         "output": 2375
       },
       "items": [
@@ -6044,7 +6044,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6865,
+        "input": 6945,
         "output": 2009
       },
       "items": [
@@ -6150,7 +6150,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6817,
+        "input": 6897,
         "output": 1869
       },
       "items": [
@@ -6238,7 +6238,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 6967,
+        "input": 7047,
         "output": 2143
       },
       "items": [
@@ -6332,7 +6332,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 7306,
+        "input": 7386,
         "output": 2957
       },
       "items": [
@@ -6432,7 +6432,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 7029,
+        "input": 7109,
         "output": 2479
       },
       "items": [
@@ -6532,7 +6532,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 6920,
+        "input": 7000,
         "output": 2030
       },
       "items": [
@@ -6620,7 +6620,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 6817,
+        "input": 6897,
         "output": 1683
       },
       "items": [
@@ -6708,7 +6708,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 6840,
+        "input": 6920,
         "output": 1793
       },
       "items": [
@@ -6796,7 +6796,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 7045,
+        "input": 7125,
         "output": 2009
       },
       "items": [
@@ -6878,7 +6878,7 @@
       "category": "housing",
       "origin": "text",
       "estimate": {
-        "input": 7500,
+        "input": 7580,
         "output": 2434
       },
       "items": [
@@ -6960,7 +6960,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6733,
+        "input": 6813,
         "output": 1420
       },
       "items": [
@@ -7036,7 +7036,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 6939,
+        "input": 7019,
         "output": 1651
       },
       "items": [
@@ -7112,7 +7112,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 7158,
+        "input": 7238,
         "output": 2195
       },
       "items": [
@@ -7188,7 +7188,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6828,
+        "input": 6908,
         "output": 2026
       },
       "items": [
@@ -7276,7 +7276,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7480,
+        "input": 7560,
         "output": 1678
       },
       "items": [
@@ -7358,7 +7358,7 @@
       "category": "care",
       "origin": "photo",
       "estimate": {
-        "input": 8637,
+        "input": 8717,
         "output": 2576
       },
       "items": [
@@ -7440,7 +7440,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7573,
+        "input": 7653,
         "output": 1357
       },
       "items": [
@@ -7510,7 +7510,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7283,
+        "input": 7363,
         "output": 1610
       },
       "items": [

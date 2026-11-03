@@ -179,7 +179,7 @@ function applyLearned(
             key: `answer-${q.id}`,
             label: q.text,
             value: hit.labels.join("、"),
-            source: { location: "本人の答え（前に教えてもらったこと）" },
+            source: { location: "あなたの答え（前に教えてもらったこと）" },
             status: "confirmed" as const,
           },
         ],
