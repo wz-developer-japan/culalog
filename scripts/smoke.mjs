@@ -95,7 +95,11 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   const conflict = page.locator(".card.insight.conflict").first();
   await conflict.waitFor({ timeout: 15000 });
   const conflictText = await conflict.innerText();
-  if (!/11月27日（金）は、蓮さんの「授業参観（2学期）」と、タオさんの「出勤日（平日）」が同じ日です/.test(conflictText) || !/タオさんの申請は11月20日（金）までです/.test(conflictText))
+  if (
+    !/11月27日（金）は、蓮さんの「授業参観（2学期）」の日です。この日は、タオさんも翔太さんもお仕事になっているようです/.test(conflictText) ||
+    !/タオさんの出勤日: 2026年度 年間勤務カレンダー.*有給を取るなら、申請は11月20日（金）まで/.test(conflictText) ||
+    !/翔太さんの出勤日: くろうどロジスティクス 11月 勤務シフト表.*日勤 8:30〜17:30.*休みの希望・シフトの交代の申し出は11月20日（金）まで/.test(conflictText)
+  )
     throw new Error(`同じ日の気づきの文: ${conflictText}`);
   if ((await page.locator(".card.insight.conflict").count()) !== 1) throw new Error("同じ日の気づきが1件ではありません（運動会・面談など、保護者が行く行事で時間が分かっているもの以外が出ています）");
   await page.goto(BASE + "/schedule/all");

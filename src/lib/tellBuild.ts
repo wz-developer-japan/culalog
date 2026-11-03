@@ -29,6 +29,8 @@ export const nameIn = (m: FamilyMember | undefined, lang: LanguageCode) => (m ? 
 /** 同じ日の、ほかの書類の家族の予定（行事・出勤日など）。勤務カレンダーのある人の平日の出勤日も添える */
 function sameDayEvents(household: Household, doc: DocumentRecord, d: Deadline): { doc: DocumentRecord; deadline: Deadline }[] {
   const out: { doc: DocumentRecord; deadline: Deadline }[] = [];
+  // 行事の日にだけ添える（提出・支払いの締切の日には要らない）
+  if (d.kind !== "event") return out;
   for (const other of household.documents) {
     if (other.id === doc.id || !other.confirmedAt || other.supersededBy || other.notForFamily) continue;
     for (const x of other.deadlines) {
@@ -36,8 +38,7 @@ function sameDayEvents(household: Household, doc: DocumentRecord, d: Deadline): 
       if (x.kind === "event" && x.date === d.date && !(household.done ?? {})[x.id] && !sameEvent(x, d)) out.push({ doc: other, deadline: x });
     }
   }
-  // 平日の出勤日は、行事の日にだけ添える（提出の締切の日には要らない）
-  if (d.kind === "event") for (const w of adultWorkOn(household, d.date, doc.id)) if (w.synthetic) out.push({ doc: w.doc, deadline: w.deadline });
+  for (const w of adultWorkOn(household, d.date, doc.id)) if (w.synthetic) out.push({ doc: w.doc, deadline: w.deadline });
   return out;
 }
 

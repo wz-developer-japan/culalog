@@ -160,6 +160,7 @@ export function provisionalTranslation(
 const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
   { lang: "vi", match: "出勤日（平日）", text: "Ngày đi làm (ngày thường, theo lịch làm việc của công ty)" },
   { lang: "vi", match: "出勤日", text: "Ngày đi làm (theo lịch làm việc của công ty)" },
+  { lang: "vi", match: "出勤（", text: "Ngày đi làm (theo bảng ca làm việc của công ty)" },
   { lang: "vi", match: "授業参観", text: "Dự giờ (phụ huynh đến xem lớp học)" },
   { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
   { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },
