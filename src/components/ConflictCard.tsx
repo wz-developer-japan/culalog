@@ -5,7 +5,8 @@
 // 細かい根拠（きまりの名前・原本の中の場所）はカードに出さず、書類の画面に回す（スマホの1画面に、太字からボタンまで入るように）。
 
 import Link from "next/link";
-import { conflictDate, findConflicts } from "@/lib/conflicts";
+import { conflictDate, findConflicts, leaveLimits } from "@/lib/conflicts";
+import { sameDayNoteFor } from "@/lib/connect";
 import { formatYmd } from "@/lib/deadlines";
 import { shortDocName } from "@/lib/docName";
 import { languageLabel, languageOf } from "@/lib/languages";
@@ -26,8 +27,35 @@ export function ConflictCards({ household, today, memberId }: { household: House
         const adultNames = c.adults.map((a) => names(a.deadline.memberIds));
         const event = c.child.deadline.label.replace(/[（(].*$/, "");
         // 休みの申し出の締切: 勤務の書類の申し出の締切か、わが家のきまりの有給の申請
-        const limits = c.adults.map((a) => ({ name: names(a.deadline.memberIds), date: a.notice?.date ?? a.leave?.date })).filter((x) => x.date);
+        const limits = leaveLimits(c).map((x) => ({ name: names(x.memberIds), date: x.date }));
         const allSame = limits.length > 1 && limits.every((x) => x.date === limits[0].date);
+        // キーがあるとき: Claude が書類の行ときまりから書いた文（コードが日付・名前・締切を照らし合わせて合ったものだけ）。無ければコードの文
+        const note = sameDayNoteFor(household, c);
+        if (note) {
+          const [head, ...rest] = note.text.split(/(?<=。)/);
+          // 原本の場所（括弧の中の括弧は「・」に）
+          const where = (id: string) => note.evidence.find((e) => e.documentId === id)?.location.replace(/[（(]([^（）()]*)[）)]/g, "・$1");
+          return (
+            <div className="card insight conflict" key={note.key}>
+              <div className="t">{head}</div>
+              {rest.length > 0 && <div className="meta">{rest.join("")}</div>}
+              <div className="meta">
+                原本:{" "}
+                {[c.child.doc, ...c.adults.map((a) => a.doc)].map((d, i) => (
+                  <span key={d.id}>
+                    {i > 0 && " ／ "}
+                    <Link href={`/documents/${d.id}`}>{shortDocName(d, household.members)}</Link>
+                    {where(d.id) ? `（${where(d.id)}）` : ""}
+                  </span>
+                ))}
+              </div>
+              <div className="meta small-note">Claude が照らし合わせました</div>
+              <Link className="button small" href={`/documents/${c.child.doc.id}#tell`}>
+                家族に伝える{shared.length ? `（${shared.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : ""}
+              </Link>
+            </div>
+          );
+        }
         return (
           <div className="card insight conflict" key={`${c.child.deadline.id}-${c.adults.map((a) => a.deadline.id).join("-")}`}>
             <div className="t">

@@ -119,6 +119,11 @@ h2 {
   font-size: 0.9rem;
 }
 
+/* 同じ日の気づきを Claude が書いたときの小さな印 */
+.card .meta.small-note {
+  font-size: 0.75rem;
+}
+
 /* 確認のお願い */
 .card.warn {
   border: 1px dashed var(--note);

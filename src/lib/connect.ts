@@ -6,7 +6,7 @@
 // 新旧の日付が本当に違うか・判断の言い回しが無いか）。合わないものは外し、外した数も画面に出す。
 // 採用するかは本人が決める。
 
-import { findConflicts } from "./conflicts";
+import { conflictKey, findConflicts, sameDayTextOk, type Conflict } from "./conflicts";
 import { maskKnownNumbers } from "./numbers";
 import type { Candidate } from "./butler";
 import { formatYmd, parseDate, ruleDeadlines } from "./deadlines";
@@ -39,8 +39,17 @@ export interface ConnectResult {
   basis: string;
   briefing: { candidateId: string; text: string }[];
   insights: Insight[];
+  /** 同じ日の気づき（子どもの行事 × 大人の仕事）の、Claude が書いた文。コードが見つけたぶつかりごと（key = conflictKey） */
+  sameDay?: SameDayNote[];
   /** コードの確かめで外したものの数 */
   dropped: number;
+}
+
+export interface SameDayNote {
+  key: string;
+  text: string;
+  /** 根拠（どの書類のどこか）。場所は書類に実在するものだけ（合わなければコードの原本の場所） */
+  evidence: { documentId: string; location: string }[];
 }
 
 // ---- Claude に渡す形 ----
@@ -79,6 +88,18 @@ export interface ConnectInput {
   candidates: { id: string; title: string; detail: string; why: string; urgent: boolean; followUp: string }[];
   /** 本人が「違う」と言った気づき（同じことを言わない） */
   rejected: string[];
+  /** コードが見つけた同じ日のぶつかり（子どもの行事の日に、大人の家族が仕事）。文は Claude が書く */
+  sameDay: {
+    id: string;
+    date: string;
+    event: { documentId: string; deadlineId: string; label: string; time: string; childIds: string[]; location: string };
+    adults: {
+      memberIds: string[];
+      work: { documentId: string; label: string; location: string; quote: string };
+      /** 休みの申し出の締切（勤務の書類の申し出の締切か、わが家のきまりの有給の申請）。分からなければ null */
+      limit: { date: string; what: string; documentId: string; ruleId: string; location: string } | null;
+    }[];
+  }[];
 }
 
 const str = { type: "string" } as const;
@@ -87,8 +108,29 @@ const str = { type: "string" } as const;
 export const CONNECT_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["briefing", "insights"],
+  required: ["briefing", "insights", "sameDay"],
   properties: {
+    sameDay: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["conflictId", "text", "evidence"],
+        properties: {
+          conflictId: str,
+          text: str,
+          evidence: {
+            type: "array",
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["documentId", "location"],
+              properties: { documentId: str, location: str },
+            },
+          },
+        },
+      },
+    },
     briefing: {
       type: "array",
       items: {
@@ -211,7 +253,62 @@ export function buildConnectInput(
       followUp: c.followUp?.label ?? "",
     })),
     rejected,
+    sameDay: findConflicts(household, parseDate(today)).map((c) => sameDayInput(c)),
   };
+}
+
+function sameDayInput(c: Conflict): ConnectInput["sameDay"][number] {
+  return {
+    id: conflictKey(c),
+    date: c.date,
+    event: {
+      documentId: c.child.doc.id,
+      deadlineId: c.child.deadline.id,
+      label: c.child.deadline.label,
+      time: c.child.deadline.time ?? "",
+      childIds: c.child.deadline.memberIds,
+      location: c.child.deadline.source?.location ?? "",
+    },
+    adults: c.adults.map((a) => ({
+      memberIds: a.deadline.memberIds,
+      work: { documentId: a.doc.id, label: a.deadline.label, location: a.deadline.source?.location ?? "", quote: a.deadline.source?.quote ?? "" },
+      limit: a.notice
+        ? { date: a.notice.date, what: a.notice.label, documentId: a.doc.id, ruleId: "", location: a.notice.source?.location ?? "" }
+        : a.leave
+          ? { date: a.leave.date, what: a.leave.rule.label, documentId: "", ruleId: a.leave.rule.id, location: "わが家のきまり" }
+          : null,
+    })),
+  };
+}
+
+/** その書類に実在する原本の場所か（項目・予定の場所と、片方がもう片方を含めば同じとみなす） */
+function knownLocation(doc: DocumentRecord, location: string): boolean {
+  if (!location) return false;
+  const all = [...doc.fields.map((f) => f.source?.location ?? ""), ...doc.deadlines.map((d) => d.source?.location ?? "")].filter(Boolean);
+  return all.some((x) => x.includes(location) || location.includes(x));
+}
+
+/** Claude の書いた同じ日の気づきを、今のぶつかりと照らし合わせる（画面に出す直前にも毎回確かめる） */
+export function verifySameDay(note: SameDayNote, c: Conflict, household: Household): SameDayNote | null {
+  if (note.key !== conflictKey(c) || !sameDayTextOk(note.text, c, household)) return null;
+  // 根拠: ぶつかりの書類だけ。場所が書類に無ければコードの原本の場所。言われなかった書類はコードで足す
+  const docs = [
+    { doc: c.child.doc, fallback: c.child.deadline.source?.location ?? "" },
+    ...c.adults.map((a) => ({ doc: a.doc, fallback: a.deadline.source?.location ?? "" })),
+  ].filter((x, i, all) => all.findIndex((y) => y.doc.id === x.doc.id) === i);
+  const evidence = docs.map(({ doc, fallback }) => {
+    const said = note.evidence.find((e) => e.documentId === doc.id && knownLocation(doc, e.location));
+    return { documentId: doc.id, location: said?.location ?? fallback };
+  });
+  return { key: note.key, text: note.text, evidence };
+}
+
+/** 画面に出す同じ日の気づきの文: Claude が書いて、今も照らし合わせが合うものだけ（無ければコードの文） */
+export function sameDayNoteFor(household: Household, c: Conflict): SameDayNote | null {
+  const stored = household.connect;
+  if (stored?.source !== "claude") return null;
+  const note = stored.sameDay?.find((n) => n.key === conflictKey(c));
+  return note ? verifySameDay(note, c, household) : null;
 }
 
 /**
@@ -374,7 +471,22 @@ export function verifyConnect(
     }
     insights.push(insight);
   }
-  return { ...meta, briefing: briefing.slice(0, 3), insights, dropped };
+  // 同じ日の気づき: コードが見つけたぶつかりに対応するものだけ。日付・名前・締切が合わなければ外す（画面はコードの文）
+  const conflicts = findConflicts(household, parseDate(meta.createdOn));
+  const sameDay: SameDayNote[] = [];
+  for (const n of (Array.isArray((raw as { sameDay?: unknown }).sameDay) ? ((raw as { sameDay: unknown[] }).sameDay) : []).slice(0, 6) as {
+    conflictId?: unknown;
+    text?: unknown;
+    evidence?: unknown;
+  }[]) {
+    const key = s(n?.conflictId);
+    const c = conflicts.find((x) => conflictKey(x) === key);
+    const evidence = (Array.isArray(n?.evidence) ? n.evidence : []).map((e: { documentId?: unknown; location?: unknown }) => ({ documentId: s(e?.documentId), location: s(e?.location) }));
+    const ok = c && !sameDay.some((x) => x.key === key) ? verifySameDay({ key, text: s(n?.text), evidence }, c, household) : null;
+    if (ok) sameDay.push(ok);
+    else dropped++;
+  }
+  return { ...meta, briefing: briefing.slice(0, 3), insights, sameDay, dropped };
 }
 
 // ---- Claude の準備中（キーが無いとき）に使う、仮のつなぐ ----

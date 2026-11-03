@@ -2,7 +2,8 @@
 // 家族の大人が仕事になっているとき（勤務カレンダー・勤務シフト表の書類）。
 // 執事は「誰が行くか」は決めない。同じ日だと知らせ、有給のきまりや申し出の締切があれば添えて、家族で決められるようにする。
 //
-// 出す条件（コードの決まり。Claude は使わない）:
+// 出す条件（コードの決まり。どの日がぶつかるかは Claude に決めさせない。キーがあるときは、ここで見つけた候補に Claude が文を書き、
+// sameDayTextOk で日付・名前・締切を照らし合わせる。合わなければ ConflictCard はコードの文を出す）:
 // - 子どもの側: 学校・保育園・地域の書類の「予定・行事」で、保護者が行くもの（名前に 参観・懇談・面談・保護者会・説明会・引き渡し）のうち、
 //   時間まで分かっているもの（案内プリントが来ている）。年間行事予定・学年だよりの日付だけの段階では出さない（案内プリントを待つ声かけが別にある）。
 //   運動会・発表会のような家族みんなで行く行事は出さない（平日の行事は大人の出勤日とほぼ全部ぶつかるので、並べても役に立たない）
@@ -133,3 +134,58 @@ export function findConflicts(household: Household, today: Date): Conflict[] {
 }
 
 export const conflictDate = (c: Conflict) => formatYmd(c.date);
+
+/** 休みの申し出の締切（勤務の書類の申し出の締切か、わが家のきまりの有給の申請）。締切の分かる大人だけ */
+export function leaveLimits(c: Conflict): { memberIds: string[]; date: string }[] {
+  return c.adults
+    .map((a) => ({ memberIds: a.deadline.memberIds, date: a.notice?.date ?? a.leave?.date ?? "" }))
+    .filter((x) => x.date);
+}
+
+/** 同じ日のぶつかりを見分ける鍵（行事・誰がどの書類で仕事か・申し出の締切。どれかが変われば別のもの） */
+export const conflictKey = (c: Conflict) =>
+  ["sameday", c.child.deadline.id, ...c.adults.map((a) => `${a.deadline.memberIds.join("+")}@${a.doc.id}:${a.notice?.date ?? a.leave?.date ?? ""}`)].join("|");
+
+// ---- Claude が書いた同じ日の気づきの文を、コードで照らし合わせる ----
+
+/** 誰が行くかを決める・勧める言い回し（出さない） */
+const DECIDES = /(行くべき|行ってください|が行くと(よい|いい)|が行きましょう|休んでください|休みを取ってください|取るべき|取った(方|ほう)が|おすすめ|お勧め)/;
+const JUDGE = /(補償され|保険(金)?が(使え|おり|下り|出)|受診|違法|訴え|お得|損です)/;
+
+/** 文の中の「○月○日」が全部 ymds のどれかで、must の日付は全部入っているか */
+function datesMatch(text: string, ymds: string[], must: string[]): boolean {
+  const md = (y: string) => {
+    const d = parseDate(y);
+    return `${d.getMonth() + 1}月${d.getDate()}日`;
+  };
+  const allowed = new Set(ymds.map(md));
+  const seen = [...text.matchAll(/(\d{1,2})月(\d{1,2})日/g)].map((m) => `${Number(m[1])}月${Number(m[2])}日`);
+  if (seen.some((x) => !allowed.has(x))) return false;
+  // 月の無い「20日」の形は使わせない（どの月か読み違えるので）
+  if (/(^|[^月\d])\d{1,2}日(?!前|間|以内|まで前)/.test(text.replace(/\d{1,2}月\d{1,2}日/g, ""))) return false;
+  return must.every((y) => seen.includes(md(y)));
+}
+
+/**
+ * Claude の書いた文が、コードの見つけたぶつかりと合うか。
+ * 日付は行事の日と申し出の締切だけ（両方入っている）・仕事の大人と子どもの名前が全部入っている・
+ * 家族で決めると書いてある・誰が行くかを決めない・判断しない。合わなければ使わない（コードの文に戻す）
+ */
+export function sameDayTextOk(text: string, c: Conflict, household: Household): boolean {
+  const first = (id: string) => household.members.find((m) => m.id === id)?.name.split(/\s+/).pop() ?? "";
+  if (!text || text.length > 220 || DECIDES.test(text) || JUDGE.test(text)) return false;
+  const limits = leaveLimits(c).map((x) => x.date);
+  if (!datesMatch(text, [c.date, ...limits], [c.date, ...limits])) return false;
+  const names = [...c.child.deadline.memberIds, ...c.adults.flatMap((a) => a.deadline.memberIds)].map(first).filter(Boolean);
+  if (!names.every((n) => text.includes(n))) return false;
+  // 仕事ではない大人の家族を「仕事」と書いていないか（名前が出るなら、ぶつかりの中の人だけ）
+  const working = new Set(c.adults.flatMap((a) => a.deadline.memberIds));
+  const others = household.members.filter((m) => ["self", "spouse"].includes(m.relation) && !working.has(m.id)).map((m) => first(m.id));
+  if (others.some((n) => n && text.includes(n))) return false;
+  return /家族/.test(text) && /決め/.test(text);
+}
+
+/** 書類の行事の日の、同じ日のぶつかり（家族に伝えるの ⚠ に申し出の締切を添えるため）。その日を「今日」として探す */
+export function conflictFor(household: Household, deadline: Deadline): Conflict | undefined {
+  return findConflicts(household, parseDate(deadline.date)).find((c) => c.date === deadline.date && (c.child.deadline.id === deadline.id || sameEvent(c.child.deadline, deadline)));
+}

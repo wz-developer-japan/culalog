@@ -25,6 +25,7 @@ const SYSTEM_PROMPT = `あなたは、ある家族の「執事」です。家に
 - documents: 本人が原本と見比べて確定した書類。予定（deadlines）には id・種類・日付・時刻・場所・必要なもの・原本の場所・当てはめ済みのきまり（appliedRuleIds）・予備日（reserve）がある。olderVersionOf が空でない書類は「前のもの」（その id の書類の、前の版）
 - candidates: コードが期日から作った、ひとことの候補（id・見出し・詳しく・理由・urgent＝締切が3日以内か過ぎた・followUp＝まだ済んでいない締切の念押し）
 - rejected: 本人が「違う」と答えた気づき（kind|deadlineId|ruleId|oldDeadlineId の形）
+- sameDay: コードが書類の日付から見つけた「同じ日」の候補。子どもの行事（保護者が行くもの）の日に、大人の家族が仕事になっている。id・日付・行事（どの書類のどの予定か）・仕事の大人ごとに、どの勤務の書類のどの行で仕事と読めるか（work）と、休みの申し出の締切（limit: 勤務の書類の申し出の締切か、わが家のきまりの有給の申請。無ければ null）
 
 返すもの:
 1. briefing: candidates の中から、今日いちばん伝えるべきものを多くても3つ選び、candidateId と、ひとこと（text・1〜2文）を書く。
@@ -37,6 +38,13 @@ const SYSTEM_PROMPT = `あなたは、ある家族の「執事」です。家に
    - other: 上のどれでもないつながり（例: 火災保険の満期が、賃貸の契約の満了より先に来る）。
    - 使わない id は空文字にする。evidence には、根拠の書類の id と原本の場所（location）を書く。
    - rejected にあるものと同じ気づきは出さない。
+3. sameDay: 渡された sameDay の候補それぞれについて、家族への気づきの文（text・2〜3文）を書き、conflictId に候補の id をそのまま入れる。
+   - 1文目: 何月何日（曜日）が、どの子の何の日か。2文目: その日、誰が仕事になっているようか（勤務の書類から読めること）と、休みを取るなら、いつまでに申し出が必要か（limit の日付。人によって違えば人ごとに）。最後: どちらが行くかは家族で決めることで、執事は決めない、と書く。
+   - 日付は「11月27日（金）」の形で、候補に書いてある日付（行事の日と limit の日）だけを使う。計算し直さない。ほかの日付・「○日前」は書かない。
+   - 名前は family の呼び名の下の名前に「さん」を付ける（例: 「日向 蓮」→「蓮さん」）。候補に出てくる子どもと、仕事の大人の名前を全部書く。候補にいない大人の名前は書かない。家族みんなが見る文なので、この文だけは、あなた（アプリを使っている人）のことも名前で書く。
+   - 誰が行くか・誰が休むかを決めたり勧めたりしない（「〜さんが行くとよい」「休みを取ってください」は書かない）。
+   - evidence には、行事の書類と、それぞれの勤務の書類の id と、原本の場所（その書類の項目・予定の location のとおり）を書く。
+   - 候補が空なら空にする。候補に無い「同じ日」を自分で作らない。
 
 守ること:
 - 渡されたデータに書いてあることだけを根拠にする。書いていないことは補わない。
@@ -63,7 +71,8 @@ function looksLikeInput(v: unknown): v is Record<string, unknown> {
     typeof x.today === "string" &&
     /^\d{4}-\d{2}-\d{2}$/.test(x.today) &&
     typeof x.style === "string" &&
-    ["family", "rules", "documents", "candidates", "rejected"].every((k) => Array.isArray(x[k])) &&
+    ["family", "rules", "documents", "candidates", "rejected", "sameDay"].every((k) => Array.isArray(x[k])) &&
+    (x.sameDay as unknown[]).length <= 10 &&
     (x.documents as unknown[]).length <= 60 &&
     (x.candidates as unknown[]).length <= 80
   );
@@ -108,7 +117,7 @@ export async function POST(request: NextRequest) {
           content: [
             {
               type: "text",
-              text: `この家のデータです。今日のひとことと、気づいたことを返してください。\n\n${JSON.stringify(forClaude)}`,
+              text: `この家のデータです。今日のひとことと、気づいたことと、同じ日の気づきの文を返してください。\n\n${JSON.stringify(forClaude)}`,
             },
           ],
         },
