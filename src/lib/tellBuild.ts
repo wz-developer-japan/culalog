@@ -3,7 +3,7 @@
 // 🔴 大事な番号は入れない（伏せる）。送る前に画面で全部見せる。
 
 import { adultWorkOn, sameEvent } from "./conflicts";
-import { addDays, toYmd } from "./deadlines";
+import { addDays, readableDates, toYmd } from "./deadlines";
 import { maskKnownNumbers } from "./numbers";
 import { languageOf, type LanguageCode } from "./languages";
 import type { TellBlock, TellPayload } from "./tell";
@@ -11,9 +11,9 @@ import { deadlineDateIn, type DocTranslation } from "./translate";
 import type { Deadline, DocumentRecord, FamilyMember, Household } from "./types";
 
 const TEXT: Record<LanguageCode, { needs: string; sameDay: string; todo: string; general: string }> = {
-  ja: { needs: "持ち物", sameDay: "同じ日の家族の予定", todo: "やること", general: "一般的な説明" },
-  "ja-easy": { needs: "もちもの", sameDay: "おなじ ひの かぞくの よてい", todo: "すること", general: "せつめい" },
-  vi: { needs: "Mang theo", sameDay: "Cùng ngày trong gia đình", todo: "Cần làm", general: "Giải thích chung" },
+  ja: { needs: "持ち物", sameDay: "同じ日", todo: "やること", general: "一般的な説明" },
+  "ja-easy": { needs: "もちもの", sameDay: "おなじ ひ", todo: "すること", general: "せつめい" },
+  vi: { needs: "Mang theo", sameDay: "Cùng ngày", todo: "Cần làm", general: "Giải thích chung" },
 };
 
 /** 書類のまとめを送る相手の言葉（共有した人の言葉と、あなたの言葉）。日本語は必ず入れる */
@@ -58,21 +58,25 @@ export function buildTell(
     const tx = TEXT[lang];
     const itemOf = (ref: string) => t?.items.find((i) => i.ref === ref);
     const lines: string[] = [];
-    const todo = t ? t.todo : doc.summary?.todo;
-    if (todo) lines.push(`${tx.todo}: ${todo}`);
+    // スマホの通知の最初の数行に要点が入るように: 日付のある予定 → 同じ日の家族の予定（1行）→ やること → 項目
     for (const d of events) {
       const item = itemOf(`d:${d.id}`);
       const label = item?.label ?? d.label;
       const needs = lang === "ja" ? d.needs?.join("、") : item?.text;
       lines.push(`${deadlineDateIn(d, lang)} ${label}${needs ? ` — ${lang === "ja" ? `${tx.needs}: ` : ""}${needs}` : ""}`);
-      for (const same of sameDayEvents(household, doc, d)) {
-        const who = same.deadline.memberIds.map((id) => nameIn(household.members.find((m) => m.id === id), lang)).filter(Boolean).join("・");
-        const other = (lang === "ja" ? same.deadline.label : labelIn(same.doc, same.deadline, lang)) ?? `「${same.deadline.label}」`;
-        lines.push(`⚠ ${tx.sameDay}: ${who ? `${who} — ` : ""}${other}`);
-      }
+      const same = sameDayEvents(household, doc, d).map((x) => {
+        const who = x.deadline.memberIds.map((id) => nameIn(household.members.find((m) => m.id === id), lang)).filter(Boolean).join("・");
+        const other = (lang === "ja" ? x.deadline.label : labelIn(x.doc, x.deadline, lang)) ?? `「${x.deadline.label}」`;
+        return `${who ? `${who} ` : ""}${other}`;
+      });
+      if (same.length) lines.push(`⚠ ${tx.sameDay}: ${same.join(" ／ ")}`);
     }
-    const fields = t ? t.items.filter((i) => i.ref.startsWith("f:")) : doc.fields.map((f) => ({ label: f.label, text: f.value }));
-    for (const f of fields.slice(0, 5)) lines.push(`${f.label}: ${mask(f.text)}`);
+    const todo = t ? t.todo : doc.summary?.todo && readableDates(doc.summary.todo);
+    if (todo) lines.push(`${tx.todo}: ${todo}`);
+    // 予定の行と同じこと（時間・日時・持ち物）は、項目から外す
+    const repeated = new Set(doc.fields.filter((f) => /時間|日時|持ち物|持参|場所/.test(f.label) && events.some((d) => d.time || d.place || d.needs?.length)).map((f) => `f:${f.key}`));
+    const fields = (t ? t.items.filter((i) => i.ref.startsWith("f:")) : doc.fields.map((f) => ({ ref: `f:${f.key}`, label: f.label, text: f.value }))).filter((f) => !repeated.has(f.ref));
+    for (const f of fields.slice(0, 3)) lines.push(`${f.label}: ${mask(f.text)}`);
     if (t?.background[0]) lines.push(`ℹ ${tx.general}（${t.background[0].title}）: ${t.background[0].text}`);
     return { lang, title: t?.title ?? doc.title, lines };
   });

@@ -6,6 +6,14 @@ import Link from "next/link";
 import type { Insight } from "@/lib/connect";
 import type { HouseRule } from "@/lib/types";
 
+/** 原本の題名を短く（かっこの中を外し、長ければ切る）。正式な題名は書類の画面に */
+const shortTitle = (title = "") => {
+  let t = title.split("＋")[0];
+  for (let i = 0; i < 3; i++) t = t.replace(/[（(][^（()）]*[）)]/g, "");
+  t = t.replace(/・[^・\s]*?の(ご案内|お知らせ)$/, "の$1").replace(/\s+/g, " ").trim();
+  return t.length > 22 ? `${t.slice(0, 21)}…` : t;
+};
+
 export function InsightCard({
   insight,
   rules,
@@ -27,22 +35,24 @@ export function InsightCard({
     <div className="card insight">
       <div className="insight-text">{insight.text}</div>
       {insight.change && <div className="insight-change">{insight.change}</div>}
-      {insight.evidence.map((e) => (
-        <div className="meta" key={`${e.documentId}-${e.location}`}>
-          原本: <Link href={`/documents/${e.documentId}`}>{e.documentTitle}</Link>
-          {e.location && `・${e.location}`}
+      {insight.evidence.length > 0 && (
+        <div className="meta">
+          原本:{" "}
+          {insight.evidence.map((e, i) => (
+            <span key={`${e.documentId}-${e.location}`}>
+              {i > 0 && " ／ "}
+              <Link href={`/documents/${e.documentId}`}>{shortTitle(e.documentTitle)}</Link>
+            </span>
+          ))}
+          {provisional ? "・仮の気づき" : "・執事の提案"}（決めるのはあなた）
         </div>
-      ))}
-      <div className="meta">
-        {provisional ? "仮の気づきです。" : "執事（Claude）の提案です。"}
-        採用するかは、あなたが決めます。
-      </div>
+      )}
       <div className="row-actions">
         {actionable && insight.kind === "apply_rule" ? (
           // 行事に行くかどうかで決まる: 行くと決めつけず、聞く
           <>
             <button className="button small" onClick={onAdopt}>
-              行く（「{rule.label}」の締切を予定に入れる）
+              行く（{rule.label.replace(/（.*）/, "")}の締切を予定に）
             </button>
             <button className="button small secondary" onClick={() => onAnswer("declined")}>
               行かない
@@ -50,7 +60,7 @@ export function InsightCard({
           </>
         ) : actionable ? (
           <button className="button small" onClick={onAdopt}>
-            採用する（{insight.kind === "apply_rule_to_reserve" ? "予備日にも" : ""}「{rule.label}」を当てはめる）
+            採用する（{insight.kind === "apply_rule_to_reserve" ? "予備日にも" : ""}{rule.label.replace(/（.*）/, "")}）
           </button>
         ) : (
           <button className="button small secondary" onClick={() => onAnswer("seen")}>

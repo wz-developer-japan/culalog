@@ -14,7 +14,7 @@ import { ShareWith } from "@/components/ShareWith";
 import { TranslationView } from "@/components/TranslationView";
 import { TellFamily } from "@/components/TellFamily";
 import { answerAndLearn } from "@/lib/inbox";
-import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
+import { formatYmd, readableDates, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS, groupsOf } from "@/lib/labels";
 import { findQuote, type Mark, segments } from "@/lib/highlight";
 import type { DocumentRecord, SourceRef } from "@/lib/types";
@@ -183,19 +183,17 @@ export default function DocumentDetail() {
               {until?.location && <span className="meta">（原本: {until.location}）</span>}
             </dd>
             <dt>何をする？</dt>
-            <dd>{doc.summary?.todo || <span className="meta">—</span>}</dd>
-            <dt>放置すると？</dt>
-            <dd>
-              {doc.summary?.ifIgnored ? (
-                <>
+            <dd>{doc.summary?.todo ? readableDates(doc.summary.todo) : <span className="meta">—</span>}</dd>
+            {doc.summary?.ifIgnored && (
+              <>
+                <dt>放置すると？</dt>
+                <dd>
                   {doc.summary.ifIgnored.text}
                   <span className="meta block">「{doc.summary.ifIgnored.source.quote}」</span>
                   <SourceLine id="if-ignored" source={doc.summary.ifIgnored.source} />
-                </>
-              ) : (
-                <span className="meta">原本には書いてありません</span>
-              )}
-            </dd>
+                </dd>
+              </>
+            )}
           </dl>
         </div>
       )}
@@ -256,9 +254,7 @@ export default function DocumentDetail() {
       )}
 
       {doc.draftSource === "provisional" && (
-        <div className="card warn">
-          この下書きは、読み取り機能の準備中に用意しておいた<strong>仮の結果</strong>です。Claude の読み取りではありません。
-        </div>
+        <p className="note">仮の読み取り結果です（Claude の準備中に用意した見本）。</p>
       )}
       {doc.draftSource === "claude" && !confirmed && (
         <div className="card meta">

@@ -6,6 +6,7 @@
 
 import { ConflictCards } from "@/components/ConflictCard";
 import Link from "next/link";
+import { shortDocName } from "@/lib/docName";
 import { now } from "@/lib/clock";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -78,8 +79,7 @@ export default function FamilyPage() {
           <div className="t">{d.label}</div>
           <div className="meta">
             {d.awareness && "知っておくだけ・"}
-            原本: <Link href={`/documents/${item.document.id}`}>{item.document.title}</Link>
-            {d.source?.location && `・${d.source.location}`}
+            原本: <Link href={`/documents/${item.document.id}`}>{shortDocName(item.document, h.members)}</Link>
           </div>
         </div>
         {d.kind !== "event" && (

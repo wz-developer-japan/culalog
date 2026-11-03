@@ -6,6 +6,7 @@
 // 新旧の日付が本当に違うか・判断の言い回しが無いか）。合わないものは外し、外した数も画面に出す。
 // 採用するかは本人が決める。
 
+import { findConflicts } from "./conflicts";
 import { maskKnownNumbers } from "./numbers";
 import type { Candidate } from "./butler";
 import { formatYmd, parseDate, ruleDeadlines } from "./deadlines";
@@ -432,7 +433,10 @@ function provisionalOpenClass(household: Household, today: string): RawInsight[]
     const leave = ruleDeadlines({ ...d, applyRuleIds: [rule.id], reserve: undefined }, [rule])[0];
     out.push({
       kind: "apply_rule",
-      text: `${formatYmd(d.date)}の${d.label}、${first}さんは見に行きますか？ 平日なので、行くなら「${rule.label}」は${formatYmd(leave.date)}までです。`,
+      // 同じ日の気づき（親が仕事の日）が出ているなら、申請の締切はそちらで言っているので重ねない
+      text: findConflicts(household, parseDate(today || d.date)).some((c) => c.date === d.date)
+        ? `${formatYmd(d.date)}の${d.label.replace(/[（(].*$/, "")}、${first}さんは見に行きますか？`
+        : `${formatYmd(d.date)}の${d.label}、${first}さんは見に行きますか？ 平日なので、行くなら「${rule.label}」は${formatYmd(leave.date)}までです。`,
       deadlineId: d.id,
       ruleId: rule.id,
       oldDeadlineId: "",

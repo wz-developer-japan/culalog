@@ -158,9 +158,9 @@ export function provisionalTranslation(
 
 /** ほかの書類の予定の名前の、仮の訳（「家族に伝える」の「同じ日の家族の予定」に使う） */
 const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
-  { lang: "vi", match: "出勤日（平日）", text: "Ngày đi làm (ngày thường, theo lịch làm việc của công ty)" },
-  { lang: "vi", match: "出勤日", text: "Ngày đi làm (theo lịch làm việc của công ty)" },
-  { lang: "vi", match: "出勤（", text: "Ngày đi làm (theo bảng ca làm việc của công ty)" },
+  { lang: "vi", match: "出勤日（平日）", text: "đi làm" },
+  { lang: "vi", match: "出勤日", text: "đi làm" },
+  { lang: "vi", match: "出勤（", text: "đi làm (ca ngày 8:30–17:30)" },
   { lang: "vi", match: "授業参観", text: "Dự giờ (phụ huynh đến xem lớp học)" },
   { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
   { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },

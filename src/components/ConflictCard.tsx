@@ -7,14 +7,10 @@
 import Link from "next/link";
 import { conflictDate, findConflicts } from "@/lib/conflicts";
 import { formatYmd } from "@/lib/deadlines";
+import { shortDocName } from "@/lib/docName";
 import { languageLabel, languageOf } from "@/lib/languages";
 import type { Household } from "@/lib/types";
 
-/** 書類の題名を短く（（…）を外し、長ければ切る） */
-const shortTitle = (title: string) => {
-  const t = title.replace(/[（(][^（()）]*[）)]/g, "").replace(/[（(][^）)]*[）)]/g, "").replace(/\s+/g, " ").trim();
-  return t.length > 24 ? `${t.slice(0, 23)}…` : t;
-};
 
 export function ConflictCards({ household, today, memberId }: { household: Household; today: Date; memberId?: string }) {
   const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name.split(/\s+/).pop() ?? "";
@@ -39,13 +35,14 @@ export function ConflictCards({ household, today, memberId }: { household: House
               {adultNames.length > 1 ? `この日は、${adultNames.map((n) => `${n}さんも`).join("")}お仕事になっているようです。` : `この日は、${adultNames[0]}さんはお仕事になっているようです。`}
             </div>
             <div className="meta">
-              {event} → <Link href={`/documents/${c.child.doc.id}`}>{shortTitle(c.child.doc.title)}</Link>
+              原本:{" "}
+              {[c.child.doc, ...c.adults.map((a) => a.doc)].map((d, i) => (
+                <span key={d.id}>
+                  {i > 0 && " ／ "}
+                  <Link href={`/documents/${d.id}`}>{shortDocName(d, household.members)}</Link>
+                </span>
+              ))}
             </div>
-            {c.adults.map((a) => (
-              <div className="meta" key={a.deadline.id}>
-                {names(a.deadline.memberIds)}さん 出勤 → <Link href={`/documents/${a.doc.id}`}>{shortTitle(a.doc.title)}</Link>
-              </div>
-            ))}
             {limits.length > 0 && (
               <div className="meta">
                 休みを取るなら、

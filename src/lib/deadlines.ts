@@ -26,6 +26,11 @@ export function formatYmd(ymd: string): string {
   return `${date.getMonth() + 1}月${date.getDate()}日（${WEEKDAYS[date.getDay()]}）`;
 }
 
+/** 文の中の「2026-11-25」を「11月25日（水）」に（読み取りの下書きの文を、そのまま見せないため） */
+export function readableDates(text: string): string {
+  return text.replace(/\b(\d{4})-(\d{2})-(\d{2})\b/g, (m) => formatYmd(m));
+}
+
 export function addDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setDate(next.getDate() + days);

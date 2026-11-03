@@ -48,7 +48,9 @@ const mark = (c: LanguageCode) => `【${LANGUAGES.find((l) => l.code === c)?.nat
 
 export function composeTell(p: TellPayload): string {
   const parts = [TELL_HEAD];
-  for (const b of p.blocks) parts.push("", mark(b.lang), b.title, ...b.lines.map((l) => `・${l}`));
+  // 受け取る家族の言葉（日本語以外）を先に: スマホの通知の最初の数行に、その人の言葉で要点が入る
+  const blocks = [...p.blocks].sort((a, b) => (a.lang === "ja" ? 1 : 0) - (b.lang === "ja" ? 1 : 0));
+  blocks.forEach((b, i) => parts.push(...(i ? [""] : []), mark(b.lang), b.title, ...b.lines.map((l) => `・${l}`)));
   if (p.sources.length) parts.push("", `— 原本（書類は${p.holder}さんの端末の中）`, ...p.sources.map((s) => `・${s}`));
   parts.push("", "質問は、このメッセージに返信してください。担当を決めたら下のボタンを。");
   return parts.join("\n");

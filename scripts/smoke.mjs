@@ -97,9 +97,7 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   const conflictText = await conflict.innerText();
   if (
     !/11月27日（金）は、蓮さんの授業参観の日です。この日は、タオさんも翔太さんもお仕事になっているようです/.test(conflictText) ||
-    !/授業参観 → 2学期 授業参観・学級懇談会のご案内/.test(conflictText) ||
-    !/タオさん 出勤 → 2026年度 年間勤務カレンダー/.test(conflictText) ||
-    !/翔太さん 出勤 → くろうどロジスティクス 11月 勤務シフト表/.test(conflictText) ||
+    !/原本: 2学期 授業参観のご案内 ／ タオさんの勤務カレンダー ／ 翔太さんのシフト表/.test(conflictText) ||
     !/休みを取るなら、どちらも11月20日（金）までに申し出が必要です/.test(conflictText) ||
     !/どちらが行くかは、家族で決めてください/.test(conflictText)
   )
