@@ -2,7 +2,7 @@
 // 使い方: node scripts/smoke.mjs [BASE_URL] （既定は http://localhost:3100）
 // 時計を 2026-11-07 10:00（東京）に固定して、いつ動かしても同じ条件で確かめる。
 // 画面の画像は scripts/out/ に書き出す（コミットしない）。
-import { mkdirSync } from "node:fs";
+import fs, { mkdirSync } from "node:fs";
 
 async function loadPlaywright() {
   for (const name of ["playwright", "/opt/node-tools/node_modules/playwright/index.js"]) {
@@ -61,9 +61,20 @@ await step("Claude の答えでないものには「仮」と出ている（キ�
   if (!/仮/.test(body)) console.log("  （「仮」の表示なし。Claude のキーがある環境なら正常）");
 });
 
-await step("すべての予定に、これからの予定が並ぶ", async () => {
+await step("すべての予定に、これからの予定が並び、いつものカレンダーに入れられる（.ics・Google カレンダー。サーバーを通さない）", async () => {
   await page.goto(BASE + "/schedule/all");
   await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
+  const [download] = await Promise.all([
+    page.waitForEvent("download", { timeout: 15000 }),
+    page.getByRole("button", { name: /まとめてカレンダーに入れる/ }).click(),
+  ]);
+  const ics = fs.readFileSync(await download.path(), "utf8");
+  if (!/^BEGIN:VCALENDAR/.test(ics) || !/SUMMARY:遠足/.test(ics) || !/DTSTART;VALUE=DATE:2026110/.test(ics)) throw new Error(`.ics の中身が足りません: ${ics.slice(0, 200)}`);
+  if (/\d{4}-?\d{4}-?\d{4}/.test(ics.replace(/DTSTAMP:\S+|DTSTART\S*|DTEND\S*|DTSTART:19700101T000000/g, ""))) throw new Error(".ics に長い番号が入っています");
+  const row = page.locator(".dcard").filter({ hasText: "遠足" }).first();
+  await row.getByRole("button", { name: "カレンダーに入れる" }).click();
+  const href = await row.getByRole("link", { name: "Google カレンダー" }).getAttribute("href");
+  if (!/^https:\/\/calendar\.google\.com\/calendar\/render\?action=TEMPLATE/.test(href ?? "") || !/dates=20261109%2F20261110/.test(href)) throw new Error(`Google カレンダーのリンクが違います: ${href}`);
 });
 
 await step("書類の一覧に確定済みの書類がある", async () => {

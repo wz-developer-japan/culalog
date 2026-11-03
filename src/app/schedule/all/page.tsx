@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Days, Source, shortDate } from "@/components/DeadlineCard";
 import { Pic } from "@/components/Pics";
+import { CalendarAll, CalendarButton } from "@/components/CalendarActions";
+import { calendarEventOf } from "@/lib/calendar";
 import { candidateOf, toggleDone } from "@/lib/butler";
 import { givenName } from "@/lib/whose";
 import { type ActionItem, allItems, buildHome, formatYmd, isDone, itemIds, passedBeforeRegistered } from "@/lib/deadlines";
@@ -81,6 +83,7 @@ export default function Schedule() {
             <span className="tag mut">{DEADLINE_KIND_LABELS[d.kind]}</span>
             {d.memberIds.length > 0 && <span className="tag mut">{d.memberIds.map((id) => givenName(nameOf(id))).join("・")}</span>}
             <Source c={c} />
+            {!finished && d.kind !== "after_event" && !isPast(item) && <CalendarButton event={calendarEventOf(item, nameOf)} />}
             {d.kind !== "after_event" && d.kind !== "event" && (
               <button className={`tag act ${finished ? "mut" : "ok"}`} onClick={() => save(toggleDone(h, itemIds(item)))}>
                 {finished ? "済んだを取り消す" : "済んだにする"}
@@ -136,6 +139,7 @@ export default function Schedule() {
       )}
 
       <h2 className="sec">これから</h2>
+      <CalendarAll events={upcoming.filter((i) => !i.deadline.awareness).map((i) => calendarEventOf(i, nameOf))} />
       {upcoming.length === 0 ? (
         <div className="calm-line">ありません。</div>
       ) : (

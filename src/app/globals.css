@@ -1853,3 +1853,19 @@ h2.sec .more {
   color: var(--muted);
   font-size: 0.75rem;
 }
+
+/* カレンダーに入れる */
+.cal-choices {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.cal-choices .button {
+  text-decoration: none;
+  text-align: center;
+}
+.cal-all .button {
+  width: 100%;
+}
