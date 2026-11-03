@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
-import { createLinkCode, getChat, setUserLang, store, updateChat } from "@/lib/server/store";
+import { createLinkCode, getChat, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
 import { afterTake, TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
 
@@ -46,7 +46,15 @@ const SAY = {
   preparing: "（執事の準備中です。キーが届いたら答えられるようになります）\n(Quản gia đang được chuẩn bị, hiện chưa trả lời được.)",
   paused: "通訳を止めました（/resume で再開）\nĐã tạm dừng phiên dịch (/resume để tiếp tục).",
   resumed: "通訳を再開しました\nĐã tiếp tục phiên dịch.",
+  over: "今日の通訳の回数の上限に達しました。日本時間の0時に戻ります。\nHôm nay đã dùng hết số lần phiên dịch. Sẽ dùng lại được từ 0 giờ (giờ Nhật Bản).",
 };
+
+/** Claude を呼ぶ前に、このグループの今日の回数を数える（上限なら、その日1回だけ知らせて黙る） */
+async function withinLimit(chatId: string, replyTo: number): Promise<boolean> {
+  const use = await useClaudeInChat(chatId).catch(() => "over" as const);
+  if (use === "over-first") await sendMessage(chatId, SAY.over, { replyTo });
+  return use === "ok";
+}
 
 const LANG_ALIASES: Record<string, LanguageCode> = { ja: "ja", jp: "ja", vi: "vi", vn: "vi", easy: "ja-easy", "ja-easy": "ja-easy" };
 
@@ -86,6 +94,7 @@ async function onMessage(m: TgMessage) {
   const notice = m.reply_to_message?.from?.is_bot && m.reply_to_message.text?.startsWith(TELL_HEAD) ? m.reply_to_message.text : undefined;
   if (notice) {
     const langs = [...new Set([senderLang ?? "ja", ...chatLangs])] as LanguageCode[];
+    if (!(await withinLimit(chatId, m.message_id))) return;
     const out = await answerFromNotice(text, notice, langs);
     if (!out) return sendMessage(chatId, SAY.preparing, { replyTo: m.message_id });
     return sendMessage(chatId, out.texts.map((t) => `${langMark(t.lang)}\n${t.text}`).join("\n\n"), { replyTo: m.message_id });
@@ -94,6 +103,7 @@ async function onMessage(m: TgMessage) {
   // ふつうの会話: 送った人と違う言葉の人がいれば訳す
   const targets = chatLangs.filter((l) => l !== senderLang);
   if (targets.length === 0) return;
+  if (!(await withinLimit(chatId, m.message_id))) return;
   const out = await translateChat(text, targets);
   if (!out) return;
   const lines = out.texts.filter((t) => t.lang !== out.sourceLang && t.text.trim());

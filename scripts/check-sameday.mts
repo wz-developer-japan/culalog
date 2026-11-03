@@ -22,6 +22,7 @@ import { buildConnectInput, verifyConnect } from "@/lib/connect";
 import type { DemoSample, Household } from "@/lib/types";
 import { provisionalLabel, provisionalTranslation } from "@/data/demoTranslations";
 import { buildTell, childOnlyLanguage } from "@/lib/tellBuild";
+import { claudeUseNext } from "@/lib/server/store";
 import { afterTake, tellKeyboard, takerData, takerLang, takerNames } from "@/lib/tell";
 
 const today = new Date(2026, 10, 7, 10);
@@ -192,6 +193,19 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   check(after.mine?.text === "📅 Thêm vào lịch" && after.mine.url === p7.calendar?.vi && after.calendarRow.length === 2, "タオさんが担当 → ベトナム語の「Thêm vào lịch」を返す（カレンダーの行は残す）");
   check(afterTake(sent, kb.takerRows[0][0].callback_data).mine?.text === "📅 カレンダーに追加", "翔太さんが担当 → 日本語の「カレンダーに追加」");
   check(!afterTake(sent, "t:タオ|Thảo|タオ").mine && !afterTake([[{ text: "📅 Thêm vào lịch", url: "https://example.com/" }]], taoData).mine, "前の形の印・Google カレンダー以外のリンクには返さない");
+}
+
+// ---- Telegram で Claude を呼ぶ回数（1グループ・全体の1日の上限） ----
+{
+  const day = "2026-11-04";
+  const a = claudeUseNext(undefined, undefined, day, 3, 10);
+  check(a.result === "ok" && a.mine?.count === 1 && a.all?.count === 1, "上限: はじめての1回は通り、グループと全体を1つずつ数える");
+  const b = claudeUseNext({ day, count: 3 }, { day, count: 3 }, day, 3, 10);
+  check(b.result === "over-first" && b.mine?.overNoticed === true && !b.all, "上限: グループの上限に当たった最初の1回だけ知らせる（全体の数は増やさない）");
+  check(claudeUseNext({ day, count: 3, overNoticed: true }, { day, count: 3 }, day, 3, 10).result === "over", "上限: 知らせたあとは黙る");
+  check(claudeUseNext({ day, count: 1 }, { day, count: 10 }, day, 3, 10).result === "over-first", "上限: 全体の上限でも止まる");
+  const c = claudeUseNext({ day: "2026-11-03", count: 3, overNoticed: true }, { day: "2026-11-03", count: 10 }, day, 3, 10);
+  check(c.result === "ok" && c.mine?.count === 1 && c.all?.count === 1, "上限: 日が変わると数え直す");
 }
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);

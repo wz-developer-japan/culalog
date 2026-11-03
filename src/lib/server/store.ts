@@ -1,5 +1,5 @@
 // サーバー側の小さな置き場所（Google の Firebase・Firestore）。
-// 🔴 置くのは、Telegram のグループと人の「読みたい言葉」・つなぐための合言葉の指紋・通知の「日付と件数」だけ。
+// 🔴 置くのは、Telegram のグループと人の「読みたい言葉」・つなぐための合言葉の指紋・通知の「日付と件数」・Telegram で Claude を呼んだその日の回数だけ。
 // 書類の中身・予定の名前・会話の文は置かない。
 
 import { createHash, randomBytes } from "node:crypto";
@@ -38,6 +38,8 @@ export interface ChatDoc {
   upcoming?: Record<string, number>;
   /** 通知を送った日（同じ日に二度送らない） */
   notifiedOn?: string;
+  /** Telegram で Claude を呼んだ回数（日本時間の日ごと。上限のため。会話の文は置かない） */
+  claudeUse?: { day: string; count: number; overNoticed?: boolean };
 }
 
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -94,4 +96,48 @@ export async function chatsToNotify(): Promise<{ id: string; chat: ChatDoc }[]> 
   if (!s) return [];
   const snap = await s.collection("chats").where("tokenHash", ">", "").get();
   return snap.docs.map((d) => ({ id: d.id, chat: d.data() as ChatDoc }));
+}
+
+function readLimit(name: string, fallback: number): number {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+/**
+ * Telegram の通訳・返信の答えで Claude を呼ぶ前に数える（1つのグループで1日に何回まで・Telegram 全体で1日に何回まで）。
+ * 数はサーバーの置き場所（Firestore）に置くので、サーバーが入れ替わっても数え直しにならない。
+ * "ok" なら呼んでよい。"over-first" はその日はじめて上限に当たった（グループに1回だけ知らせる）。"over" は黙る
+ */
+export async function useClaudeInChat(chatId: string): Promise<"ok" | "over-first" | "over"> {
+  const s = store();
+  if (!s) return "over";
+  const perChat = readLimit("TELEGRAM_CLAUDE_PER_CHAT_PER_DAY", 100);
+  const perAll = readLimit("TELEGRAM_CLAUDE_GLOBAL_PER_DAY", 300);
+  const day = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const chatRef = s.collection("chats").doc(chatId);
+  const allRef = s.collection("meta").doc("telegramClaudeUse");
+  return s.runTransaction(async (tx) => {
+    const [chatSnap, allSnap] = await Promise.all([tx.get(chatRef), tx.get(allRef)]);
+    const next = claudeUseNext((chatSnap.data() as ChatDoc | undefined)?.claudeUse, allSnap.data() as { day: string; count: number } | undefined, day, perChat, perAll);
+    if (next.mine) tx.set(chatRef, { claudeUse: next.mine }, { merge: true });
+    if (next.all) tx.set(allRef, next.all);
+    return next.result;
+  });
+}
+
+/** 回数の数え方（置き場所を使わない部分。試験用に分けてある） */
+export function claudeUseNext(
+  mine: ChatDoc["claudeUse"],
+  all: { day: string; count: number } | undefined,
+  day: string,
+  perChat: number,
+  perAll: number,
+): { result: "ok" | "over-first" | "over"; mine?: NonNullable<ChatDoc["claudeUse"]>; all?: { day: string; count: number } } {
+  const mineCount = mine?.day === day ? mine.count : 0;
+  const allCount = all?.day === day ? all.count : 0;
+  if (mineCount >= perChat || allCount >= perAll) {
+    if (mine?.day === day && mine.overNoticed) return { result: "over" };
+    return { result: "over-first", mine: { day, count: mineCount, overNoticed: true } };
+  }
+  return { result: "ok", mine: { day, count: mineCount + 1, overNoticed: false }, all: { day, count: allCount + 1 } };
 }
