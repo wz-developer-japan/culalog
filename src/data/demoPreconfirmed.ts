@@ -46,16 +46,20 @@ const PRECONFIRMED: Record<string, string> = {
 
 export const PRECONFIRMED_SAMPLE_IDS = new Set(Object.keys(PRECONFIRMED));
 
+/** 書類が少ない状態（/?demo=few）でも最初から預かっている見本: タオさんの勤務カレンダーだけ（保育園のうんどうかいを渡すと、同じ日の出勤日に気づける） */
+export const FEW_PRECONFIRMED_IDS = new Set(["photo-w12-misaki-calendar"]);
+
 export function preconfirmedDocuments(
   samples: DemoSample[],
   members: FamilyMember[],
   today: Date,
+  ids: Set<string> = PRECONFIRMED_SAMPLE_IDS,
 ): { documents: DocumentRecord[]; done: Record<string, string> } {
   const createdAt = today.toISOString();
   const todayYmd = toYmd(today);
   const done: Record<string, string> = {};
   const documents = samples
-    .filter((s) => PRECONFIRMED_SAMPLE_IDS.has(s.id))
+    .filter((s) => ids.has(s.id))
     .map((s) => {
       let n = 0;
       const newId = (prefix: string) => `${prefix}-${s.id.replace(/^photo-/, "")}-${++n}`;

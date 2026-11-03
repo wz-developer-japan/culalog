@@ -63,6 +63,8 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
     setStatus(skipped.length ? `${skipped.join("・")}は、執事の準備中のため入れていません。` : "");
     setBusy(false);
     setOpen(true);
+    // 開いたら、どこへ・何人が読むか と「送る」が最初の画面に入るように上へ寄せる
+    requestAnimationFrame(() => document.getElementById("tell")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
   async function send() {
@@ -98,12 +100,17 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
               ? `下の文を、家族の Telegram グループに送ります${groupCount ? `（グループの${groupCount}人が読めます）` : ""}。Telegram と通訳（Claude）を通ります。書類の写真・ほかの書類・大事な番号は送りません。`
               : "家族の Telegram とまだつないでいません（設定でつなげます）。下の文をコピーして、いつものアプリに貼ることもできます。"}
           </div>
-          <pre className="tell-text">{text}</pre>
           {household.telegram && (
             <button className="button" disabled={busy || status.startsWith("家族の")} onClick={send}>
               {busy ? "送っています…" : "Telegram のグループに送る"}
             </button>
           )}
+          {status && (
+            <p className="note" role="status">
+              {status}
+            </p>
+          )}
+          <pre className="tell-text">{text}</pre>
           <button
             className="button secondary"
             onClick={async () => {
@@ -118,7 +125,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
           </button>
         </div>
       )}
-      {status && (
+      {status && !open && (
         <p className="note" role="status">
           {status}
         </p>

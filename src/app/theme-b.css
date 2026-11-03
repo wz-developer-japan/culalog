@@ -635,3 +635,4 @@ details.fold.mine > summary { margin: 18px 0 8px; font-weight: 700; cursor: poin
 .lang-line { display: block; margin: 6px 0 10px; font-weight: 700; text-decoration: none; color: inherit; }
 .card.insight.conflict .t { font-weight: 700; margin-bottom: 4px; }
 .card.insight.conflict .button { margin-top: 8px; display: block; text-align: center; text-decoration: none; }
+.tell { scroll-margin-top: 12px; }

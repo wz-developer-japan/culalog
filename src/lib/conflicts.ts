@@ -23,7 +23,7 @@ export function findConflicts(household: Household, today: Date): Conflict[] {
   const out: Conflict[] = [];
   for (const child of events) {
     // 子どもの体のこと（病院・歯科）は出さない。学校・保育園・地域の行事だけ
-    if (!child.doc.sharedWith?.length || !child.deadline.memberIds.some(isChild) || !CHILD_EVENT.includes(child.doc.category)) continue;
+    if (!child.deadline.memberIds.some(isChild) || !CHILD_EVENT.includes(child.doc.category)) continue;
     for (const adult of events) {
       if (adult.doc.id === child.doc.id || adult.deadline.date !== child.deadline.date) continue;
       // 大人の側は、勤務の予定（勤務カレンダーの出勤日など）

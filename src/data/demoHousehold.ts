@@ -28,7 +28,7 @@ import {
   subscriptionProvisionalDraft,
   subscriptionText,
 } from "./demoDocuments";
-import { PRECONFIRMED_SAMPLE_IDS, preconfirmedDocuments } from "./demoPreconfirmed";
+import { FEW_PRECONFIRMED_IDS, PRECONFIRMED_SAMPLE_IDS, preconfirmedDocuments } from "./demoPreconfirmed";
 
 /**
  * 架空の家族を作る。写真・メールの見本（約 700KB）は「架空の家族で試す」を押したときだけ読み込む
@@ -45,8 +45,9 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
   ];
   // ふつうは、写真・メールの見本の一部をもう預かっている（確定済み）ところから始める。
   // options.few（入口 /?demo=few）は、書類が少ない状態（9件）から始める（「まとめて渡す」の前と後を見せる録画用）
-  const pre = options.few ? { documents: [], done: {} } : preconfirmedDocuments(allPhotoSamples, members, today);
-  const photoSamples = options.few ? allPhotoSamples : allPhotoSamples.filter((s) => !PRECONFIRMED_SAMPLE_IDS.has(s.id));
+  const preIds = options.few ? FEW_PRECONFIRMED_IDS : PRECONFIRMED_SAMPLE_IDS;
+  const pre = preconfirmedDocuments(allPhotoSamples, members, today, preIds);
+  const photoSamples = allPhotoSamples.filter((s) => !preIds.has(s.id));
   const t = demoDates(today);
   const ymd = (date: Date) => toYmd(date);
   const createdAt = today.toISOString();
