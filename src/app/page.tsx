@@ -100,7 +100,7 @@ export default function Top() {
           </div>
         </div>
         <button className="button" onClick={async () =>
-            // 隠しの入口 /?demo=few: 書類が少ない状態（9件）から始める（「まとめて渡す」の前と後の録画用）
+            // 隠しの入口 /?demo=few: 書類が少ない状態（10件）から始める（「まとめて渡す」の前と後の録画用）
             save(await createDemoHousehold(undefined, { few: new URLSearchParams(window.location.search).get("demo") === "few" }))
           }>
           架空の家族で試す

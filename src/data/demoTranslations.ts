@@ -49,6 +49,32 @@ const PREPARED: Prepared[] = [
     checks: ["Thông báo không ghi nếu không ai trong gia đình đi được thì phải làm sao. Hãy hỏi nhà trẻ."],
   },
   {
+    titleIncludes: "授業参観・学級懇談会のご案内",
+    lang: "vi",
+    title: "Thông báo buổi dự giờ và họp phụ huynh lớp (học kỳ 2)",
+    what: "Thông báo của trường tiểu học Kuroudo Daiichi (trường của bé Ren) về buổi dự giờ (jugyō sankan) và họp phụ huynh lớp học kỳ 2: giờ, phòng học, đồ cần mang.",
+    todo: "Điền phiếu có đi / không đi (phần dưới đường cắt) và nộp cho giáo viên chủ nhiệm trước hạn. Hôm đó mang dép đi trong nhà và thẻ tên dành cho khách.",
+    items: [
+      { match: "授業参観（2学期）", label: "Dự giờ học kỳ 2 (phụ huynh đến xem lớp học) và họp phụ huynh lớp", text: "Phòng học của lớp 3-2 (tầng 2, phía đông). Mang: dép đi trong nhà, thẻ tên dành cho khách." },
+      { match: "出欠票", label: "Nộp phiếu có đi / không đi (cho giáo viên chủ nhiệm)", text: "Phiếu ở phần dưới đường cắt của tờ thông báo." },
+      { match: "時間", label: "Giờ", text: "Dự giờ: tiết 3, 10:45–11:30. Họp phụ huynh lớp: 11:40–12:10." },
+      { match: "場所", label: "Nơi", text: "Phòng học của từng lớp (lớp 3-2 ở tầng 2, phía đông)." },
+      { match: "持ち物", label: "Mang theo", text: "Dép đi trong nhà, thẻ tên dành cho khách." },
+      { match: "お願い", label: "Lưu ý", text: "Không đến trường bằng ô tô. Không chụp ảnh, quay phim trong giờ học." },
+    ],
+    background: [
+      {
+        title: "Dự giờ (jugyō sankan) là gì?",
+        text: "Ở Nhật, phụ huynh được mời đến trường xem con học trong lớp vài lần mỗi năm. Thường tổ chức vào ngày thường, nên nhiều phụ huynh đi làm xin nghỉ phép để đến. Không bắt buộc cả bố và mẹ cùng đi.",
+      },
+      {
+        title: "Họp phụ huynh lớp (gakkyū kondankai) là gì?",
+        text: "Sau buổi dự giờ, giáo viên chủ nhiệm và phụ huynh trong lớp nói chuyện về tình hình lớp. Thường không cần chuẩn bị gì đặc biệt.",
+      },
+    ],
+    checks: ["Thông báo không ghi có cần đi cả hai buổi (dự giờ và họp) hay không. Phiếu cho phép trả lời riêng từng buổi."],
+  },
+  {
     titleIncludes: "3学年だより",
     lang: "vi",
     title: "Bản tin khối lớp 3",
@@ -132,7 +158,9 @@ export function provisionalTranslation(
 
 /** ほかの書類の予定の名前の、仮の訳（「家族に伝える」の「同じ日の家族の予定」に使う） */
 const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
+  { lang: "vi", match: "出勤日（平日）", text: "Ngày đi làm (ngày thường, theo lịch làm việc của công ty)" },
   { lang: "vi", match: "出勤日", text: "Ngày đi làm (theo lịch làm việc của công ty)" },
+  { lang: "vi", match: "授業参観", text: "Dự giờ (phụ huynh đến xem lớp học)" },
   { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
   { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },
 ];

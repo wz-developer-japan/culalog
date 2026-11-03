@@ -537,6 +537,8 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
       {
         id: "exp-open-class-notice",
         label: "授業参観の案内プリント",
+        // ふつうの入口では、案内プリント（写真の見本 o9）をもう預かっている（/?demo=few では、まだ届いていない）
+        receivedDocumentId: pre.documents.find((d) => d.id === "doc-o9-sankan-annai")?.id,
         expectedBy: ymd(today),
         relatedDeadlineId: "dl-open-class",
         missingWhat: "時間や教室",
@@ -580,6 +582,13 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
         daysBefore: 7,
         memberId: "m-self",
         note: "勤務先のきまりで、有給の申請は遅くとも1週間前まで",
+      },
+      {
+        id: "rule-leave-spouse",
+        label: "有給の申請（タオの勤務先）",
+        daysBefore: 7,
+        memberId: "m-spouse",
+        note: "タオの勤務先のきまりで、有給の申請は遅くとも1週間前まで",
       },
     ],
     timetable: [

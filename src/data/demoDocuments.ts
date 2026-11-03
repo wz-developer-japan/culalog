@@ -84,7 +84,9 @@ export interface DemoDates {
 
 export function demoDates(today: Date): DemoDates {
   const sportsDay = nextSaturdayAfter(today, 10);
-  const openClass = nextFridayAfter(today, 17);
+  // 授業参観は、写真の見本の案内プリント（o9・2026-11-27 金）と同じ日にそろえる。その日を過ぎたら、今日+17日の次の金曜
+  const fixedOpenClass = new Date(2026, 10, 27);
+  const openClass = toYmd(fixedOpenClass) >= toYmd(today) ? fixedOpenClass : nextFridayAfter(today, 17);
   const leaseEnd = addDays(today, 75);
   const leaseStart = addDays(new Date(leaseEnd.getFullYear() - 2, leaseEnd.getMonth(), leaseEnd.getDate()), 1);
   const interview = interviewDates(schoolYearOf(today));

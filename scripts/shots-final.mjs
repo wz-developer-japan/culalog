@@ -1,7 +1,7 @@
 // README・提出用の画面の画像を、ひととおりの流れで撮る（スマホ幅 390・時計 2026-11-07 10:00 固定・架空の家族）。
 // 使い方: node scripts/shots-final.mjs <出力フォルダ> [BASE_URL]
 // 流れ: はじめて開いたとき → 架空の家族 → トップ（読みたい言葉の1行・同じ日のぶつかり）→
-//       保育園のうんどうかいの書類（日本語 → Tiếng Việt・原本の行が光る）→ 家族に伝える（送る前の画面）→
+//       授業参観の案内の書類（日本語 → Tiếng Việt・原本の行が光る）→ 家族に伝える（送る前の画面）→
 //       設定（家族の読みたい言葉・家族の Telegram）→ 予定 → 写真の見本をまとめて渡す（読んでいる途中）→ 大事な番号 → 聞く
 import { mkdirSync } from "node:fs";
 
@@ -45,9 +45,9 @@ await see("同じ日です");
 await shot("02-top");
 await shot("02b-top-long", true);
 
-// 保育園のうんどうかいの書類: 日本語 → Tiếng Việt
+// 授業参観の案内の書類: 日本語 → Tiếng Việt
 await page.goto(base + "/documents");
-await page.getByText("うんどうかいのお知らせ").first().click();
+await page.getByText("授業参観・学級懇談会のご案内").first().click();
 await page.waitForURL(/\/documents\//);
 await page.getByRole("group", { name: "読む言葉" }).waitFor();
 await shot("03-doc-ja");

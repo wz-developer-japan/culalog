@@ -1,10 +1,11 @@
 "use client";
 
-// 同じ日のぶつかり（子どもの行事 × 大人の出勤など）を、執事の気づきとして1枚ずつ出す。
+// 同じ日のぶつかり（保護者が行く子どもの行事 × 大人の出勤日）を、執事の気づきとして1枚ずつ出す。
 // 誰が行くかは決めない。家族それぞれの言葉で伝えて、家族で決める。
 
 import Link from "next/link";
 import { conflictDate, findConflicts } from "@/lib/conflicts";
+import { formatYmd } from "@/lib/deadlines";
 import { languageLabel, languageOf } from "@/lib/languages";
 import type { Household } from "@/lib/types";
 
@@ -27,6 +28,11 @@ export function ConflictCards({ household, today, memberId }: { household: House
             <div className="meta">
               原本: {c.child.doc.title}・{c.child.deadline.source?.location ?? "—"} ／ {c.adult.doc.title}・{c.adult.deadline.source?.location ?? "—"}
             </div>
+            {c.leave && (
+              <div className="meta">
+                有給を取るなら、{c.adult.deadline.memberIds.map(nameOf).join("・")}さんの申請は{formatYmd(c.leave.date)}までです（わが家のきまり「{c.leave.rule.label}」: {c.leave.rule.daysBefore}日前まで）。
+              </div>
+            )}
             <div className="meta">誰が行くかは、家族で決めてください（執事は決めません）。</div>
             <Link className="button small" href={`/documents/${c.child.doc.id}#tell`}>
               家族に伝える{shared.length ? `（${shared.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : ""}

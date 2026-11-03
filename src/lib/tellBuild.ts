@@ -2,6 +2,7 @@
 // 日付はコードが元の予定から、その言葉の形で入れる。同じ日の家族の予定（例: 勤務カレンダーの出勤日）も添える。
 // 🔴 大事な番号は入れない（伏せる）。送る前に画面で全部見せる。
 
+import { adultWorkOn, sameEvent } from "./conflicts";
 import { addDays, toYmd } from "./deadlines";
 import { maskKnownNumbers } from "./numbers";
 import { languageOf, type LanguageCode } from "./languages";
@@ -25,15 +26,18 @@ export function tellLanguages(household: Household, doc: DocumentRecord, groupLa
 
 export const nameIn = (m: FamilyMember | undefined, lang: LanguageCode) => (m ? (m.names?.[lang] ?? m.name.split(/\s+/).pop() ?? m.name) : "");
 
-/** 同じ日の、ほかの書類の家族の予定（行事・出勤日など） */
+/** 同じ日の、ほかの書類の家族の予定（行事・出勤日など）。勤務カレンダーのある人の平日の出勤日も添える */
 function sameDayEvents(household: Household, doc: DocumentRecord, d: Deadline): { doc: DocumentRecord; deadline: Deadline }[] {
   const out: { doc: DocumentRecord; deadline: Deadline }[] = [];
   for (const other of household.documents) {
     if (other.id === doc.id || !other.confirmedAt || other.supersededBy || other.notForFamily) continue;
     for (const x of other.deadlines) {
-      if (x.kind === "event" && x.date === d.date && !(household.done ?? {})[x.id]) out.push({ doc: other, deadline: x });
+      // 同じ行事が別の書類にも書いてあるもの（学年だよりの授業参観）は、同じ日の「ほかの予定」ではない
+      if (x.kind === "event" && x.date === d.date && !(household.done ?? {})[x.id] && !sameEvent(x, d)) out.push({ doc: other, deadline: x });
     }
   }
+  // 平日の出勤日は、行事の日にだけ添える（提出の締切の日には要らない）
+  if (d.kind === "event") for (const w of adultWorkOn(household, d.date, doc.id)) if (w.synthetic) out.push({ doc: w.doc, deadline: w.deadline });
   return out;
 }
 

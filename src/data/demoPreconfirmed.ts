@@ -39,14 +39,16 @@ const PRECONFIRMED: Record<string, string> = {
   "photo-i10-kodomo-insurance": "本棚の保険のファイル",
   "photo-n4-photo-sale": "保育園のお便り袋",
   "photo-n3-kondate": "冷蔵庫の扉（磁石）",
-  // 保育園のうんどうかい（11/21 土）。タオさんの勤務カレンダーの出勤日と同じ日（同じ日のぶつかりの気づきが出る）
+  // 授業参観（11/27 金・平日）。タオさんの出勤日（勤務カレンダー）と同じ日 → 同じ日のぶつかりの気づきが最初からトップに出る
+  "photo-o9-sankan-annai": "ランドセルの連絡袋",
+  // 保育園のうんどうかい（11/21 土）。家族みんなで行く行事なので、ぶつかりの気づきは出さない（書類としては預かっている）
   "photo-n5-undokai": "冷蔵庫の扉（磁石）",
   "photo-o7-risu-dayori": "本棚の保育園のファイル",
 };
 
 export const PRECONFIRMED_SAMPLE_IDS = new Set(Object.keys(PRECONFIRMED));
 
-/** 書類が少ない状態（/?demo=few）でも最初から預かっている見本: タオさんの勤務カレンダーだけ（保育園のうんどうかいを渡すと、同じ日の出勤日に気づける） */
+/** 書類が少ない状態（/?demo=few）でも最初から預かっている見本: タオさんの勤務カレンダーだけ（授業参観の案内を渡すと、同じ日の出勤日に気づける） */
 export const FEW_PRECONFIRMED_IDS = new Set(["photo-w12-misaki-calendar"]);
 
 export function preconfirmedDocuments(
