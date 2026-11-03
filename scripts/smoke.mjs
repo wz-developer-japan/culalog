@@ -89,10 +89,17 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   await page.waitForURL(/\/schedule\/all#day-2026-11-09/, { timeout: 15000 });
   await page.locator("#day-2026-11-09").filter({ hasText: "遠足" }).waitFor({ timeout: 15000 });
   await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
-  // まだ届いていない案内プリント: 「この日は○○」→「詳しいことがまだ無い」→「ランドセルの中かも」の順で、日付は予定から
-  const missingText = await page.locator(".dcard").filter({ hasText: "授業参観の案内プリントがまだ届いていません" }).first().innerText();
-  if (!/3学年だより（11月号）では、\d+月\d+日（.）は授業参観（2学期）です。でも、時間や教室が書かれた案内がまだありません。プリントがランドセルの中に入ったままになっていませんか？/.test(missingText))
-    throw new Error(`まだ届いていない案内プリントの文: ${missingText}`);
+  // 案内プリント（写真の見本 o9）はもう預かっているので「まだ届いていません」は出ない。代わりに、同じ日の気づき（授業参観 × タオの出勤日）が予定の「クラノから」に出る
+  if (await page.getByText("授業参観の案内プリントがまだ届いていません").count()) throw new Error("案内プリントを預かっているのに「まだ届いていません」が出ています");
+  await page.goto(BASE + "/schedule");
+  const conflict = page.locator(".card.insight.conflict").first();
+  await conflict.waitFor({ timeout: 15000 });
+  const conflictText = await conflict.innerText();
+  if (!/11月27日（金）は、蓮さんの「授業参観（2学期）」と、タオさんの「出勤日（平日）」が同じ日です/.test(conflictText) || !/タオさんの申請は11月20日（金）までです/.test(conflictText))
+    throw new Error(`同じ日の気づきの文: ${conflictText}`);
+  if ((await page.locator(".card.insight.conflict").count()) !== 1) throw new Error("同じ日の気づきが1件ではありません（運動会・面談など、保護者が行く行事で時間が分かっているもの以外が出ています）");
+  await page.goto(BASE + "/schedule/all");
+  await page.locator("h2", { hasText: "これから" }).waitFor({ timeout: 15000 });
   const [download] = await Promise.all([
     page.waitForEvent("download", { timeout: 15000 }),
     page.getByRole("button", { name: /まとめてカレンダーに入れる/ }).click(),

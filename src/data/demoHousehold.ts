@@ -546,13 +546,18 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
       },
     ],
     demoSamples: [
-      {
-        id: "sample-open-class",
-        title: "授業参観のご案内（架空）",
-        text: openClassNoticeText(t),
-        expectedId: "exp-open-class-notice",
-        provisionalDraft: openClassNoticeProvisionalDraft(t),
-      },
+      // 授業参観の案内プリントは、ふつうの入口では写真の見本（o9）をもう預かっているので、文字の見本は /?demo=few のときだけ（「まだ届いていない」の声かけから渡す）
+      ...(pre.documents.some((d) => d.id === "doc-o9-sankan-annai")
+        ? []
+        : [
+          {
+            id: "sample-open-class",
+            title: "授業参観のご案内（架空）",
+            text: openClassNoticeText(t),
+            expectedId: "exp-open-class-notice",
+            provisionalDraft: openClassNoticeProvisionalDraft(t),
+          },
+          ]),
       {
         id: "sample-dental",
         title: "2歳児歯科健康診査のご案内（架空）",
