@@ -39,7 +39,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
   const members: Household["members"] = [
     // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
     { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め" },
-    { id: "m-spouse", icon: "woman-long", name: "日向 美咲", relation: "spouse", roleLabel: "妻", note: "平日は会社勤め" },
+    { id: "m-spouse", icon: "woman-long", name: "日向 タオ", relation: "spouse", roleLabel: "妻", note: "ベトナム出身。食品工場に勤務（土曜の出勤あり）", language: "vi" },
     { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年" },
     { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園" },
   ];
@@ -53,7 +53,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
   const y = t.schoolYear;
   const guaranteeRenewal = addDays(t.leaseEnd, 1);
 
-  return {
+  const household: Household = {
     isDemo: true,
     members,
     documents: [
@@ -581,4 +581,18 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
       { memberId: "m-son", weekday: 5, periods: 6, dismissal: "15:40" },
     ],
   };
+  return { ...household, documents: household.documents.map(withDemoShare) };
+}
+
+/**
+ * 見本の家族の「誰と共有するか」。この家では、子ども・学校・保育園・地域のこと・タオさんの書類はタオさんと共有し、
+ * 翔太さんだけの書類（給与・税金・年金など）と、住まい・車の契約は共有しない（自分だけ）にしている、という設定。
+ * 🔴 実際に使うときは、配偶者でも自動では共有しない（書類ごとにあなたが選ぶ）
+ */
+function withDemoShare(doc: Household["documents"][number]): Household["documents"][number] {
+  if (doc.notForFamily) return doc;
+  const forFamily =
+    ["school", "childcare", "community", "medical", "medical_card"].includes(doc.category) ||
+    doc.memberIds.some((id) => id === "m-spouse" || id === "m-son" || id === "m-daughter");
+  return { ...doc, sharedWith: forFamily ? ["m-spouse"] : [] };
 }

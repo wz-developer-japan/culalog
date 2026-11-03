@@ -14,6 +14,7 @@ import { importantNumbers } from "@/lib/numbers";
 import { ButlerPic } from "@/components/Pics";
 import { GroupIcon } from "@/components/GroupIcon";
 import { WhoDot } from "@/components/WhoDot";
+import { sharedLabel } from "@/components/ShareWith";
 import { type Group, GROUPS, groupsOf } from "@/lib/labels";
 import type { DocumentRecord } from "@/lib/types";
 import { useHousehold } from "@/lib/useHousehold";
@@ -58,6 +59,33 @@ export default function Documents() {
     (household.demoSamples?.some((x) => x.images?.length) ?? false) &&
     inboxProgress(household).total === 0 &&
     !household.documents.some((d) => d.origin === "photo");
+
+  const cardOf = (d: DocumentRecord) => (
+    <Link className="dcard row-link" key={d.id} href={`/documents/${d.id}`}>
+      <div className="pic gpic">
+        <GroupIcon group={groupsOf(d)[0]} />
+      </div>
+      <div className="body">
+        <div className="t wrap">{d.title}</div>
+        <div className="m">
+          {!d.confirmedAt && <span className="tag warn">確認待ち</span>}
+          <span className="tag">{groupsOf(d)[0]}</span>
+          <span className="tag mut">{d.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, d)}</span>
+          {d.sharedWith && d.sharedWith.length > 0 && <span className="tag mut">{sharedLabel(household.members, d)}</span>}
+        </div>
+      </div>
+      {!d.notForFamily && <WhoDot members={household.members} ids={d.memberIds} />}
+    </Link>
+  );
+  // 絞っていないときは、家族と共有している書類を主役に。自分だけの書類は畳む
+  const sections: { key: string; title?: string; docs: DocumentRecord[]; fold?: boolean }[] = filtered
+    ? [{ key: "all", docs }]
+    : [
+        { key: "pending", docs: docs.filter((d) => !d.confirmedAt) },
+        { key: "shared", title: "家族と共有している書類", docs: docs.filter((d) => d.confirmedAt && d.sharedWith && d.sharedWith.length > 0) },
+        { key: "undecided", title: "共有するか、まだ決めていない書類", docs: docs.filter((d) => d.confirmedAt && d.sharedWith === undefined) },
+        { key: "mine", title: "自分だけの書類", docs: docs.filter((d) => d.confirmedAt && d.sharedWith?.length === 0), fold: true },
+      ];
 
   return (
     <main>
@@ -147,22 +175,23 @@ export default function Documents() {
           </div>
         )
       ) : (
-        docs.map((d) => (
-          <Link className="dcard row-link" key={d.id} href={`/documents/${d.id}`}>
-            <div className="pic gpic">
-              <GroupIcon group={groupsOf(d)[0]} />
-            </div>
-            <div className="body">
-              <div className="t wrap">{d.title}</div>
-              <div className="m">
-                {!d.confirmedAt && <span className="tag warn">確認待ち</span>}
-                <span className="tag">{groupsOf(d)[0]}</span>
-                <span className="tag mut">{d.notForFamily ? "この家の書類ではない" : ownersLabel(household.members, d)}</span>
-              </div>
-            </div>
-            {!d.notForFamily && <WhoDot members={household.members} ids={d.memberIds} />}
-          </Link>
-        ))
+        sections
+          .filter((x) => x.docs.length > 0)
+          .map((x) =>
+            x.fold ? (
+              <details className="fold mine" key={x.key}>
+                <summary>
+                  {x.title}（{x.docs.length}件）
+                </summary>
+                {x.docs.map(cardOf)}
+              </details>
+            ) : (
+              <section key={x.key}>
+                {x.title && sections.filter((y) => y.docs.length > 0 && y.title).length > 1 && <h2 className="sec">{x.title}</h2>}
+                {x.docs.map(cardOf)}
+              </section>
+            ),
+          )
       )}
 
       {old.length > 0 && (

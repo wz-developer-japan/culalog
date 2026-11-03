@@ -241,7 +241,7 @@ await step("「誰の」で分ける: 翔太のページに電気・記入例は
   const self = await docsOf("m-self");
   if (/電気需給契約/.test(self)) throw new Error("翔太のページに家全体の電気の書類が出ています");
   if (/記入例/.test(self)) throw new Error("翔太のページに記入例が出ています");
-  if (!/就労証明書/.test(self)) throw new Error("翔太のページに、翔太・美咲・結衣の現況届が出ていません");
+  if (!/就労証明書/.test(self)) throw new Error("翔太のページに、翔太・タオ・結衣の現況届が出ていません");
   const son = await docsOf("m-son");
   if (!/年間行事予定/.test(son)) throw new Error("蓮のページに年間行事予定が出ていません");
   if (/電気需給契約|記入例/.test(son)) throw new Error("蓮のページに家全体・記入例の書類が出ています");
@@ -276,7 +276,7 @@ await step("メールの見本を貼り付けの形で渡すと、同じ予定�
   await see("全部読み終わりました", 60000);
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
-  // 同居の翔太が当事者（介護休業の承認）は翔太のページに。転送メールの付き添いは美咲に。別居の母の分（和子の検査）は和子の名前では出さない
+  // 同居の翔太が当事者（介護休業の承認）は翔太のページに。転送メールの付き添いはタオに。別居の母の分（和子の検査）は和子の名前では出さない
   await page.goto(BASE + "/family/m-self");
   await page.getByRole("tab", { name: "書類" }).click();
   await page.locator("h2", { hasText: "書類" }).waitFor({ timeout: 15000 });

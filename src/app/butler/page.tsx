@@ -12,6 +12,7 @@ import { addressee, butlerName, CHARACTERS, characterOf, cleanName, NAME_MAX, ti
 import type { CharacterId } from "@/lib/character";
 import { useHousehold } from "@/lib/useHousehold";
 import { VoiceSettings } from "@/components/VoiceSettings";
+import { LANGUAGES, languageLabel, languageOf, type LanguageCode } from "@/lib/languages";
 
 export default function ButlerSettingsPage() {
   const router = useRouter();
@@ -100,6 +101,30 @@ export default function ButlerSettingsPage() {
           {cleanName(currentName) ?? chosen.defaultName}にしました。トップ・予定の呼び名にも反映されます。
         </p>
       )}
+
+      <h2>家族の読みたい言葉</h2>
+      <p className="meta">国籍ではなく、その人が読みたい言葉を選びます。共有した書類の説明・締切・持ち物・やることを、その言葉で伝えます（日付・金額・原本の場所は変えません）。</p>
+      {household.members.map((m) => (
+        <label className="label row-label" key={m.id}>
+          <span>{m.name}</span>
+          <select
+            className="input"
+            value={languageOf(m)}
+            onChange={(e) =>
+              save({
+                ...household,
+                members: household.members.map((x) => (x.id === m.id ? { ...x, language: e.target.value as LanguageCode } : x)),
+              })
+            }
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {languageLabel(l.code)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ))}
 
       <VoiceSettings />
 

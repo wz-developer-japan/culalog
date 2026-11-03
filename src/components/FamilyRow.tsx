@@ -1,6 +1,6 @@
 "use client";
 
-// 家族の丸いアイコンを横に並べる（みんな・翔太・美咲…）。押すとその人のページへ。トップと家族ごとのページで使う。
+// 家族の丸いアイコンを横に並べる（みんな・翔太・タオ…）。押すとその人のページへ。トップと家族ごとのページで使う。
 
 import Link from "next/link";
 import { faceStyle, MemberFace } from "@/components/MemberFace";

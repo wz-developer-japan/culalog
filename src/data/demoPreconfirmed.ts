@@ -9,10 +9,7 @@ import type { DemoSample, DocumentRecord, FamilyMember } from "@/lib/types";
 
 /** 最初から預かっている見本と、現物のしまい場所 */
 const PRECONFIRMED: Record<string, string> = {
-  // 美咲
-  "photo-r3-nenkin-misaki": "寝室の引き出し（大事な書類のファイル）",
-  "photo-r4-koyohoken-misaki": "寝室の引き出し（大事な書類のファイル）",
-  "photo-v4-menkyo-koshin": "リビングの状差し",
+  // タオ（旧姓が書いてある年金手帳・雇用保険・免許のはがきは、名前が合わないので入れない）
   "photo-w12-misaki-calendar": "冷蔵庫の横（壁）",
   "photo-j2-genkyo": "本棚の保育園のファイル",
   // 翔太

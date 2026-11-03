@@ -20,6 +20,8 @@ export interface FamilyMember {
   roleLabel?: string;
   /** 家族の丸: キャラクターの id（"man" など）か "photo"（写真は端末の files に置く。サーバーにも Claude にも送らない）。無ければ色と頭文字 */
   icon?: string;
+  /** 読みたい言葉（無ければ日本語）。国籍ではなく、その人が読みたい言葉 */
+  language?: import("./languages").LanguageCode;
 }
 
 /** 原本のどこに書いてあったか */
@@ -277,6 +279,11 @@ export interface DocumentRecord {
   completions?: { what: string; source: SourceRef; bundleKey?: string; kind?: "done" | "corrected" }[];
   /** 前に本人が答えたことを当てはめたとき、その説明（例: 「前に教えてもらったので、結衣さんの書類にしました」） */
   learnedNotes?: string[];
+  /**
+   * この書類を家族の誰と共有するか（家族の ID）。空なら「共有しない（自分だけ）」、無ければ「まだ決めていない」。
+   * 🔴 配偶者だからといって自動で共有しない。登録のとき・書類の画面で、あなたが選ぶ
+   */
+  sharedWith?: string[];
 }
 
 export interface DocumentSummary {

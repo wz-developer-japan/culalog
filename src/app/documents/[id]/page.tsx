@@ -10,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { QuestionCard } from "@/components/QuestionCard";
 import { confirmDocument, openQuestions } from "@/lib/butler";
+import { ShareWith } from "@/components/ShareWith";
 import { answerAndLearn } from "@/lib/inbox";
 import { formatYmd, ruleDeadlines, untilOf } from "@/lib/deadlines";
 import { DEADLINE_KIND_LABELS, groupsOf } from "@/lib/labels";
@@ -324,6 +325,13 @@ export default function DocumentDetail() {
             </>
           )}
         </details>
+      )}
+
+      {!doc.notForFamily && (
+        <>
+          <h2>家族と共有</h2>
+          <ShareWith members={household.members} doc={doc} onChange={(sharedWith) => update({ ...doc, sharedWith })} />
+        </>
       )}
 
       {doc.storageLocation && (

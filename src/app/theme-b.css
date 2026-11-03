@@ -603,3 +603,11 @@ summary,
 .info-body {
   overflow-wrap: anywhere;
 }
+
+/* 家族の読みたい言葉（設定）・家族と共有（書類） */
+.row-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.row-label > span { white-space: nowrap; }
+.row-label .input { width: 13.5em; flex: none; }
+.share-with .check { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.share-with .link-button { margin-top: 8px; }
+details.fold.mine > summary { margin: 18px 0 8px; font-weight: 700; cursor: pointer; }
