@@ -39,6 +39,11 @@ async function step(name, fn) {
   await page.screenshot({ path: `${OUT}${String(results.length).padStart(2, "0")}.png`, fullPage: true }).catch(() => {});
 }
 const see = (text, timeout = 15000) => page.getByText(text).first().waitFor({ timeout });
+// 予定の画面の「執事から」は、初めの2件のあとを「あと○件」で畳んでいる。中まで確かめるときは開く
+const openFolds = async () => {
+  await page.locator("h2.sec.from").waitFor({ timeout: 15000 });
+  for (const s of await page.locator("details.fold:not([open]) > summary").all()) await s.click();
+};
 
 await step("最初の画面から架空の家族で始められる", async () => {
   await page.goto(BASE + "/");
@@ -46,14 +51,25 @@ await step("最初の画面から架空の家族で始められる", async () =>
   await see("架空の家族で試しています");
 });
 
-await step("トップに家族の丸（4人ともキャラクターのアイコン）とメニューがあり、予定の画面に執事のひとことと安全網がある", async () => {
+await step("トップに家族の丸（4人ともキャラクターのアイコン）とメニューがあり、予定の画面は 丸の行 → 向こう7日 → いちばん近い締切 → 執事から の順（件数のタイル・念のための欄は無い）", async () => {
   await page.locator(".fam a", { hasText: "みんな" }).waitFor({ timeout: 15000 });
   const faces = await page.locator(".fam a svg.face").count();
   if (faces !== 4) throw new Error(`家族の丸のキャラクターが ${faces} 人分です（4人分のはず）`);
   await page.locator(".menu a", { hasText: "予定" }).click();
   await page.waitForURL(/\/schedule$/, { timeout: 15000 });
-  await page.locator("h2", { hasText: "のひとこと" }).waitFor({ timeout: 15000 });
-  await page.locator("h2", { hasText: "期日が近いもの" }).waitFor({ timeout: 15000 });
+  await page.locator("h2.sec.from").waitFor({ timeout: 15000 });
+  if (await page.locator("h2:not(.from)", { hasText: /期日が近いもの|のひとこと/ }).count()) throw new Error("予定の画面に、まとめる前の見出しが残っています");
+  if (await page.locator(".bento .tile").count()) throw new Error("予定の画面に件数のタイルが残っています");
+  const order = await page.evaluate(() =>
+    [".fam", ".week", ".hero", "h2.sec.from"].map((s) => document.querySelector(s)?.getBoundingClientRect().top ?? -1),
+  );
+  if (order.some((y) => y < 0) || order.some((y, i) => i > 0 && y <= order[i - 1])) throw new Error(`予定の画面の並びが違います: ${order.join(",")}`);
+  // 人の切り替え: 蓮を押すと、同じ画面のまま ?who= で絞り込む
+  await page.locator(".fam a", { hasText: "蓮" }).click();
+  await page.waitForURL(/\/schedule\?who=m-son$/, { timeout: 15000 });
+  await page.locator(".fam a.on", { hasText: "蓮" }).waitFor({ timeout: 15000 });
+  await page.locator(".fam a", { hasText: "みんな" }).click();
+  await page.waitForURL(/\/schedule$/, { timeout: 15000 });
 });
 
 await step("Claude の答えでないものには「仮」と出ている（キーが無いとき）", async () => {
@@ -93,6 +109,18 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
 await step("書類の一覧に確定済みの書類がある", async () => {
   await page.goto(BASE + "/documents");
   await see("年間行事予定");
+  // 分類はアプリ全体で1系統の6語。チップは横1行（折り返さない）、カードは「題名・分類1つ・誰」
+  const chips = (await page.locator(".chips.scroll").first().locator(".chip").allInnerTexts()).map((t) => t.replace(/\d+$/, "").trim());
+  const six = ["すべて", "暮らし", "お金", "子どもと学校", "けがと病院", "契約", "手続き"];
+  if (chips.some((c) => !six.includes(c))) throw new Error(`分類のチップに6語以外があります: ${chips.join("・")}`);
+  const wraps = await page.locator(".chips.scroll").first().evaluate((el) => getComputedStyle(el).flexWrap);
+  if (wraps !== "nowrap") throw new Error("分類のチップが折り返しています");
+  if (/しまい場所/.test(await page.locator("main").innerText())) throw new Error("一覧のカードにしまい場所が出ています（詳しい画面へ）");
+  if (await page.getByRole("button", { name: "この端末のデータをすべて消す" }).count()) throw new Error("書類の画面に「データをすべて消す」が残っています（執事・設定の画面の末尾へ）");
+  await page.locator(".chips.scroll .chip", { hasText: "子どもと学校" }).click();
+  await see("年間行事予定");
+  if (/賃貸住宅/.test(await page.locator("main").innerText())) throw new Error("「子どもと学校」で絞っても賃貸住宅が出ています");
+  await page.locator(".chips.scroll .chip", { hasText: "すべて" }).click();
 });
 
 await step("執事に頼むと、原本の場所つきの答えか「書いていません」が返る", async () => {
@@ -141,7 +169,8 @@ await step("「覚えておいて」と話すと予定の案が出て、知ら�
 
 await step("頼んだことが予定の画面の報告に残る", async () => {
   await page.goto(BASE + "/schedule");
-  await page.locator("h2", { hasText: "からの報告" }).waitFor({ timeout: 15000 });
+  await openFolds();
+  await page.locator(".from-item .card", { hasText: "保険の条件と連絡先" }).first().waitFor({ timeout: 15000 });
 });
 
 await step("見本をまとめて渡すと、受け取り箱で順番に読まれ、まとめて確定できる", async () => {
@@ -156,7 +185,9 @@ await step("見本をまとめて渡すと、受け取り箱で順番に読ま�
 
 await step("学年だより・案内プリントの授業参観に、執事が「見に行きますか？」と聞く →「行く」で有給の申請の締切が予定に入る（行くと決めつけない）", async () => {
   await page.goto(BASE + "/schedule");
-  await page.locator("h2", { hasText: "気づいたこと" }).waitFor({ timeout: 15000 });
+  await page.locator("h2.sec.from").waitFor({ timeout: 15000 });
+  // 「見に行きますか？」は、返事を待つので畳まない
+  await page.locator(".from-item > .card.insight").filter({ hasText: /見に行きますか/ }).first().waitFor({ timeout: 15000 });
   const body = await page.locator("main").innerText();
   if (/土日も勤務/.test(body)) throw new Error("「土日も勤務がある」の前提が残っています");
   const cards = page.locator(".card.insight").filter({ hasText: /授業参観[\s\S]*見に行きますか/ });
@@ -195,7 +226,7 @@ await step("写真の見本をまとめて渡しても、予定の画面のひ�
   await page.getByRole("button", { name: /まとめて確定する/ }).click();
   await see("件を確定しました");
   await page.goto(BASE + "/schedule");
-  await page.locator("h2", { hasText: "のひとこと" }).waitFor({ timeout: 15000 });
+  await openFolds();
   const n = await page.locator(".briefing-item").count();
   if (n > 3) throw new Error(`ひとことが${n}件あります`);
 });
@@ -307,6 +338,7 @@ await step("こんなとき: けが・引っ越し・補償の重なりを、書
   if (await page.locator(".case-links").count()) throw new Error("トップの真ん中に「こんなとき」が残っています");
   if (!(await page.locator(".foot-links a", { hasText: "こんなときは？" }).count())) throw new Error("トップの下に「こんなときは？」の入口がありません");
   await page.goto(BASE + "/schedule");
+  await openFolds();
   const overlapCard = page.locator(".card.insight").filter({ hasText: "「個人賠償責任」が3つの書類にあります" });
   await overlapCard.first().waitFor({ timeout: 15000 });
   await overlapCard.first().getByRole("link", { name: "原本の行を並べて見る" }).click();

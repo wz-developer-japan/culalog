@@ -48,3 +48,35 @@ export const RELATION_LABELS: Record<import("./types").Relation, string> = {
   sibling: "きょうだい",
   other: "そのほか",
 };
+
+/**
+ * 画面に出す分類の言葉（アプリ全体で1系統・6語）。読み取りの種類（13種・DocumentCategory）はそのまま残し、
+ * 見せるときにこの6語へ写す。1つの書類が2つの分類に出ることがある（賃貸は「暮らし」と「契約」など）。
+ * 書類の中身を判断するものではなく、一覧で探しやすくするための並べ方。
+ */
+export const GROUPS = ["暮らし", "お金", "子どもと学校", "けがと病院", "契約", "手続き"] as const;
+export type Group = (typeof GROUPS)[number];
+
+/** 13種 → 6語の写し（先頭がカードに出す分類） */
+export const CATEGORY_GROUPS: Record<DocumentCategory, Group[]> = {
+  school: ["子どもと学校"],
+  childcare: ["子どもと学校"],
+  housing: ["暮らし", "契約"],
+  insurance: ["契約", "お金", "けがと病院"],
+  vehicle: ["手続き", "暮らし"],
+  medical_card: ["けがと病院", "手続き"],
+  care: ["手続き", "けがと病院"],
+  license: ["手続き"],
+  subscription: ["契約", "お金"],
+  work: ["手続き", "お金"],
+  community: ["暮らし"],
+  medical: ["けがと病院"],
+  other: ["暮らし"],
+};
+
+/** 書類の分類（先頭が主）。題名・種類に お金の言葉（税・納付・請求・料金・給付・手当・年金・口座）があれば「お金」も足す */
+export function groupsOf(doc: { category: DocumentCategory; title?: string; docType?: string }): Group[] {
+  const groups = [...CATEGORY_GROUPS[doc.category]];
+  if (!groups.includes("お金") && /税|納付|請求|料金|給付|手当|年金|口座|支払/.test(`${doc.title ?? ""} ${doc.docType ?? ""}`)) groups.push("お金");
+  return groups;
+}

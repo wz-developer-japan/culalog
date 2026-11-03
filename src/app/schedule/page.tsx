@@ -1,14 +1,18 @@
 "use client";
 
-// 予定（トップのメニュー「予定」の中身）。いちばん近い締切の大きなカード・件数のタイル・執事のひとこと・
-// 念のための欄・報告・気づいたこと。ここには大事なものだけを出し、すべての予定は /schedule/all にいつでも全部ある。
+// 予定（トップのメニュー「予定」の中身）。主役は「いちばん近い締切」の大きなカード1枚。
+// 並び: 家族の丸（?who= で絞る）→ 向こう7日 → いちばん近い締切 → 執事から（ひとこと・期日が近いもの・報告・気づいたことを1か所に。
+// 初めの2件だけ見せて残りは畳む。「見に行きますか？」など、あなたの返事を待つものは畳まない）→ すべての予定を見る。
+// 仕組みの説明は ⓘ の中。すべての予定は /schedule/all にいつでも全部ある。
 
 import Link from "next/link";
 import { now } from "@/lib/clock";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type ReactNode, Suspense, useEffect } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
 import { BackToTop } from "@/components/BackToTop";
+import { FamilyRow } from "@/components/FamilyRow";
+import { Info, ProvisionalTag } from "@/components/Info";
 import { DeadlineCard, shortDate, Source } from "@/components/DeadlineCard";
 import { InsightCard } from "@/components/InsightCard";
 import { WeekStrip } from "@/components/WeekStrip";
@@ -27,16 +31,17 @@ import {
 import { butlerName, characterOf } from "@/lib/character";
 import { adoptInsight, answerInsight } from "@/lib/connect";
 import { overlapCase } from "@/lib/cases";
-import { allItems, isDone } from "@/lib/deadlines";
 import { inboxProgress } from "@/lib/inbox";
 import type { Household } from "@/lib/types";
 import { markAskSeen, pendingAsks, unseenReports } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
 import { useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
+import { givenName, isFor, type Whose } from "@/lib/whose";
 
-export default function Schedule() {
+function ScheduleBody() {
   const router = useRouter();
+  const params = useSearchParams();
   const { household, loaded, save, update } = useHousehold();
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
   const { result: connect, status } = useConnect(household, update);
@@ -59,7 +64,11 @@ export default function Schedule() {
 
   const today = now();
   const h = household as Household;
-  const candidates = buildCandidates(h, today);
+  // 人の切り替え: ?who=（みんな／家族の ID）。家族にいない ID はみんなに戻す
+  const whoParam = params.get("who");
+  const who: Whose = whoParam && h.members.some((m) => m.id === whoParam) ? whoParam : "all";
+  const all = buildCandidates(h, today);
+  const candidates = all.filter((c) => isFor(who, c.memberIds));
   // Claude が選んだひとこと。Claude の準備中・つながらないときは、コードで期日の近い順に並べた仮のもの
   const isFollowUp = (c: Candidate) => followUpToday(h, c, today);
   const fromClaude = connect?.source === "claude" ? claudeBriefing(connect.briefing, candidates, isFollowUp) : null;
@@ -69,12 +78,16 @@ export default function Schedule() {
       ? fromClaude
       : provisionalBriefing(candidates, 3, isFollowUp);
   const answers = h.insightAnswers ?? {};
-  const insights = (connect?.insights ?? []).filter((i) => !answers[i.key]);
+  const byId = new Map(all.map((c) => [c.id, c]));
+  const docMembers = (id: string) => h.documents.find((d) => d.id === id)?.memberIds ?? [];
+  const insights = (connect?.insights ?? [])
+    .filter((i) => !answers[i.key])
+    .filter((i) => who === "all" || isFor(who, (i.deadlineId && byId.get(i.deadlineId)?.memberIds) || []) || i.evidence.some((e) => docMembers(e.documentId).includes(who)));
   // 保険の補償の重なりは、いま確定している書類で実際に見つかったときだけ気づきに出す（見つからなければ出さない）
   const overlap = overlapCase(h);
   const overlapKey = `overlap:${overlap.groups.map((g) => `${g.title}=${g.docs.map((d) => d.doc.id).join(",")}`).join("|")}`;
-  const showOverlap = overlap.groups.length > 0 && !answers[overlapKey];
-  // いちばん近い締切（期限切れがあればそれ）を、上の大きなカードに。ひとこと・念のための欄には同じものを出さない
+  const showOverlap = who === "all" && overlap.groups.length > 0 && !answers[overlapKey];
+  // いちばん近い締切（期限切れがあればそれ）を、上の大きなカードに。執事からの欄には同じものを出さない
   const nearest = candidates.filter((c) => c.type === "deadline" && c.card && !(c.daysLeft < 0 && !c.overdue)).sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.daysLeft - b.daysLeft)[0];
   const net = safetyNet(candidates, briefing).filter((c) => c.id !== nearest?.id);
   const briefingItems = briefing.items.filter((item) => item.candidateId !== nearest?.id);
@@ -82,29 +95,116 @@ export default function Schedule() {
   const unconfirmed = h.documents.filter((d) => !d.confirmedAt);
   const progress = inboxProgress(h);
   const reading = progress.waiting + progress.needsKey;
-  const reports = unseenReports(h);
-  const pending = pendingAsks(h);
-  const byId = new Map(candidates.map((c) => [c.id, c]));
+  const reports = who === "all" ? unseenReports(h) : [];
+  const pending = who === "all" ? pendingAsks(h) : [];
   const sampleFor = (candidateId: string) =>
     candidateId.startsWith("missing:")
       ? h.demoSamples?.find((x) => x.expectedId === candidateId.slice("missing:".length))
       : undefined;
-  // 件数: 今月の締切（済んでいないもの）・預かった書類
-  const ym = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-  const thisMonth = allItems(h, today).filter(
-    (i) => i.deadline.date.startsWith(ym) && i.deadline.kind !== "after_event" && !i.deadline.awareness && !isDone(h.done, i),
-  ).length;
 
   const done = (id: string) => save(toggleDone(h, id));
   const character = characterOf(h);
   const name = butlerName(h);
-  const empty = h.documents.length === 0 && candidates.length === 0;
+  const empty = h.documents.length === 0 && all.length === 0;
+  const provisional = briefing.source === "provisional" || ((insights.length > 0) && connect?.source !== "claude");
+
+  // 執事から: あなたの返事を待つもの（畳まない）と、知らせるもの（初めの2件だけ見せて、残りは畳む）
+  const waiting: { key: string; node: ReactNode }[] = [];
+  const telling: { key: string; node: ReactNode }[] = [];
+  pending.forEach((a) => waiting.push({ key: a.id, node: <AskAnswer record={a} butler={name} compact /> }));
+  if (questions.length > 0)
+    waiting.push({
+      key: "questions",
+      node: (
+        <Link className="ask" href="/questions">
+          <svg className="l" viewBox="0 0 24 24" aria-hidden>
+            <path d="M5 5h14v10H9l-4 4z" />
+          </svg>
+          <div className="t">
+            {name}から聞きたいことが{questions.length < 10 ? `${questions.length}つ` : `${questions.length}件`}
+          </div>
+          <span className="go">答える</span>
+        </Link>
+      ),
+    });
+  if (reading > 0 || unconfirmed.length > 0)
+    waiting.push({
+      key: "inbox",
+      node: (
+        <Link className="ask soft" href="/inbox">
+          <svg className="l" viewBox="0 0 24 24" aria-hidden>
+            <path d="M6 3h9l3 3v15H6z" />
+            <path d="M9 11h6M9 15h6" />
+          </svg>
+          <div className="t">
+            {reading > 0
+              ? `${name}が読んでいます: ${progress.done + progress.duplicate + progress.failed} / ${progress.total}件`
+              : `読み終わりました: 確認待ち ${unconfirmed.length}件`}
+            {reading > 0 && unconfirmed.length > 0 && <span className="block meta">確認待ち {unconfirmed.length}件</span>}
+            {progress.pausedUntil && reading > 0 && <span className="block meta">回数の上限に当たったので、少しおいて続きを読みます</span>}
+          </div>
+          <span className="go">まとめて確認</span>
+        </Link>
+      ),
+    });
+  const insightCard = (i: (typeof insights)[number]) => (
+    <InsightCard
+      insight={i}
+      rules={h.rules ?? []}
+      provisional={connect?.source !== "claude"}
+      onAdopt={() => update((current) => adoptInsight(current, i))}
+      onAnswer={(answer) => update((current) => answerInsight(current, i, answer))}
+    />
+  );
+  // 「見に行きますか？」（行事に行くかで決まるもの）は、返事を待つので畳まない
+  insights.filter((i) => i.kind === "apply_rule").forEach((i) => waiting.push({ key: i.key, node: insightCard(i) }));
+  briefingItems.forEach((item) => {
+    const c = byId.get(item.candidateId);
+    if (c)
+      telling.push({
+        key: item.candidateId,
+        node: <DeadlineCard c={c} item={item} voice={briefing.source === "claude" ? item.text : undefined} sample={sampleFor(c.id)} onDone={done} />,
+      });
+  });
+  net.forEach((c) => telling.push({ key: c.id, node: <DeadlineCard c={c} hot sample={sampleFor(c.id)} onDone={done} /> }));
+  if (showOverlap)
+    telling.push({
+      key: "overlap",
+      node: (
+        <div className="card insight">
+          <div className="insight-text">
+            書類を見比べたら、{overlap.groups.map((g) => g.title).join("。")}。同じ種類の補償が重なっているかもしれません。
+          </div>
+          <div className="meta">{overlap.groups[0].note}</div>
+          <div className="row-actions">
+            <Link className="button small" href="/cases?s=overlap" style={{ textDecoration: "none" }}>
+              原本の行を並べて見る
+            </Link>
+            <button
+              className="button small secondary"
+              onClick={() => update((current) => ({ ...current, insightAnswers: { ...(current.insightAnswers ?? {}), [overlapKey]: "seen" } }))}
+            >
+              わかった
+            </button>
+          </div>
+        </div>
+      ),
+    });
+  insights.filter((i) => i.kind !== "apply_rule").forEach((i) => telling.push({ key: i.key, node: insightCard(i) }));
+  reports.forEach((a) =>
+    telling.push({ key: a.id, node: <AskAnswer record={a} butler={name} compact onSeen={() => update((current) => markAskSeen(current, a.id))} /> }),
+  );
+  const SHOWN = 2;
+  const shown = telling.slice(0, SHOWN);
+  const folded = telling.slice(SHOWN);
+  const whoName = who === "all" ? undefined : givenName(h.members.find((m) => m.id === who)?.name ?? "");
 
   return (
     <main className="home">
       <BackToTop />
       <h1 className="pt">予定</h1>
-      {!(h.documents.length === 0 && candidates.length === 0) && <WeekStrip household={h} today={today} />}
+      {!empty && <FamilyRow members={h.members} current={who} hrefFor={(w) => (w === "all" ? "/schedule" : `/schedule?who=${w}`)} />}
+      {!empty && <WeekStrip household={h} today={today} who={who} />}
 
       {empty ? (
         <div className="empty">
@@ -123,13 +223,13 @@ export default function Schedule() {
         <div className={`hero${nearest.overdue ? " over" : ""}`}>
           <div className="ring">
             <svg viewBox="0 0 36 36" aria-hidden>
-              <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,.3)" strokeWidth="3" />
+              <circle cx="18" cy="18" r="15.5" fill="none" style={{ stroke: "color-mix(in srgb, var(--on-color) 30%, transparent)" }} strokeWidth="3" />
               <circle
                 cx="18"
                 cy="18"
                 r="15.5"
                 fill="none"
-                stroke="#fff"
+                style={{ stroke: "var(--on-color)" }}
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeDasharray={`${Math.round(97.4 * Math.min(1, Math.max(0.06, nearest.overdue ? 1 : nearest.card.leadDays > 0 ? 1 - nearest.daysLeft / nearest.card.leadDays : 1)))} 97.4`}
@@ -179,169 +279,69 @@ export default function Schedule() {
             <Pic kind={nearest.card.category} size={58} />
           </div>
         </div>
+      ) : whoName ? (
+        <div className="calm-line">{whoName}さんの締切は、いまはありません。</div>
       ) : null}
 
       {!empty && (
-        <div className="bento">
-          <Link className="tile" href="/schedule/all">
-            <div className="k">今月の締切</div>
-            <div className="v">
-              {thisMonth}
-              <small> 件</small>
-            </div>
-          </Link>
-          <Link className="tile" href="/documents">
-            <div className="k">預かった書類</div>
-            <div className="v">
-              {h.documents.length}
-              <small> 通</small>
-            </div>
-          </Link>
-          {questions.length > 0 && (
-            <Link className="ask" href="/questions">
-              <svg className="l" viewBox="0 0 24 24" aria-hidden>
-                <path d="M5 5h14v10H9l-4 4z" />
-              </svg>
-              <div className="t">
-                {name}から聞きたいことが{questions.length < 10 ? `${questions.length}つ` : `${questions.length}件`}
-                <span className="block meta">{character.asking}</span>
-              </div>
-              <span className="go">答える</span>
-            </Link>
-          )}
-          {(reading > 0 || unconfirmed.length > 0) && (
-            <Link className="ask soft" href="/inbox">
-              <svg className="l" viewBox="0 0 24 24" aria-hidden>
-                <path d="M6 3h9l3 3v15H6z" />
-                <path d="M9 11h6M9 15h6" />
-              </svg>
-              <div className="t">
-                {reading > 0
-                  ? `${name}が読んでいます: ${progress.done + progress.duplicate + progress.failed} / ${progress.total}件`
-                  : `読み終わりました: 確認待ち ${unconfirmed.length}件`}
-                {reading > 0 && unconfirmed.length > 0 && <span className="block meta">確認待ち {unconfirmed.length}件</span>}
-                {progress.pausedUntil && reading > 0 && <span className="block meta">読み取りの回数の上限に当たったので、少し時間をおいて続きを読みます</span>}
-              </div>
-              <span className="go">まとめて確認</span>
-            </Link>
-          )}
-        </div>
-      )}
-
-      <h2 className="sec">
-        {name}のひとこと
-        <Link href="/schedule/all" className="more">
-          すべて見る
-        </Link>
-      </h2>
-      {status === "thinking" && <div className="meta thinking">{name}が、書類とわが家のきまりを見ています…</div>}
-      {briefingItems.length === 0 ? (
-        <div className="calm-line">{nearest ? "いちばん近いものは、上の大きなカードに出しています。" : character.calm}</div>
-      ) : (
-        briefingItems.map((item) => {
-          const c = byId.get(item.candidateId);
-          return c ? (
-            <DeadlineCard
-              key={item.candidateId}
-              c={c}
-              item={item}
-              voice={briefing.source === "claude" ? item.text : undefined}
-              sample={sampleFor(c.id)}
-              onDone={done}
-            />
-          ) : null;
-        })
-      )}
-      <p className="meta provisional">
-        {briefing.source === "provisional" ? (
-          <>
-            仮のひとこと: 執事（Claude）
-            {connect?.source === "claude"
-              ? "の選んだものが書類と照らし合わせて合わなかった"
-              : status === "error"
-                ? "につながらなかった"
-                : "の準備中の"}
-            ため、期日の近い順に並べています。話し方は選んだ執事に合わせていますが、中身はコードで作っています。
-          </>
-        ) : (
-          <>
-            執事（Claude）が、書類とわが家のきまりを見て選びました。日付・原本の場所は、コードで書類と照らし合わせています。
-            {connect && connect.dropped > 0 && ` 照らし合わせで合わなかった${connect.dropped}件は出していません。`}
-          </>
-        )}
-      </p>
-
-      <h2 className="sec">期日が近いもの（念のため）</h2>
-      {net.length === 0 ? (
-        <div className="calm-line">
-          {candidates.some((c) => c.urgent)
-            ? "3日以内の締切・期限切れのものは、上のひとことにすべて入っています。"
-            : "3日以内の締切・期限切れのものはありません。"}
-        </div>
-      ) : (
-        net.map((c: Candidate) => <DeadlineCard key={c.id} c={c} hot sample={sampleFor(c.id)} onDone={done} />)
-      )}
-
-      {(reports.length > 0 || pending.length > 0) && (
         <>
-          <h2 className="sec">{name}からの報告</h2>
-          {pending.map((a) => (
-            <AskAnswer key={a.id} record={a} butler={name} compact />
+          <h2 className="sec from">
+            {name}から
+            {provisional && <ProvisionalTag />}
+            <Info label="この欄について">
+              {briefing.source === "provisional" ? (
+                <>
+                  仮のひとこと: 執事（Claude）
+                  {connect?.source === "claude"
+                    ? "の選んだものが書類と照らし合わせて合わなかった"
+                    : status === "error"
+                      ? "につながらなかった"
+                      : "の準備中の"}
+                  ため、期日の近い順に並べています。話し方は選んだ執事に合わせていますが、中身はコードで作っています。
+                </>
+              ) : (
+                <>
+                  執事（Claude）が、書類とわが家のきまりを見て選びました。日付・原本の場所は、コードで書類と照らし合わせています。
+                  {connect && connect.dropped > 0 && ` 照らし合わせで合わなかった${connect.dropped}件は出していません。`}
+                </>
+              )}
+              {connect?.source !== "claude" &&
+                " 気づいたことも仮のもので、新旧の書類の日付の違いはコードで比べています。デモの家族では、学年だより・案内プリントの授業参観に「行きますか？」と聞く例も出しています。"}
+              {" 3日以内の締切・期限切れのものは、選ばれなくてもこの欄に必ず出します。"}
+            </Info>
+          </h2>
+          {status === "thinking" && <div className="meta thinking">{name}が、書類とわが家のきまりを見ています…</div>}
+          {waiting.map((x) => (
+            <div key={x.key} className="from-item">{x.node}</div>
           ))}
-          {reports.slice(0, 3).map((a) => (
-            <AskAnswer key={a.id} record={a} butler={name} compact onSeen={() => update((current) => markAskSeen(current, a.id))} />
+          {shown.map((x) => (
+            <div key={x.key} className="from-item">{x.node}</div>
           ))}
-          {reports.length > 3 && (
-            <p className="meta">
-              ほか{reports.length - 3}件の報告は<Link href="/ask">聞く画面</Link>に。
-            </p>
+          {waiting.length + shown.length === 0 && (
+            <div className="calm-line">{nearest ? "いちばん近いものは、上の大きなカードに出しています。" : character.calm}</div>
+          )}
+          {folded.length > 0 && (
+            <details className="fold">
+              <summary>あと{folded.length}件</summary>
+              {folded.map((x) => (
+                <div key={x.key} className="from-item">{x.node}</div>
+              ))}
+            </details>
           )}
         </>
       )}
 
-      {(insights.length > 0 || showOverlap) && (
-        <>
-          <h2 className="sec">{name}が気づいたこと</h2>
-          {showOverlap && (
-            <div className="card insight">
-              <div className="insight-text">
-                書類を見比べたら、{overlap.groups.map((g) => g.title).join("。")}。同じ種類の補償が重なっているかもしれません。
-              </div>
-              <div className="meta">{overlap.groups[0].note}</div>
-              <div className="row-actions">
-                <Link className="button small" href="/cases?s=overlap" style={{ textDecoration: "none" }}>
-                  原本の行を並べて見る
-                </Link>
-                <button
-                  className="button small secondary"
-                  onClick={() => update((current) => ({ ...current, insightAnswers: { ...(current.insightAnswers ?? {}), [overlapKey]: "seen" } }))}
-                >
-                  わかった
-                </button>
-              </div>
-            </div>
-          )}
-          {insights.map((i) => (
-            <InsightCard
-              key={i.key}
-              insight={i}
-              rules={h.rules ?? []}
-              provisional={connect?.source !== "claude"}
-              onAdopt={() => update((current) => adoptInsight(current, i))}
-              onAnswer={(answer) => update((current) => answerInsight(current, i, answer))}
-            />
-          ))}
-          {connect?.source !== "claude" && (
-            <p className="meta">
-              仮の気づき: 執事（Claude）の準備中のため、新旧の書類の日付の違いはコードで比べています。デモの家族では、学年だより・案内プリントの授業参観に「行きますか？」と聞く例も出しています。
-            </p>
-          )}
-        </>
-      )}
-
-      <Link className="button secondary" href="/schedule/all" style={{ textAlign: "center", textDecoration: "none", marginTop: 24 }}>
-        すべての予定を見る（済んだもの・知っておくだけのものも）
+      <Link className="button secondary" href={who === "all" ? "/schedule/all" : `/family/${who}`} style={{ textAlign: "center", textDecoration: "none", marginTop: 24 }}>
+        {who === "all" ? "すべての予定を見る" : `${whoName}さんの予定と書類をすべて見る`}
       </Link>
     </main>
+  );
+}
+
+export default function Schedule() {
+  return (
+    <Suspense fallback={<main />}>
+      <ScheduleBody />
+    </Suspense>
   );
 }

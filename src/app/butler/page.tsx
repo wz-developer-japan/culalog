@@ -15,7 +15,7 @@ import { VoiceSettings } from "@/components/VoiceSettings";
 
 export default function ButlerSettingsPage() {
   const router = useRouter();
-  const { household, loaded, save } = useHousehold();
+  const { household, loaded, save, clear } = useHousehold();
   const [character, setCharacter] = useState<CharacterId | null>(null);
   const [name, setName] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -102,6 +102,20 @@ export default function ButlerSettingsPage() {
       )}
 
       <VoiceSettings />
+
+      <h2>この端末のデータ</h2>
+      <p className="meta">書類・覚えたこと・設定は、この端末の中にだけ保存しています。</p>
+      <button
+        className="button secondary danger"
+        onClick={async () => {
+          if (confirm("この端末に保存したデータをすべて消しますか？")) {
+            await clear();
+            router.push("/");
+          }
+        }}
+      >
+        この端末のデータをすべて消す
+      </button>
     </main>
   );
 }

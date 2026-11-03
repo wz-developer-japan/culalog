@@ -5,15 +5,19 @@
 
 import Link from "next/link";
 import { addDays, type ActionItem, allItems, isDone, toYmd } from "@/lib/deadlines";
-import { givenName } from "@/lib/whose";
+import { givenName, isFor, ownersOf, type Whose } from "@/lib/whose";
 import type { Household } from "@/lib/types";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 /** その日に当たる予定（期間のものは、期間の中の日すべて） */
-export function weekDays(h: Household, today: Date): { ymd: string; date: Date; items: ActionItem[] }[] {
+export function weekDays(h: Household, today: Date, who: Whose = "all"): { ymd: string; date: Date; items: ActionItem[] }[] {
   const items = allItems(h, today).filter(
-    (i) => i.deadline.kind !== "after_event" && !i.deadline.awareness && !isDone(h.done, i),
+    (i) =>
+      i.deadline.kind !== "after_event" &&
+      !i.deadline.awareness &&
+      !isDone(h.done, i) &&
+      isFor(who, ownersOf(i.deadline, i.document), i.document.notForFamily),
   );
   return Array.from({ length: 7 }, (_, n) => {
     const date = addDays(today, n);
@@ -30,8 +34,8 @@ export function weekDays(h: Household, today: Date): { ymd: string; date: Date; 
 /** すべての予定の画面で、その日の予定へ飛ぶための印 */
 export const dayAnchor = (ymd: string) => `day-${ymd}`;
 
-export function WeekStrip({ household, today }: { household: Household; today: Date }) {
-  const days = weekDays(household, today);
+export function WeekStrip({ household, today, who = "all" }: { household: Household; today: Date; who?: Whose }) {
+  const days = weekDays(household, today, who);
   const nameOf = (id: string) => givenName(household.members.find((m) => m.id === id)?.name ?? "");
   return (
     <section className="week" aria-label="向こう7日の予定">

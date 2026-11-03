@@ -195,7 +195,7 @@ function ScanPage() {
 
       {photos.length > 0 && (
         <>
-          <h2>写真の見本で「まとめて渡す」を試す</h2>
+          <h2 id="photo-samples">写真の見本で「まとめて渡す」を試す</h2>
           <p className="meta">
             保育園の連絡アプリのスクショ・横向きのスキャン・何ページもある契約書・壁に貼った勤務カレンダーなど、架空の書類 {photos.length}件です。
             {photoDay}に撮った想定の日付なので、開いた日によっては過ぎた予定もあります。

@@ -1,3 +1,6 @@
+/* 🎨 見た目のトークン: 色・角丸・影・書体・余白はここに集める（あとで丸ごと着せ替えられるように）。
+   下の各所では直書きの色・角丸を使わず、var(--…) で参照する。挿絵の色は components/Pics.tsx の C に、
+   家族・執事の絵の色は MemberFace.tsx・ButlerFace.tsx・lib/memberMark.ts に集めてある */
 :root {
   /* クラログのオレンジ。背景は白で固定（スマホがダークモードでも暗くしない）。
      塗り（ボタン・大きなカード）は明るいオレンジ、文字のオレンジは白地で読める濃さにする */
@@ -29,6 +32,28 @@
   --display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif;
   --body: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", sans-serif;
   --shadow: 0 2px 12px rgba(80, 40, 10, 0.07);
+  --on-color: #ffffff; /* 色の付いた面の上の文字・縁 */
+  --alert-2: #ef7f6e; /* 期限切れの大きなカードのグラデーションの明るい側 */
+  --border-strong: #e9e2d8;
+  /* 原本の行を光らせる蛍光ペン */
+  --mark-bg: #fff1a8;
+  --mark: #ffd84d;
+  --mark-ink: #e0b400;
+  --scrim-soft: rgba(0, 0, 0, 0.08);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
+  /* 角丸（見た目の作り直しでは、ここを変えれば全体が変わる） */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  /* 余白 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
 }
 
 * {
@@ -73,7 +98,7 @@ h2 {
 .card {
   background: var(--surface);
   border: 1px solid transparent;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 14px;
   margin-bottom: 10px;
   box-shadow: var(--shadow);
@@ -123,13 +148,13 @@ h2 {
   width: 100%;
   padding: 14px;
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--accent-2), var(--accent));
   color: var(--accent-text);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(232, 102, 42, 0.25);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 .button.secondary {
@@ -163,7 +188,7 @@ a {
   margin-top: 4px;
   padding: 11px 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   color: var(--text);
   font-size: 1rem; /* 16px 未満だと iPhone で入力時に拡大される */
@@ -182,7 +207,7 @@ a {
   min-height: 36px;
   padding: 6px 12px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--soft);
   font-size: 0.9rem;
   font-family: inherit;
@@ -222,7 +247,7 @@ a {
   display: inline-block;
   margin-left: 6px;
   padding: 0 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--note-bg);
   color: var(--note);
   font-size: 0.8rem;
@@ -238,7 +263,7 @@ a {
   margin-top: 24px;
   background: var(--soft);
   border: none;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 12px 14px;
 }
 
@@ -269,7 +294,7 @@ a {
   width: 100%;
   height: auto;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin: 8px 0;
 }
 
@@ -294,7 +319,7 @@ textarea.input {
   padding: 8px 10px;
   border-left: 3px solid var(--accent);
   background: var(--bg);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 button.chip {
@@ -384,7 +409,7 @@ button.chip {
   font-size: 0.9rem;
   color: var(--accent);
   border: 1px solid var(--accent);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 1px 8px;
   margin-bottom: 4px;
 }
@@ -487,7 +512,7 @@ button.chip {
   white-space: pre-wrap;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 12px;
   margin-top: 8px;
   font-size: 0.95rem;
@@ -495,15 +520,15 @@ button.chip {
 }
 
 .original-text mark {
-  background: #fff1a8;
-  color: #2b2420;
-  border-radius: 3px;
+  background: var(--mark-bg);
+  color: var(--text);
+  border-radius: var(--radius-xs);
   padding: 0 1px;
 }
 
 .original-text mark.flash {
-  background: #ffd84d;
-  outline: 3px solid #e0b400;
+  background: var(--mark);
+  outline: 3px solid var(--mark-ink);
   transition: background 0.3s;
 }
 
@@ -531,12 +556,12 @@ button.chip {
   width: 1.6em;
   height: 1.6em;
   border-radius: 50%;
-  color: #ffffff;
+  color: var(--on-color);
   font-size: 0.85em;
   font-weight: 700;
   margin-right: 6px;
   vertical-align: middle;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--on-color);
 }
 
 .reserve {
@@ -559,7 +584,7 @@ button.chip {
   margin: 6px 0;
   padding: 6px 10px;
   background: var(--surface);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-weight: 700;
 }
 
@@ -584,14 +609,14 @@ button.chip {
   gap: 6px;
   padding: 28px 16px;
   margin: 12px 0;
-  border: 2px dashed var(--accent, #c2410c);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.6);
+  border: 2px dashed var(--accent, var(--accent-ink));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--on-color) 60%, transparent);
   text-align: center;
   cursor: pointer;
 }
 .dropzone.dragging {
-  background: rgba(234, 88, 12, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 .dropzone input {
   position: absolute;
@@ -608,15 +633,15 @@ button.chip {
 }
 .progress {
   height: 10px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-pill);
+  background: var(--scrim-soft);
   overflow: hidden;
   margin: 8px 0;
 }
 .progress span {
   display: block;
   height: 100%;
-  background: var(--accent, #c2410c);
+  background: var(--accent, var(--accent-ink));
   transition: width 0.3s;
 }
 .card.bulk {
@@ -648,22 +673,22 @@ button.chip {
   height: 72px;
   object-fit: cover;
   object-position: top;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--scrim-soft);
   flex: none;
-  background: #fff;
+  background: var(--surface);
 }
 .learned {
-  color: #15803d;
+  color: var(--ok);
 }
 .warn-text {
-  color: #b91c1c;
+  color: var(--alert);
 }
 .sticky-actions {
   position: sticky;
   bottom: 84px;
   padding: 10px 0;
-  background: linear-gradient(transparent, var(--bg, #ffffff) 30%);
+  background: linear-gradient(transparent, var(--bg) 30%);
 }
 .question-corner .chip {
   font-size: 1.05rem;
@@ -783,7 +808,7 @@ svg.l {
 /* いちばん近い締切 */
 .hero {
   margin-top: 12px;
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   padding: 16px;
   display: flex;
   gap: 14px;
@@ -792,11 +817,11 @@ svg.l {
   background: linear-gradient(135deg, var(--accent-2), var(--accent));
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 22px rgba(232, 102, 42, 0.25);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .hero.over {
-  background: linear-gradient(135deg, #ef7f6e, var(--alert));
-  box-shadow: 0 8px 22px rgba(210, 69, 47, 0.25);
+  background: linear-gradient(135deg, var(--alert-2), var(--alert));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--alert) 25%, transparent);
 }
 .hero::after {
   content: "";
@@ -806,7 +831,7 @@ svg.l {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--on-color) 12%, transparent);
 }
 .ring {
   width: 78px;
@@ -864,7 +889,7 @@ svg.l {
 }
 .hero .tag.src {
   color: var(--accent-text);
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: color-mix(in srgb, var(--on-color) 60%, transparent);
 }
 .hero .src-detail {
   color: var(--accent-text);
@@ -891,7 +916,7 @@ svg.l {
 }
 .tile {
   background: var(--soft);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 12px;
   color: inherit;
   text-decoration: none;
@@ -917,7 +942,7 @@ svg.l {
   gap: 10px;
   align-items: center;
   background: var(--accent-soft);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 10px 12px;
   color: inherit;
   text-decoration: none;
@@ -947,7 +972,7 @@ svg.l {
   font-weight: 700;
   color: var(--accent-text);
   background: var(--accent);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 4px 12px;
   white-space: nowrap;
 }
@@ -974,7 +999,7 @@ h2.sec .more {
 /* 締切のカード */
 .dcard {
   background: var(--surface);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 12px;
   display: flex;
   gap: 12px;
@@ -993,7 +1018,7 @@ a.dcard {
   width: 46px;
   height: 46px;
   flex: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--soft);
   display: grid;
   place-items: center;
@@ -1055,7 +1080,7 @@ button.sub.clamp {
   font-size: 0.72rem;
   font-weight: 500;
   padding: 1px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   white-space: nowrap;
   background: var(--soft);
   color: var(--muted);
@@ -1081,7 +1106,7 @@ button.sub.clamp {
 .tag.src {
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0 6px;
 }
 .tag.src svg {
@@ -1172,7 +1197,7 @@ main.start .button.secondary {
   max-width: 480px;
   margin: 0 auto;
   padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, 0.88);
+  background: color-mix(in srgb, var(--on-color) 88%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid var(--border);
@@ -1200,13 +1225,13 @@ body[data-start] .tabbar {
 .fab {
   width: 56px;
   height: 56px;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   display: grid;
   place-items: center;
   margin-top: -28px;
   color: var(--accent-text);
   background: linear-gradient(135deg, var(--accent-2), var(--accent));
-  box-shadow: 0 8px 18px rgba(232, 102, 42, 0.35);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .fab svg {
   width: 26px;
@@ -1260,7 +1285,7 @@ h1.pt {
   bottom: 0;
   width: 40px;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff 70%);
+  background: linear-gradient(90deg, transparent, var(--surface) 70%);
 }
 .fam a {
   display: flex;
@@ -1281,7 +1306,7 @@ h1.pt {
   place-items: center;
   font-family: var(--display);
   font-size: 1.1rem;
-  color: #fff;
+  color: var(--on-color);
   background: var(--muted);
 }
 .fam b.house {
@@ -1302,7 +1327,7 @@ h1.pt {
 /* いちばん近い締切の小さなカード */
 .mini {
   margin-top: 6px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -1310,11 +1335,11 @@ h1.pt {
   color: var(--accent-text);
   background: linear-gradient(135deg, var(--accent-2), var(--accent));
   text-decoration: none;
-  box-shadow: 0 6px 18px rgba(232, 102, 42, 0.22);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .mini.over {
-  background: linear-gradient(135deg, #ef7f6e, var(--alert));
-  box-shadow: 0 6px 18px rgba(210, 69, 47, 0.22);
+  background: linear-gradient(135deg, var(--alert-2), var(--alert));
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--alert) 22%, transparent);
 }
 .mini .n {
   font-family: var(--display);
@@ -1362,7 +1387,7 @@ h1.pt {
 }
 .mi {
   background: var(--soft);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 12px 6px 10px;
   display: flex;
   flex-direction: column;
@@ -1392,9 +1417,9 @@ h1.pt {
   right: 10px;
   min-width: 18px;
   height: 18px;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--alert);
-  color: #fff;
+  color: var(--on-color);
   font-size: 0.68rem;
   font-weight: 700;
   display: grid;
@@ -1421,7 +1446,7 @@ main.top .note {
   place-items: center;
   font-family: var(--display);
   font-size: 1.4rem;
-  color: #fff;
+  color: var(--on-color);
   background: var(--muted);
 }
 .who b.av.house {
@@ -1443,7 +1468,7 @@ main.top .note {
 .seg {
   display: flex;
   background: var(--soft);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 3px;
   margin-top: 10px;
 }
@@ -1452,7 +1477,7 @@ main.top .note {
   text-align: center;
   font-size: 0.85rem;
   padding: 7px 0;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   color: var(--muted);
   border: none;
   background: none;
@@ -1463,7 +1488,7 @@ main.top .note {
   background: var(--surface);
   color: var(--text);
   font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 h2.sec small {
   font-family: var(--body);
@@ -1560,7 +1585,7 @@ h2.sec .more {
 .timeshift {
   margin-top: 22px;
   background: var(--soft);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 12px 14px;
 }
 .timeshift .k {
@@ -1607,18 +1632,18 @@ h2.sec .more {
   gap: 8px;
   min-height: 44px;
   padding: 0 16px;
-  border-radius: 999px;
-  border: 1.5px solid #e9e2d8;
-  background: #fff;
-  color: #c4511a;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--accent-ink);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
 .mic-button.on {
-  background: #c4511a;
-  border-color: #c4511a;
-  color: #fff;
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  color: var(--on-color);
 }
 @media (prefers-reduced-motion: no-preference) {
   .mic-button.on svg {
@@ -1645,7 +1670,7 @@ h2.sec .more {
   width: 22px;
   height: 22px;
   margin-top: 2px;
-  accent-color: #c4511a;
+  accent-color: var(--accent-ink);
   flex: none;
 }
 .voice-log pre {
@@ -1685,7 +1710,7 @@ h2.sec .more {
   height: 22px;
   border-radius: 50%;
   background: var(--surface);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-xs);
   display: grid;
   place-items: center;
 }
@@ -1710,7 +1735,7 @@ h2.sec .more {
   align-items: center;
   gap: 4px;
   padding: 8px 4px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   border: 2px solid transparent;
   background: var(--soft);
   font-size: 0.72rem;
@@ -1728,7 +1753,7 @@ h2.sec .more {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #fff;
+  color: var(--on-color);
   font-family: var(--display);
   font-size: 1.4rem;
 }
@@ -1748,7 +1773,7 @@ h2.sec .more {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 1px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--accent);
   color: var(--accent-text);
 }
@@ -1775,7 +1800,7 @@ h2.sec .more {
   column-gap: 10px;
   text-align: left;
   padding: 12px 14px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   border: 2px solid transparent;
   background: var(--soft);
   color: var(--text);
@@ -1817,7 +1842,7 @@ h2.sec .more {
 .case-doc .contacts {
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px dashed #eadfd6;
+  border-top: 1px dashed var(--border-strong);
 }
 .case-links {
   display: grid;
@@ -1828,7 +1853,7 @@ h2.sec .more {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--soft);
   color: var(--text);
   text-decoration: none;
@@ -1897,7 +1922,7 @@ h2.sec .more {
   flex: 0 0 108px;
   min-width: 0; /* 長い予定名（折り返さない）で枠が伸びないように */
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--soft);
   padding: 8px 10px;
   color: var(--text);
@@ -1954,7 +1979,7 @@ h2.sec .more {
 /* 執事のアイコン（角丸の四角。家族の丸と区別する） */
 .face.butler,
 .greet .face.butler {
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: none;
   overflow: hidden;
   padding: 0;
@@ -1963,4 +1988,179 @@ h2.sec .more {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* ── 情報設計の見直し（11/3〜）: ⓘ・仮の札・畳む ── */
+/* 仕組みの説明は ⓘ の中。押したときだけ開く */
+details.info {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--body);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+details.info > summary {
+  list-style: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--muted);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-style: italic;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+details.info > summary::-webkit-details-marker {
+  display: none;
+}
+details.info[open] > summary {
+  background: var(--muted);
+  color: var(--surface);
+}
+details.info .info-body {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  max-width: 448px;
+  margin: 6px auto 0;
+  z-index: 20;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.info-wrap {
+  position: relative;
+}
+/* Claude の答えでないことを正直に示す小さな札 */
+.ptag {
+  display: inline-block;
+  font-family: var(--body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--note);
+  background: var(--note-bg);
+  border-radius: var(--radius-sm);
+  padding: 0 6px;
+  line-height: 1.6;
+  vertical-align: middle;
+}
+h2.sec.from {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+/* 残りを畳む「あと○件」 */
+details.fold > summary {
+  list-style: none;
+  cursor: pointer;
+  text-align: center;
+  color: var(--accent-ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 10px 0 6px;
+}
+details.fold > summary::-webkit-details-marker {
+  display: none;
+}
+details.fold > summary::after {
+  content: " ▾";
+}
+details.fold[open] > summary {
+  display: none;
+}
+main { position: relative; }
+.from-item {
+  margin-bottom: var(--space-3);
+}
+.from-item > .ask,
+.from-item > .card,
+.from-item > .dcard {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+/* 書類: 探す欄（幅いっぱい＋虫眼鏡）・横1行のチップ・人は小さく2段目 */
+label.search {
+  position: relative;
+  display: block;
+  margin: var(--space-2) 0 var(--space-3);
+}
+label.search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+label.search .input {
+  width: 100%;
+  padding-left: 38px;
+  margin: 0;
+}
+.chips.scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px var(--space-2);
+  padding: 0 16px 2px;
+}
+.chips.scroll::-webkit-scrollbar {
+  display: none;
+}
+.chips.scroll .chip {
+  flex: none;
+  white-space: nowrap;
+}
+.chip small {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.chip.selected small {
+  color: inherit;
+  opacity: 0.8;
+}
+.chips.small .chip {
+  min-height: 30px;
+  padding: 3px 10px 3px 4px;
+  font-size: 0.8rem;
+}
+.link-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 2px;
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.link-row small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.link-row > span {
+  margin-left: auto;
+  color: var(--muted);
+}
+h1.pt details.info {
+  margin-left: 8px;
+}
+.button.danger {
+  color: var(--alert);
 }
