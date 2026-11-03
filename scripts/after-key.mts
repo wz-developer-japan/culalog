@@ -6,7 +6,7 @@
 //
 // 何をするか（どれも見本の家族・時計は 2026-11-07。料金がかかる。つなぐ1回 + 訳す2回 + 聞く2回 + 読み取り5件 ≒ 数十円〜百円ほど）:
 //   1. /api/connect を --runs 回: ひとこと・気づき・同じ日の気づきの文（Claude の文）を、アプリと同じ照らし合わせ（verifyConnect）にかけて、通った・外した を出す
-//   2. /api/translate: 授業参観の案内・町内会の回覧をベトナム語に（項目がそろっているか）
+//   2. /api/translate: 授業参観の案内・町内会の回覧をベトナム語に（項目がそろっているか・一般的な説明に nghỉ phép が無いか）。授業参観の案内をやさしい日本語に
 //   3. /api/ask: 「授業参観の日の休みの申し出はいつまで？」ほか1問（原本の場所つきか・書いていないと言えるか）
 //   4. 返信の答え（Telegram の「お知らせへの返信」）: 手元に ANTHROPIC_API_KEY があるときだけ、送る文を作って answerFromNotice に聞く（無ければ飛ばす。Telegram で手で確かめる）
 //   5. 読み取りの採点: eval-extraction を --eval 件（手元にキーがあれば直接、無ければ本番の /api/extract で）
@@ -113,6 +113,25 @@ for (const doc of h.documents.filter((d) => /授業参観.*ご案内|町内会/.
   const refs = [...req.fields, ...req.deadlines].map((x: { ref: string }) => x.ref);
   check(refs.every((r) => (t.items ?? []).some((i: { ref: string }) => i.ref === r)), "項目・予定がすべて訳にある");
   check(leaks(JSON.stringify(t)) === 0, "訳に大事な番号が入っていない");
+  for (const bg of t.background ?? []) say(`- ℹ ${bg.title}: ${bg.text}`);
+  check(!(t.background ?? []).some((bg: { text: string }) => /nghỉ\s*phép|有給|有休/i.test(bg.text)), "一般的な説明で休み方を決めつけていない（nghỉ phép・有給なし）");
+}
+
+// やさしい日本語（子どもにも読める形）: 授業参観の案内だけ
+say("");
+say("## 2b. 訳す（/api/translate・やさしい日本語）");
+for (const doc of h.documents.filter((d) => /授業参観.*ご案内/.test(d.title)).slice(0, 1)) {
+  const req = translationRequestOf(doc, (t) => maskKnownNumbers(doc, t));
+  const { status, json } = await post("/api/translate", { lang: "ja-easy", doc: req });
+  const t = json.translation;
+  check(status === 200 && Boolean(t), `「${doc.title}」をやさしい日本語にできた（${status}${json.error ? ` ${json.error}` : ""}）`);
+  if (!t) continue;
+  say(`- 題: ${t.title}`);
+  say(`- これは なに？: ${t.what ?? ""}`);
+  for (const item of (t.items ?? []).slice(0, 4)) say(`- ${item.label}: ${item.text}`);
+  // 漢字がどのくらい残っているか（固有名詞・原本の名前は残ってよい。目安として出すだけ）
+  const kanji = (JSON.stringify([t.title, t.what, t.todo, ...(t.items ?? []).map((i: { label: string; text: string }) => i.label + i.text)]).match(/[\u4e00-\u9fff]/g) ?? []).length;
+  say(`- 漢字の数（目安）: ${kanji}`);
 }
 
 // ---- 3. 聞く ----
