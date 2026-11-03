@@ -135,6 +135,16 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   check(easy.lines.length >= 1 && /11がつ 27にち/.test(easy.lines[0]), "子どもが読む段にも、行事（日付つき）は入る");
   check(!easy.lines.some((l) => /11がつ 25にち/.test(l)) && viBlock.lines.some((l) => /25\/11/.test(l)), "子どもが読む段に、出欠票の提出の締切が無い（タオさんの段にはある）");
   check(!easy.lines.some((l) => l.startsWith("すること")), "子どもが読む段に、やること（大人の手続き）が無い");
+  // やさしい日本語の仮の訳（子どもに関係する書類）で: 項目の見分けは元の名前で。お願い（車で来ない・撮影しない）は大人の段だけ
+  const easyT = provisionalTranslation(doc, "ja-easy")!;
+  check(Boolean(easyT) && easyT.items.length >= 5, "授業参観の案内に、やさしい日本語の仮の訳がある");
+  const p2 = buildTell(h5, doc, { vi: { ...vi, ...base, lang: "vi" }, "ja-easy": { ...easyT, ...base, lang: "ja-easy" } }, () => undefined, ["ja", "vi", "ja-easy"]);
+  const easy2 = p2.blocks.find((b) => b.lang === "ja-easy")!;
+  const vi2 = p2.blocks.find((b) => b.lang === "vi")!;
+  check(/じゅぎょうさんかん/.test(easy2.lines[0] ?? "") && !easy2.lines.some((l) => l.startsWith("おねがい")), "子どもが読む段に、お願い（大人への頼み）の項目が無い（訳した名前でも）");
+  check(vi2.lines.some((l) => l.startsWith("Lưu ý")), "お願いの項目は、タオさんの段にはある");
+  const letter = h5.documents.find((d) => /3学年だより/.test(d.title))!;
+  check(Boolean(provisionalTranslation(letter, "ja-easy")), "3学年だよりにも、やさしい日本語の仮の訳がある");
 }
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);

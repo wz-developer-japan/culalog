@@ -36,6 +36,8 @@ export function childOnlyLanguage(household: Household, lang: LanguageCode): boo
 
 /** 子どもが読む段に入れない項目（お金・締切・提出・勤務） */
 const ADULT_FIELD = /料金|金額|費用|口座|支払|振込|引き落とし|期限|締切|提出|申込|申し込み|申し出|勤務|保険/;
+/** 子どもが読む段に入れる項目（持ち物だけ。お願い・連絡のしかたなどは大人の段に） */
+const CHILD_FIELD = /持ち物|持参/;
 
 export const nameIn = (m: FamilyMember | undefined, lang: LanguageCode) => (m ? (m.names?.[lang] ?? m.name.split(/\s+/).pop() ?? m.name) : "");
 
@@ -116,7 +118,10 @@ export function buildTell(
     // 予定の行と同じこと（時間・日時・持ち物）は、項目から外す
     const repeated = new Set(doc.fields.filter((f) => /時間|日時|持ち物|持参|場所/.test(f.label) && events.some((d) => d.time || d.place || d.needs?.length)).map((f) => `f:${f.key}`));
     const fields = (t ? t.items.filter((i) => i.ref.startsWith("f:")) : doc.fields.map((f) => ({ ref: `f:${f.key}`, label: f.label, text: f.value }))).filter((f) => !repeated.has(f.ref));
-    for (const f of fields.filter((x) => !forChild || !ADULT_FIELD.test(x.label)).slice(0, 3)) lines.push(`${f.label}: ${mask(f.text)}`);
+    // 子どもが読む段かどうかの見分けは、元の書類の項目の名前（日本語）で（訳した名前では見分けられない）
+    const originalLabel = (ref: string) => doc.fields.find((f) => `f:${f.key}` === ref)?.label ?? "";
+    const forChildOk = (ref: string) => CHILD_FIELD.test(originalLabel(ref)) && !ADULT_FIELD.test(originalLabel(ref));
+    for (const f of fields.filter((x) => !forChild || forChildOk(x.ref)).slice(0, 3)) lines.push(`${f.label}: ${mask(f.text)}`);
     if (t?.background[0]) lines.push(`ℹ ${tx.general}（${t.background[0].title}）: ${t.background[0].text}`);
     return { lang, title: t?.title ?? doc.title, lines };
   });
