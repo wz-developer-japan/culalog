@@ -19,6 +19,7 @@ import { DEADLINE_KIND_LABELS, groupsOf } from "@/lib/labels";
 import { findQuote, type Mark, segments } from "@/lib/highlight";
 import type { DocumentRecord, SourceRef } from "@/lib/types";
 import { newId, useHousehold } from "@/lib/useHousehold";
+import { DocumentList } from "@/components/DocumentList";
 import { ownersLabel } from "@/lib/whose";
 
 export default function DocumentDetail() {
@@ -139,7 +140,12 @@ export default function DocumentDetail() {
   }
 
   return (
-    <main>
+    <div className="docs-split">
+    {/* パソコンの幅（1024px 以上）だけ、左に書類の一覧を並べる（スマホでは出さない） */}
+    <aside className="docs-pane" aria-label="書類の一覧">
+      <DocumentList household={household} selectedId={doc.id} />
+    </aside>
+    <main className="docs-detail">
       <BackToTop />
       <h1>{doc.title}</h1>
       <p className="lead">
@@ -489,5 +495,6 @@ export default function DocumentDetail() {
         この書類を削除する
       </button>
     </main>
+    </div>
   );
 }

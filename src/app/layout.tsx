@@ -4,6 +4,8 @@ import { TabBar } from "@/components/TabBar";
 import "./globals.css";
 // 見た目 B「Bento Pop」。消すと globals.css のオレンジに戻る
 import "./theme-b.css";
+// パソコンの幅（1024px 以上）だけの並べ方
+import "./pc.css";
 
 export const metadata: Metadata = {
   title: "CULALOG（クラログ）",

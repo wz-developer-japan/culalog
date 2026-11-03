@@ -1,0 +1,133 @@
+/* パソコンの幅（1024px 以上）だけの並べ方。スマホの幅は何も変えない（下の2つのほかは、全部 media の中）。
+   共通: 下のタブを左の縦のメニューに。書類: 一覧と中身を横に並べる（左のメニュー／一覧／中身 の3列） */
+
+.docs-pane,
+.docs-empty,
+.pc-only {
+  display: none;
+}
+.docs-split {
+  display: contents;
+}
+
+@media (min-width: 1024px) {
+  body {
+    padding-left: 232px;
+  }
+
+  /* ---- 左の縦のメニュー ---- */
+  .tabbar {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 232px;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 28px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    border-radius: 0;
+  }
+  .tabbar .pc-only {
+    display: inline;
+  }
+  .tabbar .pc-brand {
+    display: block;
+    order: -2;
+    padding: 0 12px 20px;
+    color: #ffffff;
+    font-family: var(--display);
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+  }
+  .tabbar .pc-brand small {
+    display: block;
+    color: var(--tabbar-fg);
+    font-size: 0.75rem;
+    letter-spacing: 0;
+  }
+  .tab {
+    flex-direction: row;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 0.98rem;
+  }
+  .tab.on {
+    background: rgb(255 255 255 / 0.14);
+  }
+  .fab {
+    order: 1;
+    width: auto;
+    height: 48px;
+    margin-top: 18px;
+    padding: 0 16px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  /* ---- 書類: 一覧と中身を横に ---- */
+  .docs-split {
+    display: grid;
+    grid-template-columns: clamp(280px, 30vw, 380px) minmax(0, 1fr);
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 28px;
+    align-items: start;
+  }
+  .docs-split > main {
+    max-width: none;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 48px;
+  }
+  .docs-split > main.docs-detail {
+    max-width: 760px;
+  }
+  .docs-pane {
+    display: block;
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 20px 4px 40px 0;
+  }
+  .docs-pane .bar {
+    display: none;
+  }
+  .docs-empty {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 10px;
+    position: sticky;
+    top: 20px;
+    min-height: 60vh;
+    margin-top: 20px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--muted);
+    text-align: center;
+  }
+  .docs-empty .t {
+    color: var(--text);
+    font-weight: 900;
+  }
+  .dcard.selected {
+    box-shadow: inset 0 0 0 3px var(--text);
+  }
+}

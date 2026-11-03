@@ -35,6 +35,11 @@ export function TabBar() {
   const giving = pathname.startsWith("/scan");
   return (
     <nav className="tabbar" aria-label="画面の切り替え">
+      {/* パソコンの幅だけ、左のメニューの上に名前（スマホでは出さない） */}
+      <Link className="pc-only pc-brand" href="/">
+        CULALOG
+        <small>クラログ</small>
+      </Link>
       {TABS.map((t, i) => (
         <span key={t.href} style={{ display: "contents" }}>
           {i === 2 && (
@@ -42,6 +47,7 @@ export function TabBar() {
               <svg className="l" viewBox="0 0 24 24" aria-hidden>
                 <path d="M12 5v14M5 12h14" />
               </svg>
+              <span className="pc-only">書類を渡す</span>
             </Link>
           )}
           <Link className={`tab${!giving && t.match(pathname) ? " on" : ""}`} href={t.href}>
