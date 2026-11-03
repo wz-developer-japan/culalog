@@ -59,11 +59,15 @@ CULALOG は、撮っておいた書類から「いつ・誰の・何を・どこ
 
 > ハッカソン提出作品です。
 
-| トップ（メニュー） | 蓮のページ | 予定 | 書類 |
+| トップ（家族の丸・メニュー・こんなとき） | まとめて渡すと、1枚ずつ読む | 予定（向こう7日・いちばん近い締切） | 授業参観、見に行きますか？ |
 |---|---|---|---|
-| ![トップ](docs/img/screen-top-fold.png) | ![蓮のページ](docs/img/screen-family-fold.png) | ![予定](docs/img/screen-schedule-fold.png) | ![書類](docs/img/screen-documents-fold.png) |
+| ![トップ](docs/img/screen-top.png) | ![まとめて確認](docs/img/screen-inbox.png) | ![予定](docs/img/screen-schedule.png) | ![見に行きますか](docs/img/screen-open-class.png) |
 
-（架空の家族・2026年11月7日の画面。画像は `node scripts/shots.mjs` で撮り直せます）
+| 大事な番号（端末の中だけで答える） | いつものカレンダーに入れる | こんなとき（子どもがけがをした） | 蓮のページ |
+|---|---|---|---|
+| ![大事な番号](docs/img/screen-numbers.png) | ![カレンダーに入れる](docs/img/screen-calendar.png) | ![こんなとき](docs/img/screen-cases.png) | ![蓮のページ](docs/img/screen-family.png) |
+
+（架空の家族に写真・メールの見本をまとめて渡したあとの、2026年11月7日の画面。画像は `node scripts/shots-final.mjs <出力フォルダ> [URL]` で撮り直せます）
 
 ## 試し方
 
