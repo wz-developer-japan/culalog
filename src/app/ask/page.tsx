@@ -11,6 +11,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AskAnswer } from "@/components/AskAnswer";
+import { MicButton } from "@/components/MicButton";
 import { NumberAnswerCard } from "@/components/NumberAnswerCard";
 import { askRecords, documentsForAsk } from "@/lib/ask";
 import { butlerName } from "@/lib/character";
@@ -77,6 +78,7 @@ function AskPage() {
           placeholder="例: 冬休みはいつからいつまで？"
         />
       </label>
+      <MicButton value={question} onChange={setQuestion} />
       <button className="button" disabled={!question.trim()} onClick={() => ask(question)}>
         {name}に頼む
       </button>

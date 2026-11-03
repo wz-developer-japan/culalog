@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { addressee, butlerName, CHARACTERS, characterOf, cleanName, NAME_MAX, timeOfDay, UNCHANGING } from "@/lib/character";
 import type { CharacterId } from "@/lib/character";
 import { useHousehold } from "@/lib/useHousehold";
+import { VoiceSettings } from "@/components/VoiceSettings";
 
 export default function ButlerSettingsPage() {
   const router = useRouter();
@@ -96,6 +97,8 @@ export default function ButlerSettingsPage() {
           {cleanName(currentName) ?? chosen.defaultName}にしました。トップ・予定の呼び名にも反映されます。
         </p>
       )}
+
+      <VoiceSettings />
     </main>
   );
 }

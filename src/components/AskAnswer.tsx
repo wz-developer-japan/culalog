@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import type { AskRecord } from "@/lib/ask";
+import { readAloudEnabled, speak } from "@/lib/voice";
 import { RememberCard } from "./RememberCard";
 
 const stampOf = (iso: string) => {
@@ -83,6 +84,11 @@ export function AskAnswer({
             <div className="meta">関係しそうな書類の問い合わせ先も見つかりませんでした。</div>
           )}
         </div>
+      )}
+      {readAloudEnabled() && (result.withheld || result.answer) && (
+        <button type="button" className="link-button" style={{ marginTop: 6 }} onClick={() => speak(result.withheld ?? result.answer)}>
+          🔊 読み上げる
+        </button>
       )}
       <div className="meta provisional">
         {result.source === "provisional"

@@ -13,6 +13,7 @@ import { answerNumberQuestion } from "./numbers";
 import type { Household } from "./types";
 import { newId } from "./useHousehold";
 import { isHidden } from "./visibility";
+import { speakIfEnabled } from "./voice";
 
 /**
  * 頼みごとを足す（答えはあとで）。
@@ -68,6 +69,8 @@ export function useAskQueue(household: Household | null, update: (change: (curre
           ...current,
           asks: askRecords(current).map((a) => (a.id === record.id ? { ...a, result } : a)),
         }));
+        // 読み上げがオンなら、届いた答えを読む（画面を見ているときだけ）
+        if (!isHidden()) speakIfEnabled(result.withheld ?? result.answer);
       } catch {
         // アプリを閉じた・裏に回って止まった。戻ったとき（visibleTick）か、次に開いたときに調べ直す
       } finally {
