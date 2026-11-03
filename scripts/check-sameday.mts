@@ -20,7 +20,7 @@ import { buildCandidates } from "@/lib/butler";
 import { conflictKey, findConflicts, optionText, topConflict, type Conflict } from "@/lib/conflicts";
 import { buildConnectInput, verifyConnect } from "@/lib/connect";
 import type { DemoSample, Household } from "@/lib/types";
-import { provisionalTranslation } from "@/data/demoTranslations";
+import { provisionalLabel, provisionalTranslation } from "@/data/demoTranslations";
 import { buildTell, childOnlyLanguage } from "@/lib/tellBuild";
 
 const today = new Date(2026, 10, 7, 10);
@@ -145,6 +145,20 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   check(vi2.lines.some((l) => l.startsWith("Lưu ý")), "お願いの項目は、タオさんの段にはある");
   const letter = h5.documents.find((d) => /3学年だより/.test(d.title))!;
   check(Boolean(provisionalTranslation(letter, "ja-easy")), "3学年だよりにも、やさしい日本語の仮の訳がある");
+}
+
+// 勤務カレンダーの「出勤日（土曜）」は、ほかの言葉の段ではコードで言い換える（日本語のまま「」で出さない）
+{
+  const h6 = await createDemoHousehold(today);
+  const doc = h6.documents.find((d) => /うんどうかいのお知らせ/.test(d.title))!;
+  const vi = provisionalTranslation(doc, "vi")!;
+  const base = { basis: [], translatedAt: "", draftSource: "provisional" as const };
+  const labelIn = (o: Parameters<typeof provisionalTranslation>[0], x: { id: string; label: string }, l: Parameters<typeof provisionalLabel>[1]) =>
+    provisionalTranslation(o, l)?.items.find((i) => i.ref === `d:${x.id}`)?.label ?? provisionalLabel(x.label, l);
+  const p6 = buildTell(h6, doc, { vi: { ...vi, ...base, lang: "vi" } }, labelIn, ["ja", "vi", "ja-easy"]);
+  const warn = (lang: string) => p6.blocks.find((b) => b.lang === lang)!.lines.filter((l) => l.startsWith("⚠")).join(" ");
+  check(/Thảo đi làm \(thứ Bảy\)/.test(warn("vi")) && !/「/.test(warn("vi")), "ベトナム語の段: タオさんの土曜の出勤日は「Thảo đi làm (thứ Bảy)」");
+  check(/タオ しごと（どようび）/.test(warn("ja-easy")), "やさしい日本語の段: 「タオ しごと（どようび）」");
 }
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);

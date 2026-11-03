@@ -279,13 +279,18 @@ export function provisionalTranslation(
 /** ほかの書類の予定の名前の、仮の訳（「家族に伝える」の「同じ日の家族の予定」に使う） */
 const LABELS: { lang: LanguageCode; match: string; text: string }[] = [
   // 勤務の予定（出勤日（平日）・出勤（日勤 8:30〜17:30）など）は、ここで訳さずコードで言い換える（tellBuild の WORK_WORDS。早番・遅番も正しく出る）
-  { lang: "vi", match: "出勤日（運動会", text: "đi làm (thứ Bảy)" },
   { lang: "vi", match: "授業参観", text: "Dự giờ (phụ huynh đến xem lớp học)" },
   { lang: "vi", match: "運動会", text: "Hội thể thao của trường tiểu học" },
   { lang: "vi", match: "うんどうかい", text: "Hội thể thao của nhà trẻ" },
   { lang: "vi", match: "一斉清掃", text: "Tổng vệ sinh khu phố" },
   { lang: "vi", match: "集会所の清掃当番", text: "Trực dọn nhà sinh hoạt cộng đồng (tổ 4)" },
   { lang: "vi", match: "親子ふれあいデー", text: "Ngày phụ huynh cùng con ở nhà trẻ" },
+  { lang: "ja-easy", match: "授業参観", text: "じゅぎょうさんかん（おうちの ひとが きょうしつに いく 日）" },
+  { lang: "ja-easy", match: "運動会", text: "しょうがっこうの うんどうかい" },
+  { lang: "ja-easy", match: "うんどうかい", text: "ほいくえんの うんどうかい" },
+  { lang: "ja-easy", match: "一斉清掃", text: "まちの おおそうじ" },
+  { lang: "ja-easy", match: "集会所の清掃当番", text: "しゅうかいじょの そうじ とうばん（4はん）" },
+  { lang: "ja-easy", match: "親子ふれあいデー", text: "ほいくえんの おやこ ふれあいデー" },
 ];
 
 export function provisionalLabel(label: string, lang: LanguageCode): string | undefined {
