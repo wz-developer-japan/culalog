@@ -4,7 +4,7 @@
 
 import { adultWorkOn, conflictFor, noticeShort, sameEvent, workNotices } from "./conflicts";
 import { addDays, readableDates, toYmd } from "./deadlines";
-import { googleCalendarUrl, parseTimes, toIcs, type CalendarEvent } from "./calendar";
+import { googleCalendarUrl, parseTimes, timeParts, toIcs, type CalendarEvent, type TimePart } from "./calendar";
 import { maskKnownNumbers } from "./numbers";
 import { languageOf, type LanguageCode } from "./languages";
 import type { TellBlock, TellPayload } from "./tell";
@@ -61,6 +61,22 @@ const WORK_WORDS: Partial<Record<LanguageCode, [RegExp, string][]>> = {
     [/月曜日?/, "げつようび"], [/火曜日?/, "かようび"], [/水曜日?/, "すいようび"], [/木曜日?/, "もくようび"], [/金曜日?/, "きんようび"], [/土曜日?/, "どようび"], [/日曜日?/, "にちようび"],
   ],
 };
+/** 1日の中の部分の名前（授業参観・懇談会など）。決まった言葉だけコードで言い換える。言い換えられなければ空 */
+const PART_WORDS: Partial<Record<LanguageCode, [RegExp, string][]>> = {
+  vi: [[/^授業参観$/, "Dự giờ"], [/^(学級|学年)?懇談会$/, "Họp phụ huynh lớp"], [/^保護者会$/, "Họp phụ huynh"], [/^説明会$/, "Buổi giới thiệu"], [/^受付$/, "Tiếp nhận"]],
+  "ja-easy": [[/^授業参観$/, "じゅぎょうさんかん"], [/^学級懇談会$/, "がっきゅうこんだんかい"], [/^(学年)?懇談会$/, "こんだんかい"], [/^保護者会$/, "ほごしゃかい"], [/^説明会$/, "せつめいかい"], [/^受付$/, "うけつけ"]],
+};
+export function partNameIn(name: string, lang: LanguageCode): string | undefined {
+  if (lang === "ja") return name;
+  return PART_WORDS[lang]?.find(([re]) => re.test(name))?.[1];
+}
+
+/** 部分ごとの時刻の文（「授業参観 10:45〜11:30／学級懇談会 11:40〜12:10」。名前が言い換えられない言葉では時刻だけ） */
+export function partsText(parts: TimePart[], lang: LanguageCode): string {
+  const dash = lang === "vi" ? "–" : "〜";
+  return parts.map((p) => [partNameIn(p.name, lang), `${p.start}${dash}${p.end}`].filter(Boolean).join(" ")).join(" ／ ");
+}
+
 function workLabelIn(label: string, lang: LanguageCode): string | undefined {
   const words = WORK_WORDS[lang];
   if (!words || !/^出勤/.test(label)) return undefined;
@@ -111,7 +127,10 @@ export function buildTell(
       const item = itemOf(`d:${d.id}`);
       const label = item?.label ?? d.label;
       const needs = lang === "ja" ? d.needs?.join("、") : item?.text;
-      lines.push(`${deadlineDateIn(d, lang)} ${label}${needs ? ` — ${lang === "ja" ? `${tx.needs}: ` : ""}${needs}` : ""}`);
+      // 1日の中で時刻の違う部分（授業参観と懇談会）は、ひとまとめの時間にせず部分ごとに
+      const parts = timeParts(d.time);
+      const when = parts.length ? `${formatDateIn(d.date, lang)} ${label}（${partsText(parts, lang)}）` : `${deadlineDateIn(d, lang)} ${label}`;
+      lines.push(`${when}${needs ? ` — ${lang === "ja" ? `${tx.needs}: ` : ""}${needs}` : ""}`);
       const same = sameDayEvents(household, doc, d).map((x) => {
         const who = x.deadline.memberIds.map((id) => nameIn(household.members.find((m) => m.id === id), lang)).filter(Boolean).join("・");
         const other = (lang === "ja" ? x.deadline.label : (labelIn(x.doc, x.deadline, lang) ?? workLabelIn(x.deadline.label, lang))) ?? `「${x.deadline.label}」`;
@@ -163,6 +182,7 @@ export function buildTell(
     blocks,
     sources,
     holder: nameIn(self, "ja"),
+    holderNames: Object.fromEntries((["ja", "ja-easy", "vi"] as LanguageCode[]).map((l) => [l, nameIn(self, l)])) as Partial<Record<LanguageCode, string>>,
     takers: takers.map((x) => x.names),
     takerLangs: takers.map((x) => languageOf(x.m)),
     takerIds: takers.map((x) => x.m.id),
@@ -199,7 +219,7 @@ function calendarLinks(
     if (lang !== "ja" && !item) continue;
     const note = CAL_NOTE[lang];
     const what = lang === "ja" ? (d.needs?.length ? `${TEXT.ja.needs}: ${d.needs.join("、")}` : "") : item!.text;
-    const lines = [what, note.source(doc.title, nameIn(self, lang)), note.check].filter(Boolean);
+    const lines = [timeParts(d.time).length ? partsText(timeParts(d.time), lang) : "", what, note.source(doc.title, nameIn(self, lang)), note.check].filter(Boolean);
     const eventOf = (description: string): CalendarEvent => ({
         uid: `${d.id}@culalog`,
         title: mask(lang === "ja" ? d.label : item!.label),
@@ -211,8 +231,19 @@ function calendarLinks(
         description: mask(description),
       });
     const make = (description: string) => googleCalendarUrl(eventOf(description));
-    // iPhone のカレンダー（.ics）。家族の置き場所に一時的に置いて、合言葉つきのリンクで開く
-    ics[lang] = toIcs([eventOf(lines.join("\n"))], new Date());
+    // iPhone のカレンダー（.ics）。家族の置き場所に一時的に置いて、合言葉つきのリンクで開く。
+    // 1日の中で時刻の違う部分（授業参観と懇談会）は、部分ごとの予定に（題はその部分の名前。言い換えられない言葉では「題（1/2）」）
+    const parts = timeParts(d.time);
+    const icsEvents = parts.length
+      ? parts.map((p, i) => ({
+          ...eventOf(lines.join("\n")),
+          uid: `${d.id}-${i + 1}@culalog`,
+          title: mask(partNameIn(p.name, lang) ?? `${item!.label}（${i + 1}/${parts.length}）`),
+          start: p.start,
+          end: p.end,
+        }))
+      : [eventOf(lines.join("\n"))];
+    ics[lang] = toIcs(icsEvents, new Date());
     // リンクが長すぎるとボタンにできないので、メモを後ろから短くする（原本へ戻る行と「確かめて」は残す）
     let url = make(lines.join("\n"));
     if (url.length > 1800) url = make(lines.slice(1).join("\n"));

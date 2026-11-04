@@ -342,7 +342,7 @@ export function openClassNoticeProvisionalDraft(t: DemoDates): Extraction {
         label: "授業参観（2学期）",
         date: toYmd(t.openClass),
         endDate: "",
-        time: "10:45〜12:10",
+        time: "授業参観 10:45〜11:30、学級懇談会 11:40〜12:10",
         place: "くろうど第一小学校 3年2組の教室（2階 東側）",
         needs: ["上履き（スリッパ）", "名札（来校者用）"],
         repeatMonths: 0,

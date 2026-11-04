@@ -25,9 +25,29 @@ export interface CalendarEvent {
 
 const TIME = /(\d{1,2})[:：](\d{2})/g;
 
-/** 「10:45〜11:30」「13時30分〜」などから、始まりと終わりの時刻を読む（読めなければ空） */
+/** 1日の中の、時刻の違う部分（「授業参観 10:45〜11:30、学級懇談会 11:40〜12:10」の1つずつ） */
+export interface TimePart {
+  name: string;
+  start: string;
+  end: string;
+}
+
+const pad = (h: string, m: string) => `${h.padStart(2, "0")}:${m}`;
+
+/** 時刻に、名前つきの部分が2つ以上書いてあれば部分ごとに（1つだけ・名前の無いものは空） */
+export function timeParts(time?: string): TimePart[] {
+  if (!time) return [];
+  const t = time.normalize("NFKC");
+  const re = /([^、,，／/;；]*?)\s*(\d{1,2}):(\d{2})\s*[〜~\-–]\s*(\d{1,2}):(\d{2})/g;
+  const parts = [...t.matchAll(re)].map((m) => ({ name: m[1].replace(/^[\s・]+|[\s:・]+$/g, ""), start: pad(m[2], m[3]), end: pad(m[4], m[5]) }));
+  return parts.length >= 2 && parts.every((p) => p.name && p.end > p.start) ? parts : [];
+}
+
+/** 「10:45〜11:30」「13時30分〜」などから、始まりと終わりの時刻を読む（読めなければ空）。部分が分かれていれば、最初の始まりから最後の終わりまで */
 export function parseTimes(time?: string): { start?: string; end?: string } {
   if (!time) return {};
+  const parts = timeParts(time);
+  if (parts.length) return { start: parts[0].start, end: parts[parts.length - 1].end };
   const t = time.normalize("NFKC").replace(/(\d{1,2})時(\d{1,2})分/g, "$1:$2").replace(/(\d{1,2})時/g, "$1:00");
   const found = [...t.matchAll(TIME)].map((m) => `${m[1].padStart(2, "0")}:${m[2]}`).filter((x) => x <= "23:59");
   if (!found.length) return {};

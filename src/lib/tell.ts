@@ -17,6 +17,8 @@ export interface TellPayload {
   sources: string[];
   /** 書類を持っている人の呼び名（「書類は○○さんの端末の中」） */
   holder: string;
+  /** 書類を持っている人の、言葉ごとの呼び名（1対1の見出しを、その人の言葉で書くため） */
+  holderNames?: Partial<Record<LanguageCode, string>>;
   /** 担当の候補（大人の家族）。言葉ごとの呼び名。「○○がやる」のボタンになる */
   takers: Partial<Record<LanguageCode, string>>[];
   /** 担当の候補それぞれの読みたい言葉（takers と同じ順）。担当が決まったら、その人の言葉の「カレンダーに追加」を返す */
@@ -131,12 +133,28 @@ const FOOTER_DM: Record<LanguageCode, string> = {
   vi: "Muốn hỏi gì thì viết ở đây. Khi đã quyết định ai lo, hãy bấm nút bên dưới.",
 };
 
-/** 1対1に送る文: その人の言葉の段だけ（無ければ日本語の段） */
+/** 1対1の見出し（その人の言葉だけ。返信の引用にもこの1行が出る） */
+export const TELL_HEAD_DM: Record<LanguageCode, string> = {
+  ja: TELL_HEAD,
+  "ja-easy": "📄 CULALOG｜かぞくへの おしらせ",
+  vi: "📄 CULALOG｜Thông báo cho gia đình",
+};
+
+/** 1対1の原本の見出し（その人の言葉で。原本の引用は日本語のまま＝原本へ戻る道） */
+const SOURCE_HEAD_DM: Record<LanguageCode, (holder: string) => string> = {
+  ja: (h) => `— 原本（書類は${h}さんの端末の中）`,
+  "ja-easy": (h) => `— もとの かみ（にほんご。かみは ${h}さんの スマホの なか）`,
+  vi: (h) => `— Bản gốc (tiếng Nhật; giấy tờ nằm trong điện thoại của ${h})`,
+};
+
+/** 1対1に送る文: その人の言葉の段だけ（無ければ日本語の段）。見出し・原本の見出し・終わりの一言も、その段の言葉だけ */
 export function composeTellFor(p: TellPayload, lang: LanguageCode): { text: string; lang: LanguageCode } {
   const block = p.blocks.find((b) => b.lang === lang) ?? p.blocks.find((b) => b.lang === "ja") ?? p.blocks[0];
-  const text = composeTell({ ...p, blocks: [block] }).split("\n");
-  text[text.length - 1] = FOOTER_DM[block.lang];
-  return { text: text.join("\n"), lang: block.lang };
+  const l = block.lang;
+  const parts = [TELL_HEAD_DM[l], mark(l), block.title, ...block.lines.map((x) => `・${x}`)];
+  if (p.sources.length) parts.push("", SOURCE_HEAD_DM[l](p.holderNames?.[l] || p.holder), ...p.sources.map((s) => `・${s}`));
+  parts.push("", FOOTER_DM[l]);
+  return { text: parts.join("\n"), lang: l };
 }
 
 export function composeTell(p: TellPayload): string {

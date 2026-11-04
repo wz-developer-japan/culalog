@@ -20,6 +20,8 @@ export const DM_SAY = {
   who: "あなたは家族のだれですか？\nBạn là ai trong gia đình?",
   taken: "その人は、もう別の Telegram とつながっています。\nNgười này đã được kết nối với một tài khoản Telegram khác.",
   notStarted: "まず /start を送ってください。\nHãy gửi /start trước.",
+  /** やさしい日本語で読む人（子ども）が1対1で /start したとき。お知らせは大人にだけ届く */
+  child: "おしらせは、おとなに とどくよ。みんなの かいわは、かぞくの グループで つうやく するね。",
 };
 
 export const WELCOME: Record<LanguageCode, (name: string) => string> = {
@@ -47,6 +49,8 @@ export async function onDmStart(userId: string) {
   const who = await dmUser(userId);
   if (!who) return sendMessage(userId, DM_SAY.needGroup);
   if (who.member) return sendMessage(userId, WELCOME[who.lang](nameIn(who.member, who.lang)));
+  // やさしい日本語で読む人（子ども）には、大人の名簿を出さない
+  if (who.lang === "ja-easy") return sendMessage(userId, DM_SAY.child);
   const adults = (who.chat.roster ?? []).filter((m) => m.adult);
   if (!adults.length) return sendMessage(userId, DM_SAY.noRoster);
   const claimed = new Set(Object.entries(who.chat.dms ?? {}).filter(([uid]) => uid !== userId).map(([, d]) => d.memberId));
@@ -65,6 +69,7 @@ export async function onWhoCallback(q: { id: string; from: { id: number }; data:
   const member = who?.chat.roster?.find((m) => m.id === memberId && m.adult);
   await tg("answerCallbackQuery", { callback_query_id: q.id });
   if (!who || !member) return sendMessage(userId, DM_SAY.needGroup);
+  if (who.chat.users?.[userId]?.lang === "ja-easy") return sendMessage(userId, DM_SAY.child);
   const taken = Object.entries(who.chat.dms ?? {}).some(([uid, d]) => uid !== userId && d.memberId === memberId);
   if (taken) return sendMessage(userId, DM_SAY.taken);
   const lang = who.chat.users?.[userId]?.lang ?? member.lang;

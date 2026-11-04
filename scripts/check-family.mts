@@ -108,6 +108,9 @@ const token = "tok-123";
   await msg(group, 222, "/lang vi");
   check(textOf(sent[sent.length - 1]).includes("✓ Tiếng Việt") && textOf(sent[sent.length - 1]).includes("/start"), "グループ: /lang の返事に、1対1で /start を送る案内（その人の言葉）");
 
+  await msg(group, 444, "/lang easy");
+  check(textOf(sent[sent.length - 1]).includes("✓") && !textOf(sent[sent.length - 1]).includes("/start") && textOf(sent[sent.length - 1]).includes("つうやく"), "グループ: /lang easy（子ども）の返事には /start の案内を出さない");
+
   let i = sent.length;
   await msg(dm(999), 999, "/start");
   await msg(dm(999), 999, "こんにちは");
@@ -123,6 +126,10 @@ const token = "tok-123";
   check(since(i).some((x) => textOf(x).startsWith("Chào Thảo")), "1対1: 名乗ると、その人の言葉であいさつ");
   await msg(dm(111), 111, "/start");
   await hook({ update_id: ++n, callback_query: { id: "cb2", from: { id: 111 }, data: "w:m-self", message: { message_id: 6, chat: dm(111) } } });
+  i = sent.length;
+  await msg(dm(444), 444, "/start");
+  const kid = since(i);
+  check(kid.length === 1 && textOf(kid[0]).includes("おとなに とどくよ") && !/Tiếng|Người|その人は/.test(textOf(kid[0])) && !kid[0].body.reply_markup, "1対1: やさしい日本語の人（子ども）の /start には、やさしい日本語だけ（大人のボタンは出さない）");
   i = sent.length;
   await msg(dm(333), 333, "/start");
   check(since(i).length === 0, "1対1: グループで言葉を決めていない人（息子など）にも何もしない");
@@ -140,6 +147,9 @@ const token = "tok-123";
   check(tellRes.status === 200 && tellJson.sent?.length === 2 && !tellJson.notStarted?.length, "伝える: あなたと共有した大人の2人に送れた");
   check(Boolean(toWife) && textOf(toWife!).includes("【Tiếng Việt】") && !textOf(toWife!).includes("【日本語】"), "伝える: 妻にはベトナム語の段だけ");
   check(Boolean(toHusband) && textOf(toHusband!).includes("【日本語】") && !textOf(toHusband!).includes("Tiếng Việt】"), "伝える: 夫には日本語の段だけ");
+  check(Boolean(toWife) && textOf(toWife!).startsWith("📄 CULALOG｜Thông báo cho gia đình") && !/家族へのお知らせ|端末の中|— 原本/.test(textOf(toWife!)) && textOf(toWife!).includes("— Bản gốc (tiếng Nhật; giấy tờ nằm trong điện thoại của Shōta)"), "伝える: 妻あての見出し・原本の見出しもベトナム語（引用は日本語のまま）");
+  check(textOf(toHusband!).startsWith("📄 CULALOG｜家族へのお知らせ") && textOf(toHusband!).includes("— 原本（書類は翔太さんの端末の中）"), "伝える: 夫あての見出しは日本語");
+  check(textOf(toHusband!).includes("授業参観 10:45〜11:30 ／ 学級懇談会 11:40〜12:10") && !textOf(toHusband!).includes("10:45〜12:10") && textOf(toWife!).includes("Dự giờ 10:45–11:30 ／ Họp phụ huynh lớp 11:40–12:10"), "伝える: 授業参観と学級懇談会の時刻を分ける（夫・妻）");
   check(!to(out, chatId).length, "伝える: 家族のグループには流さない");
   const kb = (x: (typeof sent)[number] | undefined) => ((x?.body.reply_markup as { inline_keyboard: { text: string; url?: string; callback_data?: string }[][] }) ?? { inline_keyboard: [] }).inline_keyboard.flat();
   const wifeCal = kb(toWife).find((b) => b.url);
@@ -149,6 +159,7 @@ const token = "tok-123";
   const icsRes = await icsRoute.GET(new NextRequest(wifeCal!.url!.replace(/^https?:\/\/[^/]+/, "http://localhost")));
   const ics = await icsRes.text();
   check(icsRes.status === 200 && (icsRes.headers.get("content-type") ?? "").startsWith("text/calendar") && ics.includes("BEGIN:VEVENT") && /SUMMARY:Dự giờ/.test(ics), "カレンダー: リンクを開くと text/calendar（予定の題はベトナム語）");
+  check((ics.match(/BEGIN:VEVENT/g) ?? []).length === 2 && /SUMMARY:Dự giờ\r\n/.test(ics) && /SUMMARY:Họp phụ huynh lớp/.test(ics) && /T104500[\s\S]*T113000[\s\S]*T114000[\s\S]*T121000/.test(ics), "カレンダー: 授業参観 10:45〜11:30 と 学級懇談会 11:40〜12:10 を別の予定に");
   const bad = await icsRoute.GET(new NextRequest("http://localhost/api/ics?t=aaaaaaaaaaaaaaaaaaaaaaaa"));
   check(bad.status === 404, "カレンダー: 合言葉が違えば開けない");
 

@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
   ) as TellPayload["calendar"];
   const payload: TellPayload = {
     holder: str(p?.holder, 20),
+    holderNames: Object.fromEntries(LANGUAGES.map((l) => [l.code, str(p?.holderNames?.[l.code], 20)]).filter(([, v]) => v)) as TellPayload["holderNames"],
     takers: pairs.map((x) => x.names),
     takerLangs: pairs.map((x) => x.lang),
     takerIds: pairs.map((x) => x.id),

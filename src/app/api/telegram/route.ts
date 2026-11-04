@@ -61,10 +61,13 @@ async function withinLimit(chatId: string, replyTo: number): Promise<boolean> {
   return use === "ok";
 }
 
-/** グループで言葉を決めた人へ: 1対1でも話せる */
+/**
+ * グループで言葉を決めた人へ: 1対1でも話せる。
+ * やさしい日本語を選ぶのは子ども（見本の蓮）なので、/start の案内は出さない（子どもには知らせを送らない決め）
+ */
 const DM_HINT: Record<LanguageCode, string> = {
   ja: "お知らせは執事との1対1に届きます。執事の名前を押して、1対1で /start を送ってください。",
-  "ja-easy": "おしらせは しつじ との 1たい1 に とどきます。しつじ の なまえを おして、/start を おくってね。",
+  "ja-easy": "みんなの かいわは、この グループで つうやく するね。",
   vi: "Thông báo sẽ đến trong cuộc trò chuyện riêng với quản gia. Hãy bấm vào tên quản gia và gửi /start.",
 };
 
