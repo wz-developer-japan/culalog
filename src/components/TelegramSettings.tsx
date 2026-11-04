@@ -38,7 +38,7 @@ export function TelegramSettings({ household, save }: { household: Household; sa
     }).catch(() => null);
     const json = res ? await res.json().catch(() => ({})) : {};
     setBusy(false);
-    setStatus(res?.ok ? "通知を送りました（7日以内の予定の件数だけ）。" : (json.error ?? "送れませんでした。"));
+    setStatus(res?.ok ? "通知を送りました（共有した書類の7日以内の予定の名前と日付）。" : (json.error ?? "送れませんでした。"));
   }
 
   async function syncNow() {

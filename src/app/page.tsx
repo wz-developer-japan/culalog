@@ -51,7 +51,7 @@ export default function Top() {
     if (marked !== household) save(marked);
   }, [household, save]);
 
-  // 通知: 家族の Telegram とつないでいれば、1日1回、近い予定の「日付と件数」だけを預ける（予定の名前は送らない）
+  // 通知: 家族の Telegram とつないでいれば、1日1回、近い予定の「日付と件数」を預ける（予定の名前は、共有した書類のまとめからサーバーが作る）
   const telegram = household?.telegram;
   useEffect(() => {
     if (!telegram || !household) return;

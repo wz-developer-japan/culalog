@@ -17,6 +17,8 @@ export interface SummaryEvent {
   needs?: string[];
   /** 誰の予定か（呼び名・日本語） */
   whose?: string[];
+  /** 済んだ（アプリで「済んだ」にした）。朝の通知に出さない */
+  done?: boolean;
 }
 
 export interface SummaryLang {
@@ -39,6 +41,8 @@ export interface FamilySummary {
   storageLocation?: string;
   /** 書類を預かる人（呼び名・日本語） */
   holder: string;
+  /** この書類を共有した家族（名簿の id）。朝の通知は、その人と共有した書類だけ */
+  sharedWith?: string[];
   events: SummaryEvent[];
   fields: { label: string; value: string }[];
   contacts: { name: string; phone?: string; hours?: string }[];
@@ -115,6 +119,7 @@ export function sanitizeSummary(x: unknown): FamilySummary | null {
     periodLabel: clean(v.periodLabel, 80) || undefined,
     storageLocation: clean(v.storageLocation, 120) || undefined,
     holder: cut(v.holder, 40),
+    sharedWith: arr(v.sharedWith).slice(0, 8).map((w) => cut(w, 60)).filter((w) => /^[\w-]{1,60}$/.test(w)),
     events: arr(v.events)
       .slice(0, 40)
       .map((e) => e as Record<string, unknown>)
@@ -127,6 +132,7 @@ export function sanitizeSummary(x: unknown): FamilySummary | null {
         place: clean(e?.place, 120) || undefined,
         needs: arr(e?.needs).slice(0, 12).map((n) => clean(n, 80)).filter(Boolean),
         whose: arr(e?.whose).slice(0, 8).map((w) => cut(w, 40)).filter(Boolean),
+        ...(e?.done === true ? { done: true } : {}),
       }))
       .filter((e) => e.label && e.date),
     fields: arr(v.fields)
@@ -196,9 +202,10 @@ export function summaryOf(household: Household, doc: DocumentRecord): FamilySumm
     periodLabel: doc.periodLabel,
     storageLocation: doc.storageLocation,
     holder: self ? nameOf(household, self.id) : "",
+    sharedWith: doc.sharedWith ?? [],
     events: doc.deadlines
       .filter((d) => d.date && d.kind !== "after_event")
-      .map((d) => ({ kind: d.kind, label: mask(d.label), date: d.date, endDate: d.endDate, time: d.time, place: d.place, needs: d.needs, whose: d.memberIds.map((id) => nameOf(household, id)).filter(Boolean) })),
+      .map((d) => ({ kind: d.kind, label: mask(d.label), date: d.date, endDate: d.endDate, time: d.time, place: d.place, needs: d.needs, whose: d.memberIds.map((id) => nameOf(household, id)).filter(Boolean), done: Boolean((household.done ?? {})[d.id]) })),
     fields: doc.fields.map((f) => ({ label: f.label, value: mask(f.value) })),
     contacts: doc.contacts.map((c) => ({ name: c.name || c.label, phone: c.phone, hours: c.hours })),
     langs,

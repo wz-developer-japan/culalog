@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { notifyDms } from "@/lib/server/dm";
-import { chatsToNotify, type ChatDoc, updateChat, verifyChatToken } from "@/lib/server/store";
+import { chatsToNotify, familyDocs, type ChatDoc, updateChat, verifyChatToken } from "@/lib/server/store";
 import { telegramReady } from "@/lib/server/telegram";
 
 const jstYmd = (offsetDays = 0) => new Date(Date.now() + 9 * 3600 * 1000 + offsetDays * 86400 * 1000).toISOString().slice(0, 10);
@@ -16,9 +16,11 @@ async function notifyChat(id: string, chat: ChatDoc, force = false): Promise<boo
   const a = chat.upcoming?.[today] ?? 0;
   let b = 0;
   for (let i = 0; i < 7; i++) b += chat.upcoming?.[jstYmd(i)] ?? 0;
+  // 共有したまとめがあれば、その人と共有した書類の予定の名前と日付で。無ければ（前の形）件数だけ
+  const docs = await familyDocs(id).catch(() => []);
   // 毎朝の通知は、予定があるときだけ。「いま送ってみる」は、0件でも「ありません」を送る
-  if (b === 0 && !force) return false;
-  const sent = await notifyDms(chat, a, b);
+  if (b === 0 && !docs.length && !force) return false;
+  const sent = await notifyDms(chat, a, b, { docs, todayYmd: today, force });
   if (!sent) return false;
   await updateChat(id, { notifiedOn: today });
   return true;

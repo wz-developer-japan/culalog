@@ -186,7 +186,38 @@ const token = "tok-123";
   const today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
   await post(notifyRoute.POST, "/api/notify", { chatId, token, upcoming: { [today]: 2 }, sendNow: true });
   const nt = since(i);
-  check(to(nt, 111).some((x) => textOf(x).includes("近い予定が2件")) && to(nt, 222).some((x) => textOf(x).includes("Có 2 việc")) && !to(nt, chatId).length, "朝の通知: 大人それぞれの1対1へ、その人の言葉だけ");
+  check(to(nt, 111).some((x) => textOf(x).startsWith("🔔")) && to(nt, 222).some((x) => textOf(x).startsWith("🔔")) && !to(nt, chatId).length, "朝の通知: 大人それぞれの1対1へ（グループには送らない）");
+
+  // 朝の通知の中身: その人と共有した書類の7日以内の予定の名前と日付（上から3件＋ほかに○件）。済んだものは出さない
+  {
+    const { notifyDms } = await import("@/lib/server/dm");
+    const { upcomingItems, docsFor } = await import("@/lib/server/morning");
+    const chat = (await store.getChat(chatId))!;
+    const { docs: all, roster: ros } = familyPayload(h);
+    const wife = ros.find((m) => m.id === "m-spouse");
+    const forWife = docsFor(all, wife);
+    check(forWife.length > 0 && forWife.every((d) => d.sharedWith?.includes("m-spouse")) && docsFor(all, ros.find((m) => m.id === "m-self")).length === all.length, "朝の通知: 妻にはその人と共有した書類だけ（預かる人には置き場所の全部）");
+    const items = upcomingItems(all, "2026-11-07");
+    check(items.length >= 3 && items.every((x, k) => x.date >= "2026-11-07" && x.date <= "2026-11-13" && (k === 0 || items[k - 1].date <= x.date)), "朝の通知: 今日から7日以内を日付順に");
+    const doneAll = all.map((d) => ({ ...d, events: d.events.map((e) => (e.label === items[0].label ? { ...e, done: true } : e)) }));
+    check(!upcomingItems(doneAll, "2026-11-07").some((x) => x.label === items[0].label), "朝の通知: 済んだ予定は出さない");
+    const many = [...all, { ...all[0], id: "doc-x", sharedWith: ["m-spouse"], events: [1, 2, 3].map((k) => ({ kind: "event", label: `予定${k}（伏せた）`, date: "2026-11-08" })) }];
+    const fake = async (lines: string[]) => lines.map((l) => `VI:${l}`);
+    i = sent.length;
+    await notifyDms(chat, 0, 0, { docs: many, todayYmd: "2026-11-07", translate: fake });
+    const m1 = since(i);
+    const ja = to(m1, 111).map(textOf)[0] ?? "";
+    const vi = to(m1, 222).map(textOf)[0] ?? "";
+    check(ja.startsWith("🔔 7日以内の予定") && /・11\/8（日） 予定1/.test(ja) && (ja.match(/^・/gm) ?? []).length === 3 && /ほかに\d+件/.test(ja) && !ja.includes("VI:"), "朝の通知: 夫には日本語で、名前と日付を上から3件＋ほかに○件");
+    check(vi.startsWith("🔔 Việc trong 7 ngày tới") && vi.includes("・8/11 (Chủ nhật) VI:予定1") && /Còn \d+ việc khác/.test(vi) && !/日）/.test(vi), "朝の通知: 妻にはベトナム語で（名前は訳す・日付と曜日もベトナム語）");
+    i = sent.length;
+    await notifyDms(chat, 0, 0, { docs: many, todayYmd: "2026-11-07", translate: async () => null });
+    const m2 = since(i);
+    check(to(m2, 222).some((x) => /^🔔 Có \d+ việc sắp tới/.test(textOf(x))) && to(m2, 111).some((x) => textOf(x).includes("予定1")), "朝の通知: 訳せなければ、妻には件数だけの文に戻す");
+    i = sent.length;
+    await notifyDms(chat, 0, 0, { docs: many, todayYmd: "2030-01-01", translate: fake });
+    check(since(i).length === 0, "朝の通知: 7日以内に予定が無ければ送らない");
+  }
 
   // 1対1の質問（キーが無いとき）
   i = sent.length;

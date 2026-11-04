@@ -76,3 +76,35 @@ export async function answerFromNotice(question: string, notice: string, langs: 
     `家族の言葉: ${langs.map((t) => `${langName(t)}（${t}）`).join("、")}\n\nお知らせ（返信先）:\n${notice}\n\n質問:\n${question}`,
   );
 }
+
+const LINES_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["lines"],
+  properties: { lines: { type: "array", items: { type: "string" } } },
+} as const;
+
+/**
+ * 朝の通知の予定の名前を、その言葉に訳す（1行ずつ・同じ数・同じ順）。訳せなければ null（件数だけの文に戻す）。
+ * 名前だけを送る（日付・書類の中身は送らない）
+ */
+export async function translateLines(lines: string[], lang: LanguageCode): Promise<string[] | null> {
+  if (!process.env.ANTHROPIC_API_KEY || !lines.length) return null;
+  try {
+    const res = await new Anthropic().beta.messages.create({
+      model: MODEL,
+      max_tokens: 1500,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: "low", format: { type: "json_schema", schema: LINES_SCHEMA } },
+      system: `家族の書類の予定の名前（日本語）を、${langName(lang)}に短く訳します。1行に1つ。行の数と順番を変えない。名前・数字・時刻はそのまま。意味を足さない。やさしい日本語（ja-easy）は、ひらがな多めの短い言い方。`,
+      messages: [{ role: "user", content: lines.map((l, i) => `${i + 1}. ${l}`).join("\n") }],
+    });
+    const text = res.content.find((b) => b.type === "text");
+    const out = text && text.type === "text" ? (JSON.parse(text.text) as { lines: string[] }).lines : null;
+    return out && out.length === lines.length && out.every((x) => typeof x === "string" && x.trim()) ? out.map((x) => x.replace(/^\d+\.\s*/, "").trim()) : null;
+  } catch (e) {
+    console.error("translateLines:", e instanceof Anthropic.APIError ? e.status : "failed");
+    return null;
+  }
+}

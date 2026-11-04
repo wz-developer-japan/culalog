@@ -4,11 +4,13 @@
 // 🔴 1対1の会話の文は置かない。置くのは「だれが1対1を始めたか・読みたい言葉」と、担当を決めるためのお知らせの控え（題・送った先）だけ。
 
 import { randomBytes } from "node:crypto";
-import type { RosterMember } from "@/lib/familyShare";
+import type { FamilySummary, RosterMember } from "@/lib/familyShare";
 import type { LanguageCode } from "@/lib/languages";
 import { CAL_BUTTON, calendarButtons, composeTellFor, TAKE_TEXT, type TellPayload } from "@/lib/tell";
 import { familyOfUser, getChat, putIcsLink, store, updateChat, type ChatDoc } from "./store";
 import { sendMessage, tg, type InlineButton } from "./telegram";
+import { translateLines } from "./interpret";
+import { docsFor, morningText, upcomingItems } from "./morning";
 
 const nameIn = (m: RosterMember | undefined, lang: LanguageCode) => (m ? (m.names[lang] ?? m.names.ja ?? "") : "");
 
@@ -183,11 +185,40 @@ export const NOTICE_DM: Record<LanguageCode, (today: number, week: number) => st
   vi: (a, b) => (b ? `Có ${b} việc sắp tới (hôm nay ${a}, trong 7 ngày ${b}). Muốn biết thêm thì hỏi ở đây nhé.` : "Trong 7 ngày tới không có việc nào được chia sẻ."),
 };
 
-/** 朝の通知を、1対1を始めた大人それぞれへ（その人の言葉だけ）。送れた人数 */
-export async function notifyDms(chat: ChatDoc, today: number, week: number): Promise<number> {
+type Translate = (lines: string[], lang: LanguageCode) => Promise<string[] | null>;
+
+/**
+ * 朝の通知を、1対1を始めた大人それぞれへ（その人の言葉だけ）。送れた人数。
+ * 共有したまとめがあれば、その人と共有した書類の7日以内の予定の名前と日付（上から3件＋ほかに○件）。
+ * 日本語以外は名前を朝に1回だけ訳し、訳せなければ件数だけの文。まとめが無い（前の形）ときは、アプリが預けた件数だけの文
+ */
+export async function notifyDms(
+  chat: ChatDoc,
+  today: number,
+  week: number,
+  opts: { docs?: FamilySummary[]; todayYmd?: string; force?: boolean; translate?: Translate } = {},
+): Promise<number> {
+  const translate = opts.translate ?? translateLines;
+  const cache = new Map<string, string[] | null>();
   let n = 0;
   for (const [userId, dm] of Object.entries(chat.dms ?? {})) {
-    if (await sendMessage(userId, `🔔 ${NOTICE_DM[dm.lang](today, week)}`)) n++;
+    let text: string | null = null;
+    if (opts.docs?.length && opts.todayYmd) {
+      const member = (chat.roster ?? []).find((m) => m.id === dm.memberId);
+      const items = upcomingItems(docsFor(opts.docs, member), opts.todayYmd);
+      if (items.length) {
+        const shown = items.slice(0, 3).map((x) => x.label);
+        let labels: string[] | null = shown;
+        if (dm.lang !== "ja") {
+          const key = `${dm.lang}|${shown.join("\n")}`;
+          if (!cache.has(key)) cache.set(key, await translate(shown, dm.lang).catch(() => null));
+          labels = cache.get(key) ?? null;
+        }
+        const todayCount = items.filter((x) => x.date === opts.todayYmd).length;
+        text = labels ? morningText(items, labels, dm.lang) : `🔔 ${NOTICE_DM[dm.lang](todayCount, items.length)}`;
+      } else if (opts.force) text = `🔔 ${NOTICE_DM[dm.lang](0, 0)}`;
+    } else if (week || opts.force) text = `🔔 ${NOTICE_DM[dm.lang](today, week)}`;
+    if (text && (await sendMessage(userId, text))) n++;
   }
   return n;
 }
