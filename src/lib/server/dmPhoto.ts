@@ -61,7 +61,8 @@ async function read(data: string, mediaType: string, roster: RosterMember[], tod
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default",
     output_config: { effort: "medium" },
-    system: EXTRACT_SYSTEM_PROMPT + EXTRACTION_FORMAT_NOTE,
+    // 指示文と返す形（毎回同じ）はキャッシュする
+    system: [{ type: "text", text: EXTRACT_SYSTEM_PROMPT + EXTRACTION_FORMAT_NOTE, cache_control: { type: "ephemeral" } }],
     messages: [
       {
         role: "user",

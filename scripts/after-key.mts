@@ -60,12 +60,12 @@ async function post(path: string, body: unknown): Promise<{ status: number; json
   const res = await fetch(`${BASE}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const json = await res.json().catch(() => ({}));
   // 本番が返すトークン数（数だけ）を API ごとに足す
-  if (json?.usage) (usageByPath[path] ??= []).push({ input: json.usage.input ?? 0, output: json.usage.output ?? 0 });
+  if (json?.usage) (usageByPath[path] ??= []).push({ input: json.usage.input ?? 0, output: json.usage.output ?? 0, cacheRead: json.usage.cacheRead ?? 0, cacheWrite: json.usage.cacheWrite ?? 0 });
   return { status: res.status, json };
 }
-const usageByPath: Record<string, { input: number; output: number }[]> = {};
-// 料金の見積もり（$/1M トークン。eval-extraction.mts と同じ値）
-const PRICE = { input: 4, output: 20 };
+const usageByPath: Record<string, { input: number; output: number; cacheRead: number; cacheWrite: number }[]> = {};
+// 料金の見積もり（$/1M トークン。claude-opus-5-5: 入力 $4・出力 $20・キャッシュの読み $0.20・キャッシュの書き込み 入力の1.25倍）
+const PRICE = { input: 4, output: 20, cacheRead: 0.2, cacheWrite: 5 };
 
 // ---- 1. つなぐ ----
 say("## 1. つなぐ（/api/connect）");
@@ -186,9 +186,10 @@ else {
 say("");
 say("## 6. 本物のトークン数（本番が返した数・1回あたりの平均）");
 for (const [path, list] of Object.entries(usageByPath)) {
-  const avg = (k: "input" | "output") => Math.round(list.reduce((n, u) => n + u[k], 0) / list.length);
-  const usd = (avg("input") * PRICE.input + avg("output") * PRICE.output) / 1e6;
-  say(`- ${path}: ${list.length}回・入力 ${avg("input")}・出力 ${avg("output")} トークン ≒ $${usd.toFixed(4)}/回`);
+  const usd = (u: (typeof list)[number]) => (u.input * PRICE.input + u.output * PRICE.output + u.cacheRead * PRICE.cacheRead + u.cacheWrite * PRICE.cacheWrite) / 1e6;
+  list.forEach((u, k) => say(`- ${path} ${k + 1}回目: 入力 ${u.input}・キャッシュ読み ${u.cacheRead}・書き込み ${u.cacheWrite}・出力 ${u.output} ≒ $${usd(u).toFixed(4)}`));
+  const avg = list.reduce((n, u) => n + usd(u), 0) / list.length;
+  say(`  → ${path} 平均 $${avg.toFixed(4)}/回（${list.length}回）`);
 }
 if (!Object.keys(usageByPath).length) say("（本番がトークン数を返さなかった）");
 say("読み取りの1件あたりは scripts/out/eval-check/latest.md（本番の /api/extract が返した数）");

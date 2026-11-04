@@ -108,7 +108,11 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "user",
-          content: [{ type: "text", text: `この家の書類と、本人の質問です。書類に書いてあることだけで答えてください。\n\n${JSON.stringify(forClaude)}` }],
+          // 家の書類と家族（同じ家なら何度聞いても同じ）を先に置いてキャッシュし、質問と今日の日付はその後ろに
+          content: [
+            { type: "text", text: `この家の書類と家族です。\n\n${JSON.stringify({ family: forClaude.family, documents: forClaude.documents })}`, cache_control: { type: "ephemeral" } },
+            { type: "text", text: `本人の質問です。書類に書いてあることだけで答えてください。\n\n${JSON.stringify(Object.fromEntries(Object.entries(forClaude).filter(([k]) => k !== "family" && k !== "documents")))}` },
+          ],
         },
       ],
     });

@@ -120,9 +120,15 @@ export async function POST(request: NextRequest) {
         {
           role: "user",
           content: [
+            // 家族・わが家のきまり・書類（同じ家なら同じ）を先に置いてキャッシュし、今日の候補はその後ろに
             {
               type: "text",
-              text: `この家のデータです。今日のひとことと、気づいたことと、同じ日の気づきの文を返してください。\n\n${JSON.stringify(forClaude)}`,
+              text: `この家のデータです（家族・わが家のきまり・書類）。\n\n${JSON.stringify({ family: forClaude.family, rules: forClaude.rules, documents: forClaude.documents })}`,
+              cache_control: { type: "ephemeral" },
+            },
+            {
+              type: "text",
+              text: `今日の候補です。今日のひとことと、気づいたことと、同じ日の気づきの文を返してください。\n\n${JSON.stringify(Object.fromEntries(Object.entries(forClaude).filter(([k]) => !["family", "rules", "documents"].includes(k))))}`,
             },
           ],
         },

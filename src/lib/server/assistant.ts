@@ -68,11 +68,14 @@ export async function askAssistant(input: {
   today: string;
 }): Promise<AssistantOut | null> {
   if (!process.env.ANTHROPIC_API_KEY) return null;
-  const user = JSON.stringify({
-    today: input.today,
-    asker: { id: input.asker.id, name: input.asker.names.ja, lang: `${langName(input.lang)}（${input.lang}）` },
+  // 家族の名簿と共有したまとめ（同じ家・同じ言葉なら同じ）を先に置いてキャッシュし、聞いた人とメッセージはその後ろに
+  const family = JSON.stringify({
     family: input.roster.map((m) => ({ id: m.id, names: m.names, lang: m.lang, adult: m.adult })),
     sharedDocuments: compact(input.docs, input.lang),
+  });
+  const ask = JSON.stringify({
+    today: input.today,
+    asker: { id: input.asker.id, name: input.asker.names.ja, lang: `${langName(input.lang)}（${input.lang}）` },
     message: input.message,
   });
   try {
@@ -83,7 +86,15 @@ export async function askAssistant(input: {
       fallbacks: "default",
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
       system: ASSISTANT_SYSTEM,
-      messages: [{ role: "user", content: user }],
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: `家族と、共有した書類のまとめです。\n${family}`, cache_control: { type: "ephemeral" } },
+            { type: "text", text: ask },
+          ],
+        },
+      ],
     });
     const text = res.content.find((b) => b.type === "text");
     if (!text || text.type !== "text") return null;
