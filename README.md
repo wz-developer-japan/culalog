@@ -275,9 +275,10 @@ Telegram の通訳と毎朝の通知には、`.env.example` にある Telegram �
 - デモ動画の文字: Zen Kaku Gothic New（SIL Open Font License 1.1）。書体のファイルはリポジトリに入れていません
 - デモ動画の BGM: Apple GarageBand に付属の Apple Loops（Summers End Acoustic Guitar／Summers End Bass／Shaker 05）。GarageBand の使用許諾により、自作の動画のサウンドトラックとしてロイヤリティフリーで使用
 - デモ動画の効果音: Apple Final Cut Pro に付属のサウンドエフェクト（Bell Small／Computer Mouse）。Final Cut Pro の使用許諾により使用
+- デモ動画のナレーション: VOICEVOX:玄野武宏(CV:ガロ)（VOICEVOX・VirVox Project の利用規約に従う）
 - 音源のファイルはリポジトリに入れていません（素材だけを再配布することは使用許諾で認められていないため）
 - ライブラリ: `package.json` にあるもの（Next.js・React・Anthropic SDK・Firebase Admin SDK など）。それぞれのライセンスによります
 
 ## ライセンス
 
-[MIT License](LICENSE)（上の「使った素材」の書体・音源は、それぞれの使用許諾によります）
+[MIT License](LICENSE)（上の「使った素材」の書体・音源・ナレーションの声は、それぞれの使用許諾・利用規約によります）
