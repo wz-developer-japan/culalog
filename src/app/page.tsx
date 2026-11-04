@@ -28,6 +28,7 @@ import { pendingAsks, unseenReports } from "@/lib/useAsk";
 import { useConnect } from "@/lib/useConnect";
 import { createEmptyHousehold, useHousehold } from "@/lib/useHousehold";
 import { useInboxQueue } from "@/lib/useInbox";
+import { FamilyInbox } from "@/components/FamilyInbox";
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -167,7 +168,7 @@ export default function Top() {
         const others = h.members.filter((m) => languageOf(m) !== "ja");
         return others.length ? (
           <Link className="lang-line" href="/butler#languages">
-            {others.map((m) => `${givenName(m.name)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}伝えます
+            {others.map((m) => `${givenName(m.name)}さんは${languageLabel(languageOf(m)).replace(/（.*）/, "")}`).join("・")}で読みます
             <span aria-hidden> ›</span>
           </Link>
         ) : null;
@@ -242,6 +243,8 @@ export default function Top() {
           <span className="go">まとめて確認</span>
         </Link>
       )}
+
+      {h.telegram && <FamilyInbox household={h} save={save} />}
 
       <h2 className="sec">メニュー</h2>
       <nav className="menu four" aria-label="メニュー">

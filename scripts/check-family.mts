@@ -171,6 +171,31 @@ const token = "tok-123";
   i = sent.length;
   await msg(dm(222), 222, "Ngày dự giờ là khi nào?");
   check(since(i).some((x) => textOf(x).includes("Quản gia đang được chuẩn bị")), "1対1: キーが無いときは、その人の言葉で「準備中」");
+  i = sent.length;
+  await hook({ update_id: ++n, message: { message_id: ++n, chat: dm(222), from: { id: 222 }, photo: [{ file_id: "f1", width: 10, height: 10 }] } });
+  check(since(i).some((x) => textOf(x).includes("Quản gia đang được chuẩn bị")), "1対1の写真: キーが無いときは「準備中」（読まない）");
+  i = sent.length;
+  await hook({ update_id: ++n, message: { message_id: ++n, chat: dm(999), from: { id: 999 }, photo: [{ file_id: "f1", width: 10, height: 10 }] } });
+  check(since(i).length === 0, "1対1の写真: 家族の名簿とつながっていない人には何もしない");
+}
+
+// ---- 1対1に届いた写真の「預かる？」 ----
+{
+  const { sanitizeExtraction } = await import("@/lib/familyShare");
+  const ex = sanitizeExtraction({ title: "t", transcript: "原本の全文", fields: [{ label: "口座番号", value: "1234567", quote: "q" }, { label: "持ち物", value: "上履き", quote: "上履きを持参" }], contacts: [{ phone: "03-1234-5678" }], deadlines: [{ date: "2026-11-27", quote: "x" }] });
+  check(ex.transcript === "" && ex.fields.length === 1 && ex.fields[0].quote === "" && ex.contacts[0].phone === "03-1234-5678" && ex.deadlines[0].date === "2026-11-27", "写真の読み取り: 原本の全文・引用・番号の類を落としてから置く");
+  const { store: st } = await import("@/lib/server/store");
+  const fam = st()!.collection("chats").doc(chatId);
+  await fam.collection("inbox").doc("tg-0123456789ab").set({ id: "tg-0123456789ab", from: "m-spouse", receivedAt: "", extraction: { title: "写真の書類" } });
+  await fam.collection("docs").doc("tg-0123456789ab").set({ id: "tg-0123456789ab", title: "写真の書類" });
+  const { docs, roster } = familyPayload(h);
+  await post(family.POST, "/api/family", { chatId, token, action: "sync", docs, roster });
+  check((await store.familyDocs(chatId)).some((d) => d.id === "tg-0123456789ab"), "預かる？: アプリの同期では、1対1に届いた写真のまとめを消さない");
+  const list = await (await post(family.POST, "/api/family", { chatId, token, action: "inbox" })).json();
+  check(list.items?.length === 1 && list.items[0].from === "m-spouse", "預かる？: アプリが取りに行くと並ぶ");
+  await post(family.POST, "/api/family", { chatId, token, action: "inboxDone", ids: ["tg-0123456789ab"] });
+  const after = await (await post(family.POST, "/api/family", { chatId, token, action: "inbox" })).json();
+  check(after.items?.length === 0 && !(await store.familyDocs(chatId)).some((d) => d.id === "tg-0123456789ab"), "預かる？: 決めたら受け取り箱とまとめから消える");
 }
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);

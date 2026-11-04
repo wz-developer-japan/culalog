@@ -55,6 +55,8 @@ export interface RosterMember {
   adult: boolean;
   /** ふだん使うカレンダー（お知らせのカレンダーのボタンの形） */
   calendarApp?: "google" | "apple";
+  /** 書類を預かる人（アプリを使っている人） */
+  holder?: boolean;
 }
 
 /** 項目の名前がこれなら、値ごと置かない（番号・お金の出入りの口・ログインの類） */
@@ -150,7 +152,7 @@ export function sanitizeRoster(x: unknown): RosterMember[] {
     .map((m) => {
       const names = Object.fromEntries(LANGUAGES.map((l) => [l.code, cut((m?.names as Record<string, unknown> | undefined)?.[l.code], 30)]).filter(([, n]) => n));
       const lang = LANGUAGES.find((l) => l.code === m?.lang)?.code ?? "ja";
-      return { id: cut(m?.id, 60), names, lang, adult: m?.adult === true, calendarApp: m?.calendarApp === "apple" ? "apple" : "google" } as RosterMember;
+      return { id: cut(m?.id, 60), names, lang, adult: m?.adult === true, calendarApp: m?.calendarApp === "apple" ? "apple" : "google", holder: m?.holder === true } as RosterMember;
     })
     .filter((m) => /^[\w-]{1,60}$/.test(m.id) && m.names.ja);
 }
@@ -211,6 +213,24 @@ export function rosterOf(household: Household): RosterMember[] {
       lang: languageOf(m),
       adult: m.relation !== "child",
       calendarApp: m.calendarApp ?? "google",
+      holder: m.relation === "self",
     })),
   );
+}
+
+/** 置く前に、読み取った結果から原本の全文・引用・番号の類を落とす（1対1に届いた写真の読み取り） */
+export function sanitizeExtraction<T>(x: T): T {
+  const walk = (v: unknown, key = ""): unknown => {
+    if (key === "transcript" || key === "quote") return "";
+    if (typeof v === "string") return maskNumberLike(v).slice(0, 2000);
+    if (Array.isArray(v)) {
+      return v
+        .filter((i) => !(i && typeof i === "object" && typeof (i as { label?: unknown }).label === "string" && key === "fields" && SECRET_LABEL.test((i as { label: string }).label)))
+        .slice(0, 60)
+        .map((i) => walk(i));
+    }
+    if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, val]) => [k, walk(val, k)]));
+    return v;
+  };
+  return walk(x) as T;
 }

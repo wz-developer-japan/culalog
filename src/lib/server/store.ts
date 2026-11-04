@@ -163,7 +163,8 @@ export async function replaceFamilyDocs(chatId: string, docs: FamilySummary[], r
   const now = await ref.get();
   const keep = new Set(docs.map((d) => d.id));
   const batch = s.batch();
-  for (const d of now.docs) if (!keep.has(d.id)) batch.delete(ref.doc(d.id));
+  // tg- で始まるもの（1対1に届いた写真の読み取り）は、預かる人が「預かる・預からない」を決めるまで残す
+  for (const d of now.docs) if (!keep.has(d.id) && !d.id.startsWith("tg-")) batch.delete(ref.doc(d.id));
   for (const d of docs) batch.set(ref.doc(d.id), JSON.parse(JSON.stringify(d)));
   batch.set(s.collection("chats").doc(chatId), { roster }, { merge: true });
   await batch.commit();
@@ -222,4 +223,26 @@ export async function getIcsLink(token: string): Promise<string | null> {
   const snap = await s.collection("icsLinks").doc(token).get();
   const data = snap.data() as { ics: string; expiresAt: number } | undefined;
   return data && data.expiresAt > Date.now() ? data.ics : null;
+}
+
+// ---- 1対1に届いた写真の「預かる？」（chats/{グループ}/inbox/{id}） ----
+
+export async function familyInbox(chatId: string): Promise<{ id: string; from: string; receivedAt: string; extraction: unknown }[]> {
+  const s = store();
+  if (!s) return [];
+  const snap = await s.collection("chats").doc(chatId).collection("inbox").get();
+  return snap.docs.map((d) => d.data() as { id: string; from: string; receivedAt: string; extraction: unknown });
+}
+
+/** 預かった・預からなかった: 受け取り箱から消す。預からなかったものは、共有したまとめからも消す（預かったものは、アプリが共有すれば置き直す） */
+export async function familyInboxDone(chatId: string, ids: string[]) {
+  const s = store();
+  if (!s) return;
+  const batch = s.batch();
+  const family = s.collection("chats").doc(chatId);
+  for (const id of ids.filter((x) => /^tg-[0-9a-f]{12}$/.test(x))) {
+    batch.delete(family.collection("inbox").doc(id));
+    batch.delete(family.collection("docs").doc(id));
+  }
+  await batch.commit();
 }

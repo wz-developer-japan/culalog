@@ -28,7 +28,7 @@ const CAL_NOTE: Record<LanguageCode, { source: (title: string, holder: string) =
 export function tellLanguages(household: Household, doc: DocumentRecord, groupLangs: LanguageCode[] = []): LanguageCode[] {
   const ids = doc.sharedWith ?? [];
   const langs = household.members.filter((m) => ids.includes(m.id) || m.relation === "self").map(languageOf);
-  // グループに送ると、グループの全員が読む。だからグループの人の読みたい言葉も入れる
+  // 送る相手（あなたと共有した大人）の言葉。groupLangs はほかに足したい言葉（今は使わない）
   return [...new Set<LanguageCode>(["ja", ...langs, ...groupLangs])];
 }
 

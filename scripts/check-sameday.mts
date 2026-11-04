@@ -151,7 +151,9 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
 
 // 勤務カレンダーの「出勤日（土曜）」は、ほかの言葉の段ではコードで言い換える（日本語のまま「」で出さない）
 {
+  // やさしい日本語を読む大人がいるとき（見本の蓮はやさしい日本語なので、ここでは蓮を日本語に戻し、やさしい日本語の段を子どもだけの段にしない）
   const h6 = await createDemoHousehold(today);
+  h6.members = h6.members.map((m) => (m.id === "m-son" ? { ...m, language: undefined } : m));
   const doc = h6.documents.find((d) => /うんどうかいのお知らせ/.test(d.title))!;
   const vi = provisionalTranslation(doc, "vi")!;
   const base = { basis: [], translatedAt: "", draftSource: "provisional" as const };

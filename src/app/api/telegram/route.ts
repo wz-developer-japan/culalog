@@ -30,19 +30,20 @@ interface TgMessage {
   reply_markup?: { inline_keyboard?: { text: string; url?: string; callback_data?: string }[][] };
 }
 
-const HELP = `CULALOG の通訳の執事です。
-・このグループの会話を、ほかの人の読みたい言葉にして出します（会話は訳すために Claude へ送ります。保存はしません）
+const HELP = `CULALOG の執事です。
+・家族のグループ: 会話を、ほかの人の読みたい言葉にして出します（訳すために Claude へ送ります。保存はしません）
 ・読みたい言葉を決める: /lang ja（日本語）・/lang vi（Tiếng Việt）・/lang easy（やさしい にほんご）
-・止める /pause ・再開 /resume
-・アプリとつなぐ: /link（出てきた6文字をアプリの設定に入れる）
-🔴 番号（保険証・口座など）は、ここに書かないでください。
+・止める /pause ・再開 /resume ・アプリとつなぐ /link
+・大人は、執事との1対1で /start → お知らせがその人の言葉で届きます。共有した書類のことを聞く・書類の写真を送る・「○○に伝えて」もここで
+🔴 番号（保険証・口座など）は書かないでください。
 
 【Tiếng Việt】
-Mình là quản gia phiên dịch của CULALOG.
-・Mình dịch tin nhắn trong nhóm sang ngôn ngữ mà mỗi người muốn đọc (tin nhắn được gửi tới Claude để dịch, không lưu lại).
-・Chọn ngôn ngữ muốn đọc: /lang vi (Tiếng Việt)・/lang ja (日本語)・/lang easy (やさしい にほんご)
+Mình là quản gia của CULALOG.
+・Trong nhóm gia đình: mình dịch tin nhắn sang ngôn ngữ mà mỗi người muốn đọc (gửi tới Claude để dịch, không lưu lại).
+・Chọn ngôn ngữ: /lang vi (Tiếng Việt)・/lang ja (日本語)・/lang easy (やさしい にほんご)
 ・Tạm dừng /pause ・Tiếp tục /resume
-🔴 Đừng viết các con số quan trọng (thẻ bảo hiểm, tài khoản ngân hàng…) ở đây.`;
+・Người lớn hãy gửi /start trong cuộc trò chuyện riêng với quản gia → thông báo sẽ đến bằng ngôn ngữ của mình. Có thể hỏi về giấy tờ đã chia sẻ, gửi ảnh giấy tờ, hoặc nhờ chuyển lời ở đó.
+🔴 Đừng viết các con số quan trọng (thẻ bảo hiểm, tài khoản ngân hàng…).`;
 
 /** 決まった短い知らせ（日本語とベトナム語を並べる。グループの誰が読んでも分かるように） */
 const SAY = {
