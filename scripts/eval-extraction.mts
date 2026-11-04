@@ -18,7 +18,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createDemoHousehold } from "@/data/demoHousehold";
-import { EXTRACTION_SCHEMA, type Extraction, parseExtraction } from "@/lib/extraction";
+import { EXTRACTION_FORMAT_NOTE, EXTRACTION_SCHEMA, jsonFromText, type Extraction, parseExtraction } from "@/lib/extraction";
 import { EXTRACT_MODEL, EXTRACT_SYSTEM_PROMPT } from "@/lib/extractPrompt";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { DemoSample } from "@/lib/types";
@@ -127,8 +127,8 @@ async function readWithClaude(sample: DemoSample): Promise<{ extraction: Extract
     max_tokens: 16000,
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default",
-    output_config: { effort: "medium", format: { type: "json_schema", schema: EXTRACTION_SCHEMA as any } },
-    system: EXTRACT_SYSTEM_PROMPT,
+    output_config: { effort: "medium" },
+    system: EXTRACT_SYSTEM_PROMPT + EXTRACTION_FORMAT_NOTE,
     messages: [
       {
         role: "user",
@@ -146,7 +146,7 @@ async function readWithClaude(sample: DemoSample): Promise<{ extraction: Extract
   const text = (response as any).content.find((b: any) => b.type === "text");
   let extraction: Extraction | null = null;
   try {
-    extraction = text ? parseExtraction(JSON.parse(text.text), family.map((m) => m.id)) : null;
+    extraction = text ? parseExtraction(jsonFromText(text.text), family.map((m) => m.id)) : null;
   } catch {
     extraction = null;
   }

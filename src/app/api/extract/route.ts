@@ -4,7 +4,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { EXTRACTION_SCHEMA, type FamilyForReading, parseExtraction } from "@/lib/extraction";
+import { EXTRACTION_FORMAT_NOTE, jsonFromText, type FamilyForReading, parseExtraction } from "@/lib/extraction";
 import { EXTRACT_MODEL as MODEL, EXTRACT_SYSTEM_PROMPT as SYSTEM_PROMPT } from "@/lib/extractPrompt";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { usageOf } from "@/lib/server/usage";
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
       max_tokens: 16000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      output_config: { effort: "medium", format: { type: "json_schema", schema: EXTRACTION_SCHEMA } },
-      system: SYSTEM_PROMPT,
+      output_config: { effort: "medium" },
+      system: SYSTEM_PROMPT + EXTRACTION_FORMAT_NOTE,
       messages: [
         {
           role: "user",
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       extraction =
         text && text.type === "text"
           ? parseExtraction(
-              JSON.parse(text.text),
+              jsonFromText(text.text),
               family.map((m) => m.id),
             )
           : null;

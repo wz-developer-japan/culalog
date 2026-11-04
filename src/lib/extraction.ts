@@ -505,3 +505,17 @@ export function extractionToDocument(
   }
   return { document, questions };
 }
+
+/**
+ * 返す形を、指示文として渡す（structured outputs では「形が大きすぎて組み立てられない」と API に断られるため）。
+ * 受け取った JSON は parseExtraction で形を確かめる
+ */
+export const EXTRACTION_FORMAT_NOTE = `\n\n# 返す形\n次の JSON Schema に合う JSON オブジェクトを1つだけ返してください。前後に説明やコードブロックの記号を付けない。すべての欄を入れ、無いものは空の文字列・空の配列にする。\n${JSON.stringify(EXTRACTION_SCHEMA)}`;
+
+/** 返ってきた文から JSON を取り出す（コードブロックの記号が付いていても読む） */
+export function jsonFromText(text: string): unknown {
+  const t = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  const start = t.indexOf("{");
+  const end = t.lastIndexOf("}");
+  return JSON.parse(start >= 0 && end > start ? t.slice(start, end + 1) : t);
+}
