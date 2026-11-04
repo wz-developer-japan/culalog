@@ -168,7 +168,11 @@ export async function POST(request: NextRequest) {
     }
     if (error instanceof Anthropic.BadRequestError) {
       console.error("extract: bad request", error.message);
-      return fail(422, "このファイルは読み取れませんでした。別の写真か、手入力でお試しください。");
+      // 断られた理由（API の説明文。キーや書類の中身は入らない）を添える。原因を本番で確かめられるように
+      return NextResponse.json(
+        { error: "このファイルは読み取れませんでした。別の写真か、手入力でお試しください。", detail: String(error.message).slice(0, 300) },
+        { status: 422 },
+      );
     }
     if (error instanceof Anthropic.APIError) {
       console.error("extract: api error", error.status);
