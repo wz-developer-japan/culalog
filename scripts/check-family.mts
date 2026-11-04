@@ -80,6 +80,8 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
     check(VI_DATE_RULE.includes("9/11") && VI_DATE_RULE.includes("27/11") && ASSISTANT_SYSTEM.includes(VI_DATE_RULE) && TRANSLATE_SYSTEM_PROMPT.includes(VI_DATE_RULE) && !ASSISTANT_SYSTEM.includes("11/27 (thứ"), "日付: 1対1の答え・書類の訳の指示文に「ベトナム語は日/月」（例つき）");
     check(src("src/lib/server/dmPhoto.ts").includes("${VI_DATE_RULE}") && (src("src/lib/server/interpret.ts").match(/\$\{VI_DATE_RULE\}/g) ?? []).length >= 3, "日付: 写真の要約・グループの通訳と返信の答え・朝の通知の訳の指示文にも同じきまり");
     check(shortDate("2026-11-09", "vi") === "9/11 (thứ Hai)" && shortDate("2026-11-09", "ja") === "11/9（月）" && formatDateIn("2026-11-27", "vi").includes("27/11") && formatDateIn("2026-11-27", "ja") === "11月27日（金）", "日付: コードで作る日付はベトナム語が日/月・日本語は月/日");
+    const today = new Date(2026, 10, 4);
+    check(formatDateIn("2026-11-27", "vi", today) === shortDate("2026-11-27", "vi") && formatDateIn("2026-11-27", "vi", today) === "27/11 (thứ Sáu)" && formatDateIn("2035-01-16", "vi", today) === "16/1/2035 (thứ Ba)", "日付: お知らせのベトナム語の日付も朝の通知と同じ形（27/11 (thứ Sáu)）・半年より先だけ年を入れる");
   }
   void summaryOf;
   void rosterOf;

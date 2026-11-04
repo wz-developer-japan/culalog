@@ -73,14 +73,18 @@ export function revisionChanges(previous: DocumentRecord, doc: DocumentRecord): 
 const WEEKDAYS: Record<LanguageCode, string[]> = {
   ja: ["日", "月", "火", "水", "木", "金", "土"],
   "ja-easy": ["にち", "げつ", "か", "すい", "もく", "きん", "ど"],
-  vi: ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"],
+  vi: ["Chủ nhật", "thứ Hai", "thứ Ba", "thứ Tư", "thứ Năm", "thứ Sáu", "thứ Bảy"],
 };
 
-/** 日付をその言葉で（訳さずにコードで作る） */
-export function formatDateIn(ymd: string, lang: LanguageCode): string {
+/** 日付をその言葉で（訳さずにコードで作る）。ベトナム語は朝の通知・1対1の答えと同じ「27/11 (thứ Sáu)」。今日から半年より離れた日（保証の期限など）だけ年を入れる「16/1/2035 (thứ Ba)」 */
+export function formatDateIn(ymd: string, lang: LanguageCode, today: Date = new Date()): string {
   const [y, m, d] = ymd.split("-").map(Number);
-  const w = WEEKDAYS[lang][new Date(y, m - 1, d).getDay()];
-  if (lang === "vi") return `${w}, ${d}/${m}/${y}`;
+  const date = new Date(y, m - 1, d);
+  const w = WEEKDAYS[lang][date.getDay()];
+  if (lang === "vi") {
+    const far = Math.abs(date.getTime() - today.getTime()) > 183 * 24 * 60 * 60 * 1000;
+    return `${d}/${m}${far ? `/${y}` : ""} (${w})`;
+  }
   if (lang === "ja-easy") return `${m}がつ ${d}にち（${w}ようび）`;
   return `${m}月${d}日（${w}）`;
 }
