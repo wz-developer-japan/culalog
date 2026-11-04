@@ -5,6 +5,8 @@
 
 import { useState } from "react";
 import { now } from "@/lib/clock";
+import { isShared } from "@/lib/familyShare";
+import { clearFamily, syncFamily } from "@/lib/familySync";
 import { upcomingCounts } from "@/lib/tellBuild";
 import type { Household } from "@/lib/types";
 
@@ -39,21 +41,53 @@ export function TelegramSettings({ household, save }: { household: Household; sa
     setStatus(res?.ok ? "通知を送りました（7日以内の予定の件数だけ）。" : (json.error ?? "送れませんでした。"));
   }
 
+  async function syncNow() {
+    setBusy(true);
+    const r = await syncFamily(household, true);
+    setBusy(false);
+    setStatus(r.ok ? `共有した書類のまとめ ${r.count ?? 0}件を、家族の置き場所に置きました。` : (r.error ?? "置けませんでした。"));
+  }
+
+  async function clearNow() {
+    if (!confirm("家族の置き場所（サーバー）にある、共有した書類のまとめ・家族の名簿・預かる？を全部消します。端末の書類は消えません。")) return;
+    setBusy(true);
+    const r = await clearFamily(household);
+    setBusy(false);
+    setStatus(r.ok ? "家族の置き場所のまとめを全部消しました。次に書類を共有すると、また置きます（置きたくなければ、つなぐのをやめてください）。" : (r.error ?? "消せませんでした。"));
+  }
+
+  const sharedCount = household.documents.filter(isShared).length;
+
   return (
     <>
       <h2>家族の Telegram</h2>
       <p className="meta">
-        家族の Telegram グループに執事（bot）を入れると、会話をそれぞれの読みたい言葉に訳し、共有した書類を「家族に伝える」で送れます。
-        書類は端末の中のまま。家族に伝えた中身と会話は Telegram と通訳（Claude）を通ります。通知のために預けるのは、近い予定の日付と件数だけです。
+        家族の Telegram グループに執事（bot）を入れると、グループの会話をそれぞれの読みたい言葉に訳します。
+        大人はそれぞれ執事と1対1で話すと、お知らせがその人の言葉で届き、共有した書類のことを聞けます。
+        そのために、<b>家族と共有した書類のまとめ</b>（題・予定・やること・訳）を家族の置き場所（サーバー）に置きます。
+        写真・原本の全文・大事な番号（保険証・口座・カード・マイナンバー・パスワードなど）は置きません。
       </p>
       {household.telegram ? (
         <div className="card">
           つないでいます（{household.telegram.linkedAt.slice(0, 10)}）
+          <div className="meta">共有した書類 {sharedCount}件のまとめを、変わったときに家族の置き場所へ送ります。</div>
+          <button className="button secondary" disabled={busy} onClick={syncNow}>
+            共有した書類のまとめを、いま置き直す
+          </button>
+          <button className="link-button" disabled={busy} onClick={clearNow}>
+            家族の置き場所のまとめを全部消す
+          </button>
           <button className="button secondary" disabled={busy} onClick={notifyNow}>
             近い予定の通知を、いま送ってみる
           </button>
-          <button className="link-button" onClick={() => save({ ...household, telegram: undefined })}>
-            つなぐのをやめる
+          <button
+            className="link-button"
+            onClick={async () => {
+              await clearFamily(household);
+              await save({ ...household, telegram: undefined });
+            }}
+          >
+            つなぐのをやめる（家族の置き場所のまとめも消す）
           </button>
         </div>
       ) : (

@@ -21,11 +21,15 @@ export interface TellPayload {
   takers: Partial<Record<LanguageCode, string>>[];
   /** 担当の候補それぞれの読みたい言葉（takers と同じ順）。担当が決まったら、その人の言葉の「カレンダーに追加」を返す */
   takerLangs?: (LanguageCode | undefined)[];
+  /** 担当の候補それぞれの、家族のだれか（takers と同じ順）。1対1に送る相手を決める */
+  takerIds?: string[];
   /**
    * 段の言葉ごとの「カレンダーに追加」（Google カレンダーの予定を作る画面のリンク。題・メモはその言葉）。
    * 端末で作る。CULALOG のサーバーには置かない（お知らせと一緒に Telegram へ渡すだけ）
    */
   calendar?: Partial<Record<LanguageCode, string>>;
+  /** 段の言葉ごとの iPhone のカレンダー（.ics の中身）。1対1で「iPhone のカレンダー」の人には、合言葉つきのリンクにして渡す */
+  ics?: Partial<Record<LanguageCode, string>>;
 }
 
 /** 「カレンダーに追加」のボタンの文（言葉ごと） */
@@ -119,6 +123,21 @@ const FOOTER: Record<LanguageCode, string> = {
 };
 
 const mark = (c: LanguageCode) => `【${LANGUAGES.find((l) => l.code === c)?.native ?? c}】`;
+
+/** 1対1に送るときの終わりの一言（その人の言葉だけ） */
+const FOOTER_DM: Record<LanguageCode, string> = {
+  ja: "質問は、ここに書いてください。担当を決めたら下のボタンを。",
+  "ja-easy": "しつもんは、ここに かいてね。だれが するか きまったら、したの ボタンを おしてね。",
+  vi: "Muốn hỏi gì thì viết ở đây. Khi đã quyết định ai lo, hãy bấm nút bên dưới.",
+};
+
+/** 1対1に送る文: その人の言葉の段だけ（無ければ日本語の段） */
+export function composeTellFor(p: TellPayload, lang: LanguageCode): { text: string; lang: LanguageCode } {
+  const block = p.blocks.find((b) => b.lang === lang) ?? p.blocks.find((b) => b.lang === "ja") ?? p.blocks[0];
+  const text = composeTell({ ...p, blocks: [block] }).split("\n");
+  text[text.length - 1] = FOOTER_DM[block.lang];
+  return { text: text.join("\n"), lang: block.lang };
+}
 
 export function composeTell(p: TellPayload): string {
   const parts = [TELL_HEAD];

@@ -4,7 +4,7 @@
 
 import { adultWorkOn, conflictFor, noticeShort, sameEvent, workNotices } from "./conflicts";
 import { addDays, readableDates, toYmd } from "./deadlines";
-import { googleCalendarUrl, parseTimes } from "./calendar";
+import { googleCalendarUrl, parseTimes, toIcs, type CalendarEvent } from "./calendar";
 import { maskKnownNumbers } from "./numbers";
 import { languageOf, type LanguageCode } from "./languages";
 import type { TellBlock, TellPayload } from "./tell";
@@ -165,7 +165,11 @@ export function buildTell(
     holder: nameIn(self, "ja"),
     takers: takers.map((x) => x.names),
     takerLangs: takers.map((x) => languageOf(x.m)),
-    calendar: calendarLinks(household, doc, translations, blocks.map((b) => b.lang), mask),
+    takerIds: takers.map((x) => x.m.id),
+    ...(() => {
+      const links = calendarLinks(household, doc, translations, blocks.map((b) => b.lang), mask);
+      return { calendar: links?.google, ics: links?.ics };
+    })(),
   };
 }
 
@@ -180,13 +184,14 @@ function calendarLinks(
   translations: Partial<Record<LanguageCode, DocTranslation>>,
   langs: LanguageCode[],
   mask: (t: string) => string,
-): Partial<Record<LanguageCode, string>> | undefined {
+): { google: Partial<Record<LanguageCode, string>>; ics: Partial<Record<LanguageCode, string>> } | undefined {
   const events = doc.deadlines.filter((d) => d.kind === "event" && d.date && !(household.done ?? {})[d.id]);
   if (events.length !== 1) return undefined;
   const d = events[0];
   const self = household.members.find((m) => m.relation === "self");
   const { start, end } = parseTimes(d.time);
   const out: Partial<Record<LanguageCode, string>> = {};
+  const ics: Partial<Record<LanguageCode, string>> = {};
   for (const lang of langs) {
     if (childOnlyLanguage(household, lang)) continue;
     const t = lang === "ja" ? undefined : translations[lang];
@@ -195,8 +200,7 @@ function calendarLinks(
     const note = CAL_NOTE[lang];
     const what = lang === "ja" ? (d.needs?.length ? `${TEXT.ja.needs}: ${d.needs.join("、")}` : "") : item!.text;
     const lines = [what, note.source(doc.title, nameIn(self, lang)), note.check].filter(Boolean);
-    const make = (description: string) =>
-      googleCalendarUrl({
+    const eventOf = (description: string): CalendarEvent => ({
         uid: `${d.id}@culalog`,
         title: mask(lang === "ja" ? d.label : item!.label),
         date: d.date,
@@ -206,12 +210,15 @@ function calendarLinks(
         place: d.place,
         description: mask(description),
       });
+    const make = (description: string) => googleCalendarUrl(eventOf(description));
+    // iPhone のカレンダー（.ics）。家族の置き場所に一時的に置いて、合言葉つきのリンクで開く
+    ics[lang] = toIcs([eventOf(lines.join("\n"))], new Date());
     // リンクが長すぎるとボタンにできないので、メモを後ろから短くする（原本へ戻る行と「確かめて」は残す）
     let url = make(lines.join("\n"));
     if (url.length > 1800) url = make(lines.slice(1).join("\n"));
     if (url.length <= 1800) out[lang] = url;
   }
-  return Object.keys(out).length ? out : undefined;
+  return Object.keys(out).length || Object.keys(ics).length ? { google: out, ics } : undefined;
 }
 
 /** 近い予定の「日付と件数」だけ（通知のために預ける。予定の名前は入れない） */

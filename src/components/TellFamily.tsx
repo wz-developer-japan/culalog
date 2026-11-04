@@ -1,7 +1,7 @@
 "use client";
 
-// 「家族に伝える」: 共有した書類のまとめを、家族それぞれの言葉で Telegram のグループへ。
-// 🔴 押したときだけ送る。送る前に、何がどこへ出るかを全部見せる。Telegram とつないでいなければ、コピーして自分で貼れる。
+// 「家族に伝える」: 共有した書類のまとめを、大人それぞれと執事の1対1（Telegram）へ、その人の言葉の段だけで。
+// 🔴 押したときだけ送る。送る前に、何がだれへ出るかを全部見せる。1対1を始めていない人・Telegram とつないでいなければ、コピーして自分で貼れる。
 
 import { useState } from "react";
 import { translateDocument } from "@/components/TranslationView";
@@ -17,7 +17,6 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
   const [text, setText] = useState("");
   const [payload, setPayload] = useState<ReturnType<typeof buildTell> | null>(null);
   const [status, setStatus] = useState("");
-  const [groupCount, setGroupCount] = useState(0);
   if (!doc.confirmedAt || !doc.sharedWith?.length) return null;
   const missing = tellLanguages(household, doc)
     .filter((l) => l !== "ja" && !doc.translations?.[l])
@@ -26,14 +25,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
   async function prepare() {
     setBusy(true);
     setStatus("");
-    // グループに送ると、グループの全員が読む。つないでいれば、グループの人の読みたい言葉も入れる
-    let groupLangs: LanguageCode[] = [];
-    if (household.telegram) {
-      const res = await fetch("/api/chat-info", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(household.telegram) }).catch(() => null);
-      const json = res?.ok ? await res.json().catch(() => ({})) : {};
-      groupLangs = Array.isArray(json.langs) ? json.langs : [];
-      setGroupCount(typeof json.count === "number" ? json.count : 0);
-    }
+    const groupLangs: LanguageCode[] = [];
     // 送る言葉の訳が無ければ、先に訳す。訳せなかった言葉は外して、そう書く
     const translations: Partial<Record<string, DocTranslation>> = { ...doc.translations };
     const langs: LanguageCode[] = [];
@@ -77,7 +69,18 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
     }).catch(() => null);
     const json = res ? await res.json().catch(() => ({})) : {};
     setBusy(false);
-    setStatus(res?.ok ? "家族の Telegram に送りました。" : (json.error ?? "送れませんでした。"));
+    if (!res?.ok) return setStatus(json.error ?? "送れませんでした。");
+    const names = (ids: unknown) => (Array.isArray(ids) ? ids : []).map((id) => household.members.find((m) => m.id === id)).filter(Boolean).map((m) => `${m!.name.split(/\s+/).pop()}さん`);
+    const sent = names(json.sent);
+    const notStarted = names(json.notStarted);
+    setStatus(
+      [
+        sent.length ? `${sent.join("・")}の執事との1対1に送りました。` : "",
+        notStarted.length ? `${notStarted.join("・")}は、まだ執事と1対1を始めていません（Telegram で執事に /start）。その人には、下の文をコピーして渡してください。` : "",
+      ]
+        .filter(Boolean)
+        .join(""),
+    );
   }
 
   return (
@@ -97,7 +100,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
         <div className="card tell-preview">
           <div className="meta">
             {household.telegram
-              ? `下の文を、家族の Telegram グループに送ります${groupCount ? `（グループの${groupCount}人が読めます）` : ""}。Telegram と通訳（Claude）を通ります。書類の写真・ほかの書類・大事な番号は送りません。`
+              ? `${recipients(household, payload)}の、執事との1対1（Telegram）に、それぞれの言葉の段だけを送ります。家族のグループには流しません。書類の写真・ほかの書類・大事な番号は送りません。`
               : "家族の Telegram とまだつないでいません（設定でつなげます）。下の文をコピーして、いつものアプリに貼ることもできます。"}
           </div>
           {(() => {
@@ -110,8 +113,8 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
             ) : null;
           })()}
           {household.telegram && (
-            <button className="button" disabled={busy || status.startsWith("家族の")} onClick={send}>
-              {busy ? "送っています…" : "Telegram のグループに送る"}
+            <button className="button" disabled={busy || status.includes("1対1に送りました")} onClick={send}>
+              {busy ? "送っています…" : "それぞれの1対1に送る"}
             </button>
           )}
           {status && (
@@ -125,7 +128,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
             const cal = household.telegram && payload ? calendarButtons(payload.calendar, payload.blocks.map((b) => b.lang)) : [];
             return cal.length > 0 ? (
               <div className="meta">
-                お知らせの下に「{cal.map((b) => b.text).join("」「")}」のボタンも付けます。押すと、その言葉の題とメモで Google カレンダーの予定を作る画面が開きます（予定は CULALOG のサーバーに置きません）。担当が決まると、その人の言葉のボタンを返します。
+                お知らせの下に、その人の言葉の「{cal.map((b) => b.text).join("」「")}」のボタンも付けます。Google カレンダーの人には予定を作る画面、iPhone のカレンダーの人には予定を入れるリンク（30日で切れる）が開きます。
               </div>
             ) : null;
           })()}
@@ -150,4 +153,13 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
       )}
     </div>
   );
+}
+
+/** 送る相手（あなたと、共有した大人）の呼び名と言葉 */
+function recipients(household: Household, p: ReturnType<typeof buildTell> | null): string {
+  return (p?.takerIds ?? [])
+    .map((id) => household.members.find((m) => m.id === id))
+    .filter(Boolean)
+    .map((m) => `${m!.name.split(/\s+/).pop()}さん（${languageLabel(m!.language ?? "ja")}）`)
+    .join("・");
 }

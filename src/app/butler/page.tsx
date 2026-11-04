@@ -127,6 +127,29 @@ export default function ButlerSettingsPage() {
         </label>
       ))}
 
+      <h3>ふだん使うカレンダー（大人）</h3>
+      <p className="meta">執事の1対1のお知らせに付ける「カレンダーに追加」の形です。iPhone のカレンダーなら、予定を入れるリンク（30日で切れる）を付けます。</p>
+      {household.members
+        .filter((m) => m.relation !== "child")
+        .map((m) => (
+          <label className="label row-label" key={`cal-${m.id}`}>
+            <span>{m.name}</span>
+            <select
+              className="input"
+              value={m.calendarApp ?? "google"}
+              onChange={(e) =>
+                save({
+                  ...household,
+                  members: household.members.map((x) => (x.id === m.id ? { ...x, calendarApp: e.target.value as "google" | "apple" } : x)),
+                })
+              }
+            >
+              <option value="google">Google カレンダー</option>
+              <option value="apple">iPhone のカレンダー</option>
+            </select>
+          </label>
+        ))}
+
       {(() => {
         // ほかの言葉で読む家族へのお知らせ（Telegram）では、名前もその言葉の呼び名で書く（漢字の名前が読めない人がいるため）
         const others = [...new Set(household.members.map(languageOf))].filter((c) => c !== "ja");

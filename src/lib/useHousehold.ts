@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { clearHousehold, loadHousehold, saveHousehold } from "./storage";
+import { scheduleFamilySync } from "./familySync";
 import type { Household } from "./types";
 
 export function newId(prefix: string): string {
@@ -49,6 +50,7 @@ export function useHousehold() {
     listeners.add(listener);
     loadHousehold().then((h) => {
       if (touched.current) return;
+      scheduleFamilySync(h);
       latest.current = h;
       setHousehold(h);
       setLoaded(true);
@@ -64,6 +66,8 @@ export function useHousehold() {
     setHousehold(next);
     broadcast(next, me.current);
     await saveHousehold(next);
+    // 家族の Telegram とつないでいれば、共有した書類のまとめを家族の置き場所へ（変わったときだけ）
+    scheduleFamilySync(next);
   }, []);
 
   /** いちばん新しい家に変更を足して保存する */
@@ -74,6 +78,8 @@ export function useHousehold() {
     setHousehold(next);
     broadcast(next, me.current);
     await saveHousehold(next);
+    // 家族の Telegram とつないでいれば、共有した書類のまとめを家族の置き場所へ（変わったときだけ）
+    scheduleFamilySync(next);
   }, []);
 
   const clear = useCallback(async () => {

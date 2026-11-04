@@ -1,21 +1,12 @@
-// 通知: アプリを開いたときに「近い予定の日付と件数」だけを預かり、その日の朝に家族の Telegram へ
-// 「近い予定が○件あります。くわしくは CULALOG か、このグループで聞いてね」とそれぞれの言葉で送る。🔴 予定の名前・書類の中身は預からない・送らない。
+// 通知: アプリを開いたときに「近い予定の日付と件数」を預かり、その日の朝に、執事と1対1を始めた大人それぞれへ
+// 「近い予定が○件あります。くわしくは、ここで聞いてね」をその人の言葉だけで送る（家族のグループには送らない）。
 // POST（アプリから）: { chatId, token, upcoming: { "YYYY-MM-DD": 件数 }, sendNow? }
 // GET（毎朝の定時実行。Vercel Cron が Authorization: Bearer <CRON_SECRET> を付ける）
 
 import { NextRequest, NextResponse } from "next/server";
-import { type LanguageCode } from "@/lib/languages";
-import { langMark } from "@/lib/server/interpret";
+import { notifyDms } from "@/lib/server/dm";
 import { chatsToNotify, type ChatDoc, updateChat, verifyChatToken } from "@/lib/server/store";
-import { sendMessage, telegramReady } from "@/lib/server/telegram";
-
-// a = 今日の件数、b = 今日から7日以内の件数。
-// アプリのデータは書類を預かる人の端末にしかないので、ほかの家族に「アプリを開いて」とは言わない（このグループで聞けば、通訳つきで届く）
-const NOTICE: Record<LanguageCode, (today: number, week: number) => string> = {
-  ja: (a, b) => (b ? `近い予定が${b}件あります（今日 ${a}件・7日以内 ${b}件）。くわしくは CULALOG か、このグループで聞いてね` : "7日以内に、共有している予定はありません。"),
-  "ja-easy": (a, b) => (b ? `ちかい よていが ${b}こ あります（きょう ${a}・7にち いない ${b}）。きに なったら、この グループで きいてね` : "7にち いない に よていは ありません。"),
-  vi: (a, b) => (b ? `Có ${b} việc sắp tới (hôm nay ${a}, trong 7 ngày ${b}). Muốn biết thêm thì hỏi trong nhóm này nhé.` : "Trong 7 ngày tới không có việc nào được chia sẻ."),
-};
+import { telegramReady } from "@/lib/server/telegram";
 
 const jstYmd = (offsetDays = 0) => new Date(Date.now() + 9 * 3600 * 1000 + offsetDays * 86400 * 1000).toISOString().slice(0, 10);
 
@@ -27,9 +18,8 @@ async function notifyChat(id: string, chat: ChatDoc, force = false): Promise<boo
   for (let i = 0; i < 7; i++) b += chat.upcoming?.[jstYmd(i)] ?? 0;
   // 毎朝の通知は、予定があるときだけ。「いま送ってみる」は、0件でも「ありません」を送る
   if (b === 0 && !force) return false;
-  const langs = [...new Set(Object.values(chat.users ?? {}).map((u) => u.lang))];
-  const list = (langs.length ? langs : ["ja"]) as LanguageCode[];
-  await sendMessage(id, `🔔 ${list.map((l) => `${langMark(l)} ${NOTICE[l](a, b)}`).join("\n")}`);
+  const sent = await notifyDms(chat, a, b);
+  if (!sent) return false;
   await updateChat(id, { notifiedOn: today });
   return true;
 }

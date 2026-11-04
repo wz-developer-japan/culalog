@@ -1,15 +1,20 @@
 // サーバー側の小さな置き場所（Google の Firebase・Firestore）。
-// 🔴 置くのは、Telegram のグループと人の「読みたい言葉」・つなぐための合言葉の指紋・通知の「日付と件数」・Telegram で Claude を呼んだその日の回数だけ。
-// 書類の中身・予定の名前・会話の文は置かない。
+// 🔴 置くのは、Telegram のグループと人の「読みたい言葉」・つなぐための合言葉の指紋・通知の「日付と件数」・Telegram で Claude を呼んだその日の回数、
+//    家族の名簿（呼び名と言葉）・1対1を始めた大人・**家族と共有した書類のまとめ**（置かない線は src/lib/familyShare.ts）。
+// 写真・原本の全文・大事な番号・会話の文は置かない。家族（つないだグループ）ごとに分け、合言葉が合うときだけ読み書きする。
 
 import { createHash, randomBytes } from "node:crypto";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import type { LanguageCode } from "@/lib/languages";
+import { fakeFirestore } from "./fakeFirestore";
+import type { FamilySummary, RosterMember } from "@/lib/familyShare";
 
 let db: Firestore | null | undefined;
 
 export function store(): Firestore | null {
+  // 試験のときだけ: メモリの中の置き場所（本番では使わない）
+  if (process.env.CULALOG_FAKE_STORE === "1" && process.env.VERCEL_ENV !== "production") return fakeFirestore() as unknown as Firestore;
   if (db !== undefined) return db;
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
   if (!raw) return (db = null);
@@ -40,6 +45,10 @@ export interface ChatDoc {
   notifiedOn?: string;
   /** Telegram で Claude を呼んだ回数（日本時間の日ごと。上限のため。会話の文は置かない） */
   claudeUse?: { day: string; count: number; overNoticed?: boolean };
+  /** 家族の名簿（呼び名と読みたい言葉だけ。アプリが送る） */
+  roster?: RosterMember[];
+  /** 執事と1対1を始めた大人（Telegram の人の番号 → 家族のだれか・読みたい言葉） */
+  dms?: Record<string, { memberId: string; lang: LanguageCode; startedAt: string }>;
 }
 
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -140,4 +149,77 @@ export function claudeUseNext(
     return { result: "over-first", mine: { day, count: mineCount, overNoticed: true } };
   }
   return { result: "ok", mine: { day, count: mineCount + 1, overNoticed: false }, all: { day, count: allCount + 1 } };
+}
+
+// ---- 家族と共有した書類のまとめ（chats/{グループ}/docs/{書類}） ----
+
+const familyDocsRef = (s: Firestore, chatId: string) => s.collection("chats").doc(chatId).collection("docs");
+
+/** 共有したまとめを、アプリから来た一覧に置き換える（一覧に無いものは消す＝共有をやめた書類は残らない） */
+export async function replaceFamilyDocs(chatId: string, docs: FamilySummary[], roster: RosterMember[]) {
+  const s = store();
+  if (!s) return;
+  const ref = familyDocsRef(s, chatId);
+  const now = await ref.get();
+  const keep = new Set(docs.map((d) => d.id));
+  const batch = s.batch();
+  for (const d of now.docs) if (!keep.has(d.id)) batch.delete(ref.doc(d.id));
+  for (const d of docs) batch.set(ref.doc(d.id), JSON.parse(JSON.stringify(d)));
+  batch.set(s.collection("chats").doc(chatId), { roster }, { merge: true });
+  await batch.commit();
+}
+
+export async function familyDocs(chatId: string): Promise<FamilySummary[]> {
+  const s = store();
+  if (!s) return [];
+  const snap = await familyDocsRef(s, chatId).get();
+  return snap.docs.map((d) => d.data() as FamilySummary);
+}
+
+/** 家族のまとめ・名簿・預かる？を全部消す（つながり・読みたい言葉は残す） */
+export async function clearFamilyData(chatId: string) {
+  const s = store();
+  if (!s) return;
+  const batch = s.batch();
+  for (const name of ["docs", "inbox", "tells"]) {
+    const snap = await s.collection("chats").doc(chatId).collection(name).get();
+    for (const d of snap.docs) batch.delete(s.collection("chats").doc(chatId).collection(name).doc(d.id));
+  }
+  batch.set(s.collection("chats").doc(chatId), { roster: [] }, { merge: true });
+  const links = await s.collection("icsLinks").where("chatId", "==", chatId).get();
+  for (const d of links.docs) batch.delete(s.collection("icsLinks").doc(d.id));
+  await batch.commit();
+}
+
+// ---- Telegram の人 → 家族（1対1で、どの家族の人かを知るため） ----
+
+export async function indexUser(userId: string, chatId: string) {
+  const s = store();
+  if (!s) return;
+  await s.collection("tgUsers").doc(userId).set({ chatId }, { merge: true });
+}
+
+export async function familyOfUser(userId: string): Promise<string | null> {
+  const s = store();
+  if (!s) return null;
+  const snap = await s.collection("tgUsers").doc(userId).get();
+  return snap.exists ? ((snap.data() as { chatId?: string }).chatId ?? null) : null;
+}
+
+// ---- iPhone のカレンダーに入れるリンク（.ics を一時的に置く。推測できない合言葉・30日で切れる） ----
+
+export async function putIcsLink(chatId: string, ics: string): Promise<string | null> {
+  const s = store();
+  if (!s) return null;
+  const token = randomBytes(18).toString("base64url");
+  await s.collection("icsLinks").doc(token).set({ chatId, ics, expiresAt: Date.now() + 30 * 24 * 3600 * 1000 });
+  return token;
+}
+
+export async function getIcsLink(token: string): Promise<string | null> {
+  const s = store();
+  if (!s || !/^[\w-]{20,40}$/.test(token)) return null;
+  const snap = await s.collection("icsLinks").doc(token).get();
+  const data = snap.data() as { ics: string; expiresAt: number } | undefined;
+  return data && data.expiresAt > Date.now() ? data.ics : null;
 }

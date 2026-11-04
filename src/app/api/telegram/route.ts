@@ -1,13 +1,13 @@
-// Telegram の通訳の執事（webhook）。
-// - グループの会話を、ほかの人の読みたい言葉にして同じグループへ（全部訳すモード。/pause で止める）
-// - アプリから送った「家族へのお知らせ」への返信の質問には、そのお知らせに書いてある範囲でだけ答える
-// - お知らせの「私がやる」ボタンで、担当をそれぞれの言葉で知らせる
-// 🔴 書類には触らない（書類は端末の中）。会話の文は保存しない。置くのはグループと人の読みたい言葉だけ。
+// Telegram の執事（webhook）。
+// - 家族のグループ: 会話を、ほかの人の読みたい言葉にして同じグループへ（通訳だけ。/pause で止める）
+// - 大人それぞれとの1対1: お知らせ（家族に伝える・朝の通知）がその人の言葉で届く。担当のボタン。質問・写真・伝言（src/lib/server/dm.ts）
+// 🔴 家族の名簿とつながっていない人の1対1には何もしない。会話の文は保存しない。
 
 import { NextRequest, NextResponse } from "next/server";
 import { LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
-import { createLinkCode, getChat, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
+import { onDmMessage, onDmStart, onWhoCallback, setDmLang, takeTell } from "@/lib/server/dm";
+import { createLinkCode, familyOfUser, getChat, indexUser, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
 import { afterTake, TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
 
@@ -23,6 +23,9 @@ interface TgMessage {
   chat: { id: number; type: string };
   from?: TgUser;
   text?: string;
+  caption?: string;
+  photo?: { file_id: string; width: number; height: number; file_size?: number }[];
+  document?: { file_id: string; mime_type?: string; file_size?: number };
   reply_to_message?: TgMessage;
   reply_markup?: { inline_keyboard?: { text: string; url?: string; callback_data?: string }[][] };
 }
@@ -56,6 +59,13 @@ async function withinLimit(chatId: string, replyTo: number): Promise<boolean> {
   return use === "ok";
 }
 
+/** グループで言葉を決めた人へ: 1対1でも話せる */
+const DM_HINT: Record<LanguageCode, string> = {
+  ja: "お知らせは執事との1対1に届きます。執事の名前を押して、1対1で /start を送ってください。",
+  "ja-easy": "おしらせは しつじ との 1たい1 に とどきます。しつじ の なまえを おして、/start を おくってね。",
+  vi: "Thông báo sẽ đến trong cuộc trò chuyện riêng với quản gia. Hãy bấm vào tên quản gia và gửi /start.",
+};
+
 const LANG_ALIASES: Record<string, LanguageCode> = { ja: "ja", jp: "ja", vi: "vi", vn: "vi", easy: "ja-easy", "ja-easy": "ja-easy" };
 
 const ok = () => NextResponse.json({ ok: true });
@@ -69,6 +79,7 @@ export async function POST(request: NextRequest) {
   if (!update) return ok();
   try {
     if (update.callback_query) await onCallback(update.callback_query);
+    else if (update.message?.chat?.type === "private") await onPrivate(update.message as TgMessage);
     else if (update.message?.text) await onMessage(update.message as TgMessage);
   } catch (e) {
     console.error("telegram webhook:", e instanceof Error ? e.message : "failed");
@@ -118,8 +129,11 @@ async function onCommand(chatId: string, m: TgMessage, cmd: string, arg: string)
     if (!lang) return sendMessage(chatId, "使える言葉: /lang ja ・ /lang vi ・ /lang easy");
     await setUserLang(chatId, String(m.from!.id), { lang, name: m.from!.first_name ?? "" });
     const label = LANGUAGES.find((l) => l.code === lang)!.native;
+    // この人がどの家族かを覚える（1対1で /start したときに、家族の名簿から「あなたはだれ？」を出すため）。つないだグループだけ
+    const chat = await getChat(chatId);
+    if (chat?.tokenHash) await indexUser(String(m.from!.id), chatId);
     // 返事は送った人のメッセージへの返信にして、表示名（本名のこともある）は文に入れない
-    return sendMessage(chatId, `✓ ${label}`, { replyTo: m.message_id });
+    return sendMessage(chatId, `✓ ${label}${chat?.tokenHash ? `\n${DM_HINT[lang]}` : ""}`, { replyTo: m.message_id });
   }
   if (cmd === "pause" || cmd === "resume") {
     await updateChat(chatId, { paused: cmd === "pause" });
@@ -132,6 +146,14 @@ async function onCommand(chatId: string, m: TgMessage, cmd: string, arg: string)
 }
 
 async function onCallback(q: { id: string; from: TgUser; data?: string; message?: TgMessage }) {
+  if (q.data?.startsWith("w:") && store()) return onWhoCallback({ ...q, data: q.data });
+  if (q.data?.startsWith("k:") && store()) {
+    const [, tellId, idx] = q.data.split(":");
+    const family = await familyOfUser(String(q.from.id));
+    if (family) return takeTell(family, tellId, Number(idx), q.id);
+    return tg("answerCallbackQuery", { callback_query_id: q.id });
+  }
+  // 前の形（グループに送っていたお知らせ）の担当のボタン
   if (!q.data?.startsWith("t:") || !q.message) return tg("answerCallbackQuery", { callback_query_id: q.id });
   const chatId = String(q.message.chat.id);
   // 担当の名前は、押した人の Telegram の表示名ではなく、ボタンに入れた家族の呼び名（言葉ごと）
@@ -150,4 +172,20 @@ async function onCallback(q: { id: string; from: TgUser; data?: string; message?
   const done = `✅ ${lines.join("\n")}`;
   const sent = await sendMessage(chatId, done, { replyTo: q.message.message_id, buttons: mine ? [[mine]] : undefined });
   if (!sent && mine) await sendMessage(chatId, done, { replyTo: q.message.message_id });
+}
+
+/** 1対1。家族の名簿とつながっていない人（家族のグループで言葉を決めていない人）には何もしない */
+async function onPrivate(m: TgMessage) {
+  if (!m.from || m.from.is_bot || !store()) return;
+  const userId = String(m.from.id);
+  if (!(await familyOfUser(userId))) return;
+  const text = (m.text ?? "").trim();
+  const cmd = text.match(/^\/(\w+)(?:@\w+)?\s*(.*)$/);
+  if (cmd?.[1].toLowerCase() === "start") return onDmStart(userId);
+  if (cmd?.[1].toLowerCase() === "lang") {
+    const lang = LANG_ALIASES[cmd[2].trim().toLowerCase()];
+    return lang ? setDmLang(userId, lang) : sendMessage(userId, "/lang ja ・ /lang vi ・ /lang easy");
+  }
+  if (cmd?.[1].toLowerCase() === "help") return sendMessage(userId, HELP);
+  return onDmMessage(userId, m);
 }

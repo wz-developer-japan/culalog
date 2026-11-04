@@ -24,6 +24,8 @@ export interface FamilyMember {
   language?: import("./languages").LanguageCode;
   /** ほかの言葉での呼び名（例: ベトナム語では「Thảo」）。無ければ name の下の名前 */
   names?: Partial<Record<import("./languages").LanguageCode, string>>;
+  /** ふだん使うカレンダー（執事の1対1のお知らせに付けるボタンの形）。google＝Google カレンダーの予定作成リンク、apple＝iPhone のカレンダー（.ics） */
+  calendarApp?: "google" | "apple";
 }
 
 /** 原本のどこに書いてあったか */

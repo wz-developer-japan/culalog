@@ -42,7 +42,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
   const members: Household["members"] = [
     // 一緒に住んでいる家族だけ（離れて暮らす親などは、この家の書類としては扱わない）
     { id: "m-self", icon: "man", name: "日向 翔太", relation: "self", roleLabel: "あなた", note: "書類の管理をしている。平日は会社勤め", names: { vi: "Shōta", "ja-easy": "しょうた" } },
-    { id: "m-spouse", icon: "woman-long", name: "日向 タオ", relation: "spouse", roleLabel: "妻", note: "ベトナム出身。食品工場に勤務（土曜の出勤あり）", language: "vi", names: { vi: "Thảo", "ja-easy": "タオ" } },
+    { id: "m-spouse", icon: "woman-long", name: "日向 タオ", relation: "spouse", roleLabel: "妻", note: "ベトナム出身。食品工場に勤務（土曜の出勤あり）", language: "vi", names: { vi: "Thảo", "ja-easy": "タオ" }, calendarApp: "apple" },
     { id: "m-son", icon: "boy", name: "日向 蓮", relation: "child", roleLabel: "長男", note: "小学3年", names: { vi: "Ren", "ja-easy": "れん" } },
     { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園", names: { vi: "Yui", "ja-easy": "ゆい" } },
   ];
