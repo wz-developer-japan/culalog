@@ -128,7 +128,7 @@ export default function ButlerSettingsPage() {
       ))}
 
       <h3>ふだん使うカレンダー（大人）</h3>
-      <p className="meta">執事の1対1のお知らせに付ける「カレンダーに追加」の形です。iPhone のカレンダーなら、予定を入れるリンク（30日で切れる）を付けます。</p>
+      <p className="meta">お知らせの「カレンダーに追加」の形です。</p>
       {household.members
         .filter((m) => m.relation !== "child")
         .map((m) => (
@@ -188,7 +188,7 @@ export default function ButlerSettingsPage() {
       <VoiceSettings />
 
       <h2>この端末のデータ</h2>
-      <p className="meta">書類・覚えたこと・設定は、この端末の中にだけ保存しています。</p>
+      <p className="meta">書類・覚えたこと・設定は、この端末の中に保存しています（共有した書類のまとめだけ、家族の置き場所にも置きます）。</p>
       <button
         className="button secondary danger"
         onClick={async () => {

@@ -62,15 +62,13 @@ export function TelegramSettings({ household, save }: { household: Household; sa
     <>
       <h2>家族の Telegram</h2>
       <p className="meta">
-        家族の Telegram グループに執事（bot）を入れると、グループの会話をそれぞれの読みたい言葉に訳します。
-        大人はそれぞれ執事と1対1で話すと、お知らせがその人の言葉で届き、共有した書類のことを聞けます。
-        そのために、<b>家族と共有した書類のまとめ</b>（題・予定・やること・訳）を家族の置き場所（サーバー）に置きます。
-        写真・原本の全文・大事な番号（保険証・口座・カード・マイナンバー・パスワードなど）は置きません。
+        家族のグループでは会話を訳し、大人それぞれとの1対1にお知らせを届けます。
+        そのため<b>共有した書類のまとめ</b>（題・予定・やること・訳）をサーバーに置きます。写真・原本の全文・大事な番号は置きません。
       </p>
       {household.telegram ? (
         <div className="card">
           つないでいます（{household.telegram.linkedAt.slice(0, 10)}）
-          <div className="meta">共有した書類 {sharedCount}件のまとめを、変わったときに家族の置き場所へ送ります。</div>
+          <div className="meta">共有した書類 {sharedCount}件のまとめを置いています（変わったら置き直します）。</div>
           <button className="button secondary" disabled={busy} onClick={syncNow}>
             共有した書類のまとめを、いま置き直す
           </button>

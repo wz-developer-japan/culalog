@@ -100,7 +100,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
         <div className="card tell-preview">
           <div className="meta">
             {household.telegram
-              ? `${recipients(household, payload)}の、執事との1対1（Telegram）に、それぞれの言葉の段だけを送ります。家族のグループには流しません。書類の写真・ほかの書類・大事な番号は送りません。`
+              ? `${recipients(household, payload)}、それぞれの1対1（Telegram）に送ります。写真・ほかの書類・番号は送りません。`
               : "家族の Telegram とまだつないでいません（設定でつなげます）。下の文をコピーして、いつものアプリに貼ることもできます。"}
           </div>
           {(() => {
@@ -108,7 +108,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
             const others = LANGUAGES.filter((l) => l.code !== "ja" && text.includes(`【${l.native}】`)).map((l) => l.label);
             return others.length > 0 && text.includes("【日本語】") ? (
               <div className="meta">
-                {others.join("・")}の段は、日本語の段と同じ予定・やることを訳したものです（ℹ の行は、その言葉で読む人への一般的な説明）。
+                {others.join("・")}の段は日本語の段と同じ中身です（ℹ は一般的な説明）。
               </div>
             ) : null;
           })()}
@@ -128,7 +128,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
             const cal = household.telegram && payload ? calendarButtons(payload.calendar, payload.blocks.map((b) => b.lang)) : [];
             return cal.length > 0 ? (
               <div className="meta">
-                お知らせの下に、その人の言葉の「{cal.map((b) => b.text).join("」「")}」のボタンも付けます。Google カレンダーの人には予定を作る画面、iPhone のカレンダーの人には予定を入れるリンク（30日で切れる）が開きます。
+                「{cal.map((b) => b.text).join("」「")}」のボタンも付けます（iPhone の人には30日で切れるリンク）。
               </div>
             ) : null;
           })()}
@@ -160,6 +160,6 @@ function recipients(household: Household, p: ReturnType<typeof buildTell> | null
   return (p?.takerIds ?? [])
     .map((id) => household.members.find((m) => m.id === id))
     .filter(Boolean)
-    .map((m) => `${m!.name.split(/\s+/).pop()}さん（${languageLabel(m!.language ?? "ja")}）`)
+    .map((m) => `${m!.name.split(/\s+/).pop()}さんには${languageLabel(m!.language ?? "ja").replace(/（.*）/, "")}で`)
     .join("・");
 }

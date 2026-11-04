@@ -273,7 +273,7 @@ export default function Top() {
         </details>
       )}
 
-      <p className="note">データはこの端末の中にだけ保存しています。読み取る・つなぐ・聞くときだけ、必要な中身を Claude API に送ります。</p>
+      <p className="note">データはこの端末の中に保存しています（家族と共有した書類のまとめだけ、家族の置き場所にも）。読み取る・つなぐ・聞くときだけ、必要な中身を Claude API に送ります。</p>
     </main>
   );
 }
