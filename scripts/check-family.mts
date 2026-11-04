@@ -69,6 +69,18 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
   const { calendarTable } = await import("@/lib/server/assistant");
   const cal = calendarTable("2026-11-04");
   check(cal.length === 31 && cal[0] === "2026-11-04（水・第1水曜）" && cal.includes("2026-11-11（水・第2水曜）") && cal.includes("2026-11-25（水・第4水曜）") && cal[30] === "2026-12-04（金・第1金曜）", "1対1: 31日分の日付・曜日・第何○曜日の表（11/11 が第2水曜）");
+  // ベトナム語の日付は日/月（コードで作る日付と、Claude への指示文の両方）
+  {
+    const { VI_DATE_RULE } = await import("@/lib/languages");
+    const { ASSISTANT_SYSTEM } = await import("@/lib/server/assistant");
+    const { TRANSLATE_SYSTEM_PROMPT, formatDateIn } = await import("@/lib/translate");
+    const { shortDate } = await import("@/lib/server/morning");
+    const { readFileSync } = await import("node:fs");
+    const src = (f: string) => readFileSync(f, "utf8");
+    check(VI_DATE_RULE.includes("9/11") && VI_DATE_RULE.includes("27/11") && ASSISTANT_SYSTEM.includes(VI_DATE_RULE) && TRANSLATE_SYSTEM_PROMPT.includes(VI_DATE_RULE) && !ASSISTANT_SYSTEM.includes("11/27 (thứ"), "日付: 1対1の答え・書類の訳の指示文に「ベトナム語は日/月」（例つき）");
+    check(src("src/lib/server/dmPhoto.ts").includes("${VI_DATE_RULE}") && (src("src/lib/server/interpret.ts").match(/\$\{VI_DATE_RULE\}/g) ?? []).length >= 3, "日付: 写真の要約・グループの通訳と返信の答え・朝の通知の訳の指示文にも同じきまり");
+    check(shortDate("2026-11-09", "vi") === "9/11 (thứ Hai)" && shortDate("2026-11-09", "ja") === "11/9（月）" && formatDateIn("2026-11-27", "vi").includes("27/11") && formatDateIn("2026-11-27", "ja") === "11月27日（金）", "日付: コードで作る日付はベトナム語が日/月・日本語は月/日");
+  }
   void summaryOf;
   void rosterOf;
 }
@@ -160,6 +172,7 @@ const token = "tok-123";
   check(Boolean(toWife) && textOf(toWife!).startsWith("📄 CULALOG｜Thông báo cho gia đình") && !/家族へのお知らせ|端末の中|— 原本/.test(textOf(toWife!)) && textOf(toWife!).includes("— Bản gốc (tiếng Nhật; giấy tờ nằm trong điện thoại của Shōta)"), "伝える: 妻あての見出し・原本の見出しもベトナム語（引用は日本語のまま）");
   check(textOf(toHusband!).startsWith("📄 CULALOG｜家族へのお知らせ") && textOf(toHusband!).includes("— 原本（書類は翔太さんの端末の中）"), "伝える: 夫あての見出しは日本語");
   check(textOf(toHusband!).includes("授業参観 10:45〜11:30 ／ 学級懇談会 11:40〜12:10") && !textOf(toHusband!).includes("10:45〜12:10") && textOf(toWife!).includes("Dự giờ 10:45–11:30 ／ Họp phụ huynh lớp 11:40–12:10"), "伝える: 授業参観と学級懇談会の時刻を分ける（夫・妻）");
+  check(textOf(toWife!).includes("27/11") && !/11\/27/.test(textOf(toWife!).split("— Bản gốc")[0]), "伝える: 妻あての日付は日/月（27/11）");
   check(!to(out, chatId).length, "伝える: 家族のグループには流さない");
   const kb = (x: (typeof sent)[number] | undefined) => ((x?.body.reply_markup as { inline_keyboard: { text: string; url?: string; callback_data?: string }[][] }) ?? { inline_keyboard: [] }).inline_keyboard.flat();
   const wifeCal = kb(toWife).find((b) => b.url);

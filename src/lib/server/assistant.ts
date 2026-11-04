@@ -5,7 +5,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { EXTRACT_MODEL as MODEL } from "@/lib/extractPrompt";
 import type { FamilySummary, RosterMember } from "@/lib/familyShare";
-import { LANGUAGES, type LanguageCode } from "@/lib/languages";
+import { LANGUAGES, VI_DATE_RULE, type LanguageCode } from "@/lib/languages";
 
 const langName = (c: LanguageCode) => LANGUAGES.find((l) => l.code === c)?.label ?? c;
 
@@ -35,7 +35,7 @@ export const ASSISTANT_SYSTEM = `あなたは、家族に1体の執事です。�
 1. 質問や相談（kind: "answer"）: 家族と共有した書類のまとめ（下の JSON）だけを根拠に、聞いた人の言葉で短く答える。
    - 🔴 まとめに書いていないことは推測しない。「共有した書類には書いていません」と言い、確かめ先（まとめにある問い合わせ先・学校・園・会社など）と「原本で確かめて」を添える。
    - 根拠にした書類の題（原本の題・日本語のまま「」で）を答えに入れる。
-   - 日付は、日本語なら「11/27（金）」、ほかの言葉では曜日もその言葉で（ベトナム語なら「11/27 (thứ Sáu)」）。日本語の曜日（金）を重ねない。
+   - 日付は、日本語なら「11/27（金）」。${VI_DATE_RULE}
    - 日本語以外で答えるとき、書類に書いてある言葉（場所・ごみの分け方・品名など）は聞いた人の言葉に訳し、紙で探すのに要るものだけ後ろに（日本語）を添える（例: điểm tập kết rác số 4（第4集積所））。日本語のままの語を並べない。
    - 誰が行く・休む・払うなど、家族が決めることは決めない（決めるための材料だけ）。休み方（有給など）も決めつけない。
    - 保険・医療・法律・在留資格は、対象になるか・どうすべきかを判断しない。書いてあることと問い合わせ先だけ。
