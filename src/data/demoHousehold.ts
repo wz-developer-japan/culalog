@@ -670,7 +670,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
 
 /**
  * 見本の家族の「誰と共有するか」。この家では、子ども・学校・保育園・地域のこと・タオさんの書類はタオさんと共有し、
- * 翔太さんだけの書類（給与・税金・年金など）と、住まい・車の契約は共有しない（自分だけ）、家電の保証書は共有にしている、という設定。
+ * 翔太さんだけの書類（給与・税金・年金など）と、住まい・車の契約は共有しない（自分だけ）、家電の保証書とマンションの点検の掲示は共有にしている、という設定。
  * 🔴 実際に使うときは、配偶者でも自動では共有しない（書類ごとにあなたが選ぶ）
  */
 function withDemoShare(doc: Household["documents"][number]): Household["documents"][number] {
@@ -678,7 +678,7 @@ function withDemoShare(doc: Household["documents"][number]): Household["document
   const forFamily =
     ["school", "childcare", "community", "medical", "medical_card"].includes(doc.category) ||
     doc.memberIds.some((id) => id === "m-spouse" || id === "m-son" || id === "m-daughter") ||
-    // 家電の保証書（エアコン・給湯器）は、壊れたときに家にいる人が聞けるように共有（家賃保証などの契約は共有しない）
-    (doc.category === "housing" && /保証書/.test(doc.title));
+    // 家電の保証書（エアコン・給湯器）と、マンションの点検の掲示（部屋に入る日）は、家にいる人が聞けるように共有（家賃保証などの契約は共有しない）
+    (doc.category === "housing" && /保証書|点検のお知らせ/.test(doc.title));
   return { ...doc, sharedWith: forFamily ? ["m-spouse"] : [] };
 }

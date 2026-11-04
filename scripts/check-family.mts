@@ -66,6 +66,14 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
   check(Boolean(aircon?.fields.some((f) => f.label === "お買い上げ日" && /空欄/.test(f.value))), "見本: エアコンのお買い上げ日は空欄のまま（決めつけない）");
   const garbage = docs.find((d) => /家庭ごみ 収集日程表/.test(d.title));
   check(Boolean(garbage?.fields.some((f) => /ペットボトル/.test(f.label) && /第2・第4 水/.test(f.value))), "見本: ごみの収集日程表（缶・ビン・ペットボトル＝第2・第4 水）が共有のまとめにある");
+  // 動画の「ベトナム語で聞けば、書類から答える」の例（住まい・習い事・保険）。答えの根拠がまとめに載っているか
+  const fire = docs.find((d) => /消防設備点検/.test(d.title));
+  check(Boolean(fire?.events.some((e) => e.date === "2026-11-18" && e.time === "13:30〜16:30") && fire?.events.some((e) => e.date === "2026-11-13") && fire?.contacts.some((c) => c.phone === "000-0000-0110") && fire?.fields.some((f) => /予備/.test(f.label) && /11月19日/.test(f.value))), "見本: マンションの消防設備点検（11/18 13:30〜16:30・不在は 11/13 までに管理会社へ・予備の日）が共有のまとめにある");
+  const swim = docs.find((d) => /スイミング/.test(d.title));
+  check(Boolean(swim?.events.some((e) => e.date === "2026-11-16" && /休館/.test(e.label)) && swim?.events.some((e) => e.date === "2026-11-17" && e.endDate === "2026-12-12") && swim?.fields.some((f) => /前日の午後7時/.test(f.value)) && swim?.contacts.some((c) => c.phone === "000-0000-0103")), "見本: スイミングの休館（11/16）と振替（11/17〜12/12・前日19時まで）・受付の電話が共有のまとめにある");
+  const kodomo = docs.find((d) => /こども総合保険/.test(d.title));
+  check(Boolean(kodomo?.fields.some((f) => /控除証明書の場所/.test(f.label)) && kodomo?.storageLocation === "本棚の保険のファイル"), "見本: こども保険の控除証明書の場所と、原本のしまい場所が共有のまとめにある");
+  check(!docs.some((d) => /家賃保証|電気需給|インターネット/.test(d.title)), "見本: 点検の掲示を共有にしても、住まいの契約は共有しない");
   const { calendarTable } = await import("@/lib/server/assistant");
   const cal = calendarTable("2026-11-04");
   check(cal.length === 31 && cal[0] === "2026-11-04（水・第1水曜）" && cal.includes("2026-11-11（水・第2水曜）") && cal.includes("2026-11-25（水・第4水曜）") && cal[30] === "2026-12-04（金・第1金曜）", "1対1: 31日分の日付・曜日・第何○曜日の表（11/11 が第2水曜）");
