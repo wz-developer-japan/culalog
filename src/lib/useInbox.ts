@@ -16,6 +16,12 @@ import { deleteFile, getFile } from "./storage";
 import type { Household } from "./types";
 import { newId } from "./useHousehold";
 
+/**
+ * 見本のうち、キーがあるとき本物の Claude で読む1枚（審査員に Claude が読むところを見せる）。
+ * 「来ていないもの」→ 読み取り → 確定 → 休みの申請の締切、が一続きで見せられる授業参観のご案内（/?demo=few で渡す見本）
+ */
+export const LIVE_SAMPLE_IDS = ["sample-open-class"];
+
 /** 通信に失敗したときに、次に試すまで待つ時間 */
 const RETRY_MS = 60 * 1000;
 
@@ -52,6 +58,12 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
           return;
         }
         const sample = item.sampleId ? household.demoSamples?.find((x) => x.id === item.sampleId) : undefined;
+        // 見本は、用意した仮の結果で読む（本物の Claude で読むのは LIVE_SAMPLE_IDS の1枚だけ。料金と回数の上限のため）
+        if (sample && !LIVE_SAMPLE_IDS.includes(sample.id)) {
+          await update((h) => applyExtraction(h, item, sample.provisionalDraft, { draftSource: "provisional", dataUrl, pages, originalText: sample.text, newId }));
+          await Promise.all([item.id, ...(item.pageIds ?? [])].map(deleteFile));
+          return;
+        }
         const body = JSON.stringify({
           ...(pages.length
             ? { pages: [dataUrl, ...pages].map((d) => ({ mediaType: item.mediaType, data: base64Of(d) })) }
