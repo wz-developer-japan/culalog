@@ -59,6 +59,16 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
   check(secrets.length > 0 && secrets.every((v) => !json.includes(v)), `見本: 大事な番号（${secrets.length}件）がまとめに入らない`);
   check(roster.some((m) => m.lang === "vi" && m.adult) && roster.some((m) => !m.adult), "見本: 名簿に大人（ベトナム語）と子どもがいる");
   check(!JSON.stringify(roster).includes("photo"), "見本: 名簿には呼び名と言葉だけ");
+  const heater = docs.find((d) => /給湯器の延長保証書/.test(d.title));
+  const aircon = docs.find((d) => /エアコンの保証書/.test(d.title));
+  check(Boolean(heater && aircon) && !docs.some((d) => /家賃保証|電気需給/.test(d.title)), "見本: 家電の保証書（エアコン・給湯器）だけ共有（家賃保証・電気の契約は共有しない）");
+  check(Boolean(heater?.events.some((e) => e.date === "2035-01-16") && heater?.contacts.some((c) => c.phone === "000-0000-0056") && heater?.storageLocation) && !JSON.stringify(heater).includes("0000000456") && !heater!.fields.some((f) => /製造番号|登録番号/.test(f.label)), "見本: 給湯器の保証の終わり・修理の連絡先・しまい場所は置き、製造番号・登録番号は置かない");
+  check(Boolean(aircon?.fields.some((f) => f.label === "お買い上げ日" && /空欄/.test(f.value))), "見本: エアコンのお買い上げ日は空欄のまま（決めつけない）");
+  const garbage = docs.find((d) => /家庭ごみ 収集日程表/.test(d.title));
+  check(Boolean(garbage?.fields.some((f) => /ペットボトル/.test(f.label) && /第2・第4 水/.test(f.value))), "見本: ごみの収集日程表（缶・ビン・ペットボトル＝第2・第4 水）が共有のまとめにある");
+  const { calendarTable } = await import("@/lib/server/assistant");
+  const cal = calendarTable("2026-11-04");
+  check(cal.length === 31 && cal[0] === "2026-11-04（水・第1水曜）" && cal.includes("2026-11-11（水・第2水曜）") && cal.includes("2026-11-25（水・第4水曜）") && cal[30] === "2026-12-04（金・第1金曜）", "1対1: 31日分の日付・曜日・第何○曜日の表（11/11 が第2水曜）");
   void summaryOf;
   void rosterOf;
 }

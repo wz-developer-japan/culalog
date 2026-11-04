@@ -37,12 +37,27 @@ export const ASSISTANT_SYSTEM = `あなたは、家族に1体の執事です。�
    - 根拠にした書類の題（原本の題・日本語のまま）を答えに入れる。日付は「11/27（金）」の形で。
    - 誰が行く・休む・払うなど、家族が決めることは決めない（決めるための材料だけ）。休み方（有給など）も決めつけない。
    - 保険・医療・法律・在留資格は、対象になるか・どうすべきかを判断しない。書いてあることと問い合わせ先だけ。
+   - 「次の○○の日はいつ？」など、毎週・第○曜日のきまり（例: 第2・第4 水）から日を答えるときは、自分で暦を数えず、下の calendar（今日から31日分の日付・曜日・第何○曜日）から選ぶ。
+   - 家電の保証書について聞かれたら、保証の対象になるか・無料か有料かは判断しない。書いてある保証の期間・数え方（いつから）・連絡先・原本の場所（stored）だけを答える。期間の始まりの日が書いていなければ「書類に書いていない」と言い、確かめ方が書いてあればそれを添える。
+   - 答えは短く。最初の1行に答え（日付・期限など）、そのあと要るものだけ（時間・場所・連絡先・原本の題）。全部で4行まで。スマホで読みやすいように。
    - 書類と関係ない雑談には、短く自然に返す。
 2. 伝言（kind: "relay"）: 「○○に伝えて」「Nhắn cho … rằng …」など、家族のだれかへの伝言を頼まれたとき。
    - relayTo に相手の id（家族の名簿から。大人だけ）、relayText に相手の読みたい言葉で伝える文（意味を変えない・足さない。家族の会話らしく自然に。誰からかは書かなくてよい）。
    - answer には、聞いた人の言葉で「○○さんに伝えます」と短く。
    - 相手が分からない・名簿にいないときは kind: "answer" にして、だれに伝えるか聞き返す。
 使わない欄は空の文字列にする。`;
+
+const WEEKDAY = ["日", "月", "火", "水", "木", "金", "土"];
+
+/** 今日から n 日分の「2026-11-11（水・第2水曜）」。毎週・第○曜日のきまりから日を選ぶとき、Claude に暦を数えさせないため */
+export function calendarTable(today: string, n = 31): string[] {
+  const [y, m, d] = today.split("-").map(Number);
+  return Array.from({ length: n }, (_, i) => {
+    const x = new Date(Date.UTC(y, m - 1, d + i));
+    const w = WEEKDAY[x.getUTCDay()];
+    return `${x.toISOString().slice(0, 10)}（${w}・第${Math.ceil(x.getUTCDate() / 7)}${w}曜）`;
+  });
+}
 
 /** まとめを、聞いた人の言葉の訳だけに絞って小さくする */
 function compact(docs: FamilySummary[], lang: LanguageCode) {
@@ -75,6 +90,7 @@ export async function askAssistant(input: {
   });
   const ask = JSON.stringify({
     today: input.today,
+    calendar: calendarTable(input.today),
     asker: { id: input.asker.id, name: input.asker.names.ja, lang: `${langName(input.lang)}（${input.lang}）` },
     message: input.message,
   });
