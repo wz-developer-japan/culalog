@@ -246,3 +246,18 @@ export async function familyInboxDone(chatId: string, ids: string[]) {
   }
   await batch.commit();
 }
+
+// ---- 同じものを二度処理しない（Telegram の再送・同じ写真） ----
+
+/** key をはじめて見たときだけ true（2日で消してよい印を置く）。置き場所が無いときは true */
+export async function firstTime(key: string): Promise<boolean> {
+  const s = store();
+  if (!s) return true;
+  const ref = s.collection("seen").doc(key.replace(/[^\w-]/g, "_").slice(0, 120));
+  return s.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (snap.exists) return false;
+    tx.set(ref, { at: Date.now(), expiresAt: Date.now() + 2 * 24 * 3600 * 1000 });
+    return true;
+  });
+}

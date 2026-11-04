@@ -214,13 +214,16 @@ export const DM_TEXT = {
 
 const jstToday = () => new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
 
-export async function onDmMessage(userId: string, m: { message_id: number; text?: string; caption?: string; photo?: { file_id: string; file_size?: number }[]; document?: { file_id: string; mime_type?: string; file_size?: number } }) {
+export async function onDmMessage(userId: string, m: { message_id: number; text?: string; caption?: string; photo?: { file_id: string; file_unique_id?: string; file_size?: number }[]; document?: { file_id: string; file_unique_id?: string; mime_type?: string; file_size?: number } }) {
   const who = await dmUser(userId);
   if (!who) return;
   if (!who.member) return sendMessage(userId, DM_SAY.notStarted);
   const lang = who.lang;
   const photo = m.photo?.length ? m.photo[m.photo.length - 1] : m.document && /^image\/|^application\/pdf$/.test(m.document.mime_type ?? "") ? m.document : undefined;
   if (photo) {
+    // 同じ写真（送り直し・転送）は一度だけ読む
+    const { firstTime } = await import("./store");
+    if (photo.file_unique_id && !(await firstTime(`p${who.chatId}_${photo.file_unique_id}`).catch(() => true))) return;
     const { onDmPhoto } = await import("./dmPhoto");
     return onDmPhoto({ userId, chatId: who.chatId, chat: who.chat, member: who.member, lang, fileId: photo.file_id, mediaType: (m.document?.mime_type ?? "image/jpeg") as string, replyTo: m.message_id, caption: m.caption });
   }

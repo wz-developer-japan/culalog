@@ -88,9 +88,12 @@ async function read(data: string, mediaType: string, roster: RosterMember[], tod
 const SUMMARY_SYSTEM = `あなたは、家族の書類を預かる執事です。読み取った書類の中身（JSON）を、指定された言葉で、家族に短く伝えます。
 - 何の書類か（1行）・いつ何があるか（日付は「11/27（金）」の形）・やること（締切・持ち物）を、箇条書き3〜6行で。
 - 書いていないことは足さない。保険・医療・法律・在留の判断はしない。休み方（有給など）を決めつけない。
-- 最後に、日本語の原本の題を（ ）で添える。前置きや見出しは付けない。`;
+- 最後に、日本語の原本の題を（ ）で添える。前置きや見出しは付けない。
+- Markdown の記号（** や # など）は使わない（Telegram では記号のまま出る）。
+- 人名・地名は、原本に読み仮名が無ければローマ字にせず漢字のまま書く（読み方を推測しない）。
+- 「家族」の誰かの名前（姓だけの「日向さん」も）が、当番・担当・対象・宛名として書いてあれば、いちばん上の行に「🔔 」で始めて、うちの家族のことだと一言で書く（例:「🔔 日向さん（うち）が集会所の清掃当番です（11/18（水）10:00〜11:00）」）。`;
 
-async function summarize(extraction: Extraction, lang: LanguageCode): Promise<string> {
+async function summarize(extraction: Extraction, lang: LanguageCode, roster: RosterMember[]): Promise<string> {
   const res = await new Anthropic().beta.messages.create({
     model: MODEL,
     max_tokens: 2000,
@@ -98,10 +101,16 @@ async function summarize(extraction: Extraction, lang: LanguageCode): Promise<st
     fallbacks: "default",
     output_config: { effort: "low" },
     system: SUMMARY_SYSTEM,
-    messages: [{ role: "user", content: `伝える言葉: ${langName(lang)}（${lang}）\n\n書類:\n${JSON.stringify({ ...extraction, transcript: "" })}` }],
+    messages: [
+      {
+        role: "user",
+        content: `伝える言葉: ${langName(lang)}（${lang}）\n家族: ${roster.map((m) => `${m.fullName ?? m.names.ja}（${m.names[lang] ?? m.names.ja}）`).join("、")}\n\n書類:\n${JSON.stringify({ ...extraction, transcript: "" })}`,
+      },
+    ],
   });
   const text = res.content.find((b) => b.type === "text");
-  return text && text.type === "text" ? text.text.trim() : extraction.title;
+  // 念のため Markdown の記号を外す（Telegram は parse_mode 無しで送るので、記号のまま出てしまう）
+  return text && text.type === "text" ? text.text.replace(/\*\*|__|^#+\s*/gm, "").trim() : extraction.title;
 }
 
 export async function onDmPhoto(x: { userId: string; chatId: string; chat: ChatDoc; member: RosterMember; lang: LanguageCode; fileId: string; mediaType: string; replyTo: number; caption?: string }) {
@@ -125,7 +134,7 @@ export async function onDmPhoto(x: { userId: string; chatId: string; chat: ChatD
   const clean = sanitizeExtraction(extraction);
   let summary = clean.title;
   try {
-    summary = await summarize(clean, lang);
+    summary = await summarize(clean, lang, roster);
   } catch {
     /* 題だけ返す */
   }

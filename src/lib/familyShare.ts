@@ -57,6 +57,8 @@ export interface RosterMember {
   calendarApp?: "google" | "apple";
   /** 書類を預かる人（アプリを使っている人） */
   holder?: boolean;
+  /** 日本語の名前（姓つき。回覧や名簿の「日向さん」を、うちの家族だと見分けるため） */
+  fullName?: string;
 }
 
 /** 項目の名前がこれなら、値ごと置かない（番号・お金の出入りの口・ログインの類） */
@@ -152,7 +154,7 @@ export function sanitizeRoster(x: unknown): RosterMember[] {
     .map((m) => {
       const names = Object.fromEntries(LANGUAGES.map((l) => [l.code, cut((m?.names as Record<string, unknown> | undefined)?.[l.code], 30)]).filter(([, n]) => n));
       const lang = LANGUAGES.find((l) => l.code === m?.lang)?.code ?? "ja";
-      return { id: cut(m?.id, 60), names, lang, adult: m?.adult === true, calendarApp: m?.calendarApp === "apple" ? "apple" : "google", holder: m?.holder === true } as RosterMember;
+      return { id: cut(m?.id, 60), names, lang, adult: m?.adult === true, calendarApp: m?.calendarApp === "apple" ? "apple" : "google", holder: m?.holder === true, fullName: cut(m?.fullName, 40) || undefined } as RosterMember;
     })
     .filter((m) => /^[\w-]{1,60}$/.test(m.id) && m.names.ja);
 }
@@ -214,6 +216,7 @@ export function rosterOf(household: Household): RosterMember[] {
       adult: m.relation !== "child",
       calendarApp: m.calendarApp ?? "google",
       holder: m.relation === "self",
+      fullName: m.name,
     })),
   );
 }

@@ -174,6 +174,16 @@ const token = "tok-123";
   i = sent.length;
   await hook({ update_id: ++n, message: { message_id: ++n, chat: dm(222), from: { id: 222 }, photo: [{ file_id: "f1", width: 10, height: 10 }] } });
   check(since(i).some((x) => textOf(x).includes("Quản gia đang được chuẩn bị")), "1対1の写真: キーが無いときは「準備中」（読まない）");
+  // Telegram の送り直し（同じ update_id）と、同じ写真（同じ file_unique_id）は一度だけ
+  i = sent.length;
+  const again = { update_id: 777001, message: { message_id: 4001, chat: dm(222), from: { id: 222 }, text: "Hôm nay thế nào?" } };
+  await hook(again);
+  await hook(again);
+  check(since(i).length === 1, "二重処理しない: 同じ update_id が2回来ても、答えは1回");
+  i = sent.length;
+  await hook({ update_id: ++n, message: { message_id: ++n, chat: dm(222), from: { id: 222 }, photo: [{ file_id: "fa", file_unique_id: "U1", width: 10, height: 10 }] } });
+  await hook({ update_id: ++n, message: { message_id: ++n, chat: dm(222), from: { id: 222 }, photo: [{ file_id: "fb", file_unique_id: "U1", width: 10, height: 10 }] } });
+  check(since(i).length === 1, "二重処理しない: 同じ写真（file_unique_id）は一度だけ読む");
   i = sent.length;
   await hook({ update_id: ++n, message: { message_id: ++n, chat: dm(999), from: { id: 999 }, photo: [{ file_id: "f1", width: 10, height: 10 }] } });
   check(since(i).length === 0, "1対1の写真: 家族の名簿とつながっていない人には何もしない");

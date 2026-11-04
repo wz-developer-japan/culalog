@@ -3,15 +3,16 @@
 // - 大人それぞれとの1対1: お知らせ（家族に伝える・朝の通知）がその人の言葉で届く。担当のボタン。質問・写真・伝言（src/lib/server/dm.ts）
 // 🔴 家族の名簿とつながっていない人の1対1には何もしない。会話の文は保存しない。
 
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
 import { onDmMessage, onDmStart, onWhoCallback, setDmLang, takeTell } from "@/lib/server/dm";
-import { createLinkCode, familyOfUser, getChat, indexUser, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
+import { createLinkCode, familyOfUser, firstTime, getChat, indexUser, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
 import { afterTake, TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
 
-export const maxDuration = 60;
+// 写真の読み取り（Claude）は数十秒かかる。返事（200）は先に返し、読み取りは after で続ける
+export const maxDuration = 300;
 
 interface TgUser {
   id: number;
@@ -24,8 +25,8 @@ interface TgMessage {
   from?: TgUser;
   text?: string;
   caption?: string;
-  photo?: { file_id: string; width: number; height: number; file_size?: number }[];
-  document?: { file_id: string; mime_type?: string; file_size?: number };
+  photo?: { file_id: string; file_unique_id?: string; width: number; height: number; file_size?: number }[];
+  document?: { file_id: string; file_unique_id?: string; mime_type?: string; file_size?: number };
   reply_to_message?: TgMessage;
   reply_markup?: { inline_keyboard?: { text: string; url?: string; callback_data?: string }[][] };
 }
@@ -78,13 +79,20 @@ export async function POST(request: NextRequest) {
   }
   const update = await request.json().catch(() => null);
   if (!update) return ok();
-  try {
-    if (update.callback_query) await onCallback(update.callback_query);
-    else if (update.message?.chat?.type === "private") await onPrivate(update.message as TgMessage);
-    else if (update.message?.text) await onMessage(update.message as TgMessage);
-  } catch (e) {
-    console.error("telegram webhook:", e instanceof Error ? e.message : "failed");
-  }
+  // 🔴 Telegram は、返事が遅いと同じ update を送り直す。同じ update_id は一度だけ処理する
+  if (typeof update.update_id === "number" && store() && !(await firstTime(`u${update.update_id}`).catch(() => true))) return ok();
+  const handle = async () => {
+    try {
+      if (update.callback_query) await onCallback(update.callback_query);
+      else if (update.message?.chat?.type === "private") await onPrivate(update.message as TgMessage);
+      else if (update.message?.text) await onMessage(update.message as TgMessage);
+    } catch (e) {
+      console.error("telegram webhook:", e instanceof Error ? e.message : "failed");
+    }
+  };
+  // 返事（200）を先に返し、処理（Claude を待つもの）はそのあとで。試験のときはその場で
+  if (process.env.CULALOG_FAKE_TELEGRAM === "1" && process.env.VERCEL_ENV !== "production") await handle();
+  else after(handle);
   // Telegram には常に 200 を返す（失敗で同じ更新が何度も届かないように）
   return ok();
 }
