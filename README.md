@@ -265,3 +265,19 @@ Telegram の通訳と毎朝の通知には、`.env.example` にある Telegram �
 - 動作確認: セッションの中の Playwright でスマホ幅の画面を通しで操作し、時計を固定して日付に関わる機能を確かめる。
   Claude API の返事を差し替えて、間違った答え（ありえない ID・違う日付・判断の言い回し）をコードが外すかも確かめる。
   Telegram はセッションから届かないため、本番のグループで人が確かめる
+- デモ動画: 説明のカード・字幕・効果音と BGM の秒合わせも、別のセッションの Claude Code がスクリプトで組み立てた（画面の映像は本番のアプリと Telegram を人が撮ったもの）
+
+## 使った素材（出典）
+
+アプリと書類の見本（架空の家族・架空の書類）・アイコン・説明の絵は、この期間にこのリポジトリで作ったものです。外から使っているものは次のとおりです。
+
+- 書体（アプリの画面）: [Zen Kaku Gothic New](https://fonts.google.com/specimen/Zen+Kaku+Gothic+New)・[Zen Maru Gothic](https://fonts.google.com/specimen/Zen+Maru+Gothic)・[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)。Google Fonts から読み込み（SIL Open Font License 1.1）。書体のファイルはリポジトリに入れていません
+- デモ動画の文字: Zen Kaku Gothic New（SIL Open Font License 1.1）。書体のファイルはリポジトリに入れていません
+- デモ動画の BGM: Apple GarageBand に付属の Apple Loops（Summers End Acoustic Guitar／Summers End Bass／Shaker 05）。GarageBand の使用許諾により、自作の動画のサウンドトラックとしてロイヤリティフリーで使用
+- デモ動画の効果音: Apple Final Cut Pro に付属のサウンドエフェクト（Bell Small／Computer Mouse）。Final Cut Pro の使用許諾により使用
+- 音源のファイルはリポジトリに入れていません（素材だけを再配布することは使用許諾で認められていないため）
+- ライブラリ: `package.json` にあるもの（Next.js・React・Anthropic SDK・Firebase Admin SDK など）。それぞれのライセンスによります
+
+## ライセンス
+
+[MIT License](LICENSE)（上の「使った素材」の書体・音源は、それぞれの使用許諾によります）
