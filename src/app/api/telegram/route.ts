@@ -39,8 +39,8 @@ const HELP = `CULALOG の執事です。
 🔴 番号（保険証・口座など）は書かないでください。
 
 【Tiếng Việt】
-Tôi là quản gia của CULALOG.
-・Trong nhóm gia đình: tôi dịch tin nhắn sang ngôn ngữ mà mỗi người muốn đọc (gửi tới Claude để dịch, không lưu lại).
+Mình là quản gia của CULALOG.
+・Trong nhóm gia đình: mình dịch tin nhắn sang ngôn ngữ mà mỗi người muốn đọc (gửi tới Claude để dịch, không lưu lại).
 ・Chọn ngôn ngữ: /lang vi (Tiếng Việt)・/lang ja (日本語)・/lang easy (やさしい にほんご)
 ・Tạm dừng /pause ・Tiếp tục /resume
 ・Người lớn hãy gửi /start trong cuộc trò chuyện riêng với quản gia → thông báo sẽ đến bằng ngôn ngữ mà bạn chọn. Có thể hỏi về giấy tờ đã chia sẻ, gửi ảnh giấy tờ, hoặc nhờ chuyển lời ở đó.

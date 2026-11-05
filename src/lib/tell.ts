@@ -90,7 +90,7 @@ export function takerNames(data: string): Partial<Record<LanguageCode, string>> 
 export function takerButton(names: Partial<Record<LanguageCode, string>>): string {
   const ja = names.ja ?? "";
   const vi = names.vi ?? ja;
-  return `${ja}がやる / ${vi} sẽ lo`;
+  return `${ja}がやる / ${vi} sẽ lo việc này`;
 }
 
 /** お知らせに付けるボタン: 担当の候補ごとに1行（押した印に、その人の読みたい言葉）＋「カレンダーに追加」の1行（段の言葉ごと） */
@@ -130,7 +130,7 @@ const mark = (c: LanguageCode) => `【${LANGUAGES.find((l) => l.code === c)?.nat
 const FOOTER_DM: Record<LanguageCode, string> = {
   ja: "質問は、ここに書いてください。担当を決めたら下のボタンを。",
   "ja-easy": "しつもんは、ここに かいてね。だれが するか きまったら、したの ボタンを おしてね。",
-  vi: "Muốn hỏi gì thì viết ở đây. Khi đã quyết định ai lo, hãy bấm nút bên dưới.",
+  vi: "Có gì muốn hỏi thì cứ nhắn ở đây nhé. Khi cả nhà đã thống nhất ai sẽ lo việc này, hãy bấm nút bên dưới.",
 };
 
 /** 1対1の見出し（その人の言葉だけ。返信の引用にもこの1行が出る） */

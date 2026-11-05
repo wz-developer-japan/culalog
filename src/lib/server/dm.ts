@@ -110,7 +110,7 @@ const tellsRef = (chatId: string) => store()!.collection("chats").doc(chatId).co
 
 const takerButtonIn = (names: Partial<Record<LanguageCode, string>>, lang: LanguageCode) => {
   const n = names[lang] ?? names.ja ?? "";
-  return lang === "vi" ? `${n} sẽ lo` : lang === "ja-easy" ? `${n}が する` : `${n}がやる`;
+  return lang === "vi" ? `${n} sẽ lo việc này` : lang === "ja-easy" ? `${n}が する` : `${n}がやる`;
 };
 
 /**
@@ -275,7 +275,7 @@ export const NOTICE_PICK: Record<LanguageCode, string> = {
 const DETAIL_ASK: Record<LanguageCode, string> = {
   ja: "この予定をくわしく教えて",
   "ja-easy": "この よていを くわしく おしえて",
-  vi: "Cho tôi biết chi tiết về việc này.",
+  vi: "Chi tiết về việc này.",
 };
 
 /** 「どの予定？」のボタン（n:何番目） */

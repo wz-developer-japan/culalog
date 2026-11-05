@@ -97,13 +97,13 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
     const { ASSISTANT_SYSTEM } = await import("@/lib/server/assistant");
     const { readFileSync } = await import("node:fs");
     const src = (f: string) => readFileSync(f, "utf8");
-    check(/tôi/.test(VI_VOICE_RULE) && /bạn/.test(VI_VOICE_RULE) && ASSISTANT_SYSTEM.includes(VI_VOICE_RULE) && src("src/lib/server/dmPhoto.ts").includes("${VI_VOICE_RULE}") && src("src/lib/server/interpret.ts").includes("${VI_VOICE_RULE}"), "呼び方: 1対1の答え・写真の要約・お知らせへの返信の指示文に「自分は tôi・相手は bạn」");
+    check(/自分を必ず「mình」/.test(VI_VOICE_RULE) && /bạn/.test(VI_VOICE_RULE) && ASSISTANT_SYSTEM.includes(VI_VOICE_RULE) && src("src/lib/server/dmPhoto.ts").includes("${VI_VOICE_RULE}") && src("src/lib/server/interpret.ts").includes("${VI_VOICE_RULE}"), "呼び方: 1対1の答え・写真の要約・お知らせへの返信の指示文に「自分は mình・相手は bạn」");
     check(/頼み返さない/.test(ASSISTANT_SYSTEM) && !/Dạ, em/.test(ASSISTANT_SYSTEM), "呼び方: あいさつには執事として受けるだけ（頼み返さない）");
     // コードの決まった文（ベトナム語の行）に em・anh・chị・mình・con で自分や相手を呼ぶ言い方が無い
     const viLines = ["src/lib/server/dm.ts", "src/lib/server/morning.ts", "src/lib/tell.ts", "src/lib/tellBuild.ts", "src/app/api/telegram/route.ts", "src/lib/server/dmPhoto.ts"]
       .flatMap((f) => src(f).split("\n").filter((l) => /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i.test(l) && !/Hôm nay cũng nhờ anh/.test(l) && !/\.replace\(|DETAIL_WORD =/.test(l)));
-    const slip = viLines.filter((l) => /(^|[^\p{L}])(em|anh|chị|mình|con)([^\p{L}]|$)/iu.test(l.replace(/tiếng Anh|con số/g, "")));
-    check(viLines.length > 10 && slip.length === 0, `呼び方: コードの決まったベトナム語の文に em/anh/chị/mình で呼ぶ言い方が無い${slip.length ? `（${slip[0].trim().slice(0, 60)}）` : ""}`);
+    const slip = viLines.filter((l) => /(^|[^\p{L}])(em|anh|chị|tôi|con)([^\p{L}]|$)/iu.test(l.replace(/tiếng Anh|con số/g, "")));
+    check(viLines.length > 10 && slip.length === 0 && /Mình là quản gia/.test(src("src/app/api/telegram/route.ts")), `呼び方: コードの決まったベトナム語の文に tôi/em/anh/chị で呼ぶ言い方が無い・案内は「Mình là quản gia」${slip.length ? `（${slip[0].trim().slice(0, 60)}）` : ""}`);
   }
   void summaryOf;
   void rosterOf;
@@ -210,8 +210,9 @@ const token = "tok-123";
   const bad = await icsRoute.GET(new NextRequest("http://localhost/api/ics?t=aaaaaaaaaaaaaaaaaaaaaaaa"));
   check(bad.status === 404, "カレンダー: 合言葉が違えば開けない");
 
-  // 担当: 妻の1対1で「Thảo sẽ lo」→ 二人の1対1に、それぞれの言葉で
+  // 担当: 妻の1対1で「Thảo sẽ lo việc này」→ 二人の1対1に、それぞれの言葉で
   const take = kb(toWife).find((b) => b.callback_data?.startsWith("k:") && b.text.includes("Thảo"));
+  check(take?.text === "Thảo sẽ lo việc này" && (toWife ? textOf(toWife) : "").includes("Có gì muốn hỏi thì cứ nhắn ở đây nhé. Khi cả nhà đã thống nhất ai sẽ lo việc này, hãy bấm nút bên dưới."), "ベトナム語の決まった文: 担当のボタン「… sẽ lo việc này」・お知らせの最後の一言（11/05 話者に見てもらった文）");
   i = sent.length;
   await hook({ update_id: ++n, callback_query: { id: "cb3", from: { id: 222 }, data: take?.callback_data, message: { message_id: 9, chat: dm(222) } } });
   const tk = since(i);
