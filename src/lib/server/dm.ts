@@ -7,10 +7,10 @@ import { randomBytes } from "node:crypto";
 import type { FamilySummary, RosterMember } from "@/lib/familyShare";
 import type { LanguageCode } from "@/lib/languages";
 import { CAL_BUTTON, calendarButtons, composeTellFor, TAKE_TEXT, type TellPayload } from "@/lib/tell";
-import { familyOfUser, getChat, putIcsLink, store, updateChat, type ChatDoc } from "./store";
+import { familyOfUser, getChat, putIcsLink, store, updateChat, type ChatDoc, type DmNotice } from "./store";
 import { sendMessage, tg, type InlineButton } from "./telegram";
 import { translateLines } from "./interpret";
-import { docsFor, morningText, upcomingItems } from "./morning";
+import { docsFor, morningText, shortDate, upcomingItems } from "./morning";
 
 const nameIn = (m: RosterMember | undefined, lang: LanguageCode) => (m ? (m.names[lang] ?? m.names.ja ?? "") : "");
 
@@ -149,6 +149,9 @@ export async function deliverTell(chatId: string, chat: ChatDoc, p: TellPayload,
     if (res?.message_id) {
       record.sent.push({ userId: dm.userId, messageId: res.message_id, lang, calUrl: cal[0]?.url });
       out.sent.push(memberId);
+      const ja = p.blocks.find((b) => b.lang === "ja")?.title ?? "";
+      const shown = p.blocks.find((b) => b.lang === lang)?.title ?? ja;
+      await rememberNotice(chatId, chat, dm.userId, [{ label: ja, shown }]);
     } else out.failed.push(memberId);
   }
   if (record.sent.length) await tellsRef(chatId).doc(tellId).set(JSON.parse(JSON.stringify(record)));
@@ -196,13 +199,14 @@ export async function notifyDms(
   chat: ChatDoc,
   today: number,
   week: number,
-  opts: { docs?: FamilySummary[]; todayYmd?: string; force?: boolean; translate?: Translate } = {},
+  opts: { docs?: FamilySummary[]; todayYmd?: string; force?: boolean; translate?: Translate; chatId?: string } = {},
 ): Promise<number> {
   const translate = opts.translate ?? translateLines;
   const cache = new Map<string, string[] | null>();
   let n = 0;
   for (const [userId, dm] of Object.entries(chat.dms ?? {})) {
     let text: string | null = null;
+    let notice: DmNotice["items"] = [];
     if (opts.docs?.length && opts.todayYmd) {
       const member = (chat.roster ?? []).find((m) => m.id === dm.memberId);
       const items = upcomingItems(docsFor(opts.docs, member), opts.todayYmd);
@@ -216,11 +220,73 @@ export async function notifyDms(
         }
         const todayCount = items.filter((x) => x.date === opts.todayYmd).length;
         text = labels ? morningText(items, labels, dm.lang) : `🔔 ${NOTICE_DM[dm.lang](todayCount, items.length)}`;
+        notice = items.slice(0, 3).map((x, k) => ({ date: x.date, label: x.label, shown: labels?.[k] ?? x.label }));
       } else if (opts.force) text = `🔔 ${NOTICE_DM[dm.lang](0, 0)}`;
     } else if (week || opts.force) text = `🔔 ${NOTICE_DM[dm.lang](today, week)}`;
-    if (text && (await sendMessage(userId, text))) n++;
+    if (text && (await sendMessage(userId, text))) {
+      n++;
+      if (opts.chatId) await rememberNotice(opts.chatId, chat, userId, notice);
+    }
   }
   return n;
+}
+
+// ---- 通知のすぐあとの「詳しく」 ----
+
+/** 最後に送った通知の予定を、その人の1対1の記録に（予定が無い通知なら消す） */
+async function rememberNotice(chatId: string, chat: ChatDoc, userId: string, items: DmNotice["items"]) {
+  const dm = chat.dms?.[userId];
+  if (!dm) return;
+  const notice: DmNotice | null = items.length ? { at: new Date().toISOString(), items } : null;
+  dm.notice = notice;
+  await updateChat(chatId, { dms: { [userId]: { ...dm, notice } } }).catch(() => undefined);
+}
+
+/** 通知から20時間以内なら使う（次の朝の通知までに） */
+const freshNotice = (n: DmNotice | null | undefined) => (n && n.items.length && Date.now() - Date.parse(n.at) < 20 * 3600 * 1000 ? n : null);
+
+const DETAIL_WORD = /詳しく|くわしく|詳細|詳しい|くわしい|しょうさい|chi tiết|rõ hơn|biết thêm|nói thêm|kể thêm|thông tin thêm/i;
+/** 「詳しく教えて」「Chi tiết」など、何のことかを言っていない「詳しく」の言い方なら true */
+export function isDetailAsk(text: string): boolean {
+  const t = text.toLowerCase();
+  if (!DETAIL_WORD.test(t) || t.length > 40) return false;
+  const rest = t
+    .replace(/もっと|詳しく|くわしく|詳細|詳しい|くわしい|しょうさい|教えて|おしえて|ください|下さい|ちょうだい|お願い|おねがい|知りたい|しりたい|聞きたい|ききたい|して|それ|その|この|予定|よてい|について|のこと|こと|です|ます|を|は|が|に|の|ね|よ|な|か/g, "")
+    .replace(/chi tiết|rõ hơn|biết thêm|nói thêm|kể thêm|thông tin thêm|thông tin|cho|tôi|em|anh|chị|mình|biết|thêm|nói|được|không|với|nhé|nha|ạ|đi|xem|kể|về|việc|này|đó|đấy|hơn|muốn|hãy|giúp|please|more|details?/g, "")
+    .replace(/[\s\p{P}\p{S}]/gu, "");
+  return rest.length === 0;
+}
+
+/** そのメッセージが通知のどの予定のことか。「詳しく」だけなら、予定が1件のときはその予定・2件以上なら "pick"。違えば null */
+export function noticeTarget(text: string, notice: DmNotice | null | undefined): DmNotice["items"][number] | "pick" | null {
+  const n = freshNotice(notice);
+  if (!n || !DETAIL_WORD.test(text)) return null;
+  const named = n.items.filter((x) => (x.label && text.includes(x.label)) || (x.shown && text.toLowerCase().includes(x.shown.toLowerCase())));
+  if (named.length === 1) return named[0];
+  if (!isDetailAsk(text)) return null;
+  return n.items.length === 1 ? n.items[0] : "pick";
+}
+
+export const NOTICE_PICK: Record<LanguageCode, string> = {
+  ja: "どの予定のことですか？（さっきの通知から）",
+  "ja-easy": "どの よてい？（さっきの おしらせ から）",
+  vi: "Bạn muốn biết về việc nào? (trong thông báo vừa rồi)",
+};
+const DETAIL_ASK: Record<LanguageCode, string> = {
+  ja: "この予定をくわしく教えて",
+  "ja-easy": "この よていを くわしく おしえて",
+  vi: "Cho tôi biết chi tiết về việc này.",
+};
+
+/** 「どの予定？」のボタン（n:何番目） */
+export async function onNoticePick(q: { id: string; from: { id: number }; data: string; message?: { message_id: number; chat: { id: number } } }) {
+  const userId = String(q.from.id);
+  await tg("answerCallbackQuery", { callback_query_id: q.id });
+  const who = await dmUser(userId);
+  const item = freshNotice(who?.chat.dms?.[userId]?.notice)?.items[Number(q.data.slice(2))];
+  if (!who?.member || !item) return;
+  if (q.message) await tg("editMessageReplyMarkup", { chat_id: q.message.chat.id, message_id: q.message.message_id, reply_markup: { inline_keyboard: [[{ text: `✓ ${item.shown}`.slice(0, 60), callback_data: "noop" }]] } });
+  return answerDm(userId, who, DETAIL_ASK[who.lang], q.message?.message_id, item);
 }
 
 // ---- 1対1のふつうのメッセージ（質問・伝言・写真） ----
@@ -265,12 +331,45 @@ export async function onDmMessage(userId: string, m: { message_id: number; text?
   }
   const text = (m.text ?? "").trim();
   if (!text) return;
+  // 通知のすぐあとの「詳しく」: 予定が1件ならその予定のことで答え、2件以上なら選んでもらう
+  const notice = who.chat.dms?.[userId]?.notice;
+  const target = noticeTarget(text, notice);
+  if (target === "pick") {
+    const items = freshNotice(notice)!.items;
+    return sendMessage(userId, NOTICE_PICK[lang], {
+      replyTo: m.message_id,
+      buttons: items.map((x, k) => [{ text: `${x.date ? `${shortDate(x.date, lang)} ` : ""}${x.shown}`.slice(0, 60), callback_data: `n:${k}` }]),
+    });
+  }
+  return answerDm(userId, who, text, m.message_id, target ?? undefined);
+}
+
+async function answerDm(
+  userId: string,
+  who: NonNullable<Awaited<ReturnType<typeof dmUser>>>,
+  text: string,
+  replyTo: number | undefined,
+  about?: DmNotice["items"][number],
+) {
+  if (!who.member) return;
+  const lang = who.lang;
+  // 通知の控えは、次のメッセージで使い終わり（「直前の通知」だけに効かせる）
+  if (who.chat.dms?.[userId]?.notice) await rememberNotice(who.chatId, who.chat, userId, []);
+  const m = { message_id: replyTo };
   const { useClaudeInChat } = await import("./store");
   const use = await useClaudeInChat(who.chatId).catch(() => "over" as const);
   if (use !== "ok") return use === "over-first" ? sendMessage(userId, DM_TEXT.over[lang], { replyTo: m.message_id }) : undefined;
   const { askAssistant } = await import("./assistant");
   const { familyDocs } = await import("./store");
-  const out = await askAssistant({ message: text, asker: who.member, lang, roster: who.chat.roster ?? [], docs: await familyDocs(who.chatId), today: jstToday() });
+  const out = await askAssistant({
+    message: text,
+    asker: who.member,
+    lang,
+    roster: who.chat.roster ?? [],
+    docs: await familyDocs(who.chatId),
+    today: jstToday(),
+    about: about ? { label: about.label, date: about.date } : undefined,
+  });
   if (!out) return sendMessage(userId, DM_TEXT.preparing[lang], { replyTo: m.message_id });
   if (out.kind === "relay" && out.relayTo) {
     const target = (who.chat.roster ?? []).find((x) => x.id === out.relayTo && x.adult);

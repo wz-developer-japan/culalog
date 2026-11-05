@@ -48,7 +48,16 @@ export interface ChatDoc {
   /** 家族の名簿（呼び名と読みたい言葉だけ。アプリが送る） */
   roster?: RosterMember[];
   /** 執事と1対1を始めた大人（Telegram の人の番号 → 家族のだれか・読みたい言葉） */
-  dms?: Record<string, { memberId: string; lang: LanguageCode; startedAt: string }>;
+  dms?: Record<string, { memberId: string; lang: LanguageCode; startedAt: string; notice?: DmNotice | null }>;
+}
+
+/**
+ * 執事がその人の1対1に最後に送った通知（朝の通知・家族に伝える）の予定の名前と日付（上から3件まで）。
+ * すぐあとの「詳しく」を、その予定のこととして答えるため。会話の文は置かない。次のメッセージで消す
+ */
+export interface DmNotice {
+  at: string;
+  items: { date?: string; label: string; shown: string }[];
 }
 
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");

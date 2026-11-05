@@ -7,7 +7,7 @@ import { randomBytes } from "node:crypto";
 import { EXTRACTION_FORMAT_NOTE, jsonFromText, parseExtraction, type Extraction } from "@/lib/extraction";
 import { EXTRACT_MODEL as MODEL, EXTRACT_SYSTEM_PROMPT } from "@/lib/extractPrompt";
 import { sanitizeExtraction, sanitizeSummary, type RosterMember } from "@/lib/familyShare";
-import { LANGUAGES, VI_DATE_RULE, type LanguageCode } from "@/lib/languages";
+import { LANGUAGES, VI_DATE_RULE, VI_VOICE_RULE, type LanguageCode } from "@/lib/languages";
 import { dmOf } from "./dm";
 import { store, useClaudeInChat, type ChatDoc } from "./store";
 import { sendMessage, tg } from "./telegram";
@@ -90,6 +90,7 @@ const SUMMARY_SYSTEM = `あなたは、家族の書類を預かる執事です�
 - 書いていないことは足さない。保険・医療・法律・在留の判断はしない。休み方（有給など）を決めつけない。
 - 最後に、日本語の原本の題を（ ）で添える。前置きや見出しは付けない。
 - ${VI_DATE_RULE}
+- ${VI_VOICE_RULE}
 - Markdown の記号（** や # など）は使わない（Telegram では記号のまま出る）。
 - 人名・地名は、原本に読み仮名が無ければローマ字にせず漢字のまま書く（読み方を推測しない）。
 - 「家族」の誰かの名前（姓だけの「日向さん」も）が、当番・担当・対象・宛名として書いてあれば、いちばん上の行に「🔔 」で始めて、うちの家族のことだと一言で書く（例:「🔔 日向さん（うち）が集会所の清掃当番です（11/18（水）10:00〜11:00）」）。`;

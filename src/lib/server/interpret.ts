@@ -5,7 +5,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { EXTRACT_MODEL as MODEL } from "@/lib/extractPrompt";
-import { LANGUAGES, VI_DATE_RULE, type LanguageCode } from "@/lib/languages";
+import { LANGUAGES, VI_DATE_RULE, VI_VOICE_RULE, type LanguageCode } from "@/lib/languages";
 
 const LANG_CODES = LANGUAGES.map((l) => l.code);
 const langName = (c: LanguageCode) => LANGUAGES.find((l) => l.code === c)?.label ?? c;
@@ -70,6 +70,7 @@ const ANSWER_SYSTEM = `あなたは、家族の書類を預かる執事です。
 - 誰が行くか・休むかなど、家族が決めることは決めない（決めるための材料だけ）。保険・医療・法律・在留の手続きの判断はしない。
 - 短く。家族の会話らしく、やわらかく。
 - ${VI_DATE_RULE}
+- ${VI_VOICE_RULE}
 - sourceLang には質問の言葉。texts には、質問した人の言葉の答えを最初に、つづけてほかの指定された言葉の「質問の訳＋答え」を入れる（形:「Q: …\\nA: …」）。`;
 
 export async function answerFromNotice(question: string, notice: string, langs: LanguageCode[]): Promise<Out | null> {

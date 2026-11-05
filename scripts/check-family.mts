@@ -91,6 +91,20 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
     const today = new Date(2026, 10, 4);
     check(formatDateIn("2026-11-27", "vi", today) === shortDate("2026-11-27", "vi") && formatDateIn("2026-11-27", "vi", today) === "27/11 (thứ Sáu)" && formatDateIn("2035-01-16", "vi", today) === "16/1/2035 (thứ Ba)", "日付: お知らせのベトナム語の日付も朝の通知と同じ形（27/11 (thứ Sáu)）・半年より先だけ年を入れる");
   }
+  // ベトナム語の執事の呼び方は tôi／bạn（よしふみの決め 11/05）
+  {
+    const { VI_VOICE_RULE } = await import("@/lib/languages");
+    const { ASSISTANT_SYSTEM } = await import("@/lib/server/assistant");
+    const { readFileSync } = await import("node:fs");
+    const src = (f: string) => readFileSync(f, "utf8");
+    check(/tôi/.test(VI_VOICE_RULE) && /bạn/.test(VI_VOICE_RULE) && ASSISTANT_SYSTEM.includes(VI_VOICE_RULE) && src("src/lib/server/dmPhoto.ts").includes("${VI_VOICE_RULE}") && src("src/lib/server/interpret.ts").includes("${VI_VOICE_RULE}"), "呼び方: 1対1の答え・写真の要約・お知らせへの返信の指示文に「自分は tôi・相手は bạn」");
+    check(/頼み返さない/.test(ASSISTANT_SYSTEM) && !/Dạ, em/.test(ASSISTANT_SYSTEM), "呼び方: あいさつには執事として受けるだけ（頼み返さない）");
+    // コードの決まった文（ベトナム語の行）に em・anh・chị・mình・con で自分や相手を呼ぶ言い方が無い
+    const viLines = ["src/lib/server/dm.ts", "src/lib/server/morning.ts", "src/lib/tell.ts", "src/lib/tellBuild.ts", "src/app/api/telegram/route.ts", "src/lib/server/dmPhoto.ts"]
+      .flatMap((f) => src(f).split("\n").filter((l) => /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i.test(l) && !/Hôm nay cũng nhờ anh/.test(l) && !/\.replace\(|DETAIL_WORD =/.test(l)));
+    const slip = viLines.filter((l) => /(^|[^\p{L}])(em|anh|chị|mình|con)([^\p{L}]|$)/iu.test(l.replace(/tiếng Anh|con số/g, "")));
+    check(viLines.length > 10 && slip.length === 0, `呼び方: コードの決まったベトナム語の文に em/anh/chị/mình で呼ぶ言い方が無い${slip.length ? `（${slip[0].trim().slice(0, 60)}）` : ""}`);
+  }
   void summaryOf;
   void rosterOf;
 }
@@ -240,6 +254,31 @@ const token = "tok-123";
     i = sent.length;
     await notifyDms(chat, 0, 0, { docs: many, todayYmd: "2030-01-01", translate: fake });
     check(since(i).length === 0, "朝の通知: 7日以内に予定が無ければ送らない");
+
+    // 通知のすぐあとの「詳しく」
+    const { isDetailAsk, noticeTarget, NOTICE_PICK } = await import("@/lib/server/dm");
+    check(["詳しく教えて", "くわしく おしえて", "もっと詳しく！", "Chi tiết", "Cho tôi biết chi tiết nhé", "Nói rõ hơn đi"].every(isDetailAsk) && !["ゴミの日を詳しく", "Ngày đổ rác chi tiết"].some(isDetailAsk), "詳しく: 「詳しく教えて」「Chi tiết」は何のことかを言っていない聞き方・「ゴミの日を詳しく」は違う");
+    const one = { at: new Date().toISOString(), items: [{ date: "2026-11-06", label: "遠足（3年生）", shown: "遠足（3年生）" }] };
+    const two = { at: new Date().toISOString(), items: [...one.items, { date: "2026-11-07", label: "運動会", shown: "Hội thao" }] };
+    const old = { ...one, at: new Date(Date.now() - 25 * 3600 * 1000).toISOString() };
+    const t1 = noticeTarget("詳しく教えて", one);
+    check(typeof t1 === "object" && t1?.label === "遠足（3年生）" && noticeTarget("詳しく教えて", two) === "pick" && noticeTarget("Hội thao chi tiết", two) !== "pick" && (noticeTarget("Hội thao chi tiết", two) as { label: string })?.label === "運動会" && noticeTarget("詳しく教えて", old) === null && noticeTarget("ペットボトルの日は？", one) === null, "詳しく: 予定が1件ならその予定・2件以上なら選んでもらう・名前を言えばその予定・古い通知（20時間より前）とほかの質問には使わない");
+    // 本当の流れ: 朝の通知（3件）→ 妻が「Chi tiết」→ 選ぶボタン（ベトナム語）→ 押すと答えに進む（キーが無いので準備中）
+    i = sent.length;
+    await notifyDms(chat, 0, 0, { docs: many, todayYmd: "2026-11-07", translate: fake, chatId });
+    const saved = (await store.getChat(chatId))!.dms!;
+    const wifeId = Object.keys(saved).find((u) => saved[u].memberId === "m-spouse")!;
+    check(saved[wifeId].notice?.items.length === 3 && saved[wifeId].notice!.items[0].shown.startsWith("VI:"), "詳しく: 朝の通知で送った予定（上から3件の名前と日付）をその人の1対1の記録に");
+    i = sent.length;
+    await msg(dm(Number(wifeId)), Number(wifeId), "Chi tiết");
+    const pick = to(since(i), wifeId)[0];
+    check(textOf(pick) === NOTICE_PICK.vi && kb(pick).length === 3 && kb(pick)[0].callback_data === "n:0" && kb(pick)[0].text.startsWith("8/11"), "詳しく: 2件以上なら、通知の予定をボタンで並べて選んでもらう（その人の言葉・日/月）");
+    i = sent.length;
+    await hook({ update_id: ++n, callback_query: { id: "cbn", from: { id: Number(wifeId) }, data: "n:0", message: { message_id: 30, chat: dm(Number(wifeId)) } } });
+    check(since(i).some((x) => textOf(x).includes("Quản gia đang được chuẩn bị")) && !(await store.getChat(chatId))!.dms![wifeId].notice, "詳しく: 選ぶと答えに進み、通知の控えは使い終わりで消える");
+    i = sent.length;
+    await msg(dm(Number(wifeId)), Number(wifeId), "Chi tiết");
+    check(!to(since(i), wifeId).some((x) => textOf(x) === NOTICE_PICK.vi), "詳しく: 控えが消えたあとの「詳しく」は、ふつうの質問として執事へ");
   }
 
   // 1対1の質問（キーが無いとき）

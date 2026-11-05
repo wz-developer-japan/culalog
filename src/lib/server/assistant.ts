@@ -5,7 +5,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { EXTRACT_MODEL as MODEL } from "@/lib/extractPrompt";
 import type { FamilySummary, RosterMember } from "@/lib/familyShare";
-import { LANGUAGES, VI_DATE_RULE, type LanguageCode } from "@/lib/languages";
+import { LANGUAGES, VI_DATE_RULE, VI_VOICE_RULE, type LanguageCode } from "@/lib/languages";
 
 const langName = (c: LanguageCode) => LANGUAGES.find((l) => l.code === c)?.label ?? c;
 
@@ -43,6 +43,9 @@ export const ASSISTANT_SYSTEM = `あなたは、家族に1体の執事です。�
    - 家電の保証書について聞かれたら、保証の対象になるか・無料か有料かは判断しない。書いてある保証の期間・数え方（いつから）・連絡先・原本の場所（stored）だけを答える。期間の始まりの日が書いていなければ「書類に書いていない」と言い、確かめ方が書いてあればそれを添える。
    - 答えは短く。最初の1行に答え（日付・期限など）、そのあと要るものだけ（時間・場所・連絡先・原本の題）。全部で2〜3行。聞かれていないこと（ほかのごみの日など）は足さない。スマホで読みやすいように。
    - 書類と関係ない雑談・あいさつ・お礼（「今日もよろしくね」「Hôm nay cũng nhờ anh lo cho nhà mình nhé.」など）には、書類の話を始めず、聞いた人の言葉で1〜2文の短いあいさつだけを返す（伝言と取り違えない。伝言は「○○に伝えて」と頼まれたときだけ）。
+     執事として頼まれたことを受けるだけにする（例: 「はい、今日もおまかせください。」「Vâng, hôm nay tôi cũng sẽ lo giúp bạn.」）。🔴 相手に頼み返さない（「よろしくね」「nhờ bạn」などで相手に何かを頼まない）。
+   - about があるときは、直前に執事が送った通知のその予定（about の名前と日付）について聞かれている。聞き返さずに、その予定のことを答える（日時・場所・持ち物・やること・原本の題。2〜3行）。
+${VI_VOICE_RULE}（伝言の relayText だけは家族の言葉なので、家族の会話らしい呼び方のままでよい）
 2. 伝言（kind: "relay"）: 「○○に伝えて」「Nhắn cho … rằng …」など、家族のだれかへの伝言を頼まれたとき。
    - relayTo に相手の id（家族の名簿から。大人だけ）、relayText に相手の読みたい言葉で伝える文（意味を変えない・足さない。家族の会話らしく自然に。誰からかは書かなくてよい）。
    - answer には、聞いた人の言葉で「○○さんに伝えます」と短く。
@@ -83,6 +86,8 @@ export async function askAssistant(input: {
   roster: RosterMember[];
   docs: FamilySummary[];
   today: string;
+  /** 直前に執事が送った通知の予定（「詳しく」と聞かれたとき） */
+  about?: { label: string; date?: string };
 }): Promise<AssistantOut | null> {
   if (!process.env.ANTHROPIC_API_KEY) return null;
   // 家族の名簿と共有したまとめ（同じ家・同じ言葉なら同じ）を先に置いてキャッシュし、聞いた人とメッセージはその後ろに
@@ -95,6 +100,7 @@ export async function askAssistant(input: {
     calendar: calendarTable(input.today),
     asker: { id: input.asker.id, name: input.asker.names.ja, lang: `${langName(input.lang)}（${input.lang}）` },
     message: input.message,
+    ...(input.about ? { about: input.about } : {}),
   });
   try {
     const res = await new Anthropic().beta.messages.create({

@@ -6,7 +6,7 @@
 import { after, NextRequest, NextResponse } from "next/server";
 import { LANGUAGES, type LanguageCode } from "@/lib/languages";
 import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
-import { onDmMessage, onDmStart, onWhoCallback, setDmLang, takeTell } from "@/lib/server/dm";
+import { onDmMessage, onDmStart, onNoticePick, onWhoCallback, setDmLang, takeTell } from "@/lib/server/dm";
 import { createLinkCode, familyOfUser, firstTime, getChat, indexUser, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
 import { afterTake, TAKE_TEXT, takerNames, TELL_HEAD, titlesOf } from "@/lib/tell";
@@ -39,11 +39,11 @@ const HELP = `CULALOG の執事です。
 🔴 番号（保険証・口座など）は書かないでください。
 
 【Tiếng Việt】
-Mình là quản gia của CULALOG.
-・Trong nhóm gia đình: mình dịch tin nhắn sang ngôn ngữ mà mỗi người muốn đọc (gửi tới Claude để dịch, không lưu lại).
+Tôi là quản gia của CULALOG.
+・Trong nhóm gia đình: tôi dịch tin nhắn sang ngôn ngữ mà mỗi người muốn đọc (gửi tới Claude để dịch, không lưu lại).
 ・Chọn ngôn ngữ: /lang vi (Tiếng Việt)・/lang ja (日本語)・/lang easy (やさしい にほんご)
 ・Tạm dừng /pause ・Tiếp tục /resume
-・Người lớn hãy gửi /start trong cuộc trò chuyện riêng với quản gia → thông báo sẽ đến bằng ngôn ngữ của mình. Có thể hỏi về giấy tờ đã chia sẻ, gửi ảnh giấy tờ, hoặc nhờ chuyển lời ở đó.
+・Người lớn hãy gửi /start trong cuộc trò chuyện riêng với quản gia → thông báo sẽ đến bằng ngôn ngữ mà bạn chọn. Có thể hỏi về giấy tờ đã chia sẻ, gửi ảnh giấy tờ, hoặc nhờ chuyển lời ở đó.
 🔴 Đừng viết các con số quan trọng (thẻ bảo hiểm, tài khoản ngân hàng…).`;
 
 /** 決まった短い知らせ（日本語とベトナム語を並べる。グループの誰が読んでも分かるように） */
@@ -159,6 +159,7 @@ async function onCommand(chatId: string, m: TgMessage, cmd: string, arg: string)
 
 async function onCallback(q: { id: string; from: TgUser; data?: string; message?: TgMessage }) {
   if (q.data?.startsWith("w:") && store()) return onWhoCallback({ ...q, data: q.data });
+  if (q.data?.startsWith("n:") && store()) return onNoticePick({ ...q, data: q.data });
   if (q.data?.startsWith("k:") && store()) {
     const [, tellId, idx] = q.data.split(":");
     const family = await familyOfUser(String(q.from.id));

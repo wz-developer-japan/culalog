@@ -20,7 +20,7 @@ async function notifyChat(id: string, chat: ChatDoc, force = false): Promise<boo
   const docs = await familyDocs(id).catch(() => []);
   // 毎朝の通知は、予定があるときだけ。「いま送ってみる」は、0件でも「ありません」を送る
   if (b === 0 && !docs.length && !force) return false;
-  const sent = await notifyDms(chat, a, b, { docs, todayYmd: today, force });
+  const sent = await notifyDms(chat, a, b, { docs, todayYmd: today, force, chatId: id });
   if (!sent) return false;
   await updateChat(id, { notifiedOn: today });
   return true;
