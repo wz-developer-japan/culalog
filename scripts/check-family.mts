@@ -224,6 +224,22 @@ const token = "tok-123";
   const ics = await icsRes.text();
   check(icsRes.status === 200 && (icsRes.headers.get("content-type") ?? "").startsWith("text/calendar") && ics.includes("BEGIN:VEVENT") && /SUMMARY:Dự giờ/.test(ics), "カレンダー: リンクを開くと text/calendar（予定の題はベトナム語）");
   check((ics.match(/BEGIN:VEVENT/g) ?? []).length === 2 && /SUMMARY:Dự giờ\r\n/.test(ics) && /SUMMARY:Họp phụ huynh lớp/.test(ics) && /T104500[\s\S]*T113000[\s\S]*T114000[\s\S]*T121000/.test(ics), "カレンダー: 授業参観 10:45〜11:30 と 学級懇談会 11:40〜12:10 を別の予定に");
+  // iPhone: Safari ならそのまま .ics。Telegram などアプリの中のブラウザなら、Safari で開く案内（x-safari-https://・dl=1）
+  {
+    const calUrl = wifeCal!.url!.replace(/^https?:\/\/[^/]+/, "https://culalog.example");
+    const get = (ua: string, extra = "") => icsRoute.GET(new NextRequest(calUrl + extra, { headers: { "user-agent": ua } }));
+    const IOS = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)";
+    const safari = await get(`${IOS} Version/18.1 Mobile/15E148 Safari/604.1`);
+    const webview = await get(`${IOS} Mobile/15E148`);
+    const tgApp = await get(`${IOS} Version/18.1 Mobile/15E148 Safari/604.1 Telegram-iOS/11.4`);
+    const dl = await get(`${IOS} Mobile/15E148`, "&dl=1");
+    const android = await get("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36");
+    const ct = (r: Response) => r.headers.get("content-type") ?? "";
+    const page = await webview.text();
+    const token = new URL(calUrl).searchParams.get("t")!;
+    check(ct(safari).startsWith("text/calendar") && ct(dl).startsWith("text/calendar") && ct(android).startsWith("text/calendar"), "カレンダー: iPhone の Safari・dl=1・Android には .ics をそのまま");
+    check(ct(webview).startsWith("text/html") && ct(tgApp).startsWith("text/html") && page.includes(`x-safari-https://culalog.example/api/ics?t=${token}&#38;dl=1`) && page.includes("Mở bằng Safari") && !page.includes("BEGIN:VEVENT"), "カレンダー: iPhone のアプリの中のブラウザ（Telegram など）には、Safari で開く案内（日本語とベトナム語）");
+  }
   const bad = await icsRoute.GET(new NextRequest("http://localhost/api/ics?t=aaaaaaaaaaaaaaaaaaaaaaaa"));
   check(bad.status === 404, "カレンダー: 合言葉が違えば開けない");
 
