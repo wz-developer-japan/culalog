@@ -1,5 +1,5 @@
 /* ============================================================
-   見た目 B「Bento Pop」（11/3 よしふみが選んだもの）
+   見た目 B「Bento Pop」（11/3 作者が選んだもの）
    🔴 かたまりごとに境界をはっきり: 白地に白いカードを影で浮かせない。区画は色の面・グレーの面・黒い枠のどれかで囲む
    🔴 パステルの色は「誰のことか」だけ（lib/personColor.ts）。入口・書類の分類はグレーの面＋黒のアイコン
    戻すとき: layout.tsx の import "./theme-b.css" を消せば、globals.css のオレンジ（戻す用の値）に戻る
@@ -607,7 +607,8 @@ summary,
 /* 家族の読みたい言葉（設定）・家族と共有（書類） */
 .row-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .row-label > span { white-space: nowrap; }
-.row-label .input { width: 13.5em; flex: none; }
+.row-label { flex-wrap: wrap; }
+.row-label .input { width: 13.5em; flex: 0 1 13.5em; min-width: 0; max-width: 100%; }
 .share-with .check { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .share-with .link-button { margin-top: 8px; }
 details.fold.mine > summary { margin: 18px 0 8px; font-weight: 700; cursor: pointer; }

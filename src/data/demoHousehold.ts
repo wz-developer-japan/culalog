@@ -1,9 +1,9 @@
 // 「架空の家族で試す」で入るデモのデータ。
 // 人物・学校・会社・書類の内容はすべて架空で、このリポジトリのために新しく作ったもの。
-// 日付は開いた日から相対的に作るので、いつ開いても同じ流れを試せる。
+// 日付は開いた日から相対的に作るので、いつ開いても同じ流れを試せる（11/7〜11/27 は見本の日付にそろえて 11/7 基準）。
 // 書類の本文（原本）は demoDocuments.ts にあり、下の項目はそこから読み取って確定した、という扱い。
 
-import { addDays, toYmd } from "@/lib/deadlines";
+import { addDays, addMonths, toYmd } from "@/lib/deadlines";
 import type { DemoSample, Household } from "@/lib/types";
 import {
   demoDates,
@@ -33,6 +33,13 @@ import {
 } from "./demoDocuments";
 import { FEW_PRECONFIRMED_IDS, PRECONFIRMED_SAMPLE_IDS, preconfirmedDocuments } from "./demoPreconfirmed";
 
+const SAMPLE_DAY = new Date(2026, 10, 7);
+const SAMPLE_UNTIL = "2026-11-27";
+function sampleBase(today: Date): Date {
+  const d = toYmd(today);
+  return d >= toYmd(SAMPLE_DAY) && d <= SAMPLE_UNTIL ? SAMPLE_DAY : today;
+}
+
 /**
  * 架空の家族を作る。写真・メールの見本（約 700KB）は「架空の家族で試す」を押したときだけ読み込む
  * （最初の画面の JS に入れない）
@@ -47,11 +54,13 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
     { id: "m-daughter", icon: "girl", name: "日向 結衣", relation: "child", roleLabel: "長女", note: "2歳・保育園", names: { vi: "Yui", "ja-easy": "ゆい" } },
   ];
   // ふつうは、写真・メールの見本の一部をもう預かっている（確定済み）ところから始める。
-  // options.few（入口 /?demo=few）は、書類が少ない状態（9件）から始める（「まとめて渡す」の前と後を見せる録画用）
+  // options.few（入口 /?demo=few）は、書類が少ない状態（11件）から始める（「まとめて渡す」の前と後を見せる録画用）
   const preIds = options.few ? FEW_PRECONFIRMED_IDS : PRECONFIRMED_SAMPLE_IDS;
   const pre = preconfirmedDocuments(allPhotoSamples, members, today, preIds);
   const photoSamples = allPhotoSamples.filter((s) => !preIds.has(s.id));
-  const t = demoDates(today);
+  // 写真・メールの見本は 2026-11-07 に撮った前提で日付が固定。11/7〜11/27 に開いたときは、開いた日から作る書類も
+  // 11/7 を基準にして、見本と同じ日（学年だよりの遠足・運動会、メールの火災保険の満期など）にそろえる
+  const t = demoDates(sampleBase(today));
   const ymd = (date: Date) => toYmd(date);
   const createdAt = today.toISOString();
   const y = t.schoolYear;
@@ -305,7 +314,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
             id: "dl-lease-notice",
             kind: "notice",
             label: "更新するかどうかの申し出（管理会社へ）",
-            date: ymd(addDays(t.leaseEnd, -30)),
+            date: ymd(addMonths(t.leaseEnd, -1)),
             leadDays: 30,
             memberIds: [],
             source: { location: "第4条3項", quote: "契約期間満了の1か月前までに管理会社へ申し出る" },
@@ -564,7 +573,7 @@ export async function createDemoHousehold(today: Date = new Date(), options: { f
       },
       {
         id: "doc-nursery-guide",
-        title: "こぐま保育園 入園のしおり（12 園でけがをしたとき）",
+        title: "こぐま保育園 入園のしおり（12．園でけがをしたとき）",
         category: "childcare",
         docType: "保育園のしおり",
         memberIds: ["m-daughter"],

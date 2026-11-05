@@ -13,13 +13,28 @@ import type { Household } from "./types";
 
 export type ConnectStatus = "claude" | "thinking" | "unavailable" | "error";
 
+// 同じ中身・同じ日で頼んだかを、画面を移っても覚えておく（トップと予定を行き来するたび・日付を進めて戻すたびに
+// Claude を呼び直して、回数の上限に当たらないように）。ページを読み込み直すと忘れる
+const done = new Map<string, { status: ConnectStatus; result?: ConnectResult }>();
+// 頼んだ画面から移ったあとに答えが返ってきたとき、いま開いている画面を描き直す
+const listeners = new Set<() => void>();
+
 export function useConnect(
   household: Household | null,
   update: (change: (current: Household) => Household) => Promise<void>,
 ) {
-  const [status, setStatus] = useState<ConnectStatus>("thinking");
+  const [state, setStatus] = useState<ConnectStatus>("thinking");
+  let status = state;
   const asked = useRef("");
   const ymd = toYmd(now());
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const redraw = () => setTick((n) => n + 1);
+    listeners.add(redraw);
+    return () => {
+      listeners.delete(redraw);
+    };
+  }, []);
 
   const input = household ? buildConnectInput(household, buildCandidates(household, now()), ymd, characterOf(household).style) : null;
   const basis = input ? basisOf(input) : "";
@@ -31,6 +46,16 @@ export function useConnect(
     const tag = `${basis}@${ymd}`;
     if (asked.current === tag) return;
     asked.current = tag;
+    if (done.has(tag)) {
+      setTick((n) => n + 1);
+      return;
+    }
+    done.set(tag, { status: "thinking" });
+    const finish = (s: ConnectStatus, result?: ConnectResult) => {
+      done.set(tag, { status: s, result });
+      setStatus(s);
+      listeners.forEach((f) => f());
+    };
     setStatus("thinking");
     (async () => {
       try {
@@ -40,15 +65,16 @@ export function useConnect(
           body: JSON.stringify(input),
         });
         if (response.status === 503) {
-          setStatus("unavailable");
+          finish("unavailable");
           return;
         }
         const body = await response.json().catch(() => null);
         if (!response.ok || !body?.result) {
-          setStatus("error");
+          finish("error");
           return;
         }
         let ok = false;
+        let kept: ConnectResult | undefined;
         await update((current) => {
           // 返ってくるまでのあいだに変わっていても、そのときの家で確かめる
           const verified = verifyConnect(body.result, current, buildCandidates(current, now()), {
@@ -57,11 +83,12 @@ export function useConnect(
             basis,
           });
           ok = Boolean(verified);
+          if (verified) kept = verified;
           return verified ? { ...current, connect: verified } : current;
         });
-        setStatus(ok ? "claude" : "error");
+        finish(ok ? "claude" : "error", kept);
       } catch {
-        setStatus("error");
+        finish("error");
       }
     })();
     // input は basis に入っているので、basis と日付で見る
@@ -69,6 +96,10 @@ export function useConnect(
   }, [household, basis, ymd, fresh]);
 
   if (!household) return { result: null as ConnectResult | null, status };
+  // この画面より前に、同じ中身・同じ日で頼んでいたもの
+  const before = done.get(`${basis}@${ymd}`);
+  if (!fresh && before?.result) return { result: before.result, status: "claude" as const };
+  if (!fresh && before && before.status !== "thinking") status = before.status;
   // Claude の答え（新しくても古くても、保存してあれば使う。作り直しのあいだは前のものを出す）
   if (stored?.source === "claude" && (fresh || status === "thinking")) {
     return { result: stored, status: fresh ? ("claude" as const) : status };

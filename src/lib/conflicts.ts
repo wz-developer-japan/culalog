@@ -159,15 +159,15 @@ export function adultWorkOn(household: Household, date: string, excludeDocId?: s
     .sort((a, b) => order(a) - order(b));
 }
 
-/** 同じ勤務の書類にある、その日より前の申し出の締切（休みの希望・シフトの交代など）。いちばん近いもの */
-function noticeBefore(w: WorkDay, date: string): Deadline | undefined {
+/** 同じ勤務の書類にある、その日より前の申し出の締切（休みの希望・シフトの交代など）。いちばん近いもの。今日より前に過ぎたものは添えない */
+function noticeBefore(w: WorkDay, date: string, from: string): Deadline | undefined {
   // 「27（金）の分」のように別の日の分と書いてある申し出は、その日のものではない
   const forDay = (d: Deadline) => {
     const m = d.label.match(/(\d{1,2})[（(][日月火水木金土][）)]の分/);
     return !m || Number(m[1]) === parseDate(date).getDate();
   };
   return w.doc.deadlines
-    .filter((d) => (d.kind === "notice" || d.kind === "due") && d.date < date && NOTICE.test(d.label) && forDay(d))
+    .filter((d) => (d.kind === "notice" || d.kind === "due") && d.date < date && d.date >= from && NOTICE.test(d.label) && forDay(d))
     .sort((a, b) => b.date.localeCompare(a.date))[0];
 }
 
@@ -205,7 +205,7 @@ export function findConflicts(household: Household, today: Date): Conflict[] {
         continue;
       }
       // 勤務の書類にその日の分の申し出の締切が書いてあれば添える（書いていなければ何も言わない）
-      const adults = adultWorkOn(household, deadline.date, doc.id).map((w) => ({ ...w, notice: noticeBefore(w, deadline.date) }));
+      const adults = adultWorkOn(household, deadline.date, doc.id).map((w) => ({ ...w, notice: noticeBefore(w, deadline.date, from) }));
       if (adults.length) out.push({ date: deadline.date, child: { doc, deadline }, community, adults });
     }
   }
@@ -233,7 +233,7 @@ export function findConflicts(household: Household, today: Date): Conflict[] {
     if (!options.some((o) => o.adults.length)) continue;
     if (options.length === 1) {
       const o = options[0];
-      const adults = o.adults.map((w) => ({ ...w, notice: noticeBefore(w, o.date) }));
+      const adults = o.adults.map((w) => ({ ...w, notice: noticeBefore(w, o.date, from) }));
       out.push({ date: o.date, child: { doc, deadline: o.deadline }, community, adults });
       continue;
     }

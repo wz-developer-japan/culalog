@@ -17,10 +17,11 @@ import type { Household } from "./types";
 import { newId } from "./useHousehold";
 
 /**
- * 見本のうち、キーがあるとき本物の Claude で読む1枚（審査員に Claude が読むところを見せる）。
- * 「来ていないもの」→ 読み取り → 確定 → 休みの申請の締切、が一続きで見せられる授業参観のご案内（/?demo=few で渡す見本）
+ * 見本のうち、キーがあるとき本物の Claude で読むもの（審査員に Claude が読むところを見せる）。
+ * 授業参観のご案内（/?demo=few で渡す見本。「来ていないもの」→ 読み取り → 確定 → 休みの申請の締切、が一続き）と、
+ * ふつうの入口で渡せる個別懇談会の写真（候補日①〜④と、家族の勤務の重なり）
  */
-export const LIVE_SAMPLE_IDS = ["sample-open-class"];
+export const LIVE_SAMPLE_IDS = ["sample-open-class", "photo-k5-kondankai"];
 
 /** 通信に失敗したときに、次に試すまで待つ時間 */
 const RETRY_MS = 60 * 1000;
@@ -58,7 +59,7 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
           return;
         }
         const sample = item.sampleId ? household.demoSamples?.find((x) => x.id === item.sampleId) : undefined;
-        // 見本は、用意した仮の結果で読む（本物の Claude で読むのは LIVE_SAMPLE_IDS の1枚だけ。料金と回数の上限のため）
+        // 見本は、用意した仮の結果で読む（本物の Claude で読むのは LIVE_SAMPLE_IDS の見本だけ。料金と回数の上限のため）
         if (sample && !LIVE_SAMPLE_IDS.includes(sample.id)) {
           await update((h) => applyExtraction(h, item, sample.provisionalDraft, { draftSource: "provisional", dataUrl, pages, originalText: sample.text, newId }));
           await Promise.all([item.id, ...(item.pageIds ?? [])].map(deleteFile));

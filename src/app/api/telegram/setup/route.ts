@@ -1,4 +1,4 @@
-// webhook を Telegram に登録する（よしふみが一度だけブラウザで開く）。/api/telegram/setup?key=<TELEGRAM_WEBHOOK_SECRET>
+// webhook を Telegram に登録する（作者が一度だけブラウザで開く）。/api/telegram/setup?key=<TELEGRAM_WEBHOOK_SECRET>
 
 import { NextRequest, NextResponse } from "next/server";
 import { telegramReady, tg } from "@/lib/server/telegram";

@@ -13,7 +13,7 @@ import { type AddResult, addFilesToInbox, addPagesToInbox, addSamplesToInbox, ad
 import { renderSampleImage } from "@/lib/files";
 import { inboxProgress } from "@/lib/inbox";
 import { useHousehold } from "@/lib/useHousehold";
-import { useInboxQueue } from "@/lib/useInbox";
+import { LIVE_SAMPLE_IDS, useInboxQueue } from "@/lib/useInbox";
 
 function ScanPage() {
   const router = useRouter();
@@ -206,12 +206,20 @@ function ScanPage() {
           <button className="button secondary" disabled={busy} onClick={() => giveSamples(photos)}>
             写真の見本を{photos.length}件まとめて渡す
           </button>
+          {photos
+            .filter((x) => LIVE_SAMPLE_IDS.includes(x.id))
+            .map((x) => (
+              <button key={x.id} className={`chip${x.id === sampleId ? " selected" : ""}`} onClick={() => setSampleId(x.id)}>
+                本物の Claude が読む見本: {x.title}
+              </button>
+            ))}
           <details className="others">
             <summary>1件ずつ選ぶ</summary>
             <div className="chips">
               {photos.map((x) => (
                 <button key={x.id} className={`chip${x.id === sampleId ? " selected" : ""}`} onClick={() => setSampleId(x.id)}>
                   {x.title}
+                  {LIVE_SAMPLE_IDS.includes(x.id) && "（本物の Claude が読む）"}
                 </button>
               ))}
             </div>
@@ -252,6 +260,7 @@ function ScanPage() {
             {printed.map((x) => (
               <button key={x.id} className={`chip${x.id === sampleId ? " selected" : ""}`} onClick={() => setSampleId(x.id)}>
                 {x.title}
+                {LIVE_SAMPLE_IDS.includes(x.id) && "（本物の Claude が読む）"}
               </button>
             ))}
           </div>
@@ -266,6 +275,7 @@ function ScanPage() {
               : sample.origin === "text"
                 ? "架空のメールの見本です。届いたメールの本文を貼り付けた、という想定で試せます。"
                 : "架空の書類の見本です。実際に届いた書類を撮った、という想定で試せます。"}
+            {LIVE_SAMPLE_IDS.includes(sample.id) && " この見本は、本物の Claude（Opus 5.5）が写真から読み取ります（ほかの見本は、用意した仮の結果です）。"}
           </div>
           {sample.origin === "text" && (
             <div className="original">

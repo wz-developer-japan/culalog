@@ -91,7 +91,7 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
     const today = new Date(2026, 10, 4);
     check(formatDateIn("2026-11-27", "vi", today) === shortDate("2026-11-27", "vi") && formatDateIn("2026-11-27", "vi", today) === "27/11 (thứ Sáu)" && formatDateIn("2035-01-16", "vi", today) === "16/1/2035 (thứ Ba)", "日付: お知らせのベトナム語の日付も朝の通知と同じ形（27/11 (thứ Sáu)）・半年より先だけ年を入れる");
   }
-  // ベトナム語の執事の呼び方は tôi／bạn（よしふみの決め 11/05）
+  // ベトナム語の執事の呼び方は tôi／bạn（11/05 の決め）
   {
     const { VI_VOICE_RULE } = await import("@/lib/languages");
     const { ASSISTANT_SYSTEM } = await import("@/lib/server/assistant");
