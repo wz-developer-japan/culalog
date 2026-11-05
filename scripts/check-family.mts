@@ -105,6 +105,23 @@ const h = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
     const slip = viLines.filter((l) => /(^|[^\p{L}])(em|anh|chị|tôi|con)([^\p{L}]|$)/iu.test(l.replace(/tiếng Anh|con số/g, "")));
     check(viLines.length > 10 && slip.length === 0 && /Mình là quản gia/.test(src("src/app/api/telegram/route.ts")), `呼び方: コードの決まったベトナム語の文に tôi/em/anh/chị で呼ぶ言い方が無い・案内は「Mình là quản gia」${slip.length ? `（${slip[0].trim().slice(0, 60)}）` : ""}`);
   }
+  // グループの通訳: 送った人の役割（夫・妻・子）だけを渡して、ベトナム語の呼び方を anh／em・bố／mẹ／con に合わせる
+  {
+    const { roleOf, sanitizeRoster } = await import("@/lib/familyShare");
+    const { speakerRole } = await import("@/lib/server/interpret");
+    const { readFileSync } = await import("node:fs");
+    const hh = h;
+    const role = (id: string) => roleOf(hh, hh.members.find((x) => x.id === id)!);
+    check(role("m-self") === "husband" && role("m-spouse") === "wife" && role("m-son") === "child" && role("m-daughter") === "child", "通訳の呼び方: 見本の家族は 翔太＝夫・タオ＝妻・蓮と結衣＝子");
+    const solo = { ...hh, members: [{ id: "a", name: "あ", relation: "self" as const }, { id: "b", name: "い", relation: "parent" as const }] };
+    check(roleOf(solo, solo.members[0]) === undefined && roleOf(solo, solo.members[1]) === undefined, "通訳の呼び方: 男女が分からない・夫婦でも子でもない人は役割なし（文の中身から推す）");
+    const ros = rosterOf(hh);
+    check(ros.find((x) => x.id === "m-spouse")?.role === "wife" && sanitizeRoster(ros).find((x) => x.id === "m-self")?.role === "husband" && sanitizeRoster([{ ...ros[0], role: "boss" }])[0].role === undefined, "通訳の呼び方: 名簿に役割が入り、置くときも夫・妻・子だけ通す");
+    const chat = { users: { "1": { lang: "ja" }, "2": { lang: "vi" }, "3": { lang: "ja-easy" }, "4": { lang: "ja" } }, dms: { "1": { memberId: "m-self", lang: "ja", startedAt: "" }, "2": { memberId: "m-spouse", lang: "vi", startedAt: "" } }, roster: ros } as never;
+    check(speakerRole(chat, "1") === "husband" && speakerRole(chat, "2") === "wife" && speakerRole(chat, "3") === "child" && speakerRole(chat, "4") === undefined, "通訳の呼び方: 1対1で名乗った大人は名簿から・やさしい日本語の人は子・分からない人は役割なし");
+    const src = readFileSync("src/lib/server/interpret.ts", "utf8");
+    check(/自分を anh・妻を em/.test(src) && /自分を em・夫を anh/.test(src) && /bố/.test(src) && /mẹ/.test(src) && /送った人: \$\{SPEAKER\[speaker\]\}/.test(src) && !/speaker.*names/.test(src), "通訳の呼び方: 指示文に 夫＝anh・妻＝em・親から子は bố／mẹ と con。渡すのは役割だけ（名前は渡さない）");
+  }
   void summaryOf;
   void rosterOf;
 }

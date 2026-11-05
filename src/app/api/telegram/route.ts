@@ -5,7 +5,7 @@
 
 import { after, NextRequest, NextResponse } from "next/server";
 import { LANGUAGES, type LanguageCode } from "@/lib/languages";
-import { answerFromNotice, langMark, translateChat } from "@/lib/server/interpret";
+import { answerFromNotice, langMark, speakerRole, translateChat } from "@/lib/server/interpret";
 import { onDmMessage, onDmStart, onNoticePick, onWhoCallback, setDmLang, takeTell } from "@/lib/server/dm";
 import { createLinkCode, familyOfUser, firstTime, getChat, indexUser, setUserLang, store, updateChat, useClaudeInChat } from "@/lib/server/store";
 import { sendMessage, telegramReady, tg } from "@/lib/server/telegram";
@@ -127,7 +127,8 @@ async function onMessage(m: TgMessage) {
   const targets = chatLangs.filter((l) => l !== senderLang);
   if (targets.length === 0) return;
   if (!(await withinLimit(chatId, m.message_id))) return;
-  const out = await translateChat(text, targets);
+  // 送った人の家族の中の役割（1対1で名乗った大人は名簿から・やさしい日本語を選んだ人は子ども）。名前は渡さない
+  const out = await translateChat(text, targets, speakerRole(chat, String(m.from.id)));
   if (!out) return;
   const lines = out.texts.filter((t) => t.lang !== out.sourceLang && t.text.trim());
   if (lines.length) await sendMessage(chatId, lines.map((t) => `${langMark(t.lang)} ${t.text}`).join("\n"), { replyTo: m.message_id });

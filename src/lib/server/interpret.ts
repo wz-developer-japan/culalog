@@ -6,6 +6,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { EXTRACT_MODEL as MODEL } from "@/lib/extractPrompt";
 import { LANGUAGES, VI_DATE_RULE, VI_VOICE_RULE, type LanguageCode } from "@/lib/languages";
+import type { FamilyRole } from "@/lib/familyShare";
+import type { ChatDoc } from "./store";
 
 const LANG_CODES = LANGUAGES.map((l) => l.code);
 const langName = (c: LanguageCode) => LANGUAGES.find((l) => l.code === c)?.label ?? c;
@@ -58,10 +60,25 @@ const TRANSLATE_SYSTEM = `あなたは、言葉の違う家族の会話をつな
 - ${VI_DATE_RULE}
 - sourceLang には元のメッセージの言葉を入れる（候補にない言葉なら、いちばん近いもの）。
 - texts には、指定された言葉ごとの訳を入れる。元の言葉と同じ言葉の訳は入れない。
-- やさしい日本語（ja-easy）は、短い文・ひらがな多め。`;
+- やさしい日本語（ja-easy）は、短い文・ひらがな多め。
+- ベトナム語の家族の呼び方（南部の日常会話）: 「送った人」が書いてあれば、その人の言葉としての呼び方で訳す。
+  夫の発言は、自分を anh・妻を em と呼ぶ形（例: Anh về muộn nhé.）。妻の発言は、自分を em・夫を anh と呼ぶ形（例: Em đi làm rồi nhé.）。
+  親から子への言葉は、父は自分を bố・母は自分を mẹ、子を con と呼ぶ形。子から親への言葉は、自分を con・親を bố／mẹ と呼ぶ形。
+  だれに向けた言葉か（夫婦か・子へか）は文の中身から決める。「送った人」が書いていなければ、今まで通り文の中身から推す。`;
 
-export async function translateChat(text: string, targets: LanguageCode[]): Promise<Out | null> {
-  return call(TRANSLATE_SYSTEM, `訳す先の言葉: ${targets.map((t) => `${langName(t)}（${t}）`).join("、")}\n\nメッセージ:\n${text}`);
+const SPEAKER: Record<FamilyRole, string> = { husband: "夫（子から見て父）", wife: "妻（子から見て母）", child: "子ども" };
+
+/** グループで送った人の家族の中の役割（1対1で名乗った大人は名簿から・やさしい日本語を選んだ人は子ども）。分からなければ undefined */
+export function speakerRole(chat: ChatDoc, userId: string): FamilyRole | undefined {
+  const memberId = chat.dms?.[userId]?.memberId;
+  const role = memberId ? chat.roster?.find((x) => x.id === memberId)?.role : undefined;
+  if (role) return role;
+  return chat.users?.[userId]?.lang === "ja-easy" ? "child" : undefined;
+}
+
+/** speaker は送った人の家族の中の役割だけ（名前は渡さない） */
+export async function translateChat(text: string, targets: LanguageCode[], speaker?: FamilyRole): Promise<Out | null> {
+  return call(TRANSLATE_SYSTEM, `訳す先の言葉: ${targets.map((t) => `${langName(t)}（${t}）`).join("、")}\n${speaker ? `送った人: ${SPEAKER[speaker]}\n` : ""}\nメッセージ:\n${text}`);
 }
 
 const ANSWER_SYSTEM = `あなたは、家族の書類を預かる執事です。家族のグループで、執事が送った「家族へのお知らせ」への返信で質問されました。

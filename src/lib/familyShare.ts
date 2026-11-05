@@ -5,7 +5,7 @@
 
 import { languageOf, LANGUAGES, type LanguageCode } from "./languages";
 import { maskKnownNumbers } from "./numbers";
-import type { DocumentRecord, Household } from "./types";
+import type { DocumentRecord, FamilyMember, Household } from "./types";
 
 export interface SummaryEvent {
   kind: string;
@@ -63,6 +63,24 @@ export interface RosterMember {
   holder?: boolean;
   /** 日本語の名前（姓つき。回覧や名簿の「日向さん」を、うちの家族だと見分けるため） */
   fullName?: string;
+  /** 家族の中の役割（グループの通訳で、ベトナム語の呼び方 anh／em・bố／mẹ／con を合わせるため。名前は渡さない） */
+  role?: FamilyRole;
+}
+
+export type FamilyRole = "husband" | "wife" | "child";
+
+const MALE = /^(man|boy)/;
+const FEMALE = /^(woman|girl)/;
+
+/** 続柄・続柄の補足・家族の丸の絵から、夫・妻・子を決める（分からなければ undefined） */
+export function roleOf(household: Household, m: FamilyMember): FamilyRole | undefined {
+  if (m.relation === "child") return "child";
+  if (m.relation !== "self" && m.relation !== "spouse") return undefined;
+  const sexOf = (x: FamilyMember | undefined): "m" | "f" | undefined =>
+    !x ? undefined : x.roleLabel === "夫" ? "m" : x.roleLabel === "妻" ? "f" : MALE.test(x.icon ?? "") ? "m" : FEMALE.test(x.icon ?? "") ? "f" : undefined;
+  const partner = household.members.find((x) => x.relation === (m.relation === "self" ? "spouse" : "self"));
+  const own = sexOf(m) ?? (sexOf(partner) === "m" ? "f" : sexOf(partner) === "f" ? "m" : undefined);
+  return own === "m" ? "husband" : own === "f" ? "wife" : undefined;
 }
 
 /** 項目の名前がこれなら、値ごと置かない（番号・お金の出入りの口・ログインの類） */
@@ -160,7 +178,7 @@ export function sanitizeRoster(x: unknown): RosterMember[] {
     .map((m) => {
       const names = Object.fromEntries(LANGUAGES.map((l) => [l.code, cut((m?.names as Record<string, unknown> | undefined)?.[l.code], 30)]).filter(([, n]) => n));
       const lang = LANGUAGES.find((l) => l.code === m?.lang)?.code ?? "ja";
-      return { id: cut(m?.id, 60), names, lang, adult: m?.adult === true, calendarApp: m?.calendarApp === "apple" ? "apple" : "google", holder: m?.holder === true, fullName: cut(m?.fullName, 40) || undefined } as RosterMember;
+      return { id: cut(m?.id, 60), names, lang, adult: m?.adult === true, calendarApp: m?.calendarApp === "apple" ? "apple" : "google", holder: m?.holder === true, fullName: cut(m?.fullName, 40) || undefined, role: ["husband", "wife", "child"].includes(m?.role as string) ? (m.role as FamilyRole) : undefined } as RosterMember;
     })
     .filter((m) => /^[\w-]{1,60}$/.test(m.id) && m.names.ja);
 }
@@ -224,6 +242,7 @@ export function rosterOf(household: Household): RosterMember[] {
       calendarApp: m.calendarApp ?? "google",
       holder: m.relation === "self",
       fullName: m.name,
+      role: roleOf(household, m),
     })),
   );
 }
