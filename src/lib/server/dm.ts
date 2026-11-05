@@ -344,6 +344,15 @@ export async function onDmMessage(userId: string, m: { message_id: number; text?
   return answerDm(userId, who, text, m.message_id, target ?? undefined);
 }
 
+/**
+ * 1対1の答え・伝言の根拠: 聞いた人と共有している書類のまとめだけ（書類を預かる人には置き場所の全部。朝の通知と同じ線）。
+ * 共有していない書類は渡さない（あることも言わない。聞かれたら「書いていない」の返し方になる）
+ */
+export async function answerDocs(chatId: string, member: RosterMember | undefined): Promise<FamilySummary[]> {
+  const { familyDocs } = await import("./store");
+  return docsFor(await familyDocs(chatId), member);
+}
+
 async function answerDm(
   userId: string,
   who: NonNullable<Awaited<ReturnType<typeof dmUser>>>,
@@ -360,13 +369,12 @@ async function answerDm(
   const use = await useClaudeInChat(who.chatId).catch(() => "over" as const);
   if (use !== "ok") return use === "over-first" ? sendMessage(userId, DM_TEXT.over[lang], { replyTo: m.message_id }) : undefined;
   const { askAssistant } = await import("./assistant");
-  const { familyDocs } = await import("./store");
   const out = await askAssistant({
     message: text,
     asker: who.member,
     lang,
     roster: who.chat.roster ?? [],
-    docs: await familyDocs(who.chatId),
+    docs: await answerDocs(who.chatId, who.member),
     today: jstToday(),
     about: about ? { label: about.label, date: about.date } : undefined,
   });

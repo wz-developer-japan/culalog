@@ -357,6 +357,30 @@ const token = "tok-123";
   check(after.items?.length === 0 && !(await store.familyDocs(chatId)).some((d) => d.id === "tg-0123456789ab"), "預かる？: 決めたら受け取り箱とまとめから消える");
 }
 
+// ---- 1対1の答え・伝言の根拠は、聞いた人と共有している書類のまとめだけ ----
+{
+  const { answerDocs } = await import("@/lib/server/dm");
+  const { store: st } = await import("@/lib/server/store");
+  const { readFileSync } = await import("node:fs");
+  const { roster } = familyPayload(h);
+  const husband = roster.find((m) => m.id === "m-self");
+  const wife = roster.find((m) => m.id === "m-spouse");
+  const cid = "share-test-chat";
+  const fam = st()!.collection("chats").doc(cid);
+  await fam.collection("docs").doc("doc-only-husband").set({ id: "doc-only-husband", title: "夫だけの書類", holder: "翔太", sharedWith: ["m-self"], events: [], fields: [], contacts: [], langs: {} });
+  await fam.collection("docs").doc("doc-both").set({ id: "doc-both", title: "二人の書類", holder: "翔太", sharedWith: ["m-self", "m-spouse"], events: [], fields: [], contacts: [], langs: {} });
+  const forWife = (await answerDocs(cid, wife)).map((d) => d.id);
+  const forHusband = (await answerDocs(cid, husband)).map((d) => d.id);
+  check(husband?.holder === true && wife?.holder !== true, "1対1の答え: 見本では夫が書類を預かる人");
+  check(!forWife.includes("doc-only-husband"), "1対1の答え: 夫だけと共有した書類は、妻が聞いても根拠に渡さない");
+  check(forWife.includes("doc-both"), "1対1の答え: 夫と妻の両方と共有した書類は、妻が聞けば根拠に渡す");
+  check(forHusband.includes("doc-only-husband") && forHusband.includes("doc-both"), "1対1の答え: 書類を預かる人（夫）には置き場所の全部");
+  check((await answerDocs(cid, undefined)).length === 0, "1対1の答え: 名簿にいない人には何も渡さない");
+  const dmSrc = readFileSync("src/lib/server/dm.ts", "utf8");
+  check(/docs: await answerDocs\(who\.chatId, who\.member\)/.test(dmSrc) && !/docs: await familyDocs\(/.test(dmSrc), "1対1の答え: 質問・伝言は answerDocs（聞いた人と共有しているもの）だけを Claude に渡す");
+  check(/sharedWith: \[x\.member\.id\]/.test(readFileSync("src/lib/server/dmPhoto.ts", "utf8")), "1対1の写真: まとめは送った人と共有（送った人があとで聞ける）");
+}
+
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);
 const ng = results.filter(([ok]) => !ok).length;
 console.log(ng ? `NG が ${ng} 件` : `${results.length}項目 ok`);

@@ -151,6 +151,8 @@ export async function onDmPhoto(x: { userId: string; chatId: string; chat: ChatD
     docType: clean.docType,
     whose: clean.who.memberIds.map(nameOf).filter(Boolean),
     holder: nameIn(x.member, "ja"),
+    // 送った人と共有（1対1の答えの根拠は、聞いた人と共有しているまとめだけ。預かる人には全部見える）
+    sharedWith: [x.member.id],
     events: clean.deadlines.map((d) => ({ kind: d.kind, label: d.label, date: d.date, endDate: d.endDate, time: d.time, place: d.place, needs: d.needs })),
     fields: clean.fields.map((f) => ({ label: f.label, value: f.value })),
     contacts: clean.contacts.map((c) => ({ name: c.name || c.label, phone: c.phone, hours: c.hours })),
