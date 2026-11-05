@@ -41,7 +41,7 @@ await page.getByRole("button", { name: "架空の家族で試す" }).click();
 await see("架空の家族で試しています");
 
 // トップ: 家族の丸・読みたい言葉の1行・同じ日のぶつかりの気づき
-await see("お仕事になっているようです");
+await see("お仕事のようです");
 await shot("02-top");
 await shot("02b-top-long", true);
 
@@ -91,6 +91,8 @@ await shot("06-settings-languages");
 // 予定
 await page.goto(base + "/schedule");
 await page.locator("h2", { hasText: "のひとこと" }).waitFor();
+// 本番（キーあり）では、つなぐの Claude の答えが来て「仮」の札が消えるまで待つ（最大90秒）
+for (let i = 0; i < 30 && (await page.locator("h2", { hasText: "から" }).locator("text=仮").count()); i++) await page.waitForTimeout(3000);
 await shot("07-schedule");
 await shot("07b-schedule-long", true);
 
