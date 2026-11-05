@@ -1,6 +1,6 @@
 # CULALOG（クラログ）
 
-**訳すアプリではありません。家族の書類どうしを「つなぐ」執事です。**
+**翻訳で終わらせない。家族の書類どうしを「つなぐ」執事です。**
 
 授業参観のプリントを訳しても、「その日は夫婦とも仕事」とはどこにも書いてありません。
 CULALOG は、届いた書類と家族の勤務表をつないでそれに気づき、家族それぞれの読みたい言葉（日本語・ベトナム語・やさしい日本語）で知らせます。
@@ -13,7 +13,7 @@ CULALOG は、届いた書類と家族の勤務表をつないでそれに気づ
 
 デモ動画（3分）: https://youtu.be/KwijEubkKDA ／ 試す: https://culalog.vercel.app/ →「架空の家族で試す」（手順は下の「試し方」）
 
-> **In English** — CULALOG is not a translation app. In a family where parents read different languages (here: a Japanese husband and a Vietnamese wife), translating a school notice is not enough: the notice never says "you are both working that day". CULALOG keeps the family's documents (school notices, both parents' work schedules, contracts), lets code find where they collide, and has Claude (Opus 5.5) write the reason with a pointer to the exact line in the original — then tells each family member in their own language, in the app and in Telegram. In the app, code checks the dates, IDs and quotes Claude returns before showing them; the family decides who goes.
+> **In English** — CULALOG translates, but translation is only the starting point. In a family where parents read different languages (here: a Japanese husband and a Vietnamese wife), translating a school notice is not enough: the notice never says "you are both working that day". CULALOG keeps the family's documents (school notices, both parents' work schedules, contracts), lets code find where they collide, and has Claude (Opus 5.5) write the reason with a pointer to the exact line in the original — then tells each family member in their own language, in the app and in Telegram. In the app, code checks the dates, IDs and quotes Claude returns before showing them; the family decides who goes.
 
 執事は家族に1体です。書類（原本の写真・全文）を預かるのは1人の端末ですが、家族に返すときは、その人の読みたい言葉と言葉の易しさで返します。
 大人には、それぞれの執事との1対1にお知らせ・答えをその人の言葉で届け、やさしい日本語で読む人（子ども）には、家族の Telegram のグループの通訳をやさしい日本語で返します（1対1・お知らせは大人だけです）。
@@ -215,9 +215,9 @@ QR の先にしか情報がない、申請のあとに不備・差戻し、解�
 
 - 書類のデータ（読み取った内容・写真・予定・訳・受け取り箱に渡したファイル・覚えたこと）は、お使いの端末の中（ブラウザの IndexedDB）に保存します。
 - **家族と共有した書類のまとめは、サーバー（Google の Firebase・Firestore）の家族の置き場所に置きます。** 執事が1対1で家族の質問に答え、お知らせを届けるためです。
-  - 置くもの: 共有した書類の題・種類・誰の書類か・共有した相手・予定（名前・日付・時間・場所・持ち物・済んだか）・項目・やること・訳・問い合わせ先の電話・現物のしまい場所、家族の名簿（呼び名・読みたい言葉・ふだん使うカレンダー・家族の中の役割（夫・妻・子））
+  - 置くもの: 共有した書類の題・種類・誰の書類か・共有した相手・予定（名前・日付・時間・場所・持ち物・済んだか）・項目・やること・訳・問い合わせ先の電話・現物のしまい場所、家族の名簿（姓つきの名前・呼び名・読みたい言葉・ふだん使うカレンダー・家族の中の役割（夫・妻・子））。項目の文はそのまま置くので、健診の結果やアレルギーのように書類に書いてあることも、共有した書類なら置かれます
   - **置かないもの**: 写真・原本の全文・原本の引用・大事な番号（保険証・口座・カード・マイナンバー・パスワードなど）。項目の名前が番号の類のものは値ごと落とし、値の中の番号の形（6桁以上の数字の並び。日付・時刻・問い合わせ先の電話の形は残す）は伏せます。アプリが送るときとサーバーが受け取るときの両方で同じ線を引きます（`src/lib/familyShare.ts`）
-  - 家族（つないだ Telegram のグループ）ごとに分け、アプリとつないだときの合言葉が合うときだけ読み書きします。共有をやめた書類のまとめは次の同期で消え、設定の「家族の置き場所のまとめを全部消す」で全部消せます（つなぐのをやめても消えます）
+  - 家族（つないだ Telegram のグループ）ごとに分け、アプリとつないだときの合言葉が合うときだけ読み書きします。家族の範囲は、その Telegram のグループの参加者です（グループの誰でも `/link` でつなぎ直せ、1対1では名簿から自分を選びます。家族のグループの全員を信頼する前提です）。共有をやめた書類のまとめは次の同期で消え、設定の「家族の置き場所のまとめを全部消す」で全部消せます（つなぐのをやめても消えます）
 - Claude に頼むときは、そのために必要な部分だけをこのアプリのサーバー経由で Claude API（Anthropic）に送ります。
   - 書類を読み取るとき: その書類の画像・PDF（貼り付けたメールなら、その文字）と、誰の書類かを考えるための家族の呼び名・続柄・メモ。覚えたことは送りません
   - 訳すとき: 本人が確かめたその書類の中身（題名・説明・項目・予定の名前）と読みたい言葉。日付は送らず、番号は伏せます
@@ -231,7 +231,7 @@ QR の先にしか情報がない、申請のあとに不備・差戻し、解�
   すぐあとの「詳しく教えて」に答えるために、最後に送った通知の予定の名前と日付（上から3件まで）を、その人の次のメッセージまで置きます
 - **サーバーに置くもの（ほか）**: Telegram のグループと人ごとの「読みたい言葉」と表示名、1対1を始めた大人（家族のだれか）、アプリとつなぐ合言葉の指紋、毎朝の通知のための「近い予定の日付と件数」、通知した日、Telegram で Claude を呼んだその日の回数（上限のため）、iPhone のカレンダーに入れるリンクの中身（予定1件・30日で消える）
 - 家族の丸に使う写真は端末の中にだけ置きます。アプリの「カレンダーに入れる」（.ics・Google カレンダーのリンク）は端末で作り、CULALOG のサーバーを通りません
-- 公開 URL での使いすぎを防ぐため、Claude API を呼ぶ回数と、送る大きさに上限があります。Telegram の通訳・1対1の答え・写真の読み取りは、1つのグループで1日100回・Telegram 全体で1日300回まで（日本時間の0時に戻ります）。Claude API に送られた内容の扱いは Anthropic の規約によります。
+- 公開 URL での使いすぎを防ぐため、Claude API を呼ぶ回数と、送る大きさに上限があります。Telegram の通訳・1対1の答え・写真の読み取りは、1つのグループで1日100回・Telegram 全体で1日300回まで（日本時間の0時に戻ります）。グループで Claude を呼ぶのは、アプリとつないだ家族のグループだけです。アプリの API の回数の上限はサーバーのメモリの上の目安で、確実な歯止めではありません。Claude API に送られた内容の扱いは Anthropic の規約によります。
 
 ## これから
 

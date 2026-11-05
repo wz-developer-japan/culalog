@@ -109,6 +109,8 @@ async function onMessage(m: TgMessage) {
   if (!store()) return;
   const chat = await getChat(chatId);
   if (!chat || chat.paused) return;
+  // Claude を呼ぶのは、アプリとつないだ家族のグループだけ（bot をほかのグループに入れて、1日の上限を使われないように）
+  if (!chat.tokenHash) return;
   const users = chat.users ?? {};
   const senderLang = users[String(m.from.id)]?.lang;
   const chatLangs = [...new Set(Object.values(users).map((u) => u.lang))];
