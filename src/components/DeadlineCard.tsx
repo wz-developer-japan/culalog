@@ -3,6 +3,7 @@
 // 締切のカード（挿絵・題1行・札・右に「あと何日」）。予定の画面・家族ごとのページで使う。
 // 見せ方だけで、文（題・理由）は候補のまま。日付の計算はコード（lib/butler・lib/deadlines）。
 
+import { now } from "@/lib/clock";
 import Link from "next/link";
 import { useState } from "react";
 import { Pic, type PicKind } from "@/components/Pics";
@@ -15,7 +16,9 @@ const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 export function shortDate(ymd: string): string {
   const [y, m, d] = ymd.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  return `${m}/${d}（${WEEKDAYS[date.getDay()]}）`;
+  // 今年でない日付は年も（「1/16（土）」だけだと、来年の話か去年の話か分からない）
+  const year = y !== now().getFullYear() ? `${y}/` : "";
+  return `${year}${m}/${d}（${WEEKDAYS[date.getDay()]}）`;
 }
 
 /** 右に大きく出す「あと何日」。4日以内は赤 */

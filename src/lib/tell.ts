@@ -124,6 +124,13 @@ const FOOTER: Record<LanguageCode, string> = {
   vi: "Muốn hỏi gì thì trả lời (reply) tin nhắn này. Khi đã quyết định ai lo, hãy bấm nút bên dưới.",
 };
 
+/** コピーしてほかのアプリに貼るときの終わりの一言（ボタンが無いので、ボタンの話はしない） */
+const FOOTER_PLAIN: Record<LanguageCode, string> = {
+  ja: "質問があれば、このメッセージに返信してください。",
+  "ja-easy": "しつもんが あったら、へんしん してね。",
+  vi: "Có gì muốn hỏi thì trả lời tin nhắn này nhé.",
+};
+
 const mark = (c: LanguageCode) => `【${LANGUAGES.find((l) => l.code === c)?.native ?? c}】`;
 
 /** 1対1に送るときの終わりの一言（その人の言葉だけ） */
@@ -157,7 +164,8 @@ export function composeTellFor(p: TellPayload, lang: LanguageCode): { text: stri
   return { text: parts.join("\n"), lang: l };
 }
 
-export function composeTell(p: TellPayload): string {
+/** plain: コピーしてほかのアプリに貼る文（Telegram のボタンが付かないので、終わりの一言からボタンの話を外す） */
+export function composeTell(p: TellPayload, plain = false): string {
   const parts = [TELL_HEAD];
   // 受け取る家族の言葉（日本語以外）を先に: スマホの通知の最初の数行に、その人の言葉で要点が入る
   const blocks = [...p.blocks].sort((a, b) => (a.lang === "ja" ? 1 : 0) - (b.lang === "ja" ? 1 : 0));
@@ -168,7 +176,7 @@ export function composeTell(p: TellPayload): string {
     const heads = langs.filter((l) => l !== "ja").map((l) => SOURCE_HEAD[l]);
     parts.push("", [`— 原本（書類は${p.holder}さんの端末の中）`, ...heads].join(" ／ "), ...p.sources.map((s) => `・${s}`));
   }
-  parts.push("", ...langs.map((l) => FOOTER[l]));
+  parts.push("", ...langs.map((l) => (plain ? FOOTER_PLAIN : FOOTER)[l]));
   return parts.join("\n");
 }
 

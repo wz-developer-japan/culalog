@@ -337,6 +337,8 @@ export interface Household {
   inbox?: InboxItem[];
   /** 読み取りの上限に当たったとき、この時刻（ISO）までは次を読まない */
   inboxPausedUntil?: string;
+  /** 止めた理由: limit＝回数の上限 ／ error＝つながらない・Claude の側の失敗（少しおいて読み直す） */
+  inboxPauseReason?: "limit" | "error";
   /** 本人が質問に答えて、執事が覚えたこと（同じ種類の書類で二度聞かないため） */
   learned?: Learned[];
   /** 家族の Telegram グループとつないだ（グループの ID と、送るときの合言葉。端末の中だけ） */

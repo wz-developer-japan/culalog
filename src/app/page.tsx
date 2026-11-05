@@ -238,7 +238,7 @@ export default function Top() {
               ? `${name}が読んでいます: ${progress.done + progress.duplicate + progress.failed} / ${progress.total}件`
               : `読み終わりました: 確認待ち ${unconfirmed.length}件`}
             {reading > 0 && unconfirmed.length > 0 && <span className="block meta">確認待ち {unconfirmed.length}件</span>}
-            {progress.pausedUntil && reading > 0 && <span className="block meta">読み取りの回数の上限に当たったので、少し時間をおいて続きを読みます</span>}
+            {progress.pausedUntil && reading > 0 && <span className="block meta">{progress.pauseReason === "error" ? "読み取りがうまくいかなかったので" : "読み取りの回数の上限に当たったので"}、少し時間をおいて続きを読みます</span>}
           </div>
           <span className="go">まとめて確認</span>
         </Link>

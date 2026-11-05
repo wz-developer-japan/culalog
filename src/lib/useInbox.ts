@@ -86,7 +86,7 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
           res = await fetch("/api/extract", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: controller.signal });
         } catch (e) {
           if (controller.signal.aborted) throw e;
-          await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + RETRY_MS).toISOString() }));
+          await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + RETRY_MS).toISOString(), inboxPauseReason: "error" }));
           return;
         }
         const json = await res.json().catch(() => ({}));
@@ -118,11 +118,11 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
         }
         if (res.status === 429) {
           const seconds = Number(res.headers.get("Retry-After")) || 60;
-          await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + seconds * 1000).toISOString() }));
+          await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + seconds * 1000).toISOString(), inboxPauseReason: "limit" }));
           return;
         }
         if (res.status >= 500) {
-          await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + RETRY_MS).toISOString() }));
+          await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + RETRY_MS).toISOString(), inboxPauseReason: "error" }));
           return;
         }
         await update((h) => markItem(h, item.id, { status: "failed", error: json.error ?? "読み取れませんでした。" }));

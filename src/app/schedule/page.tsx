@@ -146,7 +146,7 @@ function ScheduleBody() {
               ? `${name}が読んでいます: ${progress.done + progress.duplicate + progress.failed} / ${progress.total}件`
               : `読み終わりました: 確認待ち ${unconfirmed.length}件`}
             {reading > 0 && unconfirmed.length > 0 && <span className="block meta">確認待ち {unconfirmed.length}件</span>}
-            {progress.pausedUntil && reading > 0 && <span className="block meta">回数の上限に当たったので、少しおいて続きを読みます</span>}
+            {progress.pausedUntil && reading > 0 && <span className="block meta">{progress.pauseReason === "error" ? "読み取りがうまくいかなかったので" : "回数の上限に当たったので"}、少しおいて続きを読みます</span>}
           </div>
           <span className="go">まとめて確認</span>
         </Link>
@@ -305,6 +305,7 @@ function ScheduleBody() {
                       ? "につながらなかった"
                       : "の準備中の"}
                   ため、期日の近い順に並べています。話し方は選んだ執事に合わせていますが、中身はコードで作っています。
+                  {connect?.source === "claude" && " 同じ日の気づきのカードは別に照らし合わせていて、合ったものは執事（Claude）の文のまま出しています。"}
                 </>
               ) : (
                 <>

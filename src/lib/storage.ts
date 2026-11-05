@@ -74,7 +74,14 @@ export function withResidentsOnly(household: Household): Household {
   };
 }
 
+let persistAsked = false;
+
 export async function saveHousehold(household: Household): Promise<void> {
+  // 預かった書類はこの端末の中だけにあるので、ブラウザが空きを作るときに消さないよう頼む（1回だけ。断られても続ける）
+  if (!persistAsked && typeof navigator !== "undefined") {
+    persistAsked = true;
+    navigator.storage?.persist?.().catch(() => undefined);
+  }
   await run("readwrite", (s) => s.put(household, KEY));
 }
 

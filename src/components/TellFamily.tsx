@@ -135,7 +135,7 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
           <button
             className="button secondary"
             onClick={async () => {
-              await navigator.clipboard?.writeText(text).catch(() => undefined);
+              await navigator.clipboard?.writeText(payload ? composeTell(payload, true) : text).catch(() => undefined);
               setStatus("コピーしました。");
             }}
           >

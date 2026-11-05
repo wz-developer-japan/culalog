@@ -81,7 +81,7 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
                   </span>
                 ))}
               </div>
-              <div className="meta small-note">Claude が照らし合わせました</div>
+              <div className="meta small-note">執事（Claude）の文を、コードが書類と照らし合わせました</div>
               {tellLink}
             </div>
           );

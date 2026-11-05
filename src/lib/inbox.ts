@@ -72,6 +72,7 @@ export function inboxProgress(household: Household) {
     duplicate: count("duplicate"),
     needsKey: count("needsKey"),
     pausedUntil,
+    pauseReason: pausedUntil ? (household.inboxPauseReason ?? "limit") : undefined,
   };
 }
 

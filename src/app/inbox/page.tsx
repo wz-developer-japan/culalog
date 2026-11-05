@@ -114,7 +114,7 @@ export default function Inbox() {
           )}
           {progress.pausedUntil && progress.waiting > 0 && (
             <div className="meta">
-              読み取りの回数の上限に当たったので、{timeOf(progress.pausedUntil)}ごろから続きを読みます（この画面かトップを開いていれば、自動で続けます）。
+              {progress.pauseReason === "error" ? "読み取りがうまくいかなかったので" : "読み取りの回数の上限に当たったので"}、{timeOf(progress.pausedUntil)}ごろから続きを読みます（この画面かトップを開いていれば、自動で続けます）。
             </div>
           )}
           {!progress.pausedUntil && progress.waiting > 0 && !reading && <div className="meta">続きを読む準備をしています…</div>}
