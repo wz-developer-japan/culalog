@@ -418,6 +418,12 @@ const token = "tok-123";
   check(top.includes("connectStatus={connectStatus}") && /connectStatus === "thinking"[\s\S]*執事（Claude）が書類を見ています/.test(card), "トップ: つなぐを待つあいだ「執事（Claude）が書類を見ています…」");
   check(/connectStatus === "unavailable" \|\| connectStatus === "error"[\s\S]*仮/.test(card), "トップ: 呼べなかった・デモで呼ばないときは「仮」");
   check(card.includes("執事（Claude）の言葉です"), "トップ: Claude の文に替わったら「執事（Claude）の言葉」の印");
+  // どの状態でも印が無いままにならない: ConnectStatus のどの値にも、コードの文のカードの印がある
+  const statuses = (readFileSync("src/lib/useConnect.ts", "utf8").match(/export type ConnectStatus = ([^;]+);/)?.[1] ?? "").match(/"(\w+)"/g)?.map((x) => x.replace(/"/g, "")) ?? [];
+  check(statuses.length === 4 && statuses.every((st) => card.includes(`connectStatus === "${st}"`)), `トップ: つなぐのどの状態（${statuses.join("・")}）でも、コードの文のカードに印がある`);
+  check(/connectStatus === "claude"[\s\S]*照らし合わせで合わなかった/.test(card), "トップ: 呼べたのに執事の文が照らし合わせで外れたときは「仮…合わなかったため」");
+  const route = readFileSync("src/app/api/connect/route.ts", "utf8");
+  check(route.includes("全体で200字以内") && readFileSync("src/lib/conflicts.ts", "utf8").includes("text.length > 220"), "つなぐ: 同じ日の文は指示で200字以内に（照らし合わせの220字は甘くしない）");
   check(card.includes("#tell-open") && tell.includes('"#tell-open"') && /void prepare\(\)/.test(tell), "家族に伝える: トップから押すと、送る前の確認まで自動で進む");
   check(/setTranslating\(languageLabel\(lang\)\)/.test(tell) && tell.includes("訳しています…"), "家族に伝える: 訳がまだなら、訳しているあいだを見せる");
 }

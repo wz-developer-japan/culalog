@@ -66,6 +66,7 @@ export function ConflictCards({
                   </span>
                 ))}
               </div>
+              {connectStatus && <div className="meta small-note">コードで見つけた文です（候補日から選ぶ行事は、執事（Claude）の文にしていません）</div>}
               {tellLink}
             </div>
           );
@@ -115,6 +116,11 @@ export function ConflictCards({
             {(connectStatus === "unavailable" || connectStatus === "error") && (
               <div className="meta small-note">
                 <span className="badge">仮</span> コードで見つけた文です（執事（Claude）の言葉ではありません）
+              </div>
+            )}
+            {connectStatus === "claude" && (
+              <div className="meta small-note">
+                <span className="badge">仮</span> コードで見つけた文です（執事（Claude）の文が、書類との照らし合わせで合わなかったため）
               </div>
             )}
             {notices.map((n) => (
