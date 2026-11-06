@@ -409,6 +409,19 @@ const token = "tok-123";
   check(src.includes("sendExtractOnce(item.id") && !/fetch\("\/api\/extract"[^)]*signal/.test(src), "受け取り箱: 画面を閉じても読み取りを止めず、sendExtractOnce で送る");
 }
 
+// ---- トップの同じ日の気づき（B）と「家族に伝える」（C）の作り ----
+{
+  const { readFileSync } = await import("node:fs");
+  const card = readFileSync("src/components/ConflictCard.tsx", "utf8");
+  const top = readFileSync("src/app/page.tsx", "utf8");
+  const tell = readFileSync("src/components/TellFamily.tsx", "utf8");
+  check(top.includes("connectStatus={connectStatus}") && /connectStatus === "thinking"[\s\S]*執事（Claude）が書類を見ています/.test(card), "トップ: つなぐを待つあいだ「執事（Claude）が書類を見ています…」");
+  check(/connectStatus === "unavailable" \|\| connectStatus === "error"[\s\S]*仮/.test(card), "トップ: 呼べなかった・デモで呼ばないときは「仮」");
+  check(card.includes("執事（Claude）の言葉です"), "トップ: Claude の文に替わったら「執事（Claude）の言葉」の印");
+  check(card.includes("#tell-open") && tell.includes('"#tell-open"') && /void prepare\(\)/.test(tell), "家族に伝える: トップから押すと、送る前の確認まで自動で進む");
+  check(/setTranslating\(languageLabel\(lang\)\)/.test(tell) && tell.includes("訳しています…"), "家族に伝える: 訳がまだなら、訳しているあいだを見せる");
+}
+
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);
 const ng = results.filter(([ok]) => !ok).length;
 console.log(ng ? `NG が ${ng} 件` : `${results.length}項目 ok`);
