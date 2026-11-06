@@ -35,8 +35,10 @@ const useClaude = flag("--claude") || Boolean(via);
 const limit = Number(opt("--limit", "0")) || 0;
 const idFilter = opt("--ids", "").split(",").filter(Boolean);
 const concurrency = Number(opt("--concurrency", "2")) || 2;
-// --resume: scripts/out/eval/ に読み取りの結果が残っている見本は読み直さない（途中で止まったときの続き）
+// --resume: scripts/out/eval/ に読み取りの結果が残っている見本は読み直さない（途中で止まったときの続き）。
+//   本番で読めなかった見本も記録を残し、読み直さない（読み直すときは --retry-unread）
 const resume = flag("--resume");
+const retryUnread = flag("--retry-unread");
 const outDir = opt("--out", "docs/eval");
 const rawDir = "scripts/out/eval";
 mkdirSync(outDir, { recursive: true });
@@ -263,8 +265,10 @@ async function worker() {
       let usage: Usage = { input: 0, output: 0 };
       let stop: string | undefined;
       const saved = join(rawDir, `${sample.id}.json`);
-      if (useClaude && resume && existsSync(saved)) {
-        const r = JSON.parse(readFileSync(saved, "utf8"));
+      const prev = useClaude && resume && existsSync(saved) ? JSON.parse(readFileSync(saved, "utf8")) : null;
+      if (prev?.unread && !retryUnread) throw new Error(prev.unread);
+      if (prev && !prev.unread) {
+        const r = prev;
         reading = r.reading;
         usage = r.usage;
         stop = r.stop;
@@ -282,7 +286,8 @@ async function worker() {
       }
       console.error(`${useClaude ? "読んだ" : "照合"} ${results.length}/${samples.length} ${sample.id}`);
     } catch (e) {
-      // 読めなかった（429 以外の失敗）は点を付けない（0 点と混ぜず、件数だけを別に出す）
+      // 読めなかった（429 以外の失敗）は点を付けない（0 点と混ぜず、件数だけを別に出す）。--resume のために記録を残す
+      if (useClaude) writeFileSync(join(rawDir, `${sample.id}.json`), JSON.stringify({ unread: String((e as Error).message ?? e).slice(0, 200) }, null, 2));
       results.push({ ...base, items: [], usage: { input: 0, output: 0 }, error: String((e as Error).message ?? e).slice(0, 200) });
       console.error(`失敗 ${sample.id}: ${String((e as Error).message ?? e).slice(0, 120)}`);
     }
