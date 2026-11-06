@@ -3,7 +3,7 @@
 // 「家族に伝える」: 共有した書類のまとめを、大人それぞれと執事の1対1（Telegram）へ、その人の言葉の段だけで。
 // 🔴 押したときだけ送る。送る前に、何がだれへ出るかを全部見せる。1対1を始めていない人・Telegram とつないでいなければ、コピーして自分で貼れる。
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { translateDocument } from "@/components/TranslationView";
 import { LANGUAGES, languageLabel, type LanguageCode } from "@/lib/languages";
 import { calendarButtons, composeTell } from "@/lib/tell";
@@ -17,7 +17,19 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
   const [text, setText] = useState("");
   const [payload, setPayload] = useState<ReturnType<typeof buildTell> | null>(null);
   const [status, setStatus] = useState("");
-  if (!doc.confirmedAt || !doc.sharedWith?.length) return null;
+  // いま訳している言葉（送る前の画面を開く前に、訳を待っているあいだの表示）
+  const [translating, setTranslating] = useState("");
+  // トップの「家族に伝える」から来たとき（#tell-open）: 書類の画面で止まらず、送る前の確認まで1回だけ自動で進む
+  const autoOpened = useRef(false);
+  const canTell = Boolean(doc.confirmedAt && doc.sharedWith?.length);
+  useEffect(() => {
+    if (!canTell || autoOpened.current || window.location.hash !== "#tell-open") return;
+    autoOpened.current = true;
+    history.replaceState(null, "", "#tell");
+    void prepare();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canTell]);
+  if (!canTell) return null;
   const missing = tellLanguages(household, doc)
     .filter((l) => l !== "ja" && !doc.translations?.[l])
     .map(languageLabel);
@@ -32,7 +44,9 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
     const skipped: string[] = [];
     for (const lang of tellLanguages(household, doc, groupLangs)) {
       if (lang !== "ja" && !translations[lang]) {
+        setTranslating(languageLabel(lang));
         const { translation } = await translateDocument(household, doc, lang);
+        setTranslating("");
         if (!translation) {
           skipped.push(languageLabel(lang));
           continue;
@@ -90,7 +104,12 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
           <button className="button" disabled={busy} onClick={prepare}>
             {busy ? "用意しています…" : "家族に伝える（それぞれの言葉で）"}
           </button>
-          {missing.length > 0 && (
+          {translating && (
+            <p className="meta" role="status">
+              執事（Claude）が{translating}に訳しています…（30秒ほど）。訳し終わったら、送る前の確認の画面を開きます。
+            </p>
+          )}
+          {missing.length > 0 && !busy && (
             <p className="meta">
               {missing.join("・")}の訳がまだありません。押すと先に執事が訳します（執事の準備中は、日本語だけのお知らせになります）。
             </p>

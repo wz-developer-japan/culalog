@@ -160,7 +160,7 @@ function TellButton({ household, docId }: { household: Household; docId: string 
   }
   const others = household.members.filter((m) => doc.sharedWith!.includes(m.id) && languageOf(m) !== "ja");
   return (
-    <Link className="button small" href={`/documents/${docId}#tell`}>
+    <Link className="button small" href={`/documents/${docId}#tell-open`}>
       家族に伝える{others.length ? `（${others.map((m) => `${nameOf(m.id)}さんには${languageLabel(languageOf(m)).replace(/（.*）/, "")}で`).join("・")}）` : ""}
     </Link>
   );

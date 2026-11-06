@@ -38,8 +38,9 @@ export default function DocumentDetail() {
   useEffect(() => {
     if (!docReady) return;
     const hash = window.location.hash.slice(1);
-    if (!/^(tell|share)$/.test(hash)) return;
-    requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView({ block: "start" }));
+    if (!/^(tell|tell-open|share)$/.test(hash)) return;
+    // tell-open は、送る前の確認を自動で開く（TellFamily）。場所は「家族に伝える」の欄
+    requestAnimationFrame(() => document.getElementById(hash === "tell-open" ? "tell" : hash)?.scrollIntoView({ block: "start" }));
   }, [docReady, id]);
 
   useEffect(() => {
