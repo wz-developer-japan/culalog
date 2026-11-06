@@ -35,6 +35,8 @@ const useClaude = flag("--claude") || Boolean(via);
 const limit = Number(opt("--limit", "0")) || 0;
 const idFilter = opt("--ids", "").split(",").filter(Boolean);
 const concurrency = Number(opt("--concurrency", "2")) || 2;
+// --resume: scripts/out/eval/ に読み取りの結果が残っている見本は読み直さない（途中で止まったときの続き）
+const resume = flag("--resume");
 const outDir = opt("--out", "docs/eval");
 const rawDir = "scripts/out/eval";
 mkdirSync(outDir, { recursive: true });
@@ -43,7 +45,8 @@ mkdirSync(rawDir, { recursive: true });
 // ---------- 見本と正解 ----------
 const household = await createDemoHousehold(new Date("2026-11-07T10:00:00+09:00"));
 const family = household.members.map((m) => ({ id: m.id, name: m.name, relation: m.roleLabel ?? m.relation, note: m.note ?? "" }));
-let samples = (household.demoSamples ?? []).filter((s) => s.id.startsWith("photo-"));
+// 見本は photoSamples.json の全部（架空の家族に最初から確定済みで入れる分も含める。demoSamples はそれを除いた残りだけ）
+let samples = ((await import("@/data/photoSamples.json")).default as unknown as DemoSample[]).filter((s) => s.id.startsWith("photo-"));
 if (idFilter.length) samples = samples.filter((s) => idFilter.some((f) => s.id.includes(f)));
 if (limit) samples = samples.slice(0, limit);
 const today = "2026-11-07";
@@ -96,10 +99,24 @@ async function readVia(sample: DemoSample): Promise<{ extraction: Extraction | n
       ? [{ mediaType: "text/plain", data: Buffer.from(sample.text ?? "", "utf8").toString("base64") }]
       : (sample.images ?? []).map((p) => ({ mediaType: p.endsWith(".png") ? "image/png" : "image/jpeg", data: readFileSync(join("public", p)).toString("base64") }));
   const body = files.length > 1 ? { pages: files, today, family } : { ...files[0], today, family };
-  const res = await fetch(`${via}/api/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const json = (await res.json().catch(() => ({}))) as { extraction?: Extraction; error?: string };
-  if (!res.ok) throw new Error(`${res.status} ${json.error ?? ""}`);
-  return { extraction: json.extraction ?? null, usage: { input: json.usage?.input ?? 0, output: json.usage?.output ?? 0 }, stop: "via" };
+  // 429（1時間あたりの上限・混み合い）は落とさずに、Retry-After の秒だけ待って同じ件をやり直す。
+  // 1日の上限（「本日の…」）に当たったら、待たずに止める（その日はもう読めない）
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(`${via}/api/extract`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const json = (await res.json().catch(() => ({}))) as { extraction?: Extraction; error?: string; usage?: { input?: number; output?: number } };
+    if (res.status === 429 && !/本日/.test(json.error ?? "") && attempt <= 40) {
+      const wait = Math.min(Math.max(Number(res.headers.get("retry-after")) || 60, 5), 3700);
+      console.error(`429 ${sample.id}: ${wait} 秒待ってやり直す（${attempt} 回目）`);
+      await new Promise((r) => setTimeout(r, (wait + 2) * 1000));
+      continue;
+    }
+    if (res.status === 429) {
+      console.error(`1日の上限に当たったので止める: ${json.error ?? ""}`);
+      process.exit(2);
+    }
+    if (!res.ok) throw new Error(`${res.status} ${json.error ?? ""}`);
+    return { extraction: json.extraction ?? null, usage: { input: json.usage?.input ?? 0, output: json.usage?.output ?? 0 }, stop: "via" };
+  }
 }
 
 async function readWithClaude(sample: DemoSample): Promise<{ extraction: Extraction | null; usage: Usage; stop: string }> {
@@ -251,7 +268,13 @@ async function worker() {
       let reading: Extraction | null = truth;
       let usage: Usage = { input: 0, output: 0 };
       let stop: string | undefined;
-      if (useClaude) {
+      const saved = join(rawDir, `${sample.id}.json`);
+      if (useClaude && resume && existsSync(saved)) {
+        const r = JSON.parse(readFileSync(saved, "utf8"));
+        reading = r.reading;
+        usage = r.usage;
+        stop = r.stop;
+      } else if (useClaude) {
         const r = await readWithClaude(sample);
         reading = r.extraction;
         usage = r.usage;
@@ -265,7 +288,8 @@ async function worker() {
       }
       console.error(`${useClaude ? "読んだ" : "照合"} ${results.length}/${samples.length} ${sample.id}`);
     } catch (e) {
-      results.push({ ...base, items: [{ key: "parsed", label: "返す形で受け取れた", hit: 0, total: 1 }], usage: { input: 0, output: 0 }, error: String((e as Error).message ?? e).slice(0, 200) });
+      // 読めなかった（429 以外の失敗）は点を付けない（0 点と混ぜず、件数だけを別に出す）
+      results.push({ ...base, items: [], usage: { input: 0, output: 0 }, error: String((e as Error).message ?? e).slice(0, 200) });
       console.error(`失敗 ${sample.id}: ${String((e as Error).message ?? e).slice(0, 120)}`);
     }
   }
@@ -300,7 +324,9 @@ const docScore = (r: Result) => {
   const t = r.items.reduce((n, i) => n + i.total, 0);
   return t ? h / t : 0;
 };
-const perfect = results.filter((r) => r.items.every((i) => i.hit === i.total)).length;
+const scored = results.filter((r) => r.items.length > 0);
+const unread = results.filter((r) => r.items.length === 0);
+const perfect = scored.filter((r) => r.items.every((i) => i.hit === i.total)).length;
 const overallHit = results.reduce((n, r) => n + r.items.reduce((m, i) => m + i.hit, 0), 0);
 const overallTotal = results.reduce((n, r) => n + r.items.reduce((m, i) => m + i.total, 0), 0);
 const byCat = new Map<string, { hit: number; total: number; docs: number }>();
@@ -324,8 +350,10 @@ lines.push("");
 lines.push(`測った日時: ${now}／見本: ${results.length}件（写真 ${results.filter((r) => r.origin !== "text").length}・メールの本文 ${results.filter((r) => r.origin === "text").length}）／指示とモデルはアプリの /api/extract と同じ`);
 lines.push("");
 lines.push(`- **全部の点の正解率: ${pct(overallHit, overallTotal)}**（${overallHit} / ${overallTotal} 点）`);
-lines.push(`- 全項目が正解だった書類: ${perfect} / ${results.length} 件`);
-if (results.some((r) => r.error)) lines.push(`- 読めなかった・形が受け取れなかった: ${results.filter((r) => r.error).length} 件`);
+lines.push(`- 全項目が正解だった書類: ${perfect} / ${scored.length} 件${unread.length ? `（読めた ${scored.length} 件のうち）` : ""}`);
+if (unread.length) lines.push(`- 読めなかった（通信・時間切れなど。点に入れていない）: ${unread.length} 件（${unread.map((r) => r.id.replace(/^photo-/, "")).join("、")}）`);
+const unparsed = scored.filter((r) => r.error).length;
+if (unparsed) lines.push(`- 返事は来たが、返す形で受け取れなかった（0 点として数えた）: ${unparsed} 件`);
 lines.push("");
 lines.push("## 項目別");
 lines.push("");
@@ -344,11 +372,12 @@ lines.push("");
 lines.push(`- 見積もり（画像は長辺1568pxに縮めた (幅×高さ)/750、文字は1文字≒1.1トークン、出力は正解 JSON の長さから）: 入力 約 ${estIn.toLocaleString()} トークン・出力 約 ${estOut.toLocaleString()} トークン → **約 $${cost(estIn, estOut).toFixed(2)}**（${EXTRACT_MODEL}: 入力 $${PRICE.input}／出力 $${PRICE.output} per 1M）`);
 if (useClaude) lines.push(`- 実際の usage: 入力 ${realIn.toLocaleString()}・出力 ${realOut.toLocaleString()} トークン → 約 $${cost(realIn, realOut).toFixed(2)}`);
 lines.push("");
-lines.push("## 書類ごと（正解率の低い順）");
+lines.push(`## 書類ごと（正解率の低い順・満点でなかった書類を全部。満点は ${perfect} 件）`);
 lines.push("");
 lines.push("| 書類 | 正解率 | 落ちた項目 |");
 lines.push("|---|---|---|");
-for (const r of [...results].sort((a, b) => docScore(a) - docScore(b)).slice(0, 30)) {
+// 落ちた所を隠さない: 満点でない書類・読めなかった書類は全部並べる（満点の書類は件数だけ）
+for (const r of [...results].sort((a, b) => docScore(a) - docScore(b)).filter((r) => !r.items.length || r.items.some((i) => i.hit < i.total))) {
   const missed = r.items.filter((i) => i.hit < i.total).map((i) => `${i.label}${i.total > 1 ? `（${i.hit}/${i.total}）` : ""}`);
   lines.push(`| ${r.title.replace(/（架空）$/, "")} | ${pct(r.items.reduce((n, i) => n + i.hit, 0), r.items.reduce((n, i) => n + i.total, 0))} | ${r.error ?? (missed.join("、") || "-")} |`);
 }
