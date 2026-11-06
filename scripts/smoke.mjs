@@ -97,7 +97,7 @@ await step("予定の画面の上に「向こう7日」の帯があり、押す�
   await conflict.waitFor({ timeout: 15000 });
   const conflictText = await conflict.innerText();
   if (
-    !/11月27日（金）は、蓮さんの授業参観の日です。この日は、タオさんも翔太さんもお仕事のようです/.test(conflictText) ||
+    !/11月27日（金）は、蓮さんの2学期 授業参観・学級懇談会の日です。この日は、タオさんも翔太さんもお仕事のようです/.test(conflictText) ||
     !/どちらが行くか（行かないか）は、家族で決めてください。行くと決まったら、勤務先への連絡も忘れずに/.test(conflictText) ||
     // 期限は勤務の書類に書いてある人の分だけ（翔太さんのシフト表）。タオさんのきまりから作った期限は出さない
     !/翔太さんのシフト表: 休みの希望・シフトの交代は11月20日（金）まで/.test(conflictText) ||
@@ -232,7 +232,7 @@ await step("学年だより・案内プリントの授業参観に、執事が�
   await page.waitForTimeout(500);
   if (await page.locator(".card.insight").filter({ hasText: /見に行きますか/ }).count()) throw new Error("「行く」を押しても、まだ聞いています");
   await page.goto(BASE + "/schedule/all");
-  await see("授業参観（2学期）の日の休みの申請");
+  await see("2学期 授業参観・学級懇談会の日の休みの申請");
 });
 
 await step("聞きたいことに答えると、執事が覚える", async () => {
