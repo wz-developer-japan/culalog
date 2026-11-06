@@ -12,12 +12,26 @@ import { formatYmd } from "@/lib/deadlines";
 import { shortDocName } from "@/lib/docName";
 import { languageLabel, languageOf } from "@/lib/languages";
 import type { Household } from "@/lib/types";
+import type { ConnectStatus } from "@/lib/useConnect";
 
 
 /**
  * top: トップのように1件だけ出す（子どもの行事を先に）。ほかは「ほか○件」で予定の画面へ
  */
-export function ConflictCards({ household, today, memberId, top }: { household: Household; today: Date; memberId?: string; top?: boolean }) {
+export function ConflictCards({
+  household,
+  today,
+  memberId,
+  top,
+  connectStatus,
+}: {
+  household: Household;
+  today: Date;
+  memberId?: string;
+  top?: boolean;
+  /** つなぐ（Claude）のいまの様子。渡されたときだけ、コードの文のカードに「見ています…」「仮」を出す */
+  connectStatus?: ConnectStatus;
+}) {
   const nameOf = (id: string) => household.members.find((m) => m.id === id)?.name.split(/\s+/).pop() ?? "";
   const names = (ids: string[]) => ids.map(nameOf).join("・");
   const all = findConflicts(household, today).filter(
@@ -81,7 +95,7 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
                   </span>
                 ))}
               </div>
-              <div className="meta small-note">執事（Claude）の文を、コードが書類と照らし合わせました</div>
+              <div className="meta small-note by-claude">✓ 執事（Claude）の言葉です（コードが日付・名前・期限を書類と照らし合わせました）</div>
               {tellLink}
             </div>
           );
@@ -93,6 +107,16 @@ export function ConflictCards({ household, today, memberId, top }: { household: 
               {adultNames.length > 1 ? `この日は、${adultNames.map((n) => `${n}さんも`).join("")}お仕事のようです。` : `この日は、${adultNames[0]}さんはお仕事のようです。`}
             </div>
             <div className="meta">{decideLine(c)}</div>
+            {connectStatus === "thinking" && (
+              <div className="meta small-note thinking" role="status">
+                執事（Claude）が書類を見ています…（いまはコードで見つけた文です。30秒ほどで執事の言葉に替わります）
+              </div>
+            )}
+            {(connectStatus === "unavailable" || connectStatus === "error") && (
+              <div className="meta small-note">
+                <span className="badge">仮</span> コードで見つけた文です（執事（Claude）の言葉ではありません）
+              </div>
+            )}
             {notices.map((n) => (
               <div className="meta" key={n.doc.id}>
                 {shortDocName(n.doc, household.members)}: {noticeShort(n.label)}は{formatYmd(n.date)}まで{n.location ? `（${n.location.replace(/[（(].*$/, "")}）` : ""}

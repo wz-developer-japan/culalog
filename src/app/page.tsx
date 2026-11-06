@@ -39,7 +39,7 @@ export default function Top() {
   const { household, loaded, save, update } = useHousehold();
   const [offset, setOffset] = useTodayOffset();
   // つなぐ＋ひとこと（書類・きまりが変わったとき・1日1回だけ Claude に頼み、端末に保存）
-  useConnect(household, update);
+  const { status: connectStatus } = useConnect(household, update);
   // 頼んで、あとで報告: 答えの無い頼みごとがあれば、この画面を開いているあいだに調べて保存する
   // まとめて渡した書類: この画面を開いているあいだに、執事が1枚ずつ読む
   useInboxQueue(household, update);
@@ -173,7 +173,7 @@ export default function Top() {
           </Link>
         ) : null;
       })()}
-      <ConflictCards household={h} today={today} top />
+      <ConflictCards household={h} today={today} top connectStatus={connectStatus} />
 
       {nearest?.card ? (
         <Link className={`mini${nearest.overdue ? " over" : ""}`} href="/schedule" style={{ background: colorOf(h.members, nearest.memberIds) }}>

@@ -123,6 +123,23 @@ h2 {
 .card .meta.small-note {
   font-size: 0.75rem;
 }
+.card .meta.small-note.by-claude {
+  color: var(--text);
+  font-weight: 600;
+}
+.card .meta.small-note.thinking {
+  animation: thinking-pulse 1.6s ease-in-out infinite;
+}
+@keyframes thinking-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card .meta.small-note.thinking {
+    animation: none;
+  }
+}
 
 /* 確認のお願い */
 .card.warn {
