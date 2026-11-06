@@ -253,8 +253,11 @@ export interface DocumentRecord {
    * 下書きの出どころ。
    * - claude:      Claude が原本から読み取った
    * - provisional: 読み取り機能の準備中に使う、決め打ちの仮の結果（Claude は使っていない）
+   * - saved:       見本の家族用に、前に本物の Claude が読んだ結果を保存したもの（その場では読み直していない）
    */
-  draftSource?: "claude" | "provisional";
+  draftSource?: "claude" | "provisional" | "saved";
+  /** draftSource が saved のとき: いつ・どのモデルで読んだか */
+  savedReading?: { readAt: string; model: string };
   /** 読み取りで、読めなかった・はっきりしなかった箇所 */
   unclear?: string[];
   /** この書類が「来るはずの書類」のどれに当たるか。確定すると「来ていないもの」から消える */

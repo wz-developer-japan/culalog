@@ -271,6 +271,12 @@ export default function DocumentDetail() {
       {doc.draftSource === "provisional" && (
         <p className="note">仮の読み取り結果です（Claude の準備中に用意した見本）。</p>
       )}
+      {doc.draftSource === "saved" && (
+        <p className="note">
+          {doc.savedReading ? `${Number(doc.savedReading.readAt.slice(5, 7))}/${Number(doc.savedReading.readAt.slice(8, 10))}` : "前"}に本物の Claude
+          {doc.savedReading ? `（${doc.savedReading.model}）` : ""}が原本の写真から読んだ結果を、見本の家族のために保存したものです（開くたびに読み直してはいません）。正解と違う所も直していません。
+        </p>
+      )}
       {doc.draftSource === "claude" && !confirmed && (
         <div className="card meta">
           この下書きは Claude が原本から読み取ったものです。読み違いがあり得るので、必ず原本と見比べてください。

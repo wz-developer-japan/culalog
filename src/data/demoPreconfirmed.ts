@@ -6,6 +6,20 @@
 import { extractionToDocument } from "@/lib/extraction";
 import { toYmd } from "@/lib/deadlines";
 import type { DemoSample, DocumentRecord, FamilyMember } from "@/lib/types";
+import type { Extraction } from "@/lib/extraction";
+import savedReadingsJson from "./savedReadings.json";
+
+/**
+ * 看板の書類は、仮の読み取り結果ではなく、11/6 に本物の Claude（本番の /api/extract）が読んだ結果を保存したものを使う。
+ * 中身は読み取りのまま（正解と違う所も手で直さない）。読み直しはしない（開くたびに Claude を呼ばない）
+ */
+const SAVED_READINGS = savedReadingsJson as unknown as Record<string, { readAt: string; model: string; reading: Extraction }>;
+/**
+ * 保存した読み取りを使う見本（savedReadings.json にあっても、ここに無いものは仮の読み取り結果のまま）。
+ * 勤務カレンダー（photo-w12）は入れない: 本物の読み取りには「出勤日（土曜）11/21」の予定が無く、
+ * 土曜の出勤日・休日の候補日の気づき（同じ日の結果）が変わるため。読み取りは savedReadings.json に残してある
+ */
+export const SAVED_READING_IDS = new Set(["photo-o9-sankan-annai"]);
 
 /** 最初から預かっている見本と、現物のしまい場所 */
 const PRECONFIRMED: Record<string, string> = {
@@ -70,10 +84,11 @@ export function preconfirmedDocuments(
       let n = 0;
       const newId = (prefix: string) => `${prefix}-${s.id.replace(/^photo-/, "")}-${++n}`;
       const isMail = s.origin === "text" || !s.images?.length;
-      const { document } = extractionToDocument(s.provisionalDraft, {
+      const saved = SAVED_READING_IDS.has(s.id) ? SAVED_READINGS[s.id] : undefined;
+      const { document } = extractionToDocument(saved?.reading ?? s.provisionalDraft, {
         id: `doc-${s.id.replace(/^photo-/, "")}`,
         origin: isMail ? "text" : "photo",
-        draftSource: "provisional",
+        draftSource: saved ? "saved" : "provisional",
         members,
         originalText: s.text,
         originalFile: isMail ? undefined : { mediaType: "image/png", dataUrl: s.images![0] },
@@ -86,6 +101,7 @@ export function preconfirmedDocuments(
       return {
         ...document,
         storageLocation: PRECONFIRMED[s.id],
+        savedReading: saved ? { readAt: saved.readAt, model: saved.model } : undefined,
         originalPages: pages.length ? pages : undefined,
         fields: document.fields.map((f) => ({ ...f, status: "confirmed" as const })),
         createdAt,

@@ -55,9 +55,9 @@ const PREPARED: Prepared[] = [
     what: "Thông báo của trường tiểu học Kuroudo Daiichi (trường của bé Ren) về buổi dự giờ (jugyō sankan) và họp phụ huynh lớp học kỳ 2: giờ, phòng học, đồ cần mang.",
     todo: "Điền phiếu có đi / không đi (phần dưới đường cắt) và nộp cho giáo viên chủ nhiệm trước hạn. Hôm đó mang dép đi trong nhà và thẻ tên dành cho khách.",
     items: [
-      { match: "授業参観（2学期）", label: "Dự giờ học kỳ 2 (phụ huynh đến xem lớp học) và họp phụ huynh lớp", text: "Phòng học của lớp 3-2 (tầng 2, phía đông). Mang: dép đi trong nhà, thẻ tên dành cho khách." },
+      { match: "授業参観・学級懇談会", label: "Dự giờ học kỳ 2 (phụ huynh đến xem lớp học) và họp phụ huynh lớp", text: "Phòng học của lớp 3-2 (tầng 2, phía đông). Mang: dép đi trong nhà, thẻ tên dành cho khách." },
       { match: "出欠票", label: "Nộp phiếu có đi / không đi (cho giáo viên chủ nhiệm)", text: "Phiếu ở phần dưới đường cắt của tờ thông báo." },
-      { match: "時間", label: "Giờ", text: "Dự giờ: tiết 3, 10:45–11:30. Họp phụ huynh lớp: 11:40–12:10." },
+      { match: "日時", label: "Giờ", text: "Dự giờ: tiết 3, 10:45–11:30. Họp phụ huynh lớp: 11:40–12:10." },
       { match: "場所", label: "Nơi", text: "Phòng học của từng lớp (lớp 3-2 ở tầng 2, phía đông)." },
       { match: "持ち物", label: "Mang theo", text: "Dép đi trong nhà, thẻ tên dành cho khách." },
       { match: "お願い", label: "Lưu ý", text: "Không đến trường bằng ô tô. Không chụp ảnh, quay phim trong giờ học." },
@@ -187,9 +187,9 @@ const PREPARED: Prepared[] = [
     what: "れんさんの がっこう（くろうど だいいち しょうがっこう）からの おしらせです。2がっきの じゅぎょうさんかん と がっきゅうこんだんかい の、じかん・ばしょ・もちもの が かいて あります。",
     todo: "きりとりせんの したの「しゅっけつひょう」に、いく か いかない か を かいて、しめきりまでに たんにんの せんせいに だします。その日は、うわばき（スリッパ）と なふだ（きた ひと よう）を もって いきます。",
     items: [
-      { match: "授業参観（2学期）", label: "じゅぎょうさんかん（2がっき）・がっきゅうこんだんかい", text: "3ねん2くみの きょうしつ（2かい の ひがしがわ）。もちもの: うわばき（スリッパ）、なふだ（きた ひと よう）。" },
+      { match: "授業参観・学級懇談会", label: "じゅぎょうさんかん（2がっき）・がっきゅうこんだんかい", text: "3ねん2くみの きょうしつ（2かい の ひがしがわ）。もちもの: うわばき（スリッパ）、なふだ（きた ひと よう）。" },
       { match: "出欠票", label: "しゅっけつひょう（いく・いかない の かみ）を だす（たんにんの せんせいへ）", text: "かみは、おしらせの きりとりせんの したに あります。" },
-      { match: "時間", label: "じかん", text: "じゅぎょうさんかん: 3じかんめ 10:45〜11:30。がっきゅうこんだんかい: 11:40〜12:10。" },
+      { match: "日時", label: "じかん", text: "じゅぎょうさんかん: 3じかんめ 10:45〜11:30。がっきゅうこんだんかい: 11:40〜12:10。" },
       { match: "場所", label: "ばしょ", text: "それぞれの クラスの きょうしつ（3ねん2くみは 2かい の ひがしがわ）。" },
       { match: "持ち物", label: "もちもの", text: "うわばき（スリッパ）、なふだ（きた ひと よう）。" },
       { match: "お願い", label: "おねがい", text: "くるまで こないで ください。じゅぎょうの あいだ、しゃしんや どうがを とらないで ください。" },

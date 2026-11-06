@@ -174,7 +174,8 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   const tr = (l: "vi" | "ja-easy") => ({ ...provisionalTranslation(doc, l)!, ...base, lang: l });
   const p7 = buildTell(h7, doc, { vi: tr("vi"), "ja-easy": tr("ja-easy") }, () => undefined, ["ja", "vi", "ja-easy"]);
   const q = (l: "ja" | "vi") => new URL(p7.calendar?.[l] ?? "https://x.invalid/").searchParams;
-  check(q("ja").get("text") === "授業参観（2学期）" && q("ja").get("dates") === "20261127T104500/20261127T121000" && q("ja").get("ctz") === "Asia/Tokyo", "カレンダーに追加（日本語）: 授業参観 11/27 10:45〜12:10");
+  // 看板の書類は 11/6 に本物の Claude が読んだ結果（savedReadings.json）なので、予定の名前は読み取りのまま
+  check(q("ja").get("text") === "2学期 授業参観・学級懇談会" && q("ja").get("dates") === "20261127T104500/20261127T121000" && q("ja").get("ctz") === "Asia/Tokyo", "カレンダーに追加（日本語）: 授業参観 11/27 10:45〜12:10");
   check(/^Dự giờ/.test(q("vi").get("text") ?? "") && !/[\u3040-\u30ff]/.test(q("vi").get("text") ?? "") && /Bản gốc/.test(q("vi").get("details") ?? ""), "カレンダーに追加（ベトナム語）: 題はベトナム語・メモに原本へ戻る行");
   check(!p7.calendar?.["ja-easy"], "子どもだけが読む言葉（蓮さんのやさしい日本語）には、カレンダーに追加を作らない");
   const yearly = h7.documents.find((d) => /年間行事予定/.test(d.title) && d.confirmedAt && !d.supersededBy)!;

@@ -394,7 +394,7 @@ export function extractionToDocument(
   options: {
     id: string;
     origin: DocumentOrigin;
-    draftSource: "claude" | "provisional";
+    draftSource: "claude" | "provisional" | "saved";
     members: FamilyMember[];
     expectedId?: string;
     originalText?: string;
