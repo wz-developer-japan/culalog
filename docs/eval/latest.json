@@ -1,94 +1,94 @@
 {
-  "at": "2026-11-03 06:05 UTC",
+  "at": "2026-11-06 02:29 UTC",
   "model": "claude-opus-5-5",
-  "claude": false,
+  "claude": true,
   "overall": {
-    "hit": 1183,
-    "total": 1183
+    "hit": 939,
+    "total": 1073
   },
-  "perfect": 86,
+  "perfect": 12,
   "byKey": {
     "parsed": {
       "label": "返す形で受け取れた",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
+      "hit": 80,
+      "total": 80,
+      "docs": 80
     },
     "category": {
       "label": "書類の種類",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
+      "hit": 76,
+      "total": 80,
+      "docs": 80
     },
     "who": {
       "label": "誰の（人）",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
+      "hit": 65,
+      "total": 80,
+      "docs": 80
     },
     "household": {
       "label": "家全体かどうか",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
+      "hit": 78,
+      "total": 80,
+      "docs": 80
     },
     "notForFamily": {
       "label": "この家の書類ではない",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
-    },
-    "deadlineExtra": {
-      "label": "正解に無い日付を締切にしない",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
-    },
-    "ifIgnored": {
-      "label": "放置すると？（推測で書かない）",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
-    },
-    "phone": {
-      "label": "問い合わせ先の電話番号",
-      "hit": 99,
-      "total": 99,
-      "docs": 77
-    },
-    "unclear": {
-      "label": "読めなかった所を推測で埋めない",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
-    },
-    "noJudging": {
-      "label": "判断の言い回しが無い",
-      "hit": 86,
-      "total": 86,
-      "docs": 86
-    },
-    "period": {
-      "label": "期間（いつの分か）",
-      "hit": 69,
-      "total": 69,
-      "docs": 69
+      "hit": 77,
+      "total": 80,
+      "docs": 80
     },
     "deadlineDate": {
       "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-      "hit": 110,
-      "total": 110,
-      "docs": 46
+      "hit": 76,
+      "total": 92,
+      "docs": 43
     },
     "deadlineKind": {
       "label": "予定の種類",
-      "hit": 110,
-      "total": 110,
-      "docs": 46
+      "hit": 70,
+      "total": 92,
+      "docs": 43
+    },
+    "deadlineExtra": {
+      "label": "正解に無い日付を締切にしない",
+      "hit": 70,
+      "total": 80,
+      "docs": 80
+    },
+    "ifIgnored": {
+      "label": "放置すると？（推測で書かない）",
+      "hit": 70,
+      "total": 80,
+      "docs": 80
+    },
+    "phone": {
+      "label": "問い合わせ先の電話番号",
+      "hit": 86,
+      "total": 86,
+      "docs": 71
+    },
+    "unclear": {
+      "label": "読めなかった所を推測で埋めない",
+      "hit": 69,
+      "total": 80,
+      "docs": 80
+    },
+    "noJudging": {
+      "label": "判断の言い回しが無い",
+      "hit": 80,
+      "total": 80,
+      "docs": 80
+    },
+    "period": {
+      "label": "期間（いつの分か）",
+      "hit": 34,
+      "total": 62,
+      "docs": 62
     },
     "bundle": {
       "label": "束ねる印",
-      "hit": 9,
+      "hit": 0,
       "total": 9,
       "docs": 8
     },
@@ -100,20 +100,20 @@
     },
     "completions": {
       "label": "済んだ・訂正のお知らせ",
-      "hit": 7,
+      "hit": 3,
       "total": 7,
       "docs": 7
     }
   },
   "results": [
     {
-      "id": "photo-g1-aircon-hosho",
-      "title": "ルームエアコンの保証書（ひだまり電機・表裏）（架空）",
-      "category": "housing",
+      "id": "photo-f-community-cleanup",
+      "title": "くろうど台一丁目町内会 秋の一斉清掃と、ごみ集積所の当番のお知らせ（架空）",
+      "category": "community",
       "origin": "photo",
       "estimate": {
-        "input": 10005,
-        "output": 3374
+        "input": 9374,
+        "output": 3117
       },
       "items": [
         {
@@ -132,6 +132,95 @@
           "key": "who",
           "label": "誰の（人）",
           "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "household",
+          "label": "家全体かどうか",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "notForFamily",
+          "label": "この家の書類ではない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "deadlineDate",
+          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
+          "hit": 3,
+          "total": 4
+        },
+        {
+          "key": "deadlineKind",
+          "label": "予定の種類",
+          "hit": 2,
+          "total": 4
+        },
+        {
+          "key": "deadlineExtra",
+          "label": "正解に無い日付を締切にしない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "ifIgnored",
+          "label": "放置すると？（推測で書かない）",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "phone",
+          "label": "問い合わせ先の電話番号",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "unclear",
+          "label": "読めなかった所を推測で埋めない",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "noJudging",
+          "label": "判断の言い回しが無い",
+          "hit": 1,
+          "total": 1
+        }
+      ],
+      "usage": {
+        "input": 2878,
+        "output": 4534
+      },
+      "stop": "via"
+    },
+    {
+      "id": "photo-g1-aircon-hosho",
+      "title": "ルームエアコンの保証書（ひだまり電機・表裏）（架空）",
+      "category": "housing",
+      "origin": "photo",
+      "estimate": {
+        "input": 10703,
+        "output": 3374
+      },
+      "items": [
+        {
+          "key": "parsed",
+          "label": "返す形で受け取れた",
+          "hit": 1,
+          "total": 1
+        },
+        {
+          "key": "category",
+          "label": "書類の種類",
+          "hit": 0,
+          "total": 1
+        },
+        {
+          "key": "who",
+          "label": "誰の（人）",
+          "hit": 0,
           "total": 1
         },
         {
@@ -178,9 +267,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5792,
+        "output": 4412
+      },
+      "stop": "via"
     },
     {
       "id": "photo-g2-kyutoki-hosho",
@@ -188,7 +278,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 8062,
+        "input": 8760,
         "output": 3351
       },
       "items": [
@@ -207,7 +297,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -272,9 +362,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1947,
+        "output": 3925
+      },
+      "stop": "via"
     },
     {
       "id": "photo-h7-electric",
@@ -282,7 +373,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 8701,
+        "input": 9399,
         "output": 4167
       },
       "items": [
@@ -301,7 +392,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -325,13 +416,13 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 2,
+          "hit": 0,
           "total": 2
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 0,
           "total": 2
         },
         {
@@ -366,9 +457,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2835,
+        "output": 4904
+      },
+      "stop": "via"
     },
     {
       "id": "photo-h8-internet",
@@ -376,93 +468,15 @@
       "category": "subscription",
       "origin": "photo",
       "estimate": {
-        "input": 13310,
+        "input": 14008,
         "output": 6997
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineDate",
-          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 3,
-          "total": 3
-        },
-        {
-          "key": "deadlineKind",
-          "label": "予定の種類",
-          "hit": 3,
-          "total": 3
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 2,
-          "total": 2
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
+      "items": [],
       "usage": {
         "input": 0,
         "output": 0
-      }
+      },
+      "error": "504 "
     },
     {
       "id": "photo-h9-garbage",
@@ -470,93 +484,15 @@
       "category": "community",
       "origin": "photo",
       "estimate": {
-        "input": 10995,
+        "input": 11693,
         "output": 10009
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineDate",
-          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 10,
-          "total": 10
-        },
-        {
-          "key": "deadlineKind",
-          "label": "予定の種類",
-          "hit": 10,
-          "total": 10
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 2,
-          "total": 2
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
+      "items": [],
       "usage": {
         "input": 0,
         "output": 0
-      }
+      },
+      "error": "504 "
     },
     {
       "id": "photo-i10-kodomo-insurance",
@@ -564,93 +500,15 @@
       "category": "insurance",
       "origin": "photo",
       "estimate": {
-        "input": 10993,
+        "input": 11691,
         "output": 8308
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineDate",
-          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 2,
-          "total": 2
-        },
-        {
-          "key": "deadlineKind",
-          "label": "予定の種類",
-          "hit": 2,
-          "total": 2
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 6,
-          "total": 6
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
+      "items": [],
       "usage": {
         "input": 0,
         "output": 0
-      }
+      },
+      "error": "504 "
     },
     {
       "id": "photo-j1-gakudo",
@@ -658,7 +516,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 10993,
+        "input": 11691,
         "output": 5697
       },
       "items": [
@@ -695,7 +553,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -742,9 +600,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5578,
+        "output": 7415
+      },
+      "stop": "via"
     },
     {
       "id": "photo-j2-genkyo",
@@ -752,7 +611,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 13310,
+        "input": 14008,
         "output": 5826
       },
       "items": [
@@ -789,7 +648,7 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
@@ -830,9 +689,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 8211,
+        "output": 7822
+      },
+      "stop": "via"
     },
     {
       "id": "photo-j3-swimming",
@@ -840,7 +700,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 10993,
+        "input": 11691,
         "output": 5352
       },
       "items": [
@@ -877,13 +737,13 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 3,
+          "hit": 2.5,
           "total": 3
         },
         {
@@ -924,9 +784,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5578,
+        "output": 7368
+      },
+      "stop": "via"
     },
     {
       "id": "photo-k5-kondankai",
@@ -934,7 +795,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8480,
+        "input": 9178,
         "output": 4410
       },
       "items": [
@@ -1007,7 +868,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1018,9 +879,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2322,
+        "output": 4317
+      },
+      "stop": "via"
     },
     {
       "id": "photo-k6-dental",
@@ -1028,7 +890,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8784,
+        "input": 9482,
         "output": 2379
       },
       "items": [
@@ -1100,9 +962,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2607,
+        "output": 2949
+      },
+      "stop": "via"
     },
     {
       "id": "photo-l1-shobo-tenken",
@@ -1110,7 +973,7 @@
       "category": "housing",
       "origin": "photo",
       "estimate": {
-        "input": 8718,
+        "input": 9416,
         "output": 2967
       },
       "items": [
@@ -1147,25 +1010,25 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 2,
+          "hit": 1.5,
           "total": 2
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1194,9 +1057,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2592,
+        "output": 3770
+      },
+      "stop": "via"
     },
     {
       "id": "photo-l2-fuzaihyo",
@@ -1204,7 +1068,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7670,
+        "input": 8368,
         "output": 2068
       },
       "items": [
@@ -1288,9 +1152,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1515,
+        "output": 2304
+      },
+      "stop": "via"
     },
     {
       "id": "photo-l3-bouhan-toroku",
@@ -1298,7 +1163,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 7596,
+        "input": 8294,
         "output": 1855
       },
       "items": [
@@ -1370,9 +1235,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1470,
+        "output": 1969
+      },
+      "stop": "via"
     },
     {
       "id": "photo-l4-library",
@@ -1380,7 +1246,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7649,
+        "input": 8347,
         "output": 2316
       },
       "items": [
@@ -1423,7 +1289,7 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 1,
+          "hit": 0.5,
           "total": 1
         },
         {
@@ -1464,9 +1330,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1566,
+        "output": 2798
+      },
+      "stop": "via"
     },
     {
       "id": "photo-m1-yobosesshu",
@@ -1474,7 +1341,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 10993,
+        "input": 11691,
         "output": 5369
       },
       "items": [
@@ -1511,25 +1378,25 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1547,7 +1414,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1558,9 +1425,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5578,
+        "output": 5646
+      },
+      "stop": "via"
     },
     {
       "id": "photo-m1b-yoshinhyo-kinyurei",
@@ -1568,7 +1436,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 8545,
+        "input": 9243,
         "output": 2624
       },
       "items": [
@@ -1611,7 +1479,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1628,9 +1496,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2361,
+        "output": 3623
+      },
+      "stop": "via"
     },
     {
       "id": "photo-m2-shika-yoyaku",
@@ -1638,7 +1507,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7859,
+        "input": 8557,
         "output": 2189
       },
       "items": [
@@ -1681,7 +1550,7 @@
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
@@ -1716,9 +1585,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1740,
+        "output": 2334
+      },
+      "stop": "via"
     },
     {
       "id": "photo-m3-byoin-yoyaku",
@@ -1726,7 +1596,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 8824,
+        "input": 9522,
         "output": 3337
       },
       "items": [
@@ -1804,9 +1674,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2663,
+        "output": 3452
+      },
+      "stop": "via"
     },
     {
       "id": "photo-n1-app-notice",
@@ -1814,7 +1685,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7874,
+        "input": 8572,
         "output": 2223
       },
       "items": [
@@ -1863,13 +1734,13 @@
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 2,
+          "hit": 0,
           "total": 2
         },
         {
@@ -1887,7 +1758,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1898,9 +1769,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 4077,
+        "output": 2793
+      },
+      "stop": "via"
     },
     {
       "id": "photo-n1b-timetable",
@@ -1908,7 +1780,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8676,
+        "input": 9374,
         "output": 3003
       },
       "items": [
@@ -1957,7 +1829,7 @@
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -1992,9 +1864,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2878,
+        "output": 4462
+      },
+      "stop": "via"
     },
     {
       "id": "photo-n2-koromogae",
@@ -2002,7 +1875,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8676,
+        "input": 9374,
         "output": 3039
       },
       "items": [
@@ -2039,7 +1912,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2086,9 +1959,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2878,
+        "output": 4673
+      },
+      "stop": "via"
     },
     {
       "id": "photo-n2b-app-followup",
@@ -2096,7 +1970,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7874,
+        "input": 8572,
         "output": 1526
       },
       "items": [
@@ -2139,7 +2013,7 @@
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2162,9 +2036,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 4077,
+        "output": 2719
+      },
+      "stop": "via"
     },
     {
       "id": "photo-n3-kondate",
@@ -2172,7 +2047,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8677,
+        "input": 9375,
         "output": 5546
       },
       "items": [
@@ -2238,9 +2113,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 4872,
+        "output": 7012
+      },
+      "stop": "via"
     },
     {
       "id": "photo-n4-photo-sale",
@@ -2248,7 +2124,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8676,
+        "input": 9374,
         "output": 3014
       },
       "items": [
@@ -2291,13 +2167,13 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 1,
+          "hit": 0.5,
           "total": 1
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2332,9 +2208,26 @@
         }
       ],
       "usage": {
+        "input": 2878,
+        "output": 5052
+      },
+      "stop": "via"
+    },
+    {
+      "id": "photo-n5-undokai",
+      "title": "こぐま保育園 うんどうかいのお知らせ（架空）",
+      "category": "childcare",
+      "origin": "photo",
+      "estimate": {
+        "input": 9257,
+        "output": 2544
+      },
+      "items": [],
+      "usage": {
         "input": 0,
         "output": 0
-      }
+      },
+      "error": "503 "
     },
     {
       "id": "photo-o1-kogai-gakushu",
@@ -2342,7 +2235,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8824,
+        "input": 9522,
         "output": 3048
       },
       "items": [
@@ -2379,7 +2272,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2426,9 +2319,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2663,
+        "output": 3554
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o2-pta-shigen",
@@ -2436,7 +2330,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8360,
+        "input": 9058,
         "output": 2675
       },
       "items": [
@@ -2455,13 +2349,13 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "household",
           "label": "家全体かどうか",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2479,13 +2373,13 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
@@ -2526,9 +2420,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2205,
+        "output": 3129
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o3a-happyokai-annai",
@@ -2536,7 +2431,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8302,
+        "input": 9000,
         "output": 2100
       },
       "items": [
@@ -2573,7 +2468,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2620,9 +2515,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2145,
+        "output": 2973
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o3b-gakunen-dayori",
@@ -2630,8 +2526,8 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8824,
-        "output": 5727
+        "input": 9522,
+        "output": 5740
       },
       "items": [
         {
@@ -2667,25 +2563,25 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 8,
+          "hit": 7,
           "total": 8
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 8,
+          "hit": 7,
           "total": 8
         },
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2714,9 +2610,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2663,
+        "output": 7012
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o4-shika-hagaki",
@@ -2724,7 +2621,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7456,
+        "input": 8154,
         "output": 2292
       },
       "items": [
@@ -2761,7 +2658,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2773,7 +2670,7 @@
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 0,
           "total": 2
         },
         {
@@ -2808,9 +2705,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1335,
+        "output": 2103
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o5-seiho-kojo",
@@ -2818,7 +2716,7 @@
       "category": "insurance",
       "origin": "photo",
       "estimate": {
-        "input": 10993,
+        "input": 11691,
         "output": 2908
       },
       "items": [
@@ -2879,7 +2777,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -2890,9 +2788,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5578,
+        "output": 3611
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o6-furikae-kirete",
@@ -2900,7 +2799,7 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 7837,
+        "input": 8535,
         "output": 1739
       },
       "items": [
@@ -2966,9 +2865,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1698,
+        "output": 2339
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o7-risu-dayori",
@@ -2976,7 +2876,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8069,
+        "input": 8767,
         "output": 2262
       },
       "items": [
@@ -3013,7 +2913,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3060,9 +2960,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1932,
+        "output": 3112
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o8-genkyo-fubi",
@@ -3070,7 +2971,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 8503,
+        "input": 9201,
         "output": 2574
       },
       "items": [
@@ -3107,7 +3008,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3149,7 +3050,7 @@
         {
           "key": "completions",
           "label": "済んだ・訂正のお知らせ",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3160,9 +3061,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2362,
+        "output": 2770
+      },
+      "stop": "via"
     },
     {
       "id": "photo-o9-sankan-annai",
@@ -3170,8 +3072,8 @@
       "category": "school",
       "origin": "photo",
       "estimate": {
-        "input": 8824,
-        "output": 2412
+        "input": 9522,
+        "output": 2438
       },
       "items": [
         {
@@ -3207,7 +3109,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3254,9 +3156,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2663,
+        "output": 3142
+      },
+      "stop": "via"
     },
     {
       "id": "photo-p1-kyuyo-meisai",
@@ -3264,8 +3167,8 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8368,
-        "output": 3665
+        "input": 9066,
+        "output": 3466
       },
       "items": [
         {
@@ -3301,20 +3204,20 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 3,
-          "total": 3
+          "hit": 1,
+          "total": 2
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 3,
-          "total": 3
+          "hit": 0,
+          "total": 2
         },
         {
           "key": "deadlineExtra",
@@ -3337,7 +3240,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3348,9 +3251,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2712,
+        "output": 3916
+      },
+      "stop": "via"
     },
     {
       "id": "photo-q1-nenkin-furikomi",
@@ -3358,7 +3262,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7456,
+        "input": 8154,
         "output": 1845
       },
       "items": [
@@ -3395,7 +3299,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3430,9 +3334,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1335,
+        "output": 2135
+      },
+      "stop": "via"
     },
     {
       "id": "photo-q2-hochoki-hosho",
@@ -3440,7 +3345,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 8000,
+        "input": 8698,
         "output": 1860
       },
       "items": [
@@ -3453,7 +3358,7 @@
         {
           "key": "category",
           "label": "書類の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3512,9 +3417,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1851,
+        "output": 2816
+      },
+      "stop": "via"
     },
     {
       "id": "photo-q3-haishoku-mimamori",
@@ -3522,7 +3428,7 @@
       "category": "care",
       "origin": "photo",
       "estimate": {
-        "input": 8247,
+        "input": 8945,
         "output": 2476
       },
       "items": [
@@ -3541,7 +3447,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3553,7 +3459,7 @@
         {
           "key": "notForFamily",
           "label": "この家の書類ではない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3571,7 +3477,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -3594,9 +3500,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2104,
+        "output": 4175
+      },
+      "stop": "via"
     },
     {
       "id": "photo-q4-gojokai-kanno",
@@ -3604,7 +3511,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8265,
+        "input": 8963,
         "output": 1965
       },
       "items": [
@@ -3676,9 +3583,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2104,
+        "output": 2254
+      },
+      "stop": "via"
     },
     {
       "id": "photo-q5-kaigo-riyohyo",
@@ -3686,7 +3594,7 @@
       "category": "care",
       "origin": "photo",
       "estimate": {
-        "input": 7643,
+        "input": 8341,
         "output": 2130
       },
       "items": [
@@ -3758,9 +3666,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1503,
+        "output": 2715
+      },
+      "stop": "via"
     },
     {
       "id": "photo-r1-inkan-toroku",
@@ -3768,81 +3677,15 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 10757,
+        "input": 11455,
         "output": 1681
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
+      "items": [],
       "usage": {
         "input": 0,
         "output": 0
-      }
+      },
+      "error": "413 "
     },
     {
       "id": "photo-r2-nenkin-shota",
@@ -3850,7 +3693,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8350,
+        "input": 9048,
         "output": 1711
       },
       "items": [
@@ -3922,99 +3765,18 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
-    },
-    {
-      "id": "photo-r3-nenkin-misaki",
-      "title": "年金手帳（日向 美咲・旧姓 浅野で交付）（架空）",
-      "category": "other",
-      "origin": "photo",
-      "estimate": {
-        "input": 8453,
-        "output": 2015
+        "input": 3751,
+        "output": 2027
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
-      "usage": {
-        "input": 0,
-        "output": 0
-      }
+      "stop": "via"
     },
     {
       "id": "photo-r4-koyohoken-misaki",
-      "title": "雇用保険被保険者証・資格取得等確認通知書（美咲・あさぎ食品工業）（架空）",
+      "title": "雇用保険被保険者証・資格取得等確認通知書（タオ・あさぎ食品工業）（架空）",
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8459,
+        "input": 9157,
         "output": 1918
       },
       "items": [
@@ -4051,7 +3813,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4086,91 +3848,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
-    },
-    {
-      "id": "photo-r5-koyohoken-misaki-old",
-      "title": "雇用保険被保険者証・資格取得等確認通知書（美咲・前の勤め先 みなみ野ベーカリー）（架空）",
-      "category": "work",
-      "origin": "photo",
-      "estimate": {
-        "input": 8252,
-        "output": 2142
+        "input": 2313,
+        "output": 2412
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
-      "usage": {
-        "input": 0,
-        "output": 0
-      }
+      "stop": "via"
     },
     {
       "id": "photo-t1-juminzei",
@@ -4178,7 +3859,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 10963,
+        "input": 11661,
         "output": 7234
       },
       "items": [
@@ -4251,7 +3932,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4262,9 +3943,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5191,
+        "output": 6990
+      },
+      "stop": "via"
     },
     {
       "id": "photo-t2-kazei-meisai",
@@ -4272,7 +3954,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8545,
+        "input": 9243,
         "output": 4093
       },
       "items": [
@@ -4309,7 +3991,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4333,7 +4015,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4344,9 +4026,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2361,
+        "output": 4261
+      },
+      "stop": "via"
     },
     {
       "id": "photo-t3-zeimusho-setsumeikai",
@@ -4354,7 +4037,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8824,
+        "input": 9522,
         "output": 4013
       },
       "items": [
@@ -4391,7 +4074,7 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 4,
+          "hit": 3.5,
           "total": 4
         },
         {
@@ -4432,9 +4115,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2663,
+        "output": 4084
+      },
+      "stop": "via"
     },
     {
       "id": "photo-t4-yotei-nouzei",
@@ -4442,7 +4126,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8122,
+        "input": 8820,
         "output": 3653
       },
       "items": [
@@ -4515,7 +4199,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4526,9 +4210,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1975,
+        "output": 5895
+      },
+      "stop": "via"
     },
     {
       "id": "photo-t5-gensen",
@@ -4536,7 +4221,7 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8114,
+        "input": 8812,
         "output": 1902
       },
       "items": [
@@ -4608,9 +4293,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2022,
+        "output": 2479
+      },
+      "stop": "via"
     },
     {
       "id": "photo-t6-furusato",
@@ -4618,7 +4304,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 8074,
+        "input": 8772,
         "output": 1737
       },
       "items": [
@@ -4655,7 +4341,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4690,9 +4376,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1932,
+        "output": 2320
+      },
+      "stop": "via"
     },
     {
       "id": "photo-u1-card-meisai",
@@ -4700,7 +4387,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 9389,
+        "input": 10087,
         "output": 3047
       },
       "items": [
@@ -4719,7 +4406,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -4772,9 +4459,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 7976,
+        "output": 5127
+      },
+      "stop": "via"
     },
     {
       "id": "photo-v1-shaken-hagaki",
@@ -4782,7 +4470,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 9409,
+        "input": 10107,
         "output": 3336
       },
       "items": [
@@ -4819,19 +4507,19 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 2,
+          "hit": 1,
           "total": 2
         },
         {
@@ -4866,9 +4554,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 3340,
+        "output": 3618
+      },
+      "stop": "via"
     },
     {
       "id": "photo-v2-shakensho",
@@ -4876,7 +4565,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 8676,
+        "input": 9374,
         "output": 2537
       },
       "items": [
@@ -4954,9 +4643,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2878,
+        "output": 3255
+      },
+      "stop": "via"
     },
     {
       "id": "photo-v3-jidosha-hoken",
@@ -4964,7 +4654,7 @@
       "category": "vehicle",
       "origin": "photo",
       "estimate": {
-        "input": 10993,
+        "input": 11691,
         "output": 5632
       },
       "items": [
@@ -4977,7 +4667,7 @@
         {
           "key": "category",
           "label": "書類の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5007,13 +4697,13 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 3,
+          "hit": 2,
           "total": 3
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 3,
+          "hit": 2,
           "total": 3
         },
         {
@@ -5048,18 +4738,19 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 5578,
+        "output": 6663
+      },
+      "stop": "via"
     },
     {
       "id": "photo-v4-menkyo-koshin",
-      "title": "運転免許証 更新のお知らせ（美咲・はがき）（架空）",
+      "title": "運転免許証 更新のお知らせ（タオ・はがき）（架空）",
       "category": "license",
       "origin": "photo",
       "estimate": {
-        "input": 7695,
-        "output": 2850
+        "input": 8393,
+        "output": 2852
       },
       "items": [
         {
@@ -5131,7 +4822,7 @@
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5142,9 +4833,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1560,
+        "output": 3940
+      },
+      "stop": "via"
     },
     {
       "id": "photo-w12-misaki-calendar",
@@ -5152,93 +4844,15 @@
       "category": "work",
       "origin": "photo",
       "estimate": {
-        "input": 8637,
-        "output": 5249
+        "input": 9335,
+        "output": 4958
       },
-      "items": [
-        {
-          "key": "parsed",
-          "label": "返す形で受け取れた",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "category",
-          "label": "書類の種類",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "who",
-          "label": "誰の（人）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "household",
-          "label": "家全体かどうか",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "notForFamily",
-          "label": "この家の書類ではない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "period",
-          "label": "期間（いつの分か）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "deadlineDate",
-          "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 6,
-          "total": 6
-        },
-        {
-          "key": "deadlineKind",
-          "label": "予定の種類",
-          "hit": 6,
-          "total": 6
-        },
-        {
-          "key": "deadlineExtra",
-          "label": "正解に無い日付を締切にしない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "ifIgnored",
-          "label": "放置すると？（推測で書かない）",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "phone",
-          "label": "問い合わせ先の電話番号",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "unclear",
-          "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
-          "total": 1
-        },
-        {
-          "key": "noJudging",
-          "label": "判断の言い回しが無い",
-          "hit": 1,
-          "total": 1
-        }
-      ],
+      "items": [],
       "usage": {
         "input": 0,
         "output": 0
-      }
+      },
+      "error": "504 "
     },
     {
       "id": "photo-x10-tsuhan-hassou",
@@ -5246,7 +4860,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 7350,
+        "input": 8048,
         "output": 2459
       },
       "items": [
@@ -5265,7 +4879,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5312,9 +4926,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1273,
+        "output": 3995
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x11-ryokou-yoyaku",
@@ -5322,7 +4937,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 7363,
+        "input": 8061,
         "output": 3539
       },
       "items": [
@@ -5341,13 +4956,13 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "household",
           "label": "家全体かどうか",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5365,19 +4980,19 @@
         {
           "key": "deadlineDate",
           "label": "予定の日付（名前も合えば1点・日付だけなら半分）",
-          "hit": 4,
+          "hit": 0.5,
           "total": 4
         },
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 4,
+          "hit": 1,
           "total": 4
         },
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5406,9 +5021,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1345,
+        "output": 5485
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x12-sub-kaiyaku-uketsuke",
@@ -5416,7 +5032,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 6996,
+        "input": 7694,
         "output": 1772
       },
       "items": [
@@ -5453,7 +5069,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5465,7 +5081,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5488,9 +5104,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1013,
+        "output": 2890
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x13-sub-saishu-seikyu",
@@ -5498,7 +5115,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 6895,
+        "input": 7593,
         "output": 1757
       },
       "items": [
@@ -5541,7 +5158,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5559,7 +5176,7 @@
         {
           "key": "completions",
           "label": "済んだ・訂正のお知らせ",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5570,9 +5187,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 923,
+        "output": 2857
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x14a-churin-annai",
@@ -5580,7 +5198,7 @@
       "category": "housing",
       "origin": "text",
       "estimate": {
-        "input": 6951,
+        "input": 7649,
         "output": 2064
       },
       "items": [
@@ -5599,7 +5217,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5617,7 +5235,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5635,7 +5253,7 @@
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5670,9 +5288,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1008,
+        "output": 2940
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x14b-churin-teisei",
@@ -5680,7 +5299,7 @@
       "category": "housing",
       "origin": "text",
       "estimate": {
-        "input": 6979,
+        "input": 7677,
         "output": 2369
       },
       "items": [
@@ -5717,7 +5336,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5735,7 +5354,7 @@
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5776,18 +5395,19 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1012,
+        "output": 3043
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x15-fwd-kazuko-kensa",
-      "title": "転送メール「Fwd: 母さんのこと」（美咲→翔太。元は森 由紀→美咲）（架空）",
+      "title": "転送メール「Fwd: 母さんのこと」（タオ→翔太。元は森 由紀→タオ）（架空）",
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 7033,
-        "output": 2390
+        "input": 7728,
+        "output": 2387
       },
       "items": [
         {
@@ -5841,13 +5461,13 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5858,9 +5478,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1076,
+        "output": 4042
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x16-nursery-saisou",
@@ -5868,7 +5489,7 @@
       "category": "childcare",
       "origin": "text",
       "estimate": {
-        "input": 6768,
+        "input": 7466,
         "output": 1205
       },
       "items": [
@@ -5905,19 +5526,19 @@
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "unclear",
           "label": "読めなかった所を推測で埋めない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -5928,9 +5549,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 848,
+        "output": 2630
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x17-kaigo-kyugyo-shonin",
@@ -5938,7 +5560,7 @@
       "category": "work",
       "origin": "text",
       "estimate": {
-        "input": 7026,
+        "input": 7724,
         "output": 2628
       },
       "items": [
@@ -5993,7 +5615,7 @@
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6022,9 +5644,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1038,
+        "output": 3230
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x1a-atobarai-bill",
@@ -6032,7 +5655,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 7048,
+        "input": 7746,
         "output": 2375
       },
       "items": [
@@ -6069,7 +5692,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6087,7 +5710,7 @@
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6128,9 +5751,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1037,
+        "output": 2587
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x1b-atobarai-reminder",
@@ -6138,7 +5762,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6945,
+        "input": 7643,
         "output": 2009
       },
       "items": [
@@ -6175,7 +5799,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6193,7 +5817,7 @@
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6234,9 +5858,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 942,
+        "output": 2271
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x1c-payment-result",
@@ -6244,7 +5869,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6897,
+        "input": 7595,
         "output": 1869
       },
       "items": [
@@ -6281,7 +5906,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6322,9 +5947,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 931,
+        "output": 2028
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x2-card-retry",
@@ -6332,7 +5958,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 7047,
+        "input": 7745,
         "output": 2143
       },
       "items": [
@@ -6369,7 +5995,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6416,9 +6042,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1016,
+        "output": 2850
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x3a-kazai-renewal-notice",
@@ -6426,7 +6053,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 7386,
+        "input": 8084,
         "output": 2957
       },
       "items": [
@@ -6445,7 +6072,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6475,13 +6102,13 @@
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6516,9 +6143,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1339,
+        "output": 4576
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x3b-kazai-renewal-reminder",
@@ -6526,7 +6154,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 7109,
+        "input": 7807,
         "output": 2479
       },
       "items": [
@@ -6563,7 +6191,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6575,13 +6203,13 @@
         {
           "key": "deadlineKind",
           "label": "予定の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "bundle",
           "label": "束ねる印",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6616,9 +6244,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1098,
+        "output": 4393
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x3c-kazai-renewal-done",
@@ -6626,7 +6255,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 7000,
+        "input": 7698,
         "output": 2030
       },
       "items": [
@@ -6645,7 +6274,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6693,7 +6322,7 @@
         {
           "key": "completions",
           "label": "済んだ・訂正のお知らせ",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6704,9 +6333,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1023,
+        "output": 2981
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x3d-kazai-coverage-start",
@@ -6714,7 +6344,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 6897,
+        "input": 7595,
         "output": 1683
       },
       "items": [
@@ -6781,7 +6411,7 @@
         {
           "key": "completions",
           "label": "済んだ・訂正のお知らせ",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6792,9 +6422,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 938,
+        "output": 2859
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x4-smartphone-ins-renewal",
@@ -6802,7 +6433,7 @@
       "category": "insurance",
       "origin": "text",
       "estimate": {
-        "input": 6920,
+        "input": 7618,
         "output": 1793
       },
       "items": [
@@ -6880,9 +6511,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 951,
+        "output": 2356
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x5-cinema-member",
@@ -6890,7 +6522,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 7125,
+        "input": 7823,
         "output": 2009
       },
       "items": [
@@ -6933,7 +6565,7 @@
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -6962,9 +6594,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1125,
+        "output": 3277
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x6-electric-price",
@@ -6972,7 +6605,7 @@
       "category": "housing",
       "origin": "text",
       "estimate": {
-        "input": 7580,
+        "input": 8278,
         "output": 2434
       },
       "items": [
@@ -6991,7 +6624,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7015,7 +6648,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7044,9 +6677,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1467,
+        "output": 3269
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x7-card-seikyu",
@@ -7054,7 +6688,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6813,
+        "input": 7511,
         "output": 1420
       },
       "items": [
@@ -7091,13 +6725,13 @@
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7120,9 +6754,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 862,
+        "output": 2209
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x7b-catv-seikyu",
@@ -7130,7 +6765,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 7019,
+        "input": 7717,
         "output": 1651
       },
       "items": [
@@ -7149,7 +6784,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7173,7 +6808,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7196,9 +6831,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1038,
+        "output": 2517
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x8-point-shikkou",
@@ -7206,7 +6842,7 @@
       "category": "subscription",
       "origin": "text",
       "estimate": {
-        "input": 7238,
+        "input": 7936,
         "output": 2195
       },
       "items": [
@@ -7219,7 +6855,7 @@
         {
           "key": "category",
           "label": "書類の種類",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7272,9 +6908,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1207,
+        "output": 3338
+      },
+      "stop": "via"
     },
     {
       "id": "photo-x9-juminzei-paid",
@@ -7282,7 +6919,7 @@
       "category": "other",
       "origin": "text",
       "estimate": {
-        "input": 6908,
+        "input": 7606,
         "output": 2026
       },
       "items": [
@@ -7319,7 +6956,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7360,9 +6997,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 952,
+        "output": 2560
+      },
+      "stop": "via"
     },
     {
       "id": "photo-y1-tsuin-yoyaku",
@@ -7370,7 +7008,7 @@
       "category": "medical",
       "origin": "photo",
       "estimate": {
-        "input": 7560,
+        "input": 8258,
         "output": 1678
       },
       "items": [
@@ -7407,7 +7045,7 @@
         {
           "key": "period",
           "label": "期間（いつの分か）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7442,9 +7080,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1431,
+        "output": 2128
+      },
+      "stop": "via"
     },
     {
       "id": "photo-y2-kaigo-hokensho",
@@ -7452,7 +7091,7 @@
       "category": "care",
       "origin": "photo",
       "estimate": {
-        "input": 8717,
+        "input": 9415,
         "output": 2576
       },
       "items": [
@@ -7501,7 +7140,7 @@
         {
           "key": "ifIgnored",
           "label": "放置すると？（推測で書かない）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7524,9 +7163,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 2792,
+        "output": 3002
+      },
+      "stop": "via"
     },
     {
       "id": "photo-z1-sankahyo-other",
@@ -7534,7 +7174,7 @@
       "category": "childcare",
       "origin": "photo",
       "estimate": {
-        "input": 7653,
+        "input": 8351,
         "output": 1357
       },
       "items": [
@@ -7553,7 +7193,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7565,13 +7205,13 @@
         {
           "key": "notForFamily",
           "label": "この家の書類ではない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
           "key": "deadlineExtra",
           "label": "正解に無い日付を締切にしない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7594,9 +7234,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1545,
+        "output": 2890
+      },
+      "stop": "via"
     },
     {
       "id": "photo-z2-chirashi",
@@ -7604,7 +7245,7 @@
       "category": "other",
       "origin": "photo",
       "estimate": {
-        "input": 7363,
+        "input": 8061,
         "output": 1610
       },
       "items": [
@@ -7623,7 +7264,7 @@
         {
           "key": "who",
           "label": "誰の（人）",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7635,7 +7276,7 @@
         {
           "key": "notForFamily",
           "label": "この家の書類ではない",
-          "hit": 1,
+          "hit": 0,
           "total": 1
         },
         {
@@ -7670,9 +7311,10 @@
         }
       ],
       "usage": {
-        "input": 0,
-        "output": 0
-      }
+        "input": 1247,
+        "output": 2633
+      },
+      "stop": "via"
     }
   ]
 }
