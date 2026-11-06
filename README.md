@@ -15,10 +15,6 @@ CULALOG は、届いた書類と家族の勤務表をつないでそれに気づ
 
 > **In English** — CULALOG translates, but translation is only the starting point. In a family where parents read different languages (here: a Japanese husband and a Vietnamese wife), translating a school notice is not enough: the notice never says "you are both working that day". CULALOG keeps the family's documents (school notices, both parents' work schedules, contracts), lets code find where they collide, and has Claude (Opus 5.5) write the reason with a pointer to the exact line in the original — then tells each family member in their own language, in the app and in Telegram. In the app, code checks the dates, IDs and quotes Claude returns before showing them; the family decides who goes.
 
-執事は家族に1体です。書類（原本の写真・全文）を預かるのは1人の端末ですが、家族に返すときは、その人の読みたい言葉と言葉の易しさで返します。
-大人には、それぞれの執事との1対1にお知らせ・答えをその人の言葉で届け、やさしい日本語で読む人（子ども）には、家族の Telegram のグループの通訳をやさしい日本語で返します（1対1・お知らせは大人だけです）。
-書類を撮って確かめ、共有を選ぶのは預かる人です。夫の役は「訳して説明する係」から「預けて共有を押す係」に変わり、妻は自分の言葉で確かめ、原本に戻れます。
-
 ### 作った理由
 
 作者の家は国際結婚で、妻はベトナム出身です。夫婦とも相手の言葉は片言で、
@@ -39,6 +35,10 @@ CULALOG は、**訳すだけではなく、つなぎます。**
 3. **会話もつなぎます。執事は家族に1体。** 家族の Telegram のグループでは、会話をほかの人の読みたい言葉にして返します（通訳だけ）。
    大人はそれぞれ執事と1対1で話します。共有した書類の「家族に伝える」・毎朝の通知・担当のボタン・カレンダーのボタンは、その人の1対1に、その人の言葉だけで届きます。
    1対1で聞けば共有した書類のまとめから答え、書類の写真を送れば読んでまとめ、「夫に伝えて」と書けば相手の1対1に相手の言葉で伝えます
+
+執事は家族に1体です。書類（原本の写真・全文）を預かるのは1人の端末ですが、家族に返すときは、その人の読みたい言葉と言葉の易しさで返します。
+大人には、それぞれの執事との1対1にお知らせ・答えをその人の言葉で届け、やさしい日本語で読む人（子ども）には、家族の Telegram のグループの通訳をやさしい日本語で返します（1対1・お知らせは大人だけです）。
+書類を撮って確かめ、共有を選ぶのは預かる人です。夫の役は「訳して説明する係」から「預けて共有を押す係」に変わり、妻は自分の言葉で確かめ、原本に戻れます。
 
 アプリの中の執事の答えには、その答えが書類のどこに書いてあるかが付きます（Telegram の1対1では、書類の題まで）。保険・医療・法律・在留の手続きの判断はせず、原本の場所と問い合わせ先までを示します。
 
@@ -136,7 +136,7 @@ Claude API のキーが設定されていないときは、読み取りは見本
 | 1対1の写真（/api/telegram） | 1対1に送られた書類の写真を、アプリの「読む」と同じ指示で読み、送った人の言葉で要約する | 写真は残さない。読み取りの結果から原本の全文・引用・番号の類を落とし、共有したまとめと、書類を預かる人のアプリへの「預かる？」として置く |
 | 朝の通知（/api/notify） | 日本語以外で読む人の、7日以内の予定の名前を訳す（名前だけ。1日1回） | 予定・日付・件数はコードが選ぶ。訳せないときは件数だけの文にする |
 
-守っている3つのこと:
+守っている4つのこと:
 
 - 日付の計算・照合・各言語での日付の書き方はコードで行う（Claude は原文の日付を書き写すだけ。和暦や年の無い日付を西暦にするのも Claude なので、利用者が原本と見比べて確定するまで使わない）
 - 書類やメッセージの中に執事への指示のような文があっても従わない（どの指示文にも書いてある。照らし合わせのある場面では、コードでも確かめる）

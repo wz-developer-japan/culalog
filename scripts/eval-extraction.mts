@@ -207,8 +207,6 @@ function compare(reading: Extraction, truth: Extraction): Item[] {
     let kinds = 0;
     let awareness = 0;
     let awarenessTotal = 0;
-    let bundled = 0;
-    let bundledTotal = 0;
     for (const t of truth.deadlines) {
       const byName = reading.deadlines.find((x) => sameDay(x, t) && similar(x.label, t.label));
       const r = byName ?? reading.deadlines.find((x) => sameDay(x, t));
@@ -218,15 +216,11 @@ function compare(reading: Extraction, truth: Extraction): Item[] {
         awarenessTotal++;
         if (r && r.actionNeeded === false) awareness++;
       }
-      if (t.bundleKey) {
-        bundledTotal++;
-        if (r?.bundleKey) bundled++;
-      }
     }
     add("deadlineDate", "予定の日付（名前も合えば1点・日付だけなら半分）", hits, truth.deadlines.length);
     add("deadlineKind", "予定の種類", kinds, truth.deadlines.length);
     if (awarenessTotal) add("awareness", "知っておくだけ", awareness, awarenessTotal);
-    if (bundledTotal) add("bundle", "束ねる印", bundled, bundledTotal);
+    // 束ねる印（bundleKey）は見本の取り込みでだけ入れ、Claude には返させない項目（src/lib/extraction.ts）なので採点しない
   }
   // 正解に無い日付を締切にしていないか（広告・リンク先・対象外の罠）
   const extra = reading.deadlines.filter((x) => x.date && x.actionNeeded !== false && !truth.deadlines.some((t) => sameDay(x, t))).length;
@@ -385,7 +379,7 @@ lines.push("");
 lines.push("## 数え方");
 lines.push("");
 lines.push("- 正解は、デモ素材の正解 JSON をアプリの形（Extraction）にしたもの（src/data/photoSamples.json の provisionalDraft）。見本はすべて架空で、期間中に新しく作ったもの");
-lines.push("- 予定は正解の1件ごとに、同じ日付で名前の語も重なれば1点、日付だけなら半分。種類（提出・満了・受付期間…）は別に1点。「知っておくだけ」「束ねる印」は正解でそうなっている予定だけ数える。正解に無い日付を締切にしたら落とす（広告・リンク先・対象外の罠）");
+lines.push("- 予定は正解の1件ごとに、同じ日付で名前の語も重なれば1点、日付だけなら半分。種類（提出・満了・受付期間…）は別に1点。「知っておくだけ」は正解でそうなっている予定だけ数える（「束ねる印」は Claude に返させない項目なので数えない）。正解に無い日付を締切にしたら落とす（広告・リンク先・対象外の罠）");
 lines.push("- 「放置すると？」は、正解に無ければ読み取りも空（推測で書かない）、あれば text と quote の両方があること");
 lines.push("- 読み取りの生の結果は scripts/out/eval/ に 1件ずつと、{ id: Extraction } の map（readings.json）で置く（デモ素材側の採点 demo/score.mjs でも同じ表が出せる）");
 lines.push("- 「読めなかった所を推測で埋めない」は、正解で読めなかった所がある書類（写真が切れている・別紙が無い・曜日が合わない）は読み取りでも空でないこと、無い書類では空であること");
