@@ -22,8 +22,8 @@ const MAX_TEXT = 20000;
 /** 1つの書類として一緒に読む写真の枚数の上限（何ページもある契約書・郵便一式など） */
 const MAX_PAGES = 6;
 
-/** 読み取りは数十秒かかることがあるので、関数の実行時間を長めにとる */
-export const maxDuration = 60;
+/** 読み取りは数十秒〜数分かかることがある（何ページもある書類・中身の長い書類）。Vercel の Hobby・Fluid compute の上限の 300 秒 */
+export const maxDuration = 300;
 
 
 function clientIdOf(request: NextRequest): string {
