@@ -53,12 +53,12 @@ export function familyLanguages(household: Household): LanguageCode[] {
 export function TranslationView({
   household,
   doc,
-  save,
+  updateDoc,
   renderSource,
 }: {
   household: Household;
   doc: DocumentRecord;
-  save: (next: DocumentRecord) => Promise<void>;
+  updateDoc: (change: (current: DocumentRecord) => DocumentRecord) => Promise<void>;
   renderSource: (id: string, source?: SourceRef) => ReactNode;
 }) {
   const langs = familyLanguages(household);
@@ -76,7 +76,7 @@ export function TranslationView({
     setError("");
     const { translation, error } = await translateDocument(household, doc, target);
     setBusy(false);
-    if (translation) await save({ ...doc, translations: { ...doc.translations, [target]: translation } });
+    if (translation) await updateDoc((d) => ({ ...d, translations: { ...d.translations, [target]: translation } }));
     else setError(error ?? "");
   }
 

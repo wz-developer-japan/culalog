@@ -17,7 +17,7 @@ import { LANGUAGES, languageLabel, languageOf, type LanguageCode } from "@/lib/l
 
 export default function ButlerSettingsPage() {
   const router = useRouter();
-  const { household, loaded, save, clear } = useHousehold();
+  const { household, loaded, save, update, clear } = useHousehold();
   const [character, setCharacter] = useState<CharacterId | null>(null);
   const [name, setName] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -183,7 +183,7 @@ export default function ButlerSettingsPage() {
         );
       })()}
 
-      <TelegramSettings household={household} save={save} />
+      <TelegramSettings household={household} update={update} />
 
       <VoiceSettings />
 

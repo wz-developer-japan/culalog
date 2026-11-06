@@ -25,7 +25,7 @@ import { givenName, ownersLabel } from "@/lib/whose";
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { household, loaded, save } = useHousehold();
+  const { household, loaded, save, update: updateHousehold } = useHousehold();
   // 期限は確定前の見比べだけに使う印（保存しない）
   const [checkedDeadlines, setCheckedDeadlines] = useState<string[]>([]);
   // 蛍光ペン: 原本の文字を開いているか・いま光らせている印
@@ -69,6 +69,12 @@ export default function DocumentDetail() {
 
   async function update(next: DocumentRecord) {
     await save({ ...household!, documents: household!.documents.map((d) => (d.id === next.id ? next : d)) });
+  }
+  // 訳すなど、待ったあとに書類を変えるとき: いちばん新しい家の、いちばん新しいこの書類に足す
+  // （待つあいだに裏で読み取り・つなぐの結果が保存されていても消さない）
+  async function updateDoc(change: (current: DocumentRecord) => DocumentRecord) {
+    const docId = doc!.id;
+    await updateHousehold((current) => ({ ...current, documents: current.documents.map((d) => (d.id === docId ? change(d) : d)) }));
   }
 
   const rules = household.rules ?? [];
@@ -215,7 +221,7 @@ export default function DocumentDetail() {
       )}
 
       {confirmed && (
-        <TranslationView household={household} doc={doc} save={update} renderSource={(id, source) => <SourceLine id={id} source={source} />} />
+        <TranslationView household={household} doc={doc} updateDoc={updateDoc} renderSource={(id, source) => <SourceLine id={id} source={source} />} />
       )}
 
       {!confirmed && (
@@ -355,7 +361,7 @@ export default function DocumentDetail() {
         <>
           <h2 id="share">家族と共有</h2>
           <ShareWith members={household.members} doc={doc} onChange={(sharedWith) => update({ ...doc, sharedWith })} />
-          <TellFamily household={household} doc={doc} save={update} />
+          <TellFamily household={household} doc={doc} updateDoc={updateDoc} />
         </>
       )}
 

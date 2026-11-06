@@ -29,40 +29,64 @@ function broadcast(household: Household | null, from: symbol) {
   for (const listener of listeners) listener(household, from);
 }
 
+/**
+ * いちばん新しい家。画面ごとではなく、ページ全体で1つだけ持つ。
+ * 時間のかかる処理（つなぐ・聞く・訳す・読み取り）は、頼んだ画面から移ったあとに返ってくることがある。
+ * 画面ごとに持つと、移ったあとの変更（受け取り箱に入れた写真など）が届かない古い家に足して保存し、消してしまう
+ */
+let shared: { household: Household | null } | null = null;
+
+/** いちばん新しい家に変更を足した家を返す（まだ読み込んでいなければ null）。保存はしない */
+export function applyToLatest(change: (current: Household) => Household): Household | null {
+  if (!shared?.household) return null;
+  const next = change(shared.household);
+  shared = { household: next };
+  return next;
+}
+
+/** いちばん新しい家（試験と、読み込みを待たずに使う所のため） */
+export function latestHousehold(): Household | null {
+  return shared?.household ?? null;
+}
+
 /** 端末内に保存した家のデータを読み書きする */
 export function useHousehold() {
   const [household, setHousehold] = useState<Household | null>(null);
   const [loaded, setLoaded] = useState(false);
-  // いちばん新しい家（時間のかかる処理の結果を、そのあいだの操作を消さずに足すため）
-  const latest = useRef<Household | null>(null);
   const me = useRef(Symbol("household"));
-  // ほかの所が保存する前に読み終わったか（読み込みが遅れて、新しい家を古い家で上書きしないため）
-  const touched = useRef(false);
 
   useEffect(() => {
     const listener = (h: Household | null, from: symbol) => {
       if (from === me.current) return;
-      touched.current = true;
-      latest.current = h;
       setHousehold(h);
       setLoaded(true);
     };
     listeners.add(listener);
-    loadHousehold().then((h) => {
-      if (touched.current) return;
-      scheduleFamilySync(h);
-      latest.current = h;
-      setHousehold(h);
+    if (shared) {
+      // 前の画面で読み込み済み（保存の途中でも、こちらがいちばん新しい）
+      setHousehold(shared.household);
       setLoaded(true);
-    });
+      scheduleFamilySync(shared.household);
+    } else {
+      loadHousehold().then((h) => {
+        // 読み込みが遅れて、そのあいだにほかの所が保存していたら、新しい家を古い家で上書きしない
+        if (shared) {
+          setHousehold(shared.household);
+          setLoaded(true);
+          return;
+        }
+        shared = { household: h };
+        scheduleFamilySync(h);
+        setHousehold(h);
+        setLoaded(true);
+      });
+    }
     return () => {
       listeners.delete(listener);
     };
   }, []);
 
-  // 画面は先に更新し、端末への保存はそのあと行う（チェックの反応を遅らせない）
-  const save = useCallback(async (next: Household) => {
-    latest.current = next;
+  const publish = useCallback(async (next: Household) => {
     setHousehold(next);
     broadcast(next, me.current);
     await saveHousehold(next);
@@ -70,21 +94,29 @@ export function useHousehold() {
     scheduleFamilySync(next);
   }, []);
 
-  /** いちばん新しい家に変更を足して保存する */
-  const update = useCallback(async (change: (current: Household) => Household) => {
-    if (!latest.current) return;
-    const next = change(latest.current);
-    latest.current = next;
-    setHousehold(next);
-    broadcast(next, me.current);
-    await saveHousehold(next);
-    // 家族の Telegram とつないでいれば、共有した書類のまとめを家族の置き場所へ（変わったときだけ）
-    scheduleFamilySync(next);
-  }, []);
+  // 画面は先に更新し、端末への保存はそのあと行う（チェックの反応を遅らせない）。
+  // その場の操作（押した・選んだ）だけに使う。待ったあとに保存するときは update を使う
+  const save = useCallback(
+    async (next: Household) => {
+      shared = { household: next };
+      await publish(next);
+    },
+    [publish],
+  );
+
+  /** いちばん新しい家に変更を足して保存する（待ったあとの保存は必ずこちら） */
+  const update = useCallback(
+    async (change: (current: Household) => Household) => {
+      const next = applyToLatest(change);
+      if (!next) return;
+      await publish(next);
+    },
+    [publish],
+  );
 
   const clear = useCallback(async () => {
     await clearHousehold();
-    latest.current = null;
+    shared = { household: null };
     setHousehold(null);
     broadcast(null, me.current);
   }, []);

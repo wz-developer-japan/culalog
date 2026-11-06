@@ -11,7 +11,7 @@ import { buildTell, tellLanguages } from "@/lib/tellBuild";
 import type { DocTranslation } from "@/lib/translate";
 import type { DocumentRecord, Household } from "@/lib/types";
 
-export function TellFamily({ household, doc, save }: { household: Household; doc: DocumentRecord; save: (next: DocumentRecord) => Promise<void> }) {
+export function TellFamily({ household, doc, updateDoc }: { household: Household; doc: DocumentRecord; updateDoc: (change: (current: DocumentRecord) => DocumentRecord) => Promise<void> }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState("");
@@ -55,7 +55,11 @@ export function TellFamily({ household, doc, save }: { household: Household; doc
       }
       langs.push(lang);
     }
-    if (JSON.stringify(translations) !== JSON.stringify(doc.translations ?? {})) await save({ ...doc, translations });
+    if (JSON.stringify(translations) !== JSON.stringify(doc.translations ?? {})) {
+      // 訳したあいだに保存された変更を消さないよう、いちばん新しい書類に、いま訳したものだけを足す
+      const made = Object.fromEntries(Object.entries(translations).filter(([k]) => !doc.translations?.[k as LanguageCode]));
+      await updateDoc((d) => ({ ...d, translations: { ...d.translations, ...made } }));
+    }
     const demo = household.isDemo ? await import("@/data/demoTranslations") : undefined;
     const p = buildTell(
       household,

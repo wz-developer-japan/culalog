@@ -10,7 +10,7 @@ import { clearFamily, syncFamily } from "@/lib/familySync";
 import { upcomingCounts } from "@/lib/tellBuild";
 import type { Household } from "@/lib/types";
 
-export function TelegramSettings({ household, save }: { household: Household; save: (h: Household) => Promise<void> }) {
+export function TelegramSettings({ household, update }: { household: Household; update: (change: (current: Household) => Household) => Promise<void> }) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
@@ -22,7 +22,7 @@ export function TelegramSettings({ household, save }: { household: Household; sa
     const json = res ? await res.json().catch(() => ({})) : {};
     setBusy(false);
     if (res?.ok && json.chatId) {
-      await save({ ...household, telegram: { chatId: json.chatId, token: json.token, linkedAt: new Date().toISOString() } });
+      await update((current) => ({ ...current, telegram: { chatId: json.chatId, token: json.token, linkedAt: new Date().toISOString() } }));
       setCode("");
       setStatus("つなぎました。");
     } else setStatus(json.error ?? "つなげませんでした。");
@@ -82,7 +82,7 @@ export function TelegramSettings({ household, save }: { household: Household; sa
             className="link-button"
             onClick={async () => {
               await clearFamily(household);
-              await save({ ...household, telegram: undefined });
+              await update((current) => ({ ...current, telegram: undefined }));
             }}
           >
             つなぐのをやめる（家族の置き場所のまとめも消す）
