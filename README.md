@@ -18,7 +18,7 @@ CULALOG は、届いた書類と家族の勤務表をつないでそれに気づ
 - **妻はアプリを開きません**: アプリを使うのは書類を預かる人（デモでは夫）です。日本語を読まない妻は、Telegram の執事との1対1で、自分の言葉（ベトナム語）で受け取り、聞き返せます
 - **試し方（3手順）**: ①「架空の家族で試す」→ トップの同じ日の気づき ②「書類」→「2学期 授業参観・学級懇談会のご案内」→「Tiếng Việt」→ 原本の場所を押すと原本の行が光る ③ トップの「家族に伝える」→ 送る前の確認（日本語とベトナム語の全文）
 
-デモ動画（3分）: https://youtu.be/KwijEubkKDA ／ 試す: https://culalog.vercel.app/ →「架空の家族で試す」（手順は下の「試し方」）
+デモ動画（3分）: https://youtu.be/nU6DjgBvWYo ／ 試す: https://culalog.vercel.app/ →「架空の家族で試す」（手順は下の「試し方」）
 
 > **In English** — CULALOG connects a family's documents and schedules, then tells each person in their own language. Translation is only the starting point: in a family where parents read different languages (here: a Japanese husband and a Vietnamese wife), translating a school notice is not enough: the notice never says "you are both working that day". CULALOG keeps the family's documents (school notices, both parents' work schedules, contracts), lets code find where they collide, and has Claude (Opus 5.5) write the reason with a pointer to the exact line in the original — then tells each family member in their own language, in the app and in Telegram. In the app, code checks the dates, IDs and quotes Claude returns before showing them; the family decides who goes.
 
@@ -312,6 +312,8 @@ Telegram の通訳と毎朝の通知には、`.env.example` にある Telegram �
 - デモ動画の BGM: Apple GarageBand に付属の Apple Loops（Summers End Acoustic Guitar／Summers End Bass／Shaker 05）。GarageBand の使用許諾により、自作の動画のサウンドトラックとしてロイヤリティフリーで使用
 - デモ動画の効果音: Apple Final Cut Pro に付属のサウンドエフェクト（Bell Small／Computer Mouse）。Final Cut Pro の使用許諾により使用
 - デモ動画のナレーション: VOICEVOX:玄野武宏(CV:ガロ)（VOICEVOX・VirVox Project の利用規約に従う）
+- デモ動画の妻の声: VOICEVOX:波音リツ（VOICEVOX・波音リツの利用規約に従う）
+- デモ動画の執事の声: VOICEVOX:雀松朱司（VOICEVOX・VirVox Project の利用規約に従う）
 - 音源のファイルはリポジトリに入れていません（素材だけを再配布することは使用許諾で認められていないため）
 - ライブラリ: `package.json` にあるもの（Next.js・React・Anthropic SDK・Firebase Admin SDK など）。それぞれのライセンスによります
 
