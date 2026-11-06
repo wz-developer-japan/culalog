@@ -381,6 +381,34 @@ const token = "tok-123";
   check(/sharedWith: \[x\.member\.id\]/.test(readFileSync("src/lib/server/dmPhoto.ts", "utf8")), "1対1の写真: まとめは送った人と共有（送った人があとで聞ける）");
 }
 
+// ---- 受け取り箱の1枚は、画面を移っても /api/extract に1回だけ送る ----
+{
+  const { sendExtractOnce, claimExtract, inflightCount } = await import("@/lib/extractOnce");
+  let calls = 0;
+  let finish: (r: Response) => void = () => {};
+  const send = () => {
+    calls++;
+    return new Promise<Response>((resolve) => (finish = resolve));
+  };
+  const first = sendExtractOnce("item-1", send); // 見本を渡した画面が送る
+  const second = sendExtractOnce("item-1", send); // 受け取り箱の画面に移って、同じ1枚を読もうとする
+  check(calls === 1 && first === second, "受け取り箱: 送っている途中の1枚は、別の画面からも送り直さない（1回だけ）");
+  finish(new Response(JSON.stringify({ extraction: { title: "t" } }), { status: 200 }));
+  const reply = await second;
+  check(reply.kind === "reply" && reply.ok && (reply.json as { extraction?: unknown }).extraction !== undefined, "受け取り箱: 次の画面は、同じ返事を受け取る");
+  check(claimExtract("item-1", second) && !claimExtract("item-1", first), "受け取り箱: 返事を足すのは1つの画面だけ（二重に足さない）");
+  check(inflightCount() === 0, "受け取り箱: 足したあとは、送っている途中の記録が残らない");
+  const again = sendExtractOnce("item-1", async () => {
+    calls++;
+    return new Response("{}", { status: 500 });
+  });
+  await again;
+  claimExtract("item-1", again);
+  check(calls === 2, "受け取り箱: 返事を足し終えた1枚をもう一度読むとき（失敗のあと）は、また送る");
+  const src = (await import("node:fs")).readFileSync("src/lib/useInbox.ts", "utf8");
+  check(src.includes("sendExtractOnce(item.id") && !/fetch\("\/api\/extract"[^)]*signal/.test(src), "受け取り箱: 画面を閉じても読み取りを止めず、sendExtractOnce で送る");
+}
+
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);
 const ng = results.filter(([ok]) => !ok).length;
 console.log(ng ? `NG が ${ng} 件` : `${results.length}項目 ok`);

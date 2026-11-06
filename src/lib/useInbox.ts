@@ -10,6 +10,7 @@ import { now } from "./clock";
 import { toYmd } from "./deadlines";
 import type { Extraction } from "./extraction";
 import { base64Of, MAX_SEND_BYTES, textOfDataUrl } from "./files";
+import { claimExtract, sendExtractOnce } from "./extractOnce";
 import { applyExtraction, inboxItems, markItem } from "./inbox";
 import { RELATION_LABELS } from "./labels";
 import { deleteFile, getFile } from "./storage";
@@ -27,7 +28,9 @@ export const LIVE_SAMPLE_IDS = ["sample-open-class", "photo-k5-kondankai"];
 const RETRY_MS = 60 * 1000;
 
 export function useInboxQueue(household: Household | null, update: (change: (current: Household) => Household) => Promise<void>) {
-  const running = useRef<{ id: string; controller: AbortController } | null>(null);
+  const running = useRef<{ id: string } | null>(null);
+  // この画面が開いているか。閉じたあとに届いた返事は足さない（次に開いた画面が同じ返事を受け取って足す）
+  const alive = useRef(true);
   const [tick, setTick] = useState(0);
   const next = household ? inboxItems(household).find((i) => i.status === "waiting") : undefined;
   const pausedUntil = household?.inboxPausedUntil ? Date.parse(household.inboxPausedUntil) : 0;
@@ -40,8 +43,7 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
       return () => clearTimeout(timer);
     }
     const item = next;
-    const controller = new AbortController();
-    running.current = { id: item.id, controller };
+    running.current = { id: item.id };
     (async () => {
       try {
         const dataUrl = await getFile(item.id);
@@ -81,15 +83,19 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
           );
           return;
         }
-        let res: Response;
-        try {
-          res = await fetch("/api/extract", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: controller.signal });
-        } catch (e) {
-          if (controller.signal.aborted) throw e;
+        // 同じ1枚を送っている途中なら送り直さず、同じ返事を待つ（画面を移っても二重に送らない）
+        const pending = sendExtractOnce(item.id, () =>
+          fetch("/api/extract", { method: "POST", headers: { "Content-Type": "application/json" }, body }),
+        );
+        const reply = await pending;
+        // 待つあいだに画面を閉じたら足さない。返事を足すのは、受け取った画面1つだけ
+        if (!alive.current || !claimExtract(item.id, pending)) return;
+        if (reply.kind === "network") {
           await update((h) => ({ ...h, inboxPausedUntil: new Date(Date.now() + RETRY_MS).toISOString(), inboxPauseReason: "error" }));
           return;
         }
-        const json = await res.json().catch(() => ({}));
+        const res = { ok: reply.ok, status: reply.status, headers: { get: (_: string) => reply.retryAfter } };
+        const json = reply.json as { extraction?: Extraction; error?: string };
         if (res.ok && json.extraction) {
           await update((h) =>
             applyExtraction(h, item, json.extraction as Extraction, {
@@ -137,7 +143,12 @@ export function useInboxQueue(household: Household | null, update: (change: (cur
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [next?.id, pausedUntil, tick]);
 
-  useEffect(() => () => running.current?.controller.abort(), []);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
 
   return { readingId: running.current?.id };
 }
