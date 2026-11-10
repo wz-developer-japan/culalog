@@ -232,6 +232,13 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   check(onDay("2026-11-27") && !onDay("2026-11-23"), "周期の勤務: 出勤の日は同じ日のぶつかりに使う（11/27 出勤・11/23 休み）");
   const sk = findConflicts(h2, today).find((c) => /授業参観/.test(c.child.deadline.label));
   check(!!sk?.adults.some((a) => a.doc.id === doc.id), "周期の勤務: 授業参観（11/27）の同じ日の気づきに、周期の出勤が入る");
+  const leave = { ...cycle, restDays: ["2026-11-27"], extraWorkDays: ["2026-11-11"] };
+  const doc2 = buildCycleDoc(self, leave, today);
+  const h3: Household = { ...h2, documents: [...h2.documents.filter((d) => d.id !== doc.id), doc2] };
+  const on3 = (d: string) => adultWorkOn(h3, d).some((w) => w.deadline.memberIds.includes(self.id));
+  check(!on3("2026-11-27") && on3("2026-11-11") && on3("2026-11-13"), "周期の勤務: 休みにした日（計画休暇）は出勤でなくなり、出勤にした日（休日出勤）は出勤になる");
+  check(JSON.stringify(cycleOf(doc2)) === JSON.stringify(leave), "周期の勤務: 休みにした日・出勤にした日も書類から読み戻せる");
+  check(!findConflicts(h3, today).find((c) => /授業参観/.test(c.child.deadline.label))?.adults.some((a) => a.doc.id === doc2.id), "周期の勤務: 計画休暇の日は、同じ日の気づきに出ない");
 }
 
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);

@@ -8,6 +8,38 @@ import { formatYmd, toYmd } from "@/lib/deadlines";
 import type { FamilyMember, Household } from "@/lib/types";
 import { buildCycleDoc, cycleDocId, cycleOf, isWorkDay, validCycle, type WorkCycle } from "@/lib/workCycle";
 
+/** 周期と違う日（計画休暇・休日出勤）の一覧と、日付を足す欄 */
+function DayList({ title, hint, days, onChange }: { title: string; hint: string; days: string[]; onChange: (days: string[]) => void }) {
+  const [day, setDay] = useState("");
+  return (
+    <div className="label">
+      <span>{title}</span>
+      <span className="meta">{hint}</span>
+      {[...days].sort().map((d) => (
+        <div key={d}>
+          {formatYmd(d)}{" "}
+          <button className="link-button" onClick={() => onChange(days.filter((x) => x !== d))}>
+            外す
+          </button>
+        </div>
+      ))}
+      <div className="row-label">
+        <input className="input" type="date" value={day} onChange={(e) => setDay(e.target.value)} aria-label={`${title}を足す日`} />
+        <button
+          className="button secondary"
+          disabled={!/^\d{4}-\d{2}-\d{2}$/.test(day) || days.includes(day)}
+          onClick={() => {
+            onChange([...days, day]);
+            setDay("");
+          }}
+        >
+          足す
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function MemberCycle({ member, household, save }: { member: FamilyMember; household: Household; save: (h: Household) => void | Promise<void> }) {
   const doc = household.documents.find((d) => d.id === cycleDocId(member.id));
   const current = cycleOf(doc);
@@ -22,10 +54,13 @@ function MemberCycle({ member, household, save }: { member: FamilyMember; househ
       })
     : [];
 
+  const store = (cycle: WorkCycle) => {
+    const next = buildCycleDoc(member, cycle, today);
+    save({ ...household, documents: [...household.documents.filter((d) => d.id !== next.id), next] });
+  };
   const apply = () => {
     if (!validCycle(draft)) return;
-    const next = buildCycleDoc(member, draft, today);
-    save({ ...household, documents: [...household.documents.filter((d) => d.id !== next.id), next] });
+    store({ ...draft, restDays: current?.restDays, extraWorkDays: current?.extraWorkDays });
     setOpen(false);
   };
   const remove = () => {
@@ -41,8 +76,26 @@ function MemberCycle({ member, household, save }: { member: FamilyMember; househ
           <p className="meta">
             {current.work}日働いて{current.off}日休む（{formatYmd(current.firstWorkDay)} が出勤の1日目）。{doc?.periodLabel} の分を予定にしています。
           </p>
-          <button className="link-button" onClick={() => setOpen(true)}>
-            直す
+          <DayList
+            title="休みにした日（計画休暇など）"
+            hint="周期では出勤の日を、休みにします。"
+            days={current.restDays ?? []}
+            onChange={(restDays) => store({ ...current, restDays })}
+          />
+          <DayList
+            title="出勤にした日（休日出勤など）"
+            hint="周期では休みの日を、出勤にします。"
+            days={current.extraWorkDays ?? []}
+            onChange={(extraWorkDays) => store({ ...current, extraWorkDays })}
+          />
+          <button
+            className="link-button"
+            onClick={() => {
+              setDraft(current);
+              setOpen(true);
+            }}
+          >
+            周期を直す
           </button>{" "}
           <button className="link-button" onClick={remove}>
             消す
