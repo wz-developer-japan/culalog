@@ -117,7 +117,10 @@ async function onMessage(m: TgMessage) {
   const senderId = String(m.from.id);
   let familyId = chatId;
   let family = chat;
-  if (!chat.tokenHash) {
+  if (chat.tokenHash) {
+    // つなぐ前に言葉を決めた人・前の家族を指したままの人は、家族のグループで話したときに覚え直す
+    if (chat.users?.[senderId] && (await familyOfUser(senderId)) !== chatId) await indexUser(senderId, chatId);
+  } else {
     const fid = await familyOfUser(senderId);
     const f = fid && fid !== chatId ? await getChat(fid) : null;
     if (!fid || !f?.tokenHash) return;

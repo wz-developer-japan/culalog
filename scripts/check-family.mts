@@ -193,6 +193,27 @@ const token = "tok-123";
     await msg(sub, 111, "/resume");
   }
 
+  // つなぐ前に言葉を決めた人（家族の人として覚えていない）: 家族のグループで話すと覚え直し、別のグループでも訳す
+  {
+    const sub = { id: -9001, type: "group" };
+    const used = async () => (await store.getChat(chatId))?.claudeUse?.count ?? 0;
+    await store.updateChat(chatId, { users: { "555": { lang: "ja", name: "" } } });
+    await msg(sub, 555, "/lang ja");
+    const before = await used();
+    await msg(sub, 555, "まだ覚えていない");
+    check((await used()) === before && (await store.familyOfUser("555")) === null, "別のグループ: 家族の人と分からない人は訳さない");
+    await msg(group, 555, "家族のグループで話す");
+    check((await store.familyOfUser("555")) === chatId, "家族のグループ: つなぐ前に言葉を決めた人も、話すと家族の人として覚え直す");
+    const mid = await used();
+    await msg(sub, 555, "これで訳す");
+    check((await used()) === mid + 1, "別のグループ: 覚え直したあとは訳す");
+    const linkChat = "-9002";
+    await store.setUserLang(linkChat, "666", { lang: "vi", name: "" });
+    const code = await store.createLinkCode(linkChat);
+    await store.consumeLinkCode(code!);
+    check((await store.familyOfUser("666")) === linkChat, "つなぐ: つなぐ前に言葉を決めていた人も、家族の人として覚える");
+  }
+
   let i = sent.length;
   await msg(dm(999), 999, "/start");
   await msg(dm(999), 999, "こんにちは");

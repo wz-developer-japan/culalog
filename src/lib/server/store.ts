@@ -100,6 +100,9 @@ export async function consumeLinkCode(code: string): Promise<{ chatId: string; t
   if (!data || data.expiresAt < Date.now()) return null;
   const token = randomBytes(24).toString("base64url");
   await updateChat(data.chatId, { tokenHash: hash(token) });
+  // つなぐ前にこのグループで言葉を決めていた人も、この家族の人として覚える（1対1・別のグループで家族を見つけるため）
+  const chat = await getChat(data.chatId);
+  await Promise.all(Object.keys(chat?.users ?? {}).map((userId) => indexUser(userId, data.chatId)));
   return { chatId: data.chatId, token };
 }
 
