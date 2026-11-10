@@ -174,6 +174,25 @@ const token = "tok-123";
   await msg(group, 444, "/lang easy");
   check(textOf(sent[sent.length - 1]).includes("✓") && !textOf(sent[sent.length - 1]).includes("/start") && textOf(sent[sent.length - 1]).includes("つうやく"), "グループ: /lang easy（子ども）の返事には /start の案内を出さない");
 
+  // 家族の人が作った別のグループ（夫婦だけなど・アプリとはつないでいない）: 家族の人の発言だけ訳す。回数は家族の分として数える
+  {
+    const sub = { id: -9001, type: "group" };
+    const used = async () => (await store.getChat(chatId))?.claudeUse?.count ?? 0;
+    await msg(sub, 111, "/lang ja");
+    await msg(sub, 222, "/lang vi");
+    await msg(sub, 999, "/lang ja");
+    check(!textOf(sent[sent.length - 1]).includes("/start") && (await store.getChat("-9001"))?.tokenHash === undefined, "別のグループ: /lang はできる（1対1の案内は出さない・つないだことにはならない）");
+    const before = await used();
+    await msg(sub, 111, "今日は早く帰るよ");
+    check((await used()) === before + 1, "別のグループ: 家族の人の発言は訳す（回数は家族の分に数える）");
+    await msg(sub, 999, "こんにちは");
+    check((await used()) === before + 1, "別のグループ: 家族でない人の発言は訳さない（Claude を呼ばない）");
+    await msg(sub, 111, "/pause");
+    await msg(sub, 111, "また明日");
+    check((await used()) === before + 1, "別のグループ: /pause で止まる");
+    await msg(sub, 111, "/resume");
+  }
+
   let i = sent.length;
   await msg(dm(999), 999, "/start");
   await msg(dm(999), 999, "こんにちは");

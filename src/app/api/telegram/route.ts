@@ -54,9 +54,12 @@ const SAY = {
   over: "今日の通訳の回数の上限に達しました。日本時間の0時に戻ります。\nHôm nay đã dùng hết số lần phiên dịch. Sẽ dùng lại được từ 0 giờ (giờ Nhật Bản).",
 };
 
-/** Claude を呼ぶ前に、このグループの今日の回数を数える（上限なら、その日1回だけ知らせて黙る） */
-async function withinLimit(chatId: string, replyTo: number): Promise<boolean> {
-  const use = await useClaudeInChat(chatId).catch(() => "over" as const);
+/**
+ * Claude を呼ぶ前に、家族（つないだグループ）の今日の回数を数える（上限なら、その日1回だけ知らせて黙る）。
+ * countId は数える家族、chatId は知らせるグループ（家族の人が作った別のグループでも、数えるのは家族の分）
+ */
+async function withinLimit(countId: string, chatId: string, replyTo: number): Promise<boolean> {
+  const use = await useClaudeInChat(countId).catch(() => "over" as const);
   if (use === "over-first") await sendMessage(chatId, SAY.over, { replyTo });
   return use === "ok";
 }
@@ -109,17 +112,27 @@ async function onMessage(m: TgMessage) {
   if (!store()) return;
   const chat = await getChat(chatId);
   if (!chat || chat.paused) return;
-  // Claude を呼ぶのは、アプリとつないだ家族のグループだけ（bot をほかのグループに入れて、1日の上限を使われないように）
-  if (!chat.tokenHash) return;
+  // Claude を呼ぶのは、アプリとつないだ家族のグループと、その家族の人の発言だけ（bot をほかのグループに入れて、1日の上限を使われないように）。
+  // 家族の人が作った別のグループ（大人だけの話など）では、家族の人の発言だけを訳し、回数は家族の分として数える。家族でない人の発言は訳さない
+  const senderId = String(m.from.id);
+  let familyId = chatId;
+  let family = chat;
+  if (!chat.tokenHash) {
+    const fid = await familyOfUser(senderId);
+    const f = fid && fid !== chatId ? await getChat(fid) : null;
+    if (!fid || !f?.tokenHash) return;
+    familyId = fid;
+    family = f;
+  }
   const users = chat.users ?? {};
-  const senderLang = users[String(m.from.id)]?.lang;
+  const senderLang = users[senderId]?.lang ?? family.users?.[senderId]?.lang;
   const chatLangs = [...new Set(Object.values(users).map((u) => u.lang))];
 
   // アプリから送ったお知らせへの返信は、お知らせに書いてある範囲で答える
   const notice = m.reply_to_message?.from?.is_bot && m.reply_to_message.text?.startsWith(TELL_HEAD) ? m.reply_to_message.text : undefined;
   if (notice) {
     const langs = [...new Set([senderLang ?? "ja", ...chatLangs])] as LanguageCode[];
-    if (!(await withinLimit(chatId, m.message_id))) return;
+    if (!(await withinLimit(familyId, chatId, m.message_id))) return;
     const out = await answerFromNotice(text, notice, langs);
     if (!out) return sendMessage(chatId, SAY.preparing, { replyTo: m.message_id });
     return sendMessage(chatId, out.texts.map((t) => `${langMark(t.lang)}\n${t.text}`).join("\n\n"), { replyTo: m.message_id });
@@ -128,9 +141,9 @@ async function onMessage(m: TgMessage) {
   // ふつうの会話: 送った人と違う言葉の人がいれば訳す
   const targets = chatLangs.filter((l) => l !== senderLang);
   if (targets.length === 0) return;
-  if (!(await withinLimit(chatId, m.message_id))) return;
+  if (!(await withinLimit(familyId, chatId, m.message_id))) return;
   // 送った人の家族の中の役割（1対1で名乗った大人は名簿から・やさしい日本語を選んだ人は子ども）。名前は渡さない
-  const out = await translateChat(text, targets, speakerRole(chat, String(m.from.id)));
+  const out = await translateChat(text, targets, speakerRole(family, senderId));
   if (!out) return;
   const lines = out.texts.filter((t) => t.lang !== out.sourceLang && t.text.trim());
   if (lines.length) await sendMessage(chatId, lines.map((t) => `${langMark(t.lang)} ${t.text}`).join("\n"), { replyTo: m.message_id });
