@@ -14,6 +14,7 @@ import { useHousehold } from "@/lib/useHousehold";
 import { VoiceSettings } from "@/components/VoiceSettings";
 import { TelegramSettings } from "@/components/TelegramSettings";
 import { FamilyEditor } from "@/components/FamilyEditor";
+import { WorkCycleEditor } from "@/components/WorkCycleEditor";
 import { LANGUAGES, languageLabel, languageOf, type LanguageCode } from "@/lib/languages";
 
 export default function ButlerSettingsPage() {
@@ -105,6 +106,8 @@ export default function ButlerSettingsPage() {
       )}
 
       <FamilyEditor household={household} save={save} />
+
+      <WorkCycleEditor household={household} save={save} />
 
       <h2 id="languages">家族の読みたい言葉</h2>
       <p className="meta">国籍ではなく、その人が読みたい言葉を選びます。共有した書類の説明・締切・持ち物・やることを、その言葉で伝えます（日付・金額・原本の場所は変えません）。</p>

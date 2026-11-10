@@ -211,6 +211,29 @@ check(!list4.find((c) => c.community)!.adults.some((a) => a.notice), "11/18 に�
   check(c.result === "ok" && c.mine?.count === 1 && c.all?.count === 1, "上限: 日が変わると数え直す");
 }
 
+// ---- 決まった周期の勤務（4勤2休）: 書類が無くても、出勤・休みの日を予定にする ----
+{
+  const { buildCycleDoc, isWorkDay, cycleOf, validCycle } = await import("@/lib/workCycle");
+  const { adultWorkOn } = await import("@/lib/conflicts");
+  const cycle = { firstWorkDay: "2026-11-07", work: 4, off: 2 };
+  const days = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => `2026-11-${String(from + i).padStart(2, "0")}`);
+  check(
+    days(7, 10).every((d) => isWorkDay(cycle, d)) && days(11, 12).every((d) => !isWorkDay(cycle, d)) && days(13, 16).every((d) => isWorkDay(cycle, d)) &&
+      days(17, 18).every((d) => !isWorkDay(cycle, d)) && days(19, 22).every((d) => isWorkDay(cycle, d)) && !isWorkDay(cycle, "2026-11-06") && isWorkDay(cycle, "2026-11-04"),
+    "周期の勤務: 11/10 が4勤の最後 → 11・12 休み、13〜16 出勤、17・18 休み、19〜22 出勤（1日目より前もさかのぼって同じ周期）",
+  );
+  check(!validCycle({ firstWorkDay: "2026-11-07", work: 0, off: 2 }) && !validCycle({ work: 4, off: 2 }) && validCycle(cycle), "周期の勤務: 日数が0・1日目が無いものは作らない");
+  const self = h.members.find((m) => m.relation === "self")!;
+  const doc = buildCycleDoc(self, cycle, today);
+  check(doc.deadlines.length === 365 && doc.deadlines.every((d) => d.awareness) && doc.validFrom === "2026-11-01" && doc.validUntil === "2027-10-31", "周期の勤務: 今月の1日から1年分・どれも知っておくだけ（トップには出さない）");
+  check(JSON.stringify(cycleOf(doc)) === JSON.stringify(cycle), "周期の勤務: 書類から周期を読み戻せる（設定の欄に出す）");
+  const h2: Household = { ...h, documents: [...h.documents.filter((d) => d.id !== "doc-shift-nov"), doc] };
+  const onDay = (d: string) => adultWorkOn(h2, d).some((w) => w.deadline.memberIds.includes(self.id));
+  check(onDay("2026-11-27") && !onDay("2026-11-23"), "周期の勤務: 出勤の日は同じ日のぶつかりに使う（11/27 出勤・11/23 休み）");
+  const sk = findConflicts(h2, today).find((c) => /授業参観/.test(c.child.deadline.label));
+  check(!!sk?.adults.some((a) => a.doc.id === doc.id), "周期の勤務: 授業参観（11/27）の同じ日の気づきに、周期の出勤が入る");
+}
+
 for (const [ok, name] of results) console.log(`${ok ? "ok" : "NG"}  ${name}`);
 const ng = results.filter(([ok]) => !ok).length;
 console.log(ng ? `NG が ${ng} 件` : `${results.length}項目 ok`);
