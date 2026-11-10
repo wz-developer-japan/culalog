@@ -163,6 +163,13 @@ export default function Top() {
       </div>
 
       <FamilyRow members={h.members} />
+      {h.members.length === 1 && (
+        // 「自分の書類で始める」は「わたし」1人から。家族を入れる入口
+        <Link className="lang-line" href="/butler#family">
+          家族の名前・続柄を入れる
+          <span aria-hidden> ›</span>
+        </Link>
+      )}
       {(() => {
         // 家族の読みたい言葉（日本語以外の人だけ）を1行で
         const others = h.members.filter((m) => languageOf(m) !== "ja");
